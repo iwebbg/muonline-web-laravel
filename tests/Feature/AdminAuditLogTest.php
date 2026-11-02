@@ -9,7 +9,12 @@ use App\Models\AccountRegistrationOperation;
 use App\Models\Administrator;
 use App\Models\CharacterResetOperation;
 use App\Models\EconomyRecoveryAction;
+use App\Models\EventScheduleEntry;
+use App\Models\EventScheduleEntryRevision;
+use App\Models\ItemGrantOperation;
 use App\Models\MarketAdminAction;
+use App\Models\ModuleProfile;
+use App\Models\ModuleProfileRevision;
 use App\Models\WebStorageItem;
 use App\Models\ZenBankOperation;
 use App\WebStorage\WebStorageItemStatus;
@@ -225,5 +230,129 @@ final class AdminAuditLogTest extends TestCase
             ->assertSee('recoveryowner')
             ->assertSee('retry_sync')
             ->assertSee('completed');
+    }
+
+    /**
+     * Confirms module availability revisions are visible with complete before and after snapshots.
+     */
+    public function test_administrator_can_filter_module_profile_revisions(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $profile = ModuleProfile::query()->create([
+            'profile_key' => 'audit-profile',
+            'game_version' => '97d+99i',
+            'modules' => [
+                'market' => true,
+            ],
+            'revision' => 2,
+            'updated_by_administrator_id' => $administrator->getKey(),
+        ]);
+
+        ModuleProfileRevision::query()->create([
+            'module_profile_id' => $profile->getKey(),
+            'revision' => 2,
+            'before_snapshot' => [
+                'market' => false,
+            ],
+            'after_snapshot' => [
+                'market' => true,
+            ],
+            'changed_by_administrator_id' => $administrator->getKey(),
+        ]);
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?type=module_profile');
+
+        $response
+            ->assertOk()
+            ->assertSee('Module profile')
+            ->assertSee('module-profile:'.$profile->getKey())
+            ->assertSee('market')
+            ->assertSee('false')
+            ->assertSee('true');
+    }
+
+    /**
+     * Confirms custom event schedule revisions expose their action and bilingual snapshot safely.
+     */
+    public function test_administrator_can_filter_event_schedule_revisions(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $event = EventScheduleEntry::query()->create([
+            'profile_key' => 'audit-profile',
+            'game_version' => '97d+99i',
+            'event_key' => 'audit-invasion',
+            'name_en' => 'Audit Invasion',
+            'name_bg' => 'Одит инвазия',
+            'location_en' => 'Lorencia',
+            'location_bg' => 'Лоренсия',
+            'accent' => 'crimson',
+            'enabled' => true,
+            'duration_minutes' => 15,
+            'schedule_mode' => 'times',
+            'times' => ['12:00'],
+            'days_of_week' => [],
+            'interval_minutes' => null,
+            'interval_anchor' => '00:00',
+            'source' => 'audit-test',
+            'sort_order' => 1,
+            'revision' => 1,
+            'updated_by_administrator_id' => $administrator->getKey(),
+        ]);
+
+        EventScheduleEntryRevision::query()->create([
+            'event_schedule_entry_id' => $event->getKey(),
+            'revision' => 1,
+            'action' => 'created',
+            'before_snapshot' => null,
+            'after_snapshot' => [
+                'name_en' => 'Audit Invasion',
+                'times' => ['12:00'],
+            ],
+            'changed_by_administrator_id' => $administrator->getKey(),
+        ]);
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?type=event_schedule');
+
+        $response
+            ->assertOk()
+            ->assertSee('Event schedule')
+            ->assertSee('event-schedule:'.$event->getKey())
+            ->assertSee('created')
+            ->assertSee('Audit Invasion')
+            ->assertSee('12:00');
+    }
+
+    /**
+     * Confirms item grants expose custody outcomes without leaking exact legacy item bytes.
+     */
+    public function test_administrator_can_filter_item_grant_operations_without_raw_bytes(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $operation = ItemGrantOperation::factory()->create([
+            'administrator_id' => $administrator->getKey(),
+            'account_id' => 'grantowner',
+            'item_name' => 'Kris',
+            'item_binary' => hex2bin('0000FF00112233445566'),
+            'context_snapshot' => [
+                'item_name' => 'Kris',
+                'warehouse_vault' => 1,
+            ],
+        ]);
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?type=item_grant');
+
+        $response
+            ->assertOk()
+            ->assertSee('Item grant')
+            ->assertSee('grantowner')
+            ->assertSee('Kris')
+            ->assertSee('warehouse_vault')
+            ->assertDontSee(strtoupper(bin2hex($operation->item_binary)));
     }
 }
