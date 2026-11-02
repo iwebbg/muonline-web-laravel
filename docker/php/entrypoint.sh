@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -eu
+
+cd /var/www/html
+
+mkdir -p \
+    storage/framework/cache/data \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache
+
+if [ ! -f vendor/autoload.php ]; then
+    if [ "${APP_ENV:-production}" = "production" ]; then
+        echo "Production dependencies are missing. Rebuild the application image." >&2
+        exit 1
+    fi
+
+    composer install --no-interaction --prefer-dist
+fi
+
+if [ "${APP_ENV:-production}" != "production" ]; then
+    chmod -R a+rwX storage bootstrap/cache
+fi
+
+if [ "${APP_ENV:-production}" = "production" ] && [ -z "${APP_KEY:-}" ]; then
+    echo "APP_KEY is required in production." >&2
+    exit 1
+fi
+
+container_role="${CONTAINER_ROLE:-app}"
+
+if [ "${DB_CONNECTION:-}" = "sqlite" ]; then
+    database_path="${DB_DATABASE:-/var/www/html/database/database.sqlite}"
+    database_directory="${database_path%/*}"
+
+    mkdir -p "$database_directory"
+    touch "$database_path"
+fi
+
+if [ "$container_role" = "app" ] && [ "${AUTO_MIGRATE:-false}" = "true" ]; then
+    php artisan migrate --force --no-interaction
+fi
+
+if [ "$container_role" = "queue" ]; then
+    exec php artisan queue:work \
+        "${QUEUE_CONNECTION:-redis}" \
+        --sleep="${QUEUE_SLEEP:-3}" \
+        --tries="${QUEUE_TRIES:-3}" \
+        --timeout="${QUEUE_TIMEOUT:-120}"
+fi
+
+if [ "$container_role" = "scheduler" ]; then
+    exec php artisan schedule:work --no-interaction
+fi
+
+exec "$@"

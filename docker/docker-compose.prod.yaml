@@ -1,0 +1,131 @@
+name: muonline-web-prod
+
+x-app-environment: &app-environment
+    APP_ENV: production
+    APP_DEBUG: "false"
+    APP_URL: https://${APP_DOMAIN:?Set APP_DOMAIN in docker/.env}
+    REDIS_HOST: redis
+
+services:
+    app:
+        build:
+            context: ..
+            dockerfile: docker/php/Dockerfile
+            target: production
+        restart: unless-stopped
+        working_dir: /var/www/html
+        env_file:
+            - ../.env
+        environment:
+            <<: *app-environment
+            CONTAINER_ROLE: app
+        volumes:
+            - app-database:/var/www/html/database
+            - app-storage:/var/www/html/storage
+        depends_on:
+            redis:
+                condition: service_healthy
+        healthcheck:
+            test: ["CMD-SHELL", "cgi-fcgi -bind -connect 127.0.0.1:9000 >/dev/null 2>&1 || exit 1"]
+            start_period: 30s
+            interval: 15s
+            timeout: 5s
+            retries: 5
+        networks:
+            - application
+
+    queue:
+        build:
+            context: ..
+            dockerfile: docker/php/Dockerfile
+            target: production
+        restart: unless-stopped
+        stop_grace_period: 150s
+        working_dir: /var/www/html
+        env_file:
+            - ../.env
+        environment:
+            <<: *app-environment
+            CONTAINER_ROLE: queue
+        volumes:
+            - app-database:/var/www/html/database
+            - app-storage:/var/www/html/storage
+        depends_on:
+            app:
+                condition: service_healthy
+        networks:
+            - application
+
+    scheduler:
+        build:
+            context: ..
+            dockerfile: docker/php/Dockerfile
+            target: production
+        restart: unless-stopped
+        working_dir: /var/www/html
+        env_file:
+            - ../.env
+        environment:
+            <<: *app-environment
+            CONTAINER_ROLE: scheduler
+        volumes:
+            - app-database:/var/www/html/database
+            - app-storage:/var/www/html/storage
+        depends_on:
+            app:
+                condition: service_healthy
+        networks:
+            - application
+
+    nginx:
+        build:
+            context: ..
+            dockerfile: docker/nginx/prod/Dockerfile
+        restart: unless-stopped
+        environment:
+            APP_DOMAIN: ${APP_DOMAIN:?Set APP_DOMAIN in docker/.env}
+            NGINX_SSL_EMAIL: webmaster@${APP_DOMAIN:?Set APP_DOMAIN in docker/.env}
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - certbot-www:/var/www/certbot
+            - letsencrypt:/etc/letsencrypt
+            - nginx-logs:/var/log/nginx
+        depends_on:
+            app:
+                condition: service_healthy
+        healthcheck:
+            test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1/health >/dev/null || exit 1"]
+            start_period: 30s
+            interval: 30s
+            timeout: 5s
+            retries: 5
+        networks:
+            - application
+
+    redis:
+        image: redis:8-alpine
+        restart: unless-stopped
+        command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+        volumes:
+            - redis-data:/data
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - application
+
+networks:
+    application:
+        driver: bridge
+
+volumes:
+    app-database:
+    app-storage:
+    certbot-www:
+    letsencrypt:
+    nginx-logs:
+    redis-data:

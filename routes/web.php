@@ -1,0 +1,75 @@
+<?php
+
+use App\Http\Controllers\Account\CharacterGrandResetController;
+use App\Http\Controllers\Account\CharacterResetController;
+use App\Http\Controllers\Account\CharacterStatAllocationController;
+use App\Http\Controllers\Account\GrandResetPreviewController;
+use App\Http\Controllers\Account\ResetPreviewController;
+use App\Http\Controllers\Account\StatAllocationPreviewController;
+use App\Http\Controllers\AccountDashboardController;
+use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ResetProfileController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\PreviewController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/', [PreviewController::class, 'home'])
+    ->name('home');
+
+Route::middleware('guest')->group(function (): void {
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+        ->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+        ->middleware('throttle:login')
+        ->name('login.store');
+});
+
+Route::middleware('auth')->group(function (): void {
+    Route::get('/account', AccountDashboardController::class)
+        ->name('account.dashboard');
+    Route::post('/account/reset-preview', ResetPreviewController::class)
+        ->middleware('throttle:reset-preview')
+        ->name('account.reset-preview');
+    Route::post('/account/character-reset', CharacterResetController::class)
+        ->middleware('throttle:character-reset')
+        ->name('account.character-reset');
+    Route::post('/account/grand-reset-preview', GrandResetPreviewController::class)
+        ->middleware('throttle:grand-reset-preview')
+        ->name('account.grand-reset-preview');
+    Route::post('/account/character-grand-reset', CharacterGrandResetController::class)
+        ->middleware('throttle:grand-reset')
+        ->name('account.character-grand-reset');
+    Route::post('/account/stat-allocation-preview', StatAllocationPreviewController::class)
+        ->middleware('throttle:stat-allocation-preview')
+        ->name('account.stat-allocation-preview');
+    Route::post('/account/stat-allocations', CharacterStatAllocationController::class)
+        ->middleware('throttle:stat-allocation')
+        ->name('account.stat-allocations.store');
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+        ->name('logout');
+});
+
+Route::prefix('admin')->name('admin.')->group(function (): void {
+    Route::middleware('guest:admin')->group(function (): void {
+        Route::get('/login', [AdminAuthenticatedSessionController::class, 'create'])
+            ->name('login');
+        Route::post('/login', [AdminAuthenticatedSessionController::class, 'store'])
+            ->middleware('throttle:admin-login')
+            ->name('login.store');
+    });
+
+    Route::middleware('auth:admin')->group(function (): void {
+        Route::get('/', AdminDashboardController::class)
+            ->name('dashboard');
+        Route::put('/reset-profile', [ResetProfileController::class, 'update'])
+            ->name('reset-profile.update');
+        Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])
+            ->name('logout');
+    });
+});
+
+Route::post('/locale/{locale}', LocaleController::class)
+    ->whereIn('locale', config('localization.supported'))
+    ->name('locale.update');

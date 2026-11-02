@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+docker_directory="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+project_directory="$(dirname -- "$docker_directory")"
+docker_environment_file="$docker_directory/.env"
+application_environment_file="$project_directory/.env"
+
+if [ ! -f "$docker_environment_file" ]; then
+    echo "Docker configuration is missing. Copy docker/.env.example to docker/.env." >&2
+    exit 1
+fi
+
+if [ ! -f "$application_environment_file" ]; then
+    echo "Laravel configuration is missing. Copy .env.example to .env." >&2
+    exit 1
+fi
+
+docker_environment="$(sed -n 's/^DOCKER_ENV=//p' "$docker_environment_file" | tail -n 1)"
+
+case "$docker_environment" in
+    local)
+        compose_file="$docker_directory/docker-compose.local.yaml"
+        ;;
+    prod|production)
+        compose_file="$docker_directory/docker-compose.prod.yaml"
+        ;;
+    *)
+        echo "DOCKER_ENV must be local or production." >&2
+        exit 1
+        ;;
+esac
+
+exec docker compose \
+    --project-directory "$docker_directory" \
+    --env-file "$application_environment_file" \
+    --env-file "$docker_environment_file" \
+    --file "$compose_file" \
+    "$@"
