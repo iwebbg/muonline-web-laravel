@@ -71,6 +71,7 @@ final class AccountDashboardTest extends TestCase
         $response->assertSee('move-to-town-preview', false);
         $response->assertSee('character-move', false);
         $response->assertSee('item-storage', false);
+        $response->assertSee('x-if="itemStorage !== null', false);
         $response->assertSee('Account security');
         $response->assertSee('account/credentials', false);
     }
