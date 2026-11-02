@@ -17,6 +17,7 @@ use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
 use App\Game\Contracts\GameAccountLookupRepository;
+use App\Game\Contracts\ItemEscrowRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Game\Contracts\ModerationRepository;
@@ -76,6 +77,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CharacterStatResetRepository::class, SqlServer97d99iCharacterStatResetRepository::class);
         $this->app->bind(CharacterVipRepository::class, SqlServer97d99iCharacterVipRepository::class);
         $this->app->bind(ItemStorageRepository::class, SqlServer97d99iItemStorageRepository::class);
+        $this->app->bind(ItemEscrowRepository::class, SqlServer97d99iMarketItemEscrowRepository::class);
         $this->app->bind(MarketItemEscrowRepository::class, SqlServer97d99iMarketItemEscrowRepository::class);
         $this->app->bind(ModerationRepository::class, SqlServer97d99iModerationRepository::class);
         $this->app->bind(GameAccountLookupRepository::class, LegacyGameAccountLookupRepository::class);
@@ -143,6 +145,13 @@ class AppServiceProvider extends ServiceProvider
             $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
 
             return Limit::perMinute(15)->by($limiterKey);
+        });
+
+        RateLimiter::for('web-storage', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(10)->by($limiterKey);
         });
 
         RateLimiter::for('admin-market', function (Request $request): Limit {

@@ -18,3 +18,7 @@ Schedule::command('vip:sync-pending')
 Schedule::command('market:sync-escrow')
     ->everyMinute()
     ->withoutOverlapping();
+
+Schedule::command('web-storage:sync')
+    ->everyMinute()
+    ->withoutOverlapping();

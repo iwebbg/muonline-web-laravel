@@ -19,6 +19,7 @@ use App\Http\Controllers\Account\ResetPreviewController;
 use App\Http\Controllers\Account\StatAllocationPreviewController;
 use App\Http\Controllers\Account\StatResetPreviewController;
 use App\Http\Controllers\Account\VipPurchaseController;
+use App\Http\Controllers\Account\WebStorageController;
 use App\Http\Controllers\AccountDashboardController;
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
@@ -142,6 +143,14 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/account/vip-purchases', VipPurchaseController::class)
         ->middleware('throttle:vip-purchase')
         ->name('account.vip-purchases.store');
+    Route::get('/account/web-storage', [WebStorageController::class, 'index'])
+        ->name('account.web-storage.index');
+    Route::post('/account/web-storage', [WebStorageController::class, 'store'])
+        ->middleware('throttle:web-storage')
+        ->name('account.web-storage.store');
+    Route::delete('/account/web-storage/{webStorageItem}', [WebStorageController::class, 'destroy'])
+        ->middleware('throttle:web-storage')
+        ->name('account.web-storage.destroy');
     Route::post('/market/listings', [MarketListingController::class, 'store'])
         ->middleware('throttle:market-listing')
         ->name('market.listings.store');

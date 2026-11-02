@@ -196,6 +196,10 @@
                     :balance="$walletBalance"
                     :transactions="$walletTransactions"
                 />
+                <a href="{{ route('account.web-storage.index') }}" class="resource-chip text-left">
+                    <span>{{ __('ui.web_storage.kicker') }}</span>
+                    <strong class="text-gold">{{ __('ui.web_storage.open') }}</strong>
+                </a>
                 <x-account-credentials-modal
                     :account="$account"
                     :game-writes-enabled="$gameWritesEnabled"
