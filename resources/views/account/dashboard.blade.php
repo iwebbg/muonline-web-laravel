@@ -177,7 +177,7 @@
                 <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.account.heading') }}</h1>
                 <p class="mt-3 max-w-2xl text-silver">{{ __('ui.account.intro') }}</p>
             </div>
-            <div class="flex gap-3">
+            <div class="flex flex-wrap items-stretch gap-3">
                 <div class="resource-chip">
                     <span>{{ __('ui.account.signed_in_as') }}</span>
                     <strong>{{ $account->username }}</strong>
@@ -186,6 +186,10 @@
                     <span>{{ __('ui.account.vip') }}</span>
                     <strong class="text-gold">{{ $account->vip ? __('ui.account.vip_active') : __('ui.account.vip_inactive') }}</strong>
                 </div>
+                <x-account-credentials-modal
+                    :account="$account"
+                    :game-writes-enabled="$gameWritesEnabled"
+                />
             </div>
         </div>
 
@@ -1021,100 +1025,5 @@
         </div>
         @endif
 
-        <section class="panel-card mt-8" x-data="{ credentialsVisible: false }">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <p class="kicker">{{ __('ui.account.credentials_kicker') }}</p>
-                    <h2 class="mt-2 text-2xl font-semibold text-white">{{ __('ui.account.credentials_heading') }}</h2>
-                    <p class="mt-2 max-w-2xl text-sm leading-6 text-silver">{{ __('ui.account.credentials_help') }}</p>
-                </div>
-                <span class="preview-badge">{{ __('ui.account.credentials_protected') }}</span>
-            </div>
-
-            <form method="POST" action="{{ route('account.credentials.update') }}" class="mt-7 grid gap-5 lg:grid-cols-2">
-                @csrf
-                @method('PUT')
-
-                <label class="field-group">
-                    <span>{{ __('ui.account.credentials_current_password') }}</span>
-                    <input
-                        :type="credentialsVisible ? 'text' : 'password'"
-                        name="currentPassword"
-                        maxlength="10"
-                        autocomplete="current-password"
-                        required
-                    >
-                </label>
-
-                <label class="field-group">
-                    <span>{{ __('ui.account.credentials_email') }}</span>
-                    <input
-                        type="email"
-                        name="email"
-                        value="{{ old('email', $account->email) }}"
-                        maxlength="50"
-                        autocomplete="email"
-                        required
-                    >
-                </label>
-
-                <label class="field-group">
-                    <span>{{ __('ui.account.credentials_new_password') }}</span>
-                    <input
-                        :type="credentialsVisible ? 'text' : 'password'"
-                        name="password"
-                        minlength="4"
-                        maxlength="10"
-                        pattern="[A-Za-z0-9_-]+"
-                        autocomplete="new-password"
-                    >
-                    <small>{{ __('ui.account.credentials_password_optional') }}</small>
-                </label>
-
-                <label class="field-group">
-                    <span>{{ __('ui.account.credentials_repeat_password') }}</span>
-                    <input
-                        :type="credentialsVisible ? 'text' : 'password'"
-                        name="password_confirmation"
-                        minlength="4"
-                        maxlength="10"
-                        pattern="[A-Za-z0-9_-]+"
-                        autocomplete="new-password"
-                    >
-                </label>
-
-                <div class="lg:col-span-2">
-                    <label class="flex items-center gap-3 text-sm text-steel">
-                        <input type="checkbox" class="size-4" @change="credentialsVisible = $event.target.checked">
-                        <span>{{ __('ui.account.credentials_show_passwords') }}</span>
-                    </label>
-                </div>
-
-                @if ($errors->has('currentPassword') || $errors->has('email') || $errors->has('password'))
-                    <div class="rounded-xl border border-crimson/35 bg-crimson/10 px-4 py-3 text-sm text-red-100 lg:col-span-2" role="alert">
-                        <ul class="grid gap-1">
-                            @foreach ($errors->get('currentPassword') as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                            @foreach ($errors->get('email') as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                            @foreach ($errors->get('password') as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <div class="flex flex-col gap-3 lg:col-span-2 sm:flex-row sm:items-center sm:justify-between">
-                    <p class="text-sm text-steel">
-                        {{ $gameWritesEnabled ? __('ui.account.credentials_ready') : __('ui.account.credentials_writes_disabled') }}
-                    </p>
-                    <button type="submit" class="button button-primary" @disabled(! $gameWritesEnabled)>
-                        {{ __('ui.account.credentials_submit') }}
-                    </button>
-                </div>
-            </form>
-        </section>
     </div>
 @endsection

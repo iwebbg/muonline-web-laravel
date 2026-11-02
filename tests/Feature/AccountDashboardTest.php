@@ -74,6 +74,9 @@ final class AccountDashboardTest extends TestCase
         $response->assertSee('x-if="itemStorage !== null', false);
         $response->assertSee('Account security');
         $response->assertSee('account/credentials', false);
+        $response->assertSee('x-teleport="body"', false);
+        $response->assertSee('aria-modal="true"', false);
+        $response->assertSee('credentialsOpen: false', false);
     }
 
     /**
@@ -88,6 +91,25 @@ final class AccountDashboardTest extends TestCase
         $response->assertOk();
         $response->assertSee('No characters found');
         $response->assertSee('Account security');
+    }
+
+    /**
+     * Confirms credential validation feedback reopens the modal where the form is displayed.
+     */
+    public function test_dashboard_reopens_account_security_modal_after_validation_error(): void
+    {
+        $response = $this
+            ->withSession([
+                '_old_input' => [
+                    'email' => 'invalid-address',
+                ],
+            ])
+            ->actingAs($this->account('owner'))
+            ->get('/account');
+
+        $response->assertOk();
+        $response->assertSee('value="invalid-address"', false);
+        $response->assertSee('credentialsOpen: true', false);
     }
 
     /**
