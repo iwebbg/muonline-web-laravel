@@ -69,4 +69,17 @@ final class ResetProfileSettingsTest extends TestCase
         $this->assertSame(20, $settings->resetsAfterGrandReset(120));
         $this->assertSame(999, $settings->maximumGrandResets);
     }
+
+    /**
+     * Confirms stat-reset defaults are enabled without charging an implicit bank cost.
+     */
+    public function test_stat_reset_defaults_use_safe_class_aware_policy(): void
+    {
+        $settings = ResetProfileSettings::defaults();
+
+        $this->assertTrue($settings->statResetEnabled);
+        $this->assertSame(1, $settings->statResetRequiredLevel);
+        $this->assertSame(1, $settings->statResetRequiredResets);
+        $this->assertSame(0, $settings->statResetZenCost);
+    }
 }

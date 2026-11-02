@@ -34,6 +34,10 @@ final readonly class ResetProfileSettings
         public int $grandResetPoints = 500,
         public InventoryPolicy $grandResetInventoryPolicy = InventoryPolicy::KeepAll,
         public bool $grandResetConsumeRequiredResets = true,
+        public bool $statResetEnabled = true,
+        public int $statResetRequiredLevel = 1,
+        public int $statResetRequiredResets = 1,
+        public int $statResetZenCost = 0,
     ) {}
 
     /**
@@ -63,6 +67,10 @@ final readonly class ResetProfileSettings
             grandResetPoints: 500,
             grandResetInventoryPolicy: InventoryPolicy::KeepAll,
             grandResetConsumeRequiredResets: true,
+            statResetEnabled: true,
+            statResetRequiredLevel: 1,
+            statResetRequiredResets: 1,
+            statResetZenCost: 0,
         );
     }
 
@@ -157,6 +165,10 @@ final readonly class ResetProfileSettings
             'grandResetPoints' => $this->grandResetPoints,
             'grandResetInventoryPolicy' => $this->grandResetInventoryPolicy->value,
             'grandResetConsumeRequiredResets' => $this->grandResetConsumeRequiredResets,
+            'statResetEnabled' => $this->statResetEnabled,
+            'statResetRequiredLevel' => $this->statResetRequiredLevel,
+            'statResetRequiredResets' => $this->statResetRequiredResets,
+            'statResetZenCost' => $this->statResetZenCost,
         ];
     }
 
@@ -189,6 +201,10 @@ final readonly class ResetProfileSettings
             'grand_reset_points' => $this->grandResetPoints,
             'grand_reset_inventory_policy' => $this->grandResetInventoryPolicy->value,
             'grand_reset_consume_required_resets' => $this->grandResetConsumeRequiredResets,
+            'stat_reset_enabled' => $this->statResetEnabled,
+            'stat_reset_required_level' => $this->statResetRequiredLevel,
+            'stat_reset_required_resets' => $this->statResetRequiredResets,
+            'stat_reset_zen_cost' => $this->statResetZenCost,
         ];
     }
 }

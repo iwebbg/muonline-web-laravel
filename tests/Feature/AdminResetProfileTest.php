@@ -68,7 +68,8 @@ final class AdminResetProfileTest extends TestCase
             ->assertJsonPath('settings.inventoryPolicy', 'clear_bag')
             ->assertJsonPath('settings.maximumStat', 30_000)
             ->assertJsonPath('settings.grandResetRequiredResets', 100)
-            ->assertJsonPath('settings.grandResetPointsMode', 'add_fixed');
+            ->assertJsonPath('settings.grandResetPointsMode', 'add_fixed')
+            ->assertJsonPath('settings.statResetZenCost', 5_000_000);
 
         $profile = ResetProfile::query()->sole();
         $revision = ResetProfileRevision::query()->sole();
@@ -80,6 +81,10 @@ final class AdminResetProfileTest extends TestCase
         $this->assertSame(350, $profile->grand_reset_required_level);
         $this->assertSame(999, $profile->maximum_grand_resets);
         $this->assertSame(500, $profile->grand_reset_points);
+        $this->assertTrue($profile->stat_reset_enabled);
+        $this->assertSame(1, $profile->stat_reset_required_level);
+        $this->assertSame(1, $profile->stat_reset_required_resets);
+        $this->assertSame(5_000_000, $profile->stat_reset_zen_cost);
         $this->assertSame($administrator->id, $profile->updated_by_administrator_id);
         $this->assertSame(1, $revision->revision);
         $this->assertSame(15_000_000, $revision->before_snapshot['baseZenCost']);
@@ -221,6 +226,10 @@ final class AdminResetProfileTest extends TestCase
             'grandResetPoints' => 500,
             'grandResetInventoryPolicy' => 'keep_all',
             'grandResetConsumeRequiredResets' => true,
+            'statResetEnabled' => true,
+            'statResetRequiredLevel' => 1,
+            'statResetRequiredResets' => 1,
+            'statResetZenCost' => 5_000_000,
         ];
     }
 

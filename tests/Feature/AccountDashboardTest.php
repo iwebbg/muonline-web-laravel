@@ -64,6 +64,8 @@ final class AccountDashboardTest extends TestCase
         $response->assertSee('Grand reset');
         $response->assertSee('grand-reset-preview', false);
         $response->assertSee('character-grand-reset', false);
+        $response->assertSee('stat-reset-preview', false);
+        $response->assertSee('character-stat-reset', false);
     }
 
     /**

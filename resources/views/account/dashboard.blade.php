@@ -12,6 +12,8 @@
                 'executeUrl' => route('account.character-reset'),
                 'grandResetPreviewUrl' => route('account.grand-reset-preview'),
                 'grandResetExecuteUrl' => route('account.character-grand-reset'),
+                'statResetPreviewUrl' => route('account.stat-reset-preview'),
+                'statResetExecuteUrl' => route('account.character-stat-reset'),
                 'statPreviewUrl' => route('account.stat-allocation-preview'),
                 'statExecuteUrl' => route('account.stat-allocations.store'),
                 'writesEnabled' => $gameWritesEnabled,
@@ -22,6 +24,9 @@
                 'grandResetPreviewFailed' => __('ui.account.grand_reset_preview_failed'),
                 'grandResetExecutionFailed' => __('ui.account.grand_reset_operation_failed'),
                 'grandResetCompleted' => __('ui.account.grand_reset_completed'),
+                'statResetPreviewFailed' => __('ui.account.stat_reset_preview_failed'),
+                'statResetExecutionFailed' => __('ui.account.stat_reset_operation_failed'),
+                'statResetCompleted' => __('ui.account.stat_reset_completed'),
                 'statPreviewFailed' => __('ui.account.allocation_preview_failed'),
                 'statExecutionFailed' => __('ui.account.stat_allocation_failed'),
                 'statCompleted' => __('ui.account.stat_allocation_completed'),
@@ -61,6 +66,20 @@
                     'writes_disabled' => __('ui.account.reset_writes_disabled'),
                     'operation_in_progress' => __('ui.account.grand_reset_operation_in_progress'),
                     'idempotency_conflict' => __('ui.account.grand_reset_idempotency_conflict'),
+                ],
+                'statResetBlockReasons' => [
+                    'profile_disabled' => __('ui.account.stat_reset_profile_disabled'),
+                    'character_online' => __('ui.account.reset_character_online'),
+                    'level_too_low' => __('ui.account.stat_reset_level_too_low'),
+                    'insufficient_resets' => __('ui.account.stat_reset_insufficient_resets'),
+                    'insufficient_zen' => __('ui.account.stat_reset_insufficient_zen'),
+                    'no_allocated_stats' => __('ui.account.stat_reset_no_allocated_stats'),
+                    'character_stats_invalid' => __('ui.account.stat_reset_character_stats_invalid'),
+                    'point_limit_exceeded' => __('ui.account.stat_reset_point_limit'),
+                    'character_class_unsupported' => __('ui.account.reset_character_class_unsupported'),
+                    'writes_disabled' => __('ui.account.reset_writes_disabled'),
+                    'operation_in_progress' => __('ui.account.stat_reset_operation_in_progress'),
+                    'idempotency_conflict' => __('ui.account.stat_reset_idempotency_conflict'),
                 ],
                 'statBlockReasons' => [
                     'character_online' => __('ui.account.reset_character_online'),
@@ -145,7 +164,7 @@
 
             <section class="min-w-0">
                 <div class="segmented-control w-full overflow-x-auto sm:w-fit" role="tablist" aria-label="{{ __('ui.account.character_tools') }}">
-                    @foreach (['overview' => __('ui.account.overview'), 'inventory' => __('ui.account.inventory'), 'stats' => __('ui.account.allocate_stats'), 'reset' => __('ui.account.reset'), 'grand-reset' => __('ui.account.grand_reset')] as $section => $label)
+                    @foreach (['overview' => __('ui.account.overview'), 'inventory' => __('ui.account.inventory'), 'stats' => __('ui.account.allocate_stats'), 'stat-reset' => __('ui.account.stat_reset'), 'reset' => __('ui.account.reset'), 'grand-reset' => __('ui.account.grand_reset')] as $section => $label)
                         <button
                             type="button"
                             role="tab"
@@ -182,6 +201,10 @@
                                 </button>
                                 <button type="button" class="action-row" @click="selectSection('grand-reset')">
                                     <span><strong>{{ __('ui.account.grand_reset_character') }}</strong><small>{{ __('ui.account.preview_cost') }}</small></span>
+                                    <span aria-hidden="true">→</span>
+                                </button>
+                                <button type="button" class="action-row" @click="selectSection('stat-reset')">
+                                    <span><strong>{{ __('ui.account.stat_reset_character') }}</strong><small>{{ __('ui.account.stat_reset_refund_help') }}</small></span>
                                     <span aria-hidden="true">→</span>
                                 </button>
                                 <button type="button" class="action-row">
@@ -355,6 +378,127 @@
                                 <span x-show="statPreviewLoading">{{ __('ui.account.applying_allocation') }}</span>
                             </button>
                         </div>
+                    </article>
+                </div>
+
+                <div class="mt-5" x-show="activeSection === 'stat-reset'" x-cloak>
+                    <article class="panel-card">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="kicker">{{ __('ui.account.transactional_operation') }}</p>
+                                <h3 class="mt-2 text-xl font-semibold text-white">{{ __('ui.account.stat_reset_preview') }}</h3>
+                                <p class="mt-2 text-sm text-steel">{{ __('ui.account.stat_reset_refund_help') }}</p>
+                            </div>
+                            <span class="preview-badge">{{ __('ui.account.preview_only') }}</span>
+                        </div>
+
+                        <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" x-show="statResetPreviewLoading">
+                            @for ($placeholder = 0; $placeholder < 4; $placeholder++)
+                                <div class="outcome-card animate-pulse" aria-hidden="true">
+                                    <span class="h-3 w-20 rounded bg-white/8"></span>
+                                    <strong class="mt-3 h-6 w-28 rounded bg-white/10"></strong>
+                                </div>
+                            @endfor
+                        </div>
+
+                        <div
+                            class="mt-7 rounded-2xl border border-red-300/20 bg-red-400/8 p-4 text-sm text-red-100"
+                            x-show="statResetPreviewError"
+                            x-text="statResetPreviewError"
+                            role="alert"
+                        ></div>
+
+                        <div
+                            class="mt-7 rounded-2xl border border-emerald-300/20 bg-emerald-300/7 p-4 text-sm text-emerald-100"
+                            x-show="statResetSuccessMessage"
+                            x-text="statResetSuccessMessage"
+                            role="status"
+                        ></div>
+
+                        <template x-if="statResetPreview !== null && !statResetPreviewLoading">
+                            <div>
+                                <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                    @foreach (['strength' => __('ui.account.strength'), 'agility' => __('ui.account.agility'), 'vitality' => __('ui.account.vitality'), 'energy' => __('ui.account.energy')] as $stat => $label)
+                                        <div class="outcome-card">
+                                            <span>{{ $label }}</span>
+                                            <strong>
+                                                <span x-text="statResetPreview.currentStats.{{ $stat }}.toLocaleString()"></span>
+                                                →
+                                                <span x-text="statResetPreview.resultingStats.{{ $stat }}.toLocaleString()"></span>
+                                            </strong>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                    <div class="outcome-card"><span>{{ __('ui.account.points_before') }}</span><strong x-text="statResetPreview.currentPoints.toLocaleString()"></strong></div>
+                                    <div class="outcome-card"><span>{{ __('ui.account.stat_reset_refunded_points') }}</span><strong class="text-gold">+<span x-text="statResetPreview.refundedPoints.toLocaleString()"></span></strong></div>
+                                    <div class="outcome-card"><span>{{ __('ui.account.points_after') }}</span><strong x-text="statResetPreview.resultingPoints.toLocaleString()"></strong></div>
+                                    <div class="outcome-card"><span>{{ __('ui.account.cost') }}</span><strong><span x-text="statResetPreview.zenCost.toLocaleString()"></span> Zen</strong></div>
+                                </div>
+
+                                <div
+                                    class="mt-6 rounded-2xl border p-4 text-sm leading-6"
+                                    :class="statResetPreview.eligible
+                                        ? 'border-emerald-300/20 bg-emerald-300/7 text-emerald-100'
+                                        : 'border-amber-300/20 bg-amber-300/7 text-amber-100'"
+                                >
+                                    <strong
+                                        class="block"
+                                        x-text="statResetPreview.eligible
+                                            ? @js(__('ui.account.stat_reset_requirements_met'))
+                                            : @js(__('ui.account.stat_reset_requirements_failed'))"
+                                    ></strong>
+                                    <ul class="mt-2 grid gap-1" x-show="!statResetPreview.eligible">
+                                        <template x-for="blockMessage in statResetBlockMessages" :key="blockMessage">
+                                            <li>• <span x-text="blockMessage"></span></li>
+                                        </template>
+                                    </ul>
+                                </div>
+
+                                <div class="mt-6 rounded-2xl border border-white/10 bg-white/4 p-4 text-sm leading-6 text-silver">
+                                    <span x-show="resetPreviewConfiguration.writesEnabled">{{ __('ui.account.stat_reset_preview_notice') }}</span>
+                                    <span x-show="!resetPreviewConfiguration.writesEnabled">{{ __('ui.account.reset_writes_disabled') }}</span>
+                                </div>
+
+                                <div
+                                    class="mt-6 rounded-2xl border border-gold/20 bg-gold/5 p-5"
+                                    x-show="statResetConfirmationOpen"
+                                    x-cloak
+                                >
+                                    <strong class="block text-white">{{ __('ui.account.stat_reset_confirm') }}</strong>
+                                    <p class="mt-2 text-sm leading-6 text-silver">{{ __('ui.account.stat_reset_confirm_help') }}</p>
+                                    <div class="mt-5 flex flex-wrap justify-end gap-3">
+                                        <button
+                                            type="button"
+                                            class="button button-ghost"
+                                            :disabled="statResetExecuting"
+                                            @click="closeStatResetConfirmation"
+                                        >{{ __('ui.account.reset_cancel') }}</button>
+                                        <button
+                                            type="button"
+                                            class="button button-primary"
+                                            :disabled="statResetExecuting"
+                                            @click="executeStatReset"
+                                        >
+                                            <span x-show="!statResetExecuting">{{ __('ui.account.stat_reset_now') }}</span>
+                                            <span x-show="statResetExecuting">{{ __('ui.account.stat_resetting') }}</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-7 flex justify-end" x-show="!statResetConfirmationOpen">
+                                    <button
+                                        type="button"
+                                        class="button button-primary"
+                                        :disabled="!statResetPreview.eligible || !resetPreviewConfiguration.writesEnabled || statResetExecuting"
+                                        @click="openStatResetConfirmation"
+                                    >
+                                        {{ __('ui.account.stat_reset_confirm') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
                     </article>
                 </div>
 

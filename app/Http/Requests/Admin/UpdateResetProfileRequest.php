@@ -52,6 +52,10 @@ final class UpdateResetProfileRequest extends FormRequest
             'grandResetPoints' => ['required', 'integer', 'min:0', 'max:2000000000'],
             'grandResetInventoryPolicy' => ['required', Rule::enum(InventoryPolicy::class)],
             'grandResetConsumeRequiredResets' => ['required', 'boolean'],
+            'statResetEnabled' => ['required', 'boolean'],
+            'statResetRequiredLevel' => ['required', 'integer', 'min:1', 'max:400'],
+            'statResetRequiredResets' => ['required', 'integer', 'min:0', 'max:10000', 'lte:maximumResets'],
+            'statResetZenCost' => ['required', 'integer', 'min:0', 'max:2000000000'],
         ];
     }
 
@@ -84,6 +88,10 @@ final class UpdateResetProfileRequest extends FormRequest
             grandResetPoints: (int) $validated['grandResetPoints'],
             grandResetInventoryPolicy: InventoryPolicy::from((string) $validated['grandResetInventoryPolicy']),
             grandResetConsumeRequiredResets: (bool) $validated['grandResetConsumeRequiredResets'],
+            statResetEnabled: (bool) $validated['statResetEnabled'],
+            statResetRequiredLevel: (int) $validated['statResetRequiredLevel'],
+            statResetRequiredResets: (int) $validated['statResetRequiredResets'],
+            statResetZenCost: (int) $validated['statResetZenCost'],
         );
     }
 }

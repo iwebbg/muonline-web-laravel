@@ -3,9 +3,11 @@
 use App\Http\Controllers\Account\CharacterGrandResetController;
 use App\Http\Controllers\Account\CharacterResetController;
 use App\Http\Controllers\Account\CharacterStatAllocationController;
+use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
 use App\Http\Controllers\Account\StatAllocationPreviewController;
+use App\Http\Controllers\Account\StatResetPreviewController;
 use App\Http\Controllers\AccountDashboardController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -47,6 +49,12 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/account/stat-allocations', CharacterStatAllocationController::class)
         ->middleware('throttle:stat-allocation')
         ->name('account.stat-allocations.store');
+    Route::post('/account/stat-reset-preview', StatResetPreviewController::class)
+        ->middleware('throttle:stat-reset-preview')
+        ->name('account.stat-reset-preview');
+    Route::post('/account/character-stat-reset', CharacterStatResetController::class)
+        ->middleware('throttle:stat-reset')
+        ->name('account.character-stat-reset');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

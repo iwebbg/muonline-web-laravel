@@ -44,6 +44,10 @@ final class ResetProfileReader
             grandResetPoints: $profile->grand_reset_points,
             grandResetInventoryPolicy: $profile->grand_reset_inventory_policy,
             grandResetConsumeRequiredResets: $profile->grand_reset_consume_required_resets,
+            statResetEnabled: $profile->stat_reset_enabled,
+            statResetRequiredLevel: $profile->stat_reset_required_level,
+            statResetRequiredResets: $profile->stat_reset_required_resets,
+            statResetZenCost: $profile->stat_reset_zen_cost,
         );
     }
 

@@ -223,6 +223,13 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         grandResetConfirmationOpen: false,
         grandResetExecuting: false,
         grandResetSuccessMessage: null,
+        statResetPreview: null,
+        statResetPreviewLoading: false,
+        statResetPreviewError: null,
+        statResetPreviewRequestId: 0,
+        statResetConfirmationOpen: false,
+        statResetExecuting: false,
+        statResetSuccessMessage: null,
         statPreview: null,
         statPreviewLoading: false,
         statPreviewError: null,
@@ -342,6 +349,26 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         },
 
         /**
+         * Returns localized explanations for every failed stat-reset requirement.
+         *
+         * @returns {Array<string>}
+         */
+        get statResetBlockMessages() {
+            if (this.statResetPreview === null) {
+                return [];
+            }
+
+            const reasonLabels = this.resetPreviewConfiguration.statResetBlockReasons;
+            const messages = [];
+
+            for (const reason of this.statResetPreview.blockReasons) {
+                messages.push(reasonLabels[reason] ?? reason);
+            }
+
+            return messages;
+        },
+
+        /**
          * Returns localized explanations for every failed allocation requirement.
          *
          * @returns {Array<string>}
@@ -377,6 +404,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             this.grandResetPreviewError = null;
             this.grandResetConfirmationOpen = false;
             this.grandResetSuccessMessage = null;
+            this.statResetPreview = null;
+            this.statResetPreviewError = null;
+            this.statResetConfirmationOpen = false;
+            this.statResetSuccessMessage = null;
             this.statSuccessMessage = null;
 
             if (this.activeSection === 'reset') {
@@ -385,6 +416,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
 
             if (this.activeSection === 'grand-reset') {
                 void this.loadGrandResetPreview();
+            }
+
+            if (this.activeSection === 'stat-reset') {
+                void this.loadStatResetPreview();
             }
         },
 
@@ -402,6 +437,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
 
             if (section === 'grand-reset') {
                 void this.loadGrandResetPreview();
+            }
+
+            if (section === 'stat-reset') {
+                void this.loadStatResetPreview();
             }
         },
 
@@ -695,6 +734,154 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                 this.grandResetPreviewError = this.resetPreviewConfiguration.grandResetExecutionFailed;
             } finally {
                 this.grandResetExecuting = false;
+            }
+        },
+
+        /**
+         * Loads a fresh ownership-scoped stat-reset preview for the selected character.
+         */
+        async loadStatResetPreview() {
+            if (this.resetPreviewConfiguration === null) {
+                return;
+            }
+
+            const requestId = this.statResetPreviewRequestId + 1;
+
+            this.statResetPreviewRequestId = requestId;
+            this.statResetPreviewLoading = true;
+            this.statResetPreviewError = null;
+
+            try {
+                const response = await window.fetch(
+                    this.resetPreviewConfiguration.statResetPreviewUrl,
+                    {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.resetPreviewConfiguration.csrfToken,
+                        },
+                        body: JSON.stringify({
+                            characterName: this.selectedCharacter.name,
+                        }),
+                    },
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Stat-reset preview request failed with status ${response.status}.`,
+                    );
+                }
+
+                const responsePayload = await response.json();
+
+                if (requestId !== this.statResetPreviewRequestId) {
+                    return;
+                }
+
+                this.statResetPreview = responsePayload.preview;
+            } catch {
+                if (requestId === this.statResetPreviewRequestId) {
+                    this.statResetPreviewError = this.resetPreviewConfiguration.statResetPreviewFailed;
+                }
+            } finally {
+                if (requestId === this.statResetPreviewRequestId) {
+                    this.statResetPreviewLoading = false;
+                }
+            }
+        },
+
+        /**
+         * Shows the final stat-reset confirmation for an eligible writable preview.
+         */
+        openStatResetConfirmation() {
+            if (
+                this.statResetPreview === null
+                || !this.statResetPreview.eligible
+                || !this.resetPreviewConfiguration.writesEnabled
+            ) {
+                return;
+            }
+
+            this.statResetConfirmationOpen = true;
+            this.statResetPreviewError = null;
+        },
+
+        /**
+         * Closes the stat-reset confirmation while no request is running.
+         */
+        closeStatResetConfirmation() {
+            if (this.statResetExecuting) {
+                return;
+            }
+
+            this.statResetConfirmationOpen = false;
+        },
+
+        /**
+         * Executes the confirmed stat reset with an at-most-once operation key.
+         */
+        async executeStatReset() {
+            if (
+                this.statResetExecuting
+                || this.statResetPreview === null
+                || !this.statResetPreview.eligible
+                || !this.resetPreviewConfiguration.writesEnabled
+            ) {
+                return;
+            }
+
+            this.statResetExecuting = true;
+            this.statResetPreviewError = null;
+            this.statResetSuccessMessage = null;
+
+            try {
+                const response = await window.fetch(
+                    this.resetPreviewConfiguration.statResetExecuteUrl,
+                    {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.resetPreviewConfiguration.csrfToken,
+                        },
+                        body: JSON.stringify({
+                            characterName: this.selectedCharacter.name,
+                            idempotencyKey: this.createIdempotencyKey(),
+                        }),
+                    },
+                );
+                const responsePayload = await response.json();
+
+                if (!response.ok) {
+                    const reasonMessages = this.resetPreviewConfiguration.statResetBlockReasons;
+
+                    this.statResetPreviewError = reasonMessages[responsePayload.reason]
+                        ?? responsePayload.message
+                        ?? this.resetPreviewConfiguration.statResetExecutionFailed;
+
+                    return;
+                }
+
+                const result = responsePayload.result;
+
+                this.selectedCharacter.zen = result.afterZen;
+                this.selectedCharacter.points = result.afterPoints;
+                this.selectedCharacter.strength = result.afterStats.strength;
+                this.selectedCharacter.agility = result.afterStats.agility;
+                this.selectedCharacter.vitality = result.afterStats.vitality;
+                this.selectedCharacter.energy = result.afterStats.energy;
+                this.statResetConfirmationOpen = false;
+                this.statResetSuccessMessage = responsePayload.message
+                    ?? this.resetPreviewConfiguration.statResetCompleted;
+
+                await this.loadStatResetPreview();
+            } catch {
+                this.statResetPreviewError = this.resetPreviewConfiguration.statResetExecutionFailed;
+            } finally {
+                this.statResetExecuting = false;
             }
         },
 
