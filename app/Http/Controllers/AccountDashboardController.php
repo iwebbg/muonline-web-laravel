@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Auth\GameAccount;
 use App\Economy\WalletCurrency;
 use App\Game\Contracts\AccountReadRepository;
+use App\Http\AccountPanelConfiguration;
 use App\Models\AccountWallet;
 use App\Models\VipEntitlement;
 use App\Models\VipPlan;
@@ -26,6 +27,7 @@ final class AccountDashboardController extends Controller
     public function __construct(
         private readonly AccountReadRepository $accountReadRepository,
         private readonly ModuleManager $moduleManager,
+        private readonly AccountPanelConfiguration $accountPanelConfiguration,
     ) {}
 
     /**
@@ -95,6 +97,12 @@ final class AccountDashboardController extends Controller
                 ->limit(10)
                 ->get()
             : collect();
+        $gameWritesEnabled = (bool) config('game.writes_enabled', false)
+            && ! (bool) config('database.connections.game.readonly', true);
+        $accountPanelConfiguration = $this->accountPanelConfiguration->toArray(
+            writesEnabled: $gameWritesEnabled,
+            csrfToken: $request->session()->token(),
+        );
 
         return view('account.dashboard', [
             'account' => $account,
@@ -106,8 +114,8 @@ final class AccountDashboardController extends Controller
             'activeVipEntitlementCount' => $activeVipEntitlementCount,
             'vipPurchases' => $vipPurchases,
             'vipIdempotencyKey' => (string) Str::uuid(),
-            'gameWritesEnabled' => (bool) config('game.writes_enabled', false)
-                && ! (bool) config('database.connections.game.readonly', true),
+            'gameWritesEnabled' => $gameWritesEnabled,
+            'accountPanelConfiguration' => $accountPanelConfiguration,
         ]);
     }
 }
