@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthentica
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
 use App\Http\Controllers\Admin\GameMasterController;
+use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ResetProfileController;
@@ -189,6 +190,14 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                     ->name('vip-plans.update');
                 Route::delete('/economy/vip-plans/{vipPlan}', [VipPlanController::class, 'destroy'])
                     ->name('vip-plans.destroy');
+                Route::get('/economy/market', [AdminMarketController::class, 'index'])
+                    ->name('market.index');
+                Route::post('/economy/market/{marketListing}/retry', [AdminMarketController::class, 'retry'])
+                    ->middleware('throttle:admin-market')
+                    ->name('market.retry');
+                Route::post('/economy/market/{marketListing}/return', [AdminMarketController::class, 'returnItem'])
+                    ->middleware('throttle:admin-market')
+                    ->name('market.return');
             });
         Route::post('/moderation/accounts', [ModerationController::class, 'account'])
             ->middleware([

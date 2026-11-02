@@ -13,6 +13,7 @@ use App\Models\CharacterResetOperation;
 use App\Models\CharacterStatAllocationOperation;
 use App\Models\CharacterStatResetOperation;
 use App\Models\DownloadRevision;
+use App\Models\MarketAdminAction;
 use App\Models\ModerationOperation;
 use App\Models\NewsPostRevision;
 use App\Models\ResetProfileRevision;
@@ -100,6 +101,7 @@ final class AuditLogReader
             'news_content',
             'download_content',
             'wallet_adjustment',
+            'market_recovery',
         ];
 
         foreach (self::OPERATION_SOURCES as $source) {
@@ -203,6 +205,17 @@ final class AuditLogReader
 
             foreach ($walletTransactions as $walletTransaction) {
                 $entries[] = $this->walletTransactionEntry($walletTransaction);
+            }
+        }
+
+        if ($type === null || $type === 'market_recovery') {
+            $marketActions = MarketAdminAction::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($marketActions as $marketAction) {
+                $entries[] = $this->marketActionEntry($marketAction);
             }
         }
 
@@ -370,6 +383,34 @@ final class AuditLogReader
                 'balance' => $transaction->balance_after,
             ],
             occurredAt: $this->occurredAt($transaction),
+        );
+    }
+
+    /**
+     * Normalizes one immutable administrator market recovery action.
+     */
+    private function marketActionEntry(MarketAdminAction $action): AuditLogEntry
+    {
+        return new AuditLogEntry(
+            type: 'market_recovery',
+            subject: 'market:'.$action->market_listing_id,
+            characterName: null,
+            status: $action->outcome,
+            failureCode: $action->failure_code,
+            contextSnapshot: array_merge(
+                $action->context_snapshot ?? [],
+                [
+                    'action' => $action->action,
+                    'administrator_id' => $action->administrator_id,
+                ],
+            ),
+            beforeSnapshot: [
+                'status' => $action->before_status,
+            ],
+            afterSnapshot: [
+                'status' => $action->after_status,
+            ],
+            occurredAt: $this->occurredAt($action),
         );
     }
 

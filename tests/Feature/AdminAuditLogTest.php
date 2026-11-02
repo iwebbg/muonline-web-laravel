@@ -8,6 +8,7 @@ use App\Game\Operations\CharacterOperationStatus;
 use App\Models\AccountRegistrationOperation;
 use App\Models\Administrator;
 use App\Models\CharacterResetOperation;
+use App\Models\MarketAdminAction;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -110,5 +111,34 @@ final class AdminAuditLogTest extends TestCase
         $response->assertSee('FailedHero');
         $response->assertSee('character_online');
         $response->assertDontSee('newaccount');
+    }
+
+    /**
+     * Confirms market recovery actions join the normalized immutable audit trail.
+     */
+    public function test_administrator_can_filter_market_recovery_events(): void
+    {
+        $administrator = Administrator::factory()->create();
+        MarketAdminAction::factory()->create([
+            'administrator_id' => $administrator->getKey(),
+            'action' => 'force_return',
+            'before_status' => 'active',
+            'after_status' => 'returned',
+            'outcome' => 'completed',
+            'context_snapshot' => [
+                'seller_account_id' => 'marketseller',
+            ],
+        ]);
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?type=market_recovery');
+
+        $response
+            ->assertOk()
+            ->assertSee('Market recovery')
+            ->assertSee('marketseller')
+            ->assertSee('force_return')
+            ->assertSee('returned');
     }
 }
