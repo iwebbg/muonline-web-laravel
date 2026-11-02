@@ -58,6 +58,73 @@ final readonly class ItemCodec97d99i
     }
 
     /**
+     * Creates one verified 10-byte item from explicit administrator options.
+     *
+     * The caller must obtain the serial from the game server's authoritative
+     * counter before using this method.
+     */
+    public function create(
+        int $group,
+        int $index,
+        int $level,
+        int $durability,
+        int $optionLevel,
+        bool $hasSkill,
+        bool $hasLuck,
+        int $excellentMask,
+        int $ancientOption,
+        int $serial,
+    ): string {
+        if ($group < 0 || $group > 15 || $index < 0 || $index > 31) {
+            throw new InvalidArgumentException('The item group or index is outside the 97d+99i format.');
+        }
+
+        if ($level < 0 || $level > 15 || $durability < 0 || $durability > 255) {
+            throw new InvalidArgumentException('The item level or durability is outside the 97d+99i format.');
+        }
+
+        if ($optionLevel < 0 || $optionLevel > 7 || $excellentMask < 0 || $excellentMask > 63) {
+            throw new InvalidArgumentException('The item options are outside the 97d+99i format.');
+        }
+
+        if ($ancientOption < 0 || $ancientOption > 255 || $serial < 1 || $serial > 2_147_483_647) {
+            throw new InvalidArgumentException('The item ancient option or serial is outside the supported range.');
+        }
+
+        $itemIdentifier = (($group % 8) * 32) + $index;
+        $packedOptions = ($level << 3) | ($optionLevel & 0x03);
+
+        if ($hasSkill) {
+            $packedOptions |= 0x80;
+        }
+
+        if ($hasLuck) {
+            $packedOptions |= 0x04;
+        }
+
+        $extendedOptions = $excellentMask;
+
+        if ($group >= 8) {
+            $extendedOptions |= 0x80;
+        }
+
+        if ($optionLevel >= 4) {
+            $extendedOptions |= 0x40;
+        }
+
+        return pack(
+            'CCCNC*',
+            $itemIdentifier,
+            $packedOptions,
+            $durability,
+            $serial,
+            $extendedOptions,
+            $ancientOption,
+            0,
+        );
+    }
+
+    /**
      * Decodes one verified 10-byte item slot.
      */
     private function decodeSlot(string $binary, int $slot): ItemSlot

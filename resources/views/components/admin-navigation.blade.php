@@ -27,6 +27,11 @@
                 <span>⚑</span>{{ __('ui.admin.moderation') }}
             </a>
         @endif
+        @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::GrantItems))
+            <a href="{{ route('admin.item-grants.index') }}" class="admin-nav-link {{ $active === 'item-grants' ? 'admin-nav-link-active' : '' }}">
+                <span>✧</span>{{ __('ui.admin.item_grants_nav') }}
+            </a>
+        @endif
         @if (auth('admin')->user()?->role === \App\Admin\Authorization\AdministratorRole::Administrator)
             <a href="{{ route('admin.game-masters.index') }}" class="admin-nav-link {{ $active === 'game-masters' ? 'admin-nav-link-active' : '' }}">
                 <span>♜</span>{{ __('ui.admin.game_masters') }}

@@ -69,6 +69,33 @@ final class ItemCodec97d99iTest extends TestCase
     }
 
     /**
+     * Confirms administrator item options create the exact legacy byte layout.
+     */
+    public function test_it_creates_a_verified_ten_byte_item(): void
+    {
+        $codec = new ItemCodec97d99i;
+
+        $binary = $codec->create(
+            group: 8,
+            index: 31,
+            level: 11,
+            durability: 42,
+            optionLevel: 7,
+            hasSkill: false,
+            hasLuck: false,
+            excellentMask: 1,
+            ancientOption: 3,
+            serial: 0x1ABBCCDD,
+        );
+        $item = $codec->decode($binary, 1)[0];
+
+        self::assertSame('1F5B2A1ABBCCDDC10300', strtoupper(bin2hex($binary)));
+        self::assertSame(8, $item->group);
+        self::assertSame(31, $item->index);
+        self::assertSame('1ABBCCDD', $item->serial);
+    }
+
+    /**
      * Confirms malformed blobs are rejected before any slot is decoded.
      */
     public function test_it_rejects_an_unexpected_blob_length(): void

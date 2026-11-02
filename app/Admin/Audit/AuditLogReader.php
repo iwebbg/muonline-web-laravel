@@ -15,6 +15,7 @@ use App\Models\CharacterStatResetOperation;
 use App\Models\DownloadRevision;
 use App\Models\EconomyRecoveryAction;
 use App\Models\EventScheduleEntryRevision;
+use App\Models\ItemGrantOperation;
 use App\Models\MarketAdminAction;
 use App\Models\ModerationOperation;
 use App\Models\ModuleProfileRevision;
@@ -116,6 +117,7 @@ final class AuditLogReader
             'vote_reward',
             'module_profile',
             'event_schedule',
+            'item_grant',
         ];
 
         foreach (self::OPERATION_SOURCES as $source) {
@@ -296,6 +298,17 @@ final class AuditLogReader
 
             foreach ($eventRevisions as $eventRevision) {
                 $entries[] = $this->eventScheduleEntry($eventRevision);
+            }
+        }
+
+        if ($type === null || $type === 'item_grant') {
+            $itemGrants = ItemGrantOperation::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($itemGrants as $itemGrant) {
+                $entries[] = $this->itemGrantEntry($itemGrant);
             }
         }
 
@@ -661,6 +674,24 @@ final class AuditLogReader
             beforeSnapshot: $revision->before_snapshot,
             afterSnapshot: $revision->after_snapshot,
             occurredAt: $this->occurredAt($revision),
+        );
+    }
+
+    /**
+     * Normalizes one administrator warehouse item grant without exposing raw bytes.
+     */
+    private function itemGrantEntry(ItemGrantOperation $operation): AuditLogEntry
+    {
+        return new AuditLogEntry(
+            type: 'item_grant',
+            subject: $operation->account_id,
+            characterName: null,
+            status: $operation->status->value,
+            failureCode: $operation->failure_code,
+            contextSnapshot: $operation->context_snapshot,
+            beforeSnapshot: $operation->before_snapshot,
+            afterSnapshot: $operation->after_snapshot,
+            occurredAt: $this->occurredAt($operation),
         );
     }
 

@@ -56,6 +56,14 @@ Bank is backed by the same physical-item records: its displayed count is never
 a synthetic balance and currently supports Chaos, Bless, Soul, Life and
 Creation jewels from the verified 97d+99i catalog.
 
+Administrators and explicitly permitted Game Masters can grant a verified
+97d+99i catalog item to an offline account's active warehouse. The browser
+never submits raw item bytes: Laravel builds the legacy 10-byte record, obtains
+its unique serial from DarksTeam's `dbo.WZ_GetItemSerial`, places it through the
+same rectangle-safe warehouse boundary used by escrow and stores an idempotent
+before/after audit operation. Excellent and ancient grant options remain closed
+until their item-family rules are verified against the reference server.
+
 Player-facing modules are controlled from **Administration → Modules**. Each
 published configuration is scoped to `GAME_SERVER_PROFILE` and
 `GAME_SERVER_VERSION`, uses optimistic revisions and records immutable

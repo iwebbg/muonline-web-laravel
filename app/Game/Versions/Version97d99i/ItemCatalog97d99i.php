@@ -36,6 +36,29 @@ final class ItemCatalog97d99i
     }
 
     /**
+     * Returns every verified item definition ordered by group and item index.
+     *
+     * @return list<ItemDefinition>
+     */
+    public function allDefinitions(): array
+    {
+        $definitions = array_values($this->definitions());
+
+        usort(
+            $definitions,
+            static fn (ItemDefinition $left, ItemDefinition $right): int => [
+                $left->group,
+                $left->index,
+            ] <=> [
+                $right->group,
+                $right->index,
+            ],
+        );
+
+        return $definitions;
+    }
+
+    /**
      * Loads and validates the bundled catalog once for the current request.
      *
      * @return array<string, ItemDefinition>

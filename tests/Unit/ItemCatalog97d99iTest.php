@@ -73,6 +73,18 @@ final class ItemCatalog97d99iTest extends TestCase
     }
 
     /**
+     * Confirms the administrator catalog is deterministically ordered by identity.
+     */
+    public function test_it_lists_every_definition_in_group_and_index_order(): void
+    {
+        $definitions = $this->catalog()->allDefinitions();
+
+        self::assertNotEmpty($definitions);
+        self::assertSame('0:0', $definitions[0]->code());
+        self::assertSame('Kris', $definitions[0]->name);
+    }
+
+    /**
      * Creates the catalog against the committed version metadata fixture.
      */
     private function catalog(): ItemCatalog97d99i

@@ -28,6 +28,7 @@ final class DiagnoseGameDatabase extends Command
         'MEMB_STAT' => ['memb___id', 'ConnectStat'],
         'Guild' => ['G_Name', 'G_Master', 'G_Score'],
         'GuildMember' => ['Name', 'G_Name'],
+        'GameServerInfo' => ['ItemCount'],
     ];
 
     /**
@@ -47,9 +48,15 @@ final class DiagnoseGameDatabase extends Command
         $this->components->info('Game database connection is available.');
         $schemaIsValid = $this->verifySchema($connection);
         $permissionsAreSafe = $this->verifyPermissions($connection);
+        $itemSerialSourceIsAvailable = $this->verifyItemSerialSource($connection);
         $configurationIsSafe = $this->verifySafetyConfiguration();
 
-        if (! $schemaIsValid || ! $permissionsAreSafe || ! $configurationIsSafe) {
+        if (
+            ! $schemaIsValid
+            || ! $permissionsAreSafe
+            || ! $itemSerialSourceIsAvailable
+            || ! $configurationIsSafe
+        ) {
             $this->components->error('Game database diagnostics failed.');
 
             return self::FAILURE;
@@ -58,6 +65,33 @@ final class DiagnoseGameDatabase extends Command
         $this->components->info('Game database diagnostics passed.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Confirms SQL Server exposes the authoritative item serial procedure.
+     */
+    private function verifyItemSerialSource(Connection $connection): bool
+    {
+        if ($connection->getDriverName() !== 'sqlsrv') {
+            $this->components->warn('Item serial procedure verification skipped for a non-SQL Server test connection.');
+
+            return true;
+        }
+
+        $procedure = $connection->selectOne(
+            'SELECT OBJECT_ID(?, ?) AS procedure_id',
+            ['dbo.WZ_GetItemSerial', 'P'],
+        );
+
+        if ($procedure === null || $procedure->procedure_id === null) {
+            $this->components->error('Missing required game procedure: dbo.WZ_GetItemSerial');
+
+            return false;
+        }
+
+        $this->components->info('Authoritative item serial procedure is available.');
+
+        return true;
     }
 
     /**

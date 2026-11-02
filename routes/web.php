@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
 use App\Http\Controllers\Admin\EconomyRecoveryController;
 use App\Http\Controllers\Admin\EventScheduleController;
 use App\Http\Controllers\Admin\GameMasterController;
+use App\Http\Controllers\Admin\ItemGrantController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\ModuleProfileController;
@@ -375,6 +376,15 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/event-schedules/{eventScheduleEntry}', [EventScheduleController::class, 'update'])
             ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->name('event-schedules.update');
+        Route::get('/item-grants', [ItemGrantController::class, 'index'])
+            ->middleware('admin.permission:'.AdministratorPermission::GrantItems->value)
+            ->name('item-grants.index');
+        Route::post('/item-grants', [ItemGrantController::class, 'store'])
+            ->middleware([
+                'admin.permission:'.AdministratorPermission::GrantItems->value,
+                'throttle:admin-item-grant',
+            ])
+            ->name('item-grants.store');
         Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])
             ->name('logout');
     });

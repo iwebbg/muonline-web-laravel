@@ -18,6 +18,7 @@ use App\Game\Contracts\CharacterStatResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
 use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\ItemEscrowRepository;
+use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Game\Contracts\ModerationRepository;
@@ -37,6 +38,7 @@ use App\Game\Repositories\SqlServer97d99iCharacterResetRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterStatAllocationRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterStatResetRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterVipRepository;
+use App\Game\Repositories\SqlServer97d99iItemSerialRepository;
 use App\Game\Repositories\SqlServer97d99iItemStorageRepository;
 use App\Game\Repositories\SqlServer97d99iMarketItemEscrowRepository;
 use App\Game\Repositories\SqlServer97d99iModerationRepository;
@@ -84,6 +86,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CharacterVipRepository::class, SqlServer97d99iCharacterVipRepository::class);
         $this->app->bind(ItemStorageRepository::class, SqlServer97d99iItemStorageRepository::class);
         $this->app->bind(ItemEscrowRepository::class, SqlServer97d99iMarketItemEscrowRepository::class);
+        $this->app->bind(ItemSerialRepository::class, SqlServer97d99iItemSerialRepository::class);
         $this->app->bind(MarketItemEscrowRepository::class, SqlServer97d99iMarketItemEscrowRepository::class);
         $this->app->bind(ModerationRepository::class, SqlServer97d99iModerationRepository::class);
         $this->app->bind(ZenBankRepository::class, SqlServer97d99iZenBankRepository::class);
@@ -202,6 +205,13 @@ class AppServiceProvider extends ServiceProvider
             $limiterKey = Str::transliterate($administratorId.'|'.$request->ip());
 
             return Limit::perMinute(20)->by($limiterKey);
+        });
+
+        RateLimiter::for('admin-item-grant', function (Request $request): Limit {
+            $administratorId = (string) ($request->user('admin')?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($administratorId.'|'.$request->ip());
+
+            return Limit::perMinute(10)->by($limiterKey);
         });
 
         RateLimiter::for('reset-preview', function (Request $request): Limit {
