@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Content\NewsPostStatus;
+use App\Content\NewsPostType;
 use App\Models\NewsPost;
 use Illuminate\Contracts\View\View;
 
@@ -17,6 +18,7 @@ final class NewsController extends Controller
     public function index(): View
     {
         $posts = NewsPost::query()
+            ->where('type', NewsPostType::News)
             ->where('status', NewsPostStatus::Published)
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
@@ -35,6 +37,7 @@ final class NewsController extends Controller
     {
         $post = NewsPost::query()
             ->where('slug', $slug)
+            ->where('type', NewsPostType::News)
             ->where('status', NewsPostStatus::Published)
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())

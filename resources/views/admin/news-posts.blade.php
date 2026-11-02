@@ -39,6 +39,9 @@
                     <article class="panel-card flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                         <div class="min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
+                                <span class="rounded-full border border-sky-300/25 bg-sky-300/8 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-sky-200">
+                                    {{ __('ui.admin.news_type_'.$post['type']) }}
+                                </span>
                                 <span @class([
                                     'rounded-full border px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-[0.12em]',
                                     'border-emerald-300/25 bg-emerald-300/8 text-emerald-200' => $post['status'] === 'published',
@@ -107,6 +110,14 @@
                     <label class="field-group">
                         <span>{{ __('ui.admin.news_slug') }}</span>
                         <input type="text" name="slug" x-model="form.slug" required maxlength="120" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="server-season-opening">
+                    </label>
+
+                    <label class="field-group">
+                        <span>{{ __('ui.admin.news_type') }}</span>
+                        <select name="type" x-model="form.type">
+                            <option value="news">{{ __('ui.admin.news_type_news') }}</option>
+                            <option value="guide">{{ __('ui.admin.news_type_guide') }}</option>
+                        </select>
                     </label>
 
                     <div class="grid gap-5 md:grid-cols-2">

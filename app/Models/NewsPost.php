@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Content\NewsPostStatus;
+use App\Content\NewsPostType;
 use Database\Factories\NewsPostFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 #[Fillable([
     'slug',
+    'type',
     'title_en',
     'title_bg',
     'excerpt_en',
@@ -76,6 +78,7 @@ final class NewsPost extends Model
     {
         return [
             'slug' => $this->slug,
+            'type' => $this->type->value,
             'title_en' => $this->title_en,
             'title_bg' => $this->title_bg,
             'excerpt_en' => $this->excerpt_en,
@@ -97,6 +100,7 @@ final class NewsPost extends Model
     {
         return [
             'status' => NewsPostStatus::class,
+            'type' => NewsPostType::class,
             'published_at' => 'immutable_datetime',
             'deleted_at' => 'immutable_datetime',
         ];

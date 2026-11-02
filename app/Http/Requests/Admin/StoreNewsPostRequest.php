@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
 use App\Content\NewsPostStatus;
+use App\Content\NewsPostType;
 use App\Models\Administrator;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -40,6 +41,7 @@ final class StoreNewsPostRequest extends FormRequest
                 'regex:/\A[a-z0-9]+(?:-[a-z0-9]+)*\z/',
                 Rule::unique('news_posts', 'slug'),
             ],
+            'type' => ['required', Rule::enum(NewsPostType::class)],
             'title_en' => ['required', 'string', 'max:160'],
             'title_bg' => ['nullable', 'string', 'max:160'],
             'excerpt_en' => ['required', 'string', 'max:300'],
@@ -60,6 +62,7 @@ final class StoreNewsPostRequest extends FormRequest
     {
         return $this->safe()->only([
             'slug',
+            'type',
             'title_en',
             'title_bg',
             'excerpt_en',

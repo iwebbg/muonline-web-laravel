@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
 use App\Content\NewsPostStatus;
+use App\Content\NewsPostType;
 use App\Models\Administrator;
 use App\Models\NewsPost;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -45,6 +46,7 @@ final class UpdateNewsPostRequest extends FormRequest
                     $newsPost instanceof NewsPost ? $newsPost->getKey() : null,
                 ),
             ],
+            'type' => ['required', Rule::enum(NewsPostType::class)],
             'title_en' => ['required', 'string', 'max:160'],
             'title_bg' => ['nullable', 'string', 'max:160'],
             'excerpt_en' => ['required', 'string', 'max:300'],
@@ -65,6 +67,7 @@ final class UpdateNewsPostRequest extends FormRequest
     {
         return $this->safe()->only([
             'slug',
+            'type',
             'title_en',
             'title_bg',
             'excerpt_en',

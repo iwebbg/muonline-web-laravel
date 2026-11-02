@@ -123,6 +123,7 @@ final class NewsPostController extends Controller
         return [
             'id' => $post->getKey(),
             'slug' => $post->slug,
+            'type' => $post->type->value,
             'title_en' => $post->title_en,
             'title_bg' => $post->title_bg ?? '',
             'excerpt_en' => $post->excerpt_en,

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Admin\Authorization\AdministratorPermission;
 use App\Content\NewsPostStatus;
+use App\Content\NewsPostType;
 use App\Models\Administrator;
 use App\Models\NewsPost;
 use App\Models\NewsPostRevision;
@@ -63,6 +64,7 @@ final class AdminNewsPostTest extends TestCase
         $post = NewsPost::query()->sole();
 
         $this->assertSame(NewsPostStatus::Published, $post->status);
+        $this->assertSame(NewsPostType::News, $post->type);
         $this->assertNotNull($post->published_at);
         $this->assertSame($administrator->getKey(), $post->created_by_administrator_id);
         $this->assertSame(1, NewsPostRevision::query()->count());
@@ -144,6 +146,7 @@ final class AdminNewsPostTest extends TestCase
     {
         return [
             'slug' => 'realm-opening',
+            'type' => 'news',
             'title_en' => 'Realm opening',
             'title_bg' => 'Откриване на света',
             'excerpt_en' => 'The realm opens this weekend.',

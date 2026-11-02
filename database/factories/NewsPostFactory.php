@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Content\NewsPostStatus;
+use App\Content\NewsPostType;
 use App\Models\NewsPost;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -23,6 +24,7 @@ final class NewsPostFactory extends Factory
 
         return [
             'slug' => Str::slug($title),
+            'type' => NewsPostType::News,
             'title_en' => $title,
             'title_bg' => null,
             'excerpt_en' => fake()->sentence(14),
@@ -44,6 +46,16 @@ final class NewsPostFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'status' => NewsPostStatus::Published,
             'published_at' => now()->subMinute(),
+        ]);
+    }
+
+    /**
+     * Places the generated article in the public guide collection.
+     */
+    public function guide(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'type' => NewsPostType::Guide,
         ]);
     }
 }

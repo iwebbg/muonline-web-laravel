@@ -27,6 +27,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredAccountController;
+use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PreviewController;
@@ -44,6 +45,12 @@ Route::get('/news', [NewsController::class, 'index'])
 Route::get('/news/{slug}', [NewsController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('news.show');
+
+Route::get('/guides', [GuideController::class, 'index'])
+    ->name('guides.index');
+Route::get('/guides/{slug}', [GuideController::class, 'show'])
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('guides.show');
 
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
     ->name('password.request');

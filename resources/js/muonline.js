@@ -174,6 +174,7 @@ export function contentManager(posts, createUrl) {
         deleteAction: '',
         form: {
             slug: '',
+            type: 'news',
             title_en: '',
             title_bg: '',
             excerpt_en: '',
@@ -192,6 +193,7 @@ export function contentManager(posts, createUrl) {
             this.formAction = createUrl;
             this.form = {
                 slug: '',
+                type: 'news',
                 title_en: '',
                 title_bg: '',
                 excerpt_en: '',
@@ -215,6 +217,7 @@ export function contentManager(posts, createUrl) {
             this.formAction = post.update_url;
             this.form = {
                 slug: post.slug,
+                type: post.type,
                 title_en: post.title_en,
                 title_bg: post.title_bg,
                 excerpt_en: post.excerpt_en,
