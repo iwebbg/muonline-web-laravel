@@ -256,6 +256,75 @@ export function contentManager(posts, createUrl) {
 }
 
 /**
+ * Creates the full-administrator Game Master identity editor state.
+ *
+ * @param {string} createUrl The route used to create a Game Master.
+ * @returns {object}
+ */
+export function gameMasterManager(createUrl) {
+    return {
+        editorOpen: false,
+        editing: false,
+        formAction: createUrl,
+        form: {
+            name: '',
+            email: '',
+            password: '',
+            password_confirmation: '',
+            is_active: true,
+            permissions: [],
+        },
+
+        /**
+         * Opens a blank Game Master form with no implicit permissions.
+         */
+        openCreate() {
+            this.editing = false;
+            this.formAction = createUrl;
+            this.form = {
+                name: '',
+                email: '',
+                password: '',
+                password_confirmation: '',
+                is_active: true,
+                permissions: [],
+            };
+            this.editorOpen = true;
+            this.$nextTick(() => this.$refs.gameMasterName?.focus());
+        },
+
+        /**
+         * Opens one existing Game Master without ever loading a password value.
+         *
+         * @param {object} gameMaster The password-free identity payload.
+         */
+        openEdit(gameMaster) {
+            this.editing = true;
+            this.formAction = gameMaster.update_url;
+            this.form = {
+                name: gameMaster.name,
+                email: gameMaster.email,
+                password: '',
+                password_confirmation: '',
+                is_active: gameMaster.is_active,
+                permissions: [...gameMaster.permissions],
+            };
+            this.editorOpen = true;
+            this.$nextTick(() => this.$refs.gameMasterName?.focus());
+        },
+
+        /**
+         * Closes the identity editor and discards unsaved password input.
+         */
+        closeEditor() {
+            this.form.password = '';
+            this.form.password_confirmation = '';
+            this.editorOpen = false;
+        },
+    };
+}
+
+/**
  * Creates the responsive navigation state shared by all application areas.
  *
  * @returns {{mobileMenuOpen: boolean, toggleMobileMenu: Function, closeMobileMenu: Function}}

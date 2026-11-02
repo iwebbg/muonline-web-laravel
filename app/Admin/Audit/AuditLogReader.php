@@ -4,6 +4,7 @@ namespace App\Admin\Audit;
 
 use App\Models\AccountCredentialOperation;
 use App\Models\AccountRegistrationOperation;
+use App\Models\AdministratorIdentityRevision;
 use App\Models\CharacterGrandResetOperation;
 use App\Models\CharacterMoveOperation;
 use App\Models\CharacterPkClearOperation;
@@ -84,7 +85,10 @@ final class AuditLogReader
      */
     public function supportedTypes(): array
     {
-        $types = ['reset_profile'];
+        $types = [
+            'reset_profile',
+            'game_master_identity',
+        ];
 
         foreach (self::OPERATION_SOURCES as $source) {
             $types[] = $source['type'];
@@ -133,6 +137,17 @@ final class AuditLogReader
 
             foreach ($revisions as $revision) {
                 $entries[] = $this->revisionEntry($revision);
+            }
+        }
+
+        if ($type === null || $type === 'game_master_identity') {
+            $identityRevisions = AdministratorIdentityRevision::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($identityRevisions as $identityRevision) {
+                $entries[] = $this->identityRevisionEntry($identityRevision);
             }
         }
 
@@ -210,6 +225,33 @@ final class AuditLogReader
             failureCode: null,
             contextSnapshot: [
                 'revision' => $revision->revision,
+            ],
+            beforeSnapshot: $revision->before_snapshot,
+            afterSnapshot: $revision->after_snapshot,
+            occurredAt: $this->occurredAt($revision),
+        );
+    }
+
+    /**
+     * Normalizes one password-free Game Master identity revision.
+     */
+    private function identityRevisionEntry(
+        AdministratorIdentityRevision $revision,
+    ): AuditLogEntry {
+        $targetAdministratorId = $revision->target_administrator_id;
+        $subject = $targetAdministratorId === null
+            ? 'gm:deleted'
+            : 'gm:'.$targetAdministratorId;
+
+        return new AuditLogEntry(
+            type: 'game_master_identity',
+            subject: $subject,
+            characterName: null,
+            status: 'completed',
+            failureCode: null,
+            contextSnapshot: [
+                'action' => $revision->action,
+                'changed_by_administrator_id' => $revision->changed_by_administrator_id,
             ],
             beforeSnapshot: $revision->before_snapshot,
             afterSnapshot: $revision->after_snapshot,

@@ -24,6 +24,11 @@
                 <span>⚑</span>{{ __('ui.admin.moderation') }}
             </a>
         @endif
+        @if (auth('admin')->user()?->role === \App\Admin\Authorization\AdministratorRole::Administrator)
+            <a href="{{ route('admin.game-masters.index') }}" class="admin-nav-link {{ $active === 'game-masters' ? 'admin-nav-link-active' : '' }}">
+                <span>♜</span>{{ __('ui.admin.game_masters') }}
+            </a>
+        @endif
         <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◈</span>{{ __('ui.admin.economy') }}</span>
         <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◇</span>{{ __('ui.admin.modules') }}</span>
         @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageContent))

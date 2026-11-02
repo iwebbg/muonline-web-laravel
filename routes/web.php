@@ -19,6 +19,7 @@ use App\Http\Controllers\AccountDashboardController;
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\GameMasterController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ResetProfileController;
@@ -144,6 +145,14 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                 Route::delete('/content/news/{newsPost}', [AdminNewsPostController::class, 'destroy'])
                     ->name('news-posts.destroy');
             });
+        Route::middleware('admin.full')->group(function (): void {
+            Route::get('/game-masters', [GameMasterController::class, 'index'])
+                ->name('game-masters.index');
+            Route::post('/game-masters', [GameMasterController::class, 'store'])
+                ->name('game-masters.store');
+            Route::put('/game-masters/{gameMaster}', [GameMasterController::class, 'update'])
+                ->name('game-masters.update');
+        });
         Route::put('/reset-profile', [ResetProfileController::class, 'update'])
             ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->name('reset-profile.update');

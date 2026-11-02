@@ -5,6 +5,7 @@ import {
     applicationNavigation,
     contentManager,
     eventSchedule,
+    gameMasterManager,
     moderationPanel,
     rankingBoard,
     rankingExplorer,
@@ -17,6 +18,7 @@ Alpine.data('accountPanel', accountPanel);
 Alpine.data('applicationNavigation', applicationNavigation);
 Alpine.data('contentManager', contentManager);
 Alpine.data('eventSchedule', eventSchedule);
+Alpine.data('gameMasterManager', gameMasterManager);
 Alpine.data('moderationPanel', moderationPanel);
 Alpine.data('rankingBoard', rankingBoard);
 Alpine.data('rankingExplorer', rankingExplorer);
