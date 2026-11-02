@@ -172,6 +172,31 @@ final class MarketEscrowTest extends TestCase
     }
 
     /**
+     * Confirms expired listings leave public sale and return their exact item.
+     */
+    public function test_scheduler_returns_expired_active_listing_to_seller(): void
+    {
+        $listing = MarketListing::factory()->create([
+            'seller_account_id' => 'seller09',
+            'expires_at' => now()->subMinute(),
+        ]);
+        $this->mock(MarketItemEscrowRepository::class)
+            ->shouldReceive('deposit')
+            ->once()
+            ->with('seller09', $listing->item_binary, 1, 2)
+            ->andReturn(MarketEscrowResult::Deposited);
+
+        $this->artisan('market:sync-escrow')
+            ->expectsOutputToContain('1 synced, 0 pending retry')
+            ->assertSuccessful();
+
+        $listing->refresh();
+        $this->assertSame(MarketListingStatus::Returned, $listing->status);
+        $this->assertNull($listing->escrow_key);
+        $this->assertNotNull($listing->returned_at);
+    }
+
+    /**
      * Confirms seller cancellation removes the listing and returns the same bytes.
      */
     public function test_seller_return_deposits_original_item_once(): void

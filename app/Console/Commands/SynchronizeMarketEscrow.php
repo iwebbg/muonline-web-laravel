@@ -32,6 +32,23 @@ final class SynchronizeMarketEscrow extends Command
 
         $synchronized = 0;
         $pending = 0;
+        $expiredListingIds = MarketListing::query()
+            ->where('status', MarketListingStatus::Active)
+            ->whereNotNull('expires_at')
+            ->where('expires_at', '<=', now())
+            ->orderBy('id')
+            ->limit(100)
+            ->pluck('id');
+
+        foreach ($expiredListingIds as $expiredListingId) {
+            MarketListing::query()
+                ->whereKey($expiredListingId)
+                ->where('status', MarketListingStatus::Active)
+                ->update([
+                    'status' => MarketListingStatus::ReturnPending,
+                ]);
+        }
+
         $listings = MarketListing::query()
             ->whereIn('status', [
                 MarketListingStatus::Extracting->value,

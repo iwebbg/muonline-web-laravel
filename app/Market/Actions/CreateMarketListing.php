@@ -107,7 +107,9 @@ final readonly class CreateMarketListing
                 'price_credits' => $priceCredits,
                 'status' => MarketListingStatus::Extracting,
                 'sync_attempts' => 0,
-                'expires_at' => now()->addDays(30),
+                'expires_at' => now()->addDays(
+                    (int) config('game.market_listing_duration_days', 30),
+                ),
             ]);
         } catch (QueryException $exception) {
             $existingListing = MarketListing::query()

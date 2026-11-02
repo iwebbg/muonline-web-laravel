@@ -25,6 +25,11 @@ return [
 
     'event_home_limit' => (int) env('GAME_EVENT_HOME_LIMIT', 3),
 
+    'market_listing_duration_days' => max(
+        1,
+        (int) env('GAME_MARKET_LISTING_DURATION_DAYS', 30),
+    ),
+
     'profile' => [
         'name' => env('GAME_SERVER_NAME', 'MuOnline 97d+99i'),
         'version' => env('GAME_SERVER_VERSION', '97d + 99i'),

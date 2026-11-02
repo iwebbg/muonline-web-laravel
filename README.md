@@ -34,6 +34,11 @@ optional ISO weekday list (`days_of_week`), or `interval_minutes` with an
 schedule calculator, nearest-event ordering, live timer and expanded list do
 not require event-specific controller or JavaScript changes.
 
+Player-market listings keep the original 10-byte item in recoverable escrow.
+`GAME_MARKET_LISTING_DURATION_DAYS` controls their lifetime (30 days by
+default); the scheduler automatically removes expired listings and retries the
+exact item return until the seller's active warehouse can accept it.
+
 ## Local development
 
 The supported runtime is provided by Docker and uses PHP 8.5, Microsoft ODBC
