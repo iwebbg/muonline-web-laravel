@@ -32,7 +32,7 @@ final class RankingsController extends Controller
      * Serializes character entries and adds a stable server-side rank.
      *
      * @param  list<CharacterRankingEntry>  $entries
-     * @return list<array{rank: int, name: string, class: string, resets: int, grand_resets: int, online: bool}>
+     * @return list<array{rank: int, name: string, class: string, resets: int, grand_resets: int, online: bool, profile_url: string}>
      */
     private function serializeCharacters(array $entries): array
     {
@@ -42,6 +42,7 @@ final class RankingsController extends Controller
             $players[] = [
                 'rank' => $index + 1,
                 ...$entry->toArray(),
+                'profile_url' => route('characters.show', $entry->name),
             ];
         }
 
@@ -52,7 +53,7 @@ final class RankingsController extends Controller
      * Serializes guild entries and adds a stable server-side rank.
      *
      * @param  list<GuildRankingEntry>  $entries
-     * @return list<array{rank: int, name: string, master: string, score: int, members: int}>
+     * @return list<array{rank: int, name: string, master: string, score: int, members: int, profile_url: string}>
      */
     private function serializeGuilds(array $entries): array
     {
@@ -62,6 +63,7 @@ final class RankingsController extends Controller
             $guilds[] = [
                 'rank' => $index + 1,
                 ...$entry->toArray(),
+                'profile_url' => route('guilds.show', $entry->name),
             ];
         }
 

@@ -4,6 +4,8 @@ namespace App\Game\Contracts;
 
 use App\Game\Data\CharacterRankingEntry;
 use App\Game\Data\GuildRankingEntry;
+use App\Game\Data\PublicCharacterProfile;
+use App\Game\Data\PublicGuildProfile;
 use App\Game\Data\RealmOverview;
 
 /**
@@ -29,4 +31,14 @@ interface RealmReadRepository
      * @return list<GuildRankingEntry>
      */
     public function topGuilds(int $limit): array;
+
+    /**
+     * Returns one privacy-safe public character profile or null when absent.
+     */
+    public function publicCharacter(string $characterName): ?PublicCharacterProfile;
+
+    /**
+     * Returns one public guild profile with a normalized roster or null when absent.
+     */
+    public function publicGuild(string $guildName): ?PublicGuildProfile;
 }

@@ -42,8 +42,10 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredAccountController;
+use App\Http\Controllers\CharacterProfileController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\GuideController;
+use App\Http\Controllers\GuildProfileController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\NewsController;
@@ -57,6 +59,12 @@ Route::get('/', [PreviewController::class, 'home'])
 
 Route::get('/rankings', RankingsController::class)
     ->name('rankings');
+Route::get('/characters/{characterName}', CharacterProfileController::class)
+    ->where('characterName', '[A-Za-z0-9_-]{1,10}')
+    ->name('characters.show');
+Route::get('/guilds/{guildName}', GuildProfileController::class)
+    ->where('guildName', '[^/]{1,50}')
+    ->name('guilds.show');
 
 Route::get('/news', [NewsController::class, 'index'])
     ->name('news.index');

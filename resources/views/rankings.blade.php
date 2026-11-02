@@ -86,7 +86,9 @@
                         <template x-for="player in visiblePlayers" x-bind:key="player.name">
                             <tr class="transition hover:bg-white/[0.025]">
                                 <td class="px-5 py-4 font-display text-xl text-gold sm:px-6" x-text="`#${player.rank}`"></td>
-                                <td class="px-5 py-4 font-semibold text-white sm:px-6" x-text="player.name"></td>
+                                <td class="px-5 py-4 font-semibold text-white sm:px-6">
+                                    <a x-bind:href="player.profile_url" class="transition hover:text-gold" x-text="player.name"></a>
+                                </td>
                                 <td class="px-5 py-4 text-silver sm:px-6" x-text="player.class"></td>
                                 <td class="px-5 py-4 text-right font-semibold text-white sm:px-6" x-text="player.resets"></td>
                                 <td class="px-5 py-4 text-right font-semibold text-white sm:px-6" x-text="player.grand_resets"></td>
@@ -130,7 +132,9 @@
                         <template x-for="guild in visibleGuilds" x-bind:key="guild.name">
                             <tr class="transition hover:bg-white/[0.025]">
                                 <td class="px-5 py-4 font-display text-xl text-gold sm:px-6" x-text="`#${guild.rank}`"></td>
-                                <td class="px-5 py-4 font-semibold text-white sm:px-6" x-text="guild.name"></td>
+                                <td class="px-5 py-4 font-semibold text-white sm:px-6">
+                                    <a x-bind:href="guild.profile_url" class="transition hover:text-gold" x-text="guild.name"></a>
+                                </td>
                                 <td class="px-5 py-4 text-silver sm:px-6" x-text="guild.master"></td>
                                 <td class="px-5 py-4 text-right font-semibold text-white sm:px-6" x-text="guild.score"></td>
                                 <td class="px-5 py-4 text-right font-semibold text-white sm:px-6" x-text="guild.members"></td>
