@@ -83,10 +83,12 @@ final readonly class SqlServer97d99iMarketItemEscrowRepository implements Market
                 $slot * ItemCodec97d99i::SLOT_BYTES,
                 ItemCodec97d99i::SLOT_BYTES,
             );
-            $connection
-                ->table('warehouse')
-                ->where('AccountID', $accountId)
-                ->update([$storageColumn => $updatedBinary]);
+            $this->updateWarehouseBinary(
+                connection: $connection,
+                accountId: $accountId,
+                storageColumn: $storageColumn,
+                binary: $updatedBinary,
+            );
 
             return MarketEscrowResult::Extracted;
         }, attempts: 3);
@@ -136,10 +138,12 @@ final readonly class SqlServer97d99iMarketItemEscrowRepository implements Market
                 $freeSlot * ItemCodec97d99i::SLOT_BYTES,
                 ItemCodec97d99i::SLOT_BYTES,
             );
-            $connection
-                ->table('warehouse')
-                ->where('AccountID', $accountId)
-                ->update(['Items' => $updatedBinary]);
+            $this->updateWarehouseBinary(
+                connection: $connection,
+                accountId: $accountId,
+                storageColumn: 'Items',
+                binary: $updatedBinary,
+            );
 
             return MarketEscrowResult::Deposited;
         }, attempts: 3);
@@ -316,6 +320,36 @@ final readonly class SqlServer97d99iMarketItemEscrowRepository implements Market
         }
 
         return null;
+    }
+
+    /**
+     * Writes arbitrary item bytes without asking pdo_sqlsrv to encode them as UCS-2 text.
+     */
+    private function updateWarehouseBinary(
+        Connection $connection,
+        string $accountId,
+        string $storageColumn,
+        string $binary,
+    ): void {
+        if ($connection->getDriverName() !== 'sqlsrv') {
+            $connection
+                ->table('warehouse')
+                ->where('AccountID', $accountId)
+                ->update([$storageColumn => $binary]);
+
+            return;
+        }
+
+        $grammar = $connection->getQueryGrammar();
+        $warehouse = $grammar->wrapTable('warehouse');
+        $column = $grammar->wrap($storageColumn);
+        $accountColumn = $grammar->wrap('AccountID');
+        $statement = "UPDATE {$warehouse} SET {$column} = CONVERT(varbinary(max), ?, 2) WHERE {$accountColumn} = ?";
+
+        $connection->update($statement, [
+            strtoupper(bin2hex($binary)),
+            $accountId,
+        ]);
     }
 
     /**

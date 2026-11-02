@@ -20,8 +20,12 @@ use App\Market\MarketEscrowResult;
 use App\Market\MarketListingBlockReason;
 use App\Market\MarketListingStatus;
 use App\Models\MarketListing;
+use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\Query\Grammars\SqlServerGrammar;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Mockery;
+use ReflectionMethod;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -256,6 +260,40 @@ final class MarketEscrowTest extends TestCase
         $result = $repository->deposit('seller05', $this->itemBinary, 1, 2);
 
         $this->assertSame(MarketEscrowResult::AlreadyDeposited, $result);
+    }
+
+    /**
+     * Confirms SQL Server receives arbitrary item bytes as hexadecimal varbinary input.
+     */
+    public function test_sql_server_binary_writes_do_not_bind_item_bytes_as_text(): void
+    {
+        $connection = Mockery::mock(Connection::class);
+        $connection->shouldReceive('getDriverName')
+            ->once()
+            ->andReturn('sqlsrv');
+        $connection->shouldReceive('getTablePrefix')
+            ->once()
+            ->andReturn('');
+        $connection->shouldReceive('getQueryGrammar')
+            ->once()
+            ->andReturn(new SqlServerGrammar($connection));
+        $connection->shouldReceive('update')
+            ->once()
+            ->with(
+                'UPDATE [warehouse] SET [Items] = CONVERT(varbinary(max), ?, 2) WHERE [AccountID] = ?',
+                ['FF0080C328', 'binary01'],
+            )
+            ->andReturn(1);
+        $repository = $this->repository(Mockery::mock(DatabaseManager::class));
+        $method = new ReflectionMethod($repository, 'updateWarehouseBinary');
+
+        $method->invoke(
+            $repository,
+            $connection,
+            'binary01',
+            'Items',
+            hex2bin('FF0080C328'),
+        );
     }
 
     /**
