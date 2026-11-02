@@ -113,4 +113,18 @@ final class ResetProfileSettingsTest extends TestCase
 
         $this->assertSame(600_000, $byPkLevel->pkClearZenCostFor(6, 4));
     }
+
+    /**
+     * Confirms Move to Town defaults use the safe DarksTeam Lorencia gate center.
+     */
+    public function test_move_to_town_defaults_match_darksteam_lorencia_safe_zone(): void
+    {
+        $settings = ResetProfileSettings::defaults();
+
+        $this->assertTrue($settings->moveToTownEnabled);
+        $this->assertSame(0, $settings->moveToTownMap);
+        $this->assertSame(141, $settings->moveToTownX);
+        $this->assertSame(127, $settings->moveToTownY);
+        $this->assertSame(0, $settings->moveToTownZenCost);
+    }
 }

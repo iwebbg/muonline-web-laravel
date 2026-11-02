@@ -7,6 +7,7 @@ use App\Game\Clocks\SqlServerRealmClock;
 use App\Game\Clocks\SystemRealmClock;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\CharacterGrandResetRepository;
+use App\Game\Contracts\CharacterMoveRepository;
 use App\Game\Contracts\CharacterPkClearRepository;
 use App\Game\Contracts\CharacterResetRepository;
 use App\Game\Contracts\CharacterStatAllocationRepository;
@@ -16,6 +17,7 @@ use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
 use App\Game\Repositories\SqlServer97d99iAccountReadRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterGrandResetRepository;
+use App\Game\Repositories\SqlServer97d99iCharacterMoveRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterPkClearRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterResetRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterStatAllocationRepository;
@@ -49,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AccountReadRepository::class, SqlServer97d99iAccountReadRepository::class);
         $this->app->bind(CharacterResetRepository::class, SqlServer97d99iCharacterResetRepository::class);
         $this->app->bind(CharacterGrandResetRepository::class, SqlServer97d99iCharacterGrandResetRepository::class);
+        $this->app->bind(CharacterMoveRepository::class, SqlServer97d99iCharacterMoveRepository::class);
         $this->app->bind(CharacterPkClearRepository::class, SqlServer97d99iCharacterPkClearRepository::class);
         $this->app->bind(CharacterStatAllocationRepository::class, SqlServer97d99iCharacterStatAllocationRepository::class);
         $this->app->bind(CharacterStatResetRepository::class, SqlServer97d99iCharacterStatResetRepository::class);
@@ -141,6 +144,20 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('pk-clear', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(5)->by($limiterKey);
+        });
+
+        RateLimiter::for('move-to-town-preview', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(30)->by($limiterKey);
+        });
+
+        RateLimiter::for('move-to-town', function (Request $request): Limit {
             $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
             $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
 

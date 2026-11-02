@@ -59,6 +59,11 @@ final readonly class UpdateResetProfile
                     pkClearRequiredLevel: $profile->pk_clear_required_level,
                     pkClearBaseZenCost: $profile->pk_clear_base_zen_cost,
                     pkClearPriceMode: $profile->pk_clear_price_mode,
+                    moveToTownEnabled: $profile->move_to_town_enabled,
+                    moveToTownMap: $profile->move_to_town_map,
+                    moveToTownX: $profile->move_to_town_x,
+                    moveToTownY: $profile->move_to_town_y,
+                    moveToTownZenCost: $profile->move_to_town_zen_cost,
                 );
             $revision = ($profile?->revision ?? 0) + 1;
             $attributes = [

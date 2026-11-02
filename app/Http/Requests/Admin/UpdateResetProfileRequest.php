@@ -61,6 +61,11 @@ final class UpdateResetProfileRequest extends FormRequest
             'pkClearRequiredLevel' => ['required', 'integer', 'min:1', 'max:400'],
             'pkClearBaseZenCost' => ['required', 'integer', 'min:0', 'max:2000000000'],
             'pkClearPriceMode' => ['required', Rule::enum(PkClearPriceMode::class)],
+            'moveToTownEnabled' => ['required', 'boolean'],
+            'moveToTownMap' => ['required', 'integer', 'min:0', 'max:255'],
+            'moveToTownX' => ['required', 'integer', 'min:0', 'max:255'],
+            'moveToTownY' => ['required', 'integer', 'min:0', 'max:255'],
+            'moveToTownZenCost' => ['required', 'integer', 'min:0', 'max:2000000000'],
         ];
     }
 
@@ -101,6 +106,11 @@ final class UpdateResetProfileRequest extends FormRequest
             pkClearRequiredLevel: (int) $validated['pkClearRequiredLevel'],
             pkClearBaseZenCost: (int) $validated['pkClearBaseZenCost'],
             pkClearPriceMode: PkClearPriceMode::from((string) $validated['pkClearPriceMode']),
+            moveToTownEnabled: (bool) $validated['moveToTownEnabled'],
+            moveToTownMap: (int) $validated['moveToTownMap'],
+            moveToTownX: (int) $validated['moveToTownX'],
+            moveToTownY: (int) $validated['moveToTownY'],
+            moveToTownZenCost: (int) $validated['moveToTownZenCost'],
         );
     }
 }

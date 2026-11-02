@@ -43,6 +43,11 @@ final readonly class ResetProfileSettings
         public int $pkClearRequiredLevel = 100,
         public int $pkClearBaseZenCost = 100_000,
         public PkClearPriceMode $pkClearPriceMode = PkClearPriceMode::Fixed,
+        public bool $moveToTownEnabled = true,
+        public int $moveToTownMap = 0,
+        public int $moveToTownX = 141,
+        public int $moveToTownY = 127,
+        public int $moveToTownZenCost = 0,
     ) {}
 
     /**
@@ -80,6 +85,11 @@ final readonly class ResetProfileSettings
             pkClearRequiredLevel: 100,
             pkClearBaseZenCost: 100_000,
             pkClearPriceMode: PkClearPriceMode::Fixed,
+            moveToTownEnabled: true,
+            moveToTownMap: 0,
+            moveToTownX: 141,
+            moveToTownY: 127,
+            moveToTownZenCost: 0,
         );
     }
 
@@ -194,6 +204,11 @@ final readonly class ResetProfileSettings
             'pkClearRequiredLevel' => $this->pkClearRequiredLevel,
             'pkClearBaseZenCost' => $this->pkClearBaseZenCost,
             'pkClearPriceMode' => $this->pkClearPriceMode->value,
+            'moveToTownEnabled' => $this->moveToTownEnabled,
+            'moveToTownMap' => $this->moveToTownMap,
+            'moveToTownX' => $this->moveToTownX,
+            'moveToTownY' => $this->moveToTownY,
+            'moveToTownZenCost' => $this->moveToTownZenCost,
         ];
     }
 
@@ -234,6 +249,11 @@ final readonly class ResetProfileSettings
             'pk_clear_required_level' => $this->pkClearRequiredLevel,
             'pk_clear_base_zen_cost' => $this->pkClearBaseZenCost,
             'pk_clear_price_mode' => $this->pkClearPriceMode->value,
+            'move_to_town_enabled' => $this->moveToTownEnabled,
+            'move_to_town_map' => $this->moveToTownMap,
+            'move_to_town_x' => $this->moveToTownX,
+            'move_to_town_y' => $this->moveToTownY,
+            'move_to_town_zen_cost' => $this->moveToTownZenCost,
         ];
     }
 }

@@ -16,6 +16,8 @@
                 'statResetExecuteUrl' => route('account.character-stat-reset'),
                 'pkClearPreviewUrl' => route('account.pk-clear-preview'),
                 'pkClearExecuteUrl' => route('account.character-pk-clear'),
+                'moveToTownPreviewUrl' => route('account.move-to-town-preview'),
+                'moveToTownExecuteUrl' => route('account.character-move'),
                 'statPreviewUrl' => route('account.stat-allocation-preview'),
                 'statExecuteUrl' => route('account.stat-allocations.store'),
                 'writesEnabled' => $gameWritesEnabled,
@@ -32,6 +34,9 @@
                 'pkClearPreviewFailed' => __('ui.account.pk_clear_preview_failed'),
                 'pkClearExecutionFailed' => __('ui.account.pk_clear_operation_failed'),
                 'pkClearCompleted' => __('ui.account.pk_clear_completed'),
+                'moveToTownPreviewFailed' => __('ui.account.move_to_town_preview_failed'),
+                'moveToTownExecutionFailed' => __('ui.account.move_to_town_operation_failed'),
+                'moveToTownCompleted' => __('ui.account.move_to_town_completed'),
                 'statPreviewFailed' => __('ui.account.allocation_preview_failed'),
                 'statExecutionFailed' => __('ui.account.stat_allocation_failed'),
                 'statCompleted' => __('ui.account.stat_allocation_completed'),
@@ -101,6 +106,15 @@
                     'fixed' => __('ui.account.pk_clear_price_fixed'),
                     'by_pk_level' => __('ui.account.pk_clear_price_by_level'),
                     'by_pk_count' => __('ui.account.pk_clear_price_by_count'),
+                ],
+                'moveToTownBlockReasons' => [
+                    'profile_disabled' => __('ui.account.move_to_town_profile_disabled'),
+                    'character_online' => __('ui.account.reset_character_online'),
+                    'insufficient_zen' => __('ui.account.move_to_town_insufficient_zen'),
+                    'already_at_destination' => __('ui.account.move_to_town_already_there'),
+                    'writes_disabled' => __('ui.account.reset_writes_disabled'),
+                    'operation_in_progress' => __('ui.account.move_to_town_operation_in_progress'),
+                    'idempotency_conflict' => __('ui.account.move_to_town_idempotency_conflict'),
                 ],
                 'statBlockReasons' => [
                     'character_online' => __('ui.account.reset_character_online'),
@@ -185,7 +199,7 @@
 
             <section class="min-w-0">
                 <div class="segmented-control w-full overflow-x-auto sm:w-fit" role="tablist" aria-label="{{ __('ui.account.character_tools') }}">
-                    @foreach (['overview' => __('ui.account.overview'), 'inventory' => __('ui.account.inventory'), 'stats' => __('ui.account.allocate_stats'), 'stat-reset' => __('ui.account.stat_reset'), 'pk-clear' => __('ui.account.pk_clear'), 'reset' => __('ui.account.reset'), 'grand-reset' => __('ui.account.grand_reset')] as $section => $label)
+                    @foreach (['overview' => __('ui.account.overview'), 'inventory' => __('ui.account.inventory'), 'stats' => __('ui.account.allocate_stats'), 'stat-reset' => __('ui.account.stat_reset'), 'pk-clear' => __('ui.account.pk_clear'), 'move-to-town' => __('ui.account.move_to_town'), 'reset' => __('ui.account.reset'), 'grand-reset' => __('ui.account.grand_reset')] as $section => $label)
                         <button
                             type="button"
                             role="tab"
@@ -232,7 +246,7 @@
                                     <span><strong>{{ __('ui.account.pk_clear_character') }}</strong><small>{{ __('ui.account.pk_clear_help') }}</small></span>
                                     <span aria-hidden="true">→</span>
                                 </button>
-                                <button type="button" class="action-row">
+                                <button type="button" class="action-row" @click="selectSection('move-to-town')">
                                     <span><strong>{{ __('ui.account.move_to_town') }}</strong><small>{{ __('ui.account.offline_only') }}</small></span>
                                     <span aria-hidden="true">→</span>
                                 </button>
@@ -591,6 +605,67 @@
 
                                 <div class="mt-7 flex justify-end" x-show="!pkClearConfirmationOpen">
                                     <button type="button" class="button button-primary" :disabled="!pkClearPreview.eligible || !resetPreviewConfiguration.writesEnabled || pkClearExecuting" @click="openPkClearConfirmation">{{ __('ui.account.pk_clear_confirm') }}</button>
+                                </div>
+                            </div>
+                        </template>
+                    </article>
+                </div>
+
+                <div class="mt-5" x-show="activeSection === 'move-to-town'" x-cloak>
+                    <article class="panel-card">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="kicker">{{ __('ui.account.transactional_operation') }}</p>
+                                <h3 class="mt-2 text-xl font-semibold text-white">{{ __('ui.account.move_to_town_preview') }}</h3>
+                                <p class="mt-2 text-sm text-steel">{{ __('ui.account.move_to_town_help') }}</p>
+                            </div>
+                            <span class="preview-badge">{{ __('ui.account.preview_only') }}</span>
+                        </div>
+
+                        <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" x-show="moveToTownPreviewLoading">
+                            @for ($placeholder = 0; $placeholder < 4; $placeholder++)
+                                <div class="outcome-card animate-pulse" aria-hidden="true"><span class="h-3 w-20 rounded bg-white/8"></span><strong class="mt-3 h-6 w-28 rounded bg-white/10"></strong></div>
+                            @endfor
+                        </div>
+
+                        <div class="mt-7 rounded-2xl border border-red-300/20 bg-red-400/8 p-4 text-sm text-red-100" x-show="moveToTownPreviewError" x-text="moveToTownPreviewError" role="alert"></div>
+                        <div class="mt-7 rounded-2xl border border-emerald-300/20 bg-emerald-300/7 p-4 text-sm text-emerald-100" x-show="moveToTownSuccessMessage" x-text="moveToTownSuccessMessage" role="status"></div>
+
+                        <template x-if="moveToTownPreview !== null && !moveToTownPreviewLoading">
+                            <div>
+                                <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                    <div class="outcome-card"><span>{{ __('ui.account.current_location') }}</span><strong><span x-text="moveToTownPreview.currentMapName"></span> · <span x-text="moveToTownPreview.currentX"></span>, <span x-text="moveToTownPreview.currentY"></span></strong></div>
+                                    <div class="outcome-card"><span>{{ __('ui.account.destination') }}</span><strong><span x-text="moveToTownPreview.destinationMapName"></span> · <span x-text="moveToTownPreview.destinationX"></span>, <span x-text="moveToTownPreview.destinationY"></span></strong></div>
+                                    <div class="outcome-card"><span>{{ __('ui.account.cost') }}</span><strong><span x-text="moveToTownPreview.zenCost.toLocaleString()"></span> Zen</strong></div>
+                                    <div class="outcome-card"><span>{{ __('ui.account.zen_after_move') }}</span><strong x-text="moveToTownPreview.resultingZen.toLocaleString()"></strong></div>
+                                </div>
+
+                                <div class="mt-6 rounded-2xl border p-4 text-sm leading-6" :class="moveToTownPreview.eligible ? 'border-emerald-300/20 bg-emerald-300/7 text-emerald-100' : 'border-amber-300/20 bg-amber-300/7 text-amber-100'">
+                                    <strong class="block" x-text="moveToTownPreview.eligible ? @js(__('ui.account.move_to_town_requirements_met')) : @js(__('ui.account.move_to_town_requirements_failed'))"></strong>
+                                    <ul class="mt-2 grid gap-1" x-show="!moveToTownPreview.eligible">
+                                        <template x-for="blockMessage in moveToTownBlockMessages" :key="blockMessage"><li>• <span x-text="blockMessage"></span></li></template>
+                                    </ul>
+                                </div>
+
+                                <div class="mt-6 rounded-2xl border border-white/10 bg-white/4 p-4 text-sm leading-6 text-silver">
+                                    <span x-show="resetPreviewConfiguration.writesEnabled">{{ __('ui.account.move_to_town_preview_notice') }}</span>
+                                    <span x-show="!resetPreviewConfiguration.writesEnabled">{{ __('ui.account.reset_writes_disabled') }}</span>
+                                </div>
+
+                                <div class="mt-6 rounded-2xl border border-gold/20 bg-gold/5 p-5" x-show="moveToTownConfirmationOpen" x-cloak>
+                                    <strong class="block text-white">{{ __('ui.account.move_to_town_confirm') }}</strong>
+                                    <p class="mt-2 text-sm leading-6 text-silver">{{ __('ui.account.move_to_town_confirm_help') }}</p>
+                                    <div class="mt-5 flex flex-wrap justify-end gap-3">
+                                        <button type="button" class="button button-ghost" :disabled="moveToTownExecuting" @click="closeMoveToTownConfirmation">{{ __('ui.account.reset_cancel') }}</button>
+                                        <button type="button" class="button button-primary" :disabled="moveToTownExecuting" @click="executeMoveToTown">
+                                            <span x-show="!moveToTownExecuting">{{ __('ui.account.move_to_town_now') }}</span>
+                                            <span x-show="moveToTownExecuting">{{ __('ui.account.moving_to_town') }}</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-7 flex justify-end" x-show="!moveToTownConfirmationOpen">
+                                    <button type="button" class="button button-primary" :disabled="!moveToTownPreview.eligible || !resetPreviewConfiguration.writesEnabled || moveToTownExecuting" @click="openMoveToTownConfirmation">{{ __('ui.account.move_to_town_confirm') }}</button>
                                 </div>
                             </div>
                         </template>

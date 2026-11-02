@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\Account\CharacterGrandResetController;
+use App\Http\Controllers\Account\CharacterMoveController;
 use App\Http\Controllers\Account\CharacterPkClearController;
 use App\Http\Controllers\Account\CharacterResetController;
 use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
+use App\Http\Controllers\Account\MoveToTownPreviewController;
 use App\Http\Controllers\Account\PkClearPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
 use App\Http\Controllers\Account\StatAllocationPreviewController;
@@ -63,6 +65,12 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/account/character-pk-clear', CharacterPkClearController::class)
         ->middleware('throttle:pk-clear')
         ->name('account.character-pk-clear');
+    Route::post('/account/move-to-town-preview', MoveToTownPreviewController::class)
+        ->middleware('throttle:move-to-town-preview')
+        ->name('account.move-to-town-preview');
+    Route::post('/account/character-move', CharacterMoveController::class)
+        ->middleware('throttle:move-to-town')
+        ->name('account.character-move');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

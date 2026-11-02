@@ -70,7 +70,8 @@ final class AdminResetProfileTest extends TestCase
             ->assertJsonPath('settings.grandResetRequiredResets', 100)
             ->assertJsonPath('settings.grandResetPointsMode', 'add_fixed')
             ->assertJsonPath('settings.statResetZenCost', 5_000_000)
-            ->assertJsonPath('settings.pkClearPriceMode', 'by_pk_level');
+            ->assertJsonPath('settings.pkClearPriceMode', 'by_pk_level')
+            ->assertJsonPath('settings.moveToTownMap', 0);
 
         $profile = ResetProfile::query()->sole();
         $revision = ResetProfileRevision::query()->sole();
@@ -89,6 +90,10 @@ final class AdminResetProfileTest extends TestCase
         $this->assertTrue($profile->pk_clear_enabled);
         $this->assertSame(100, $profile->pk_clear_required_level);
         $this->assertSame(100_000, $profile->pk_clear_base_zen_cost);
+        $this->assertTrue($profile->move_to_town_enabled);
+        $this->assertSame(0, $profile->move_to_town_map);
+        $this->assertSame(141, $profile->move_to_town_x);
+        $this->assertSame(127, $profile->move_to_town_y);
         $this->assertSame($administrator->id, $profile->updated_by_administrator_id);
         $this->assertSame(1, $revision->revision);
         $this->assertSame(15_000_000, $revision->before_snapshot['baseZenCost']);
@@ -238,6 +243,11 @@ final class AdminResetProfileTest extends TestCase
             'pkClearRequiredLevel' => 100,
             'pkClearBaseZenCost' => 100_000,
             'pkClearPriceMode' => 'by_pk_level',
+            'moveToTownEnabled' => true,
+            'moveToTownMap' => 0,
+            'moveToTownX' => 141,
+            'moveToTownY' => 127,
+            'moveToTownZenCost' => 0,
         ];
     }
 

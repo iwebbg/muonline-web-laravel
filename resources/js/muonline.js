@@ -237,6 +237,13 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         pkClearConfirmationOpen: false,
         pkClearExecuting: false,
         pkClearSuccessMessage: null,
+        moveToTownPreview: null,
+        moveToTownPreviewLoading: false,
+        moveToTownPreviewError: null,
+        moveToTownPreviewRequestId: 0,
+        moveToTownConfirmationOpen: false,
+        moveToTownExecuting: false,
+        moveToTownSuccessMessage: null,
         statPreview: null,
         statPreviewLoading: false,
         statPreviewError: null,
@@ -411,6 +418,26 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         },
 
         /**
+         * Returns localized explanations for every failed Move to Town requirement.
+         *
+         * @returns {Array<string>}
+         */
+        get moveToTownBlockMessages() {
+            if (this.moveToTownPreview === null) {
+                return [];
+            }
+
+            const labels = this.resetPreviewConfiguration.moveToTownBlockReasons;
+            const messages = [];
+
+            for (const reason of this.moveToTownPreview.blockReasons) {
+                messages.push(labels[reason] ?? reason);
+            }
+
+            return messages;
+        },
+
+        /**
          * Returns localized explanations for every failed allocation requirement.
          *
          * @returns {Array<string>}
@@ -454,6 +481,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             this.pkClearPreviewError = null;
             this.pkClearConfirmationOpen = false;
             this.pkClearSuccessMessage = null;
+            this.moveToTownPreview = null;
+            this.moveToTownPreviewError = null;
+            this.moveToTownConfirmationOpen = false;
+            this.moveToTownSuccessMessage = null;
             this.statSuccessMessage = null;
 
             if (this.activeSection === 'reset') {
@@ -470,6 +501,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
 
             if (this.activeSection === 'pk-clear') {
                 void this.loadPkClearPreview();
+            }
+
+            if (this.activeSection === 'move-to-town') {
+                void this.loadMoveToTownPreview();
             }
         },
 
@@ -495,6 +530,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
 
             if (section === 'pk-clear') {
                 void this.loadPkClearPreview();
+            }
+
+            if (section === 'move-to-town') {
+                void this.loadMoveToTownPreview();
             }
         },
 
@@ -1075,6 +1114,146 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                 this.pkClearPreviewError = this.resetPreviewConfiguration.pkClearExecutionFailed;
             } finally {
                 this.pkClearExecuting = false;
+            }
+        },
+
+        /**
+         * Loads a fresh ownership-scoped Move to Town preview.
+         */
+        async loadMoveToTownPreview() {
+            if (this.resetPreviewConfiguration === null) {
+                return;
+            }
+
+            const requestId = this.moveToTownPreviewRequestId + 1;
+
+            this.moveToTownPreviewRequestId = requestId;
+            this.moveToTownPreviewLoading = true;
+            this.moveToTownPreviewError = null;
+
+            try {
+                const response = await window.fetch(
+                    this.resetPreviewConfiguration.moveToTownPreviewUrl,
+                    {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.resetPreviewConfiguration.csrfToken,
+                        },
+                        body: JSON.stringify({
+                            characterName: this.selectedCharacter.name,
+                        }),
+                    },
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Move preview request failed with status ${response.status}.`);
+                }
+
+                const payload = await response.json();
+
+                if (requestId !== this.moveToTownPreviewRequestId) {
+                    return;
+                }
+
+                this.moveToTownPreview = payload.preview;
+            } catch {
+                if (requestId === this.moveToTownPreviewRequestId) {
+                    this.moveToTownPreviewError = this.resetPreviewConfiguration.moveToTownPreviewFailed;
+                }
+            } finally {
+                if (requestId === this.moveToTownPreviewRequestId) {
+                    this.moveToTownPreviewLoading = false;
+                }
+            }
+        },
+
+        /**
+         * Shows the final confirmation for an eligible writable move.
+         */
+        openMoveToTownConfirmation() {
+            if (
+                this.moveToTownPreview === null
+                || !this.moveToTownPreview.eligible
+                || !this.resetPreviewConfiguration.writesEnabled
+            ) {
+                return;
+            }
+
+            this.moveToTownConfirmationOpen = true;
+            this.moveToTownPreviewError = null;
+        },
+
+        /**
+         * Closes the Move to Town confirmation while no request is running.
+         */
+        closeMoveToTownConfirmation() {
+            if (this.moveToTownExecuting) {
+                return;
+            }
+
+            this.moveToTownConfirmationOpen = false;
+        },
+
+        /**
+         * Executes the confirmed Move to Town with an at-most-once key.
+         */
+        async executeMoveToTown() {
+            if (
+                this.moveToTownExecuting
+                || this.moveToTownPreview === null
+                || !this.moveToTownPreview.eligible
+                || !this.resetPreviewConfiguration.writesEnabled
+            ) {
+                return;
+            }
+
+            this.moveToTownExecuting = true;
+            this.moveToTownPreviewError = null;
+            this.moveToTownSuccessMessage = null;
+
+            try {
+                const response = await window.fetch(
+                    this.resetPreviewConfiguration.moveToTownExecuteUrl,
+                    {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.resetPreviewConfiguration.csrfToken,
+                        },
+                        body: JSON.stringify({
+                            characterName: this.selectedCharacter.name,
+                            idempotencyKey: this.createIdempotencyKey(),
+                        }),
+                    },
+                );
+                const payload = await response.json();
+
+                if (!response.ok) {
+                    const labels = this.resetPreviewConfiguration.moveToTownBlockReasons;
+
+                    this.moveToTownPreviewError = labels[payload.reason]
+                        ?? payload.message
+                        ?? this.resetPreviewConfiguration.moveToTownExecutionFailed;
+
+                    return;
+                }
+
+                this.selectedCharacter.zen = payload.result.afterZen;
+                this.selectedCharacter.map = payload.result.afterMapName;
+                this.moveToTownConfirmationOpen = false;
+                this.moveToTownSuccessMessage = payload.message
+                    ?? this.resetPreviewConfiguration.moveToTownCompleted;
+
+                await this.loadMoveToTownPreview();
+            } catch {
+                this.moveToTownPreviewError = this.resetPreviewConfiguration.moveToTownExecutionFailed;
+            } finally {
+                this.moveToTownExecuting = false;
             }
         },
 
