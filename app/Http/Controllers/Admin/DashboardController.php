@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
 use App\Http\Controllers\Controller;
+use App\Http\SystemReadiness;
 use App\Models\Administrator;
 use App\Models\ResetProfileRevision;
 use App\Reset\ResetProfileReader;
@@ -23,6 +24,7 @@ final class DashboardController extends Controller
     public function __invoke(
         Request $request,
         ResetProfileReader $resetProfileReader,
+        SystemReadiness $systemReadiness,
     ): View|RedirectResponse {
         $administrator = $request->user('admin');
 
@@ -48,11 +50,13 @@ final class DashboardController extends Controller
         }
 
         $recentRevisions = $resetProfileReader->recentRevisions();
+        $readiness = $systemReadiness->inspect();
 
         return view('admin.dashboard', [
             'resetSettings' => $resetProfileReader->current()->toClientArray(),
             'resetRevision' => $resetProfileReader->revision(),
             'resetRevisions' => $this->summarizeRevisions($recentRevisions),
+            'systemReady' => $readiness['ready'],
         ]);
     }
 

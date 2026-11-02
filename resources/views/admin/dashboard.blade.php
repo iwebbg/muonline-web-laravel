@@ -39,7 +39,10 @@
                     <span>{{ __('ui.admin.signed_in_as') }}</span>
                     <strong>{{ auth('admin')->user()->name }}</strong>
                 </span>
-                <span class="status-pill"><span class="status-dot"></span>{{ __('ui.admin.services_healthy') }}</span>
+                <span class="status-pill">
+                    <span @class(['status-dot', 'status-dot-offline' => ! $systemReady])></span>
+                    {{ $systemReady ? __('ui.admin.services_healthy') : __('ui.admin.services_degraded') }}
+                </span>
                 <button
                     type="submit"
                     form="reset-profile-form"

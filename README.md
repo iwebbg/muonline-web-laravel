@@ -145,6 +145,12 @@ deployment and smoke testing. Enable writes only after the least-privilege SQL
 account, backup and rollback procedure have been verified. Email delivery can
 remain `MAIL_MAILER=log` until provider credentials are configured and tested.
 
+Use `/up` as the process liveness endpoint and `/ready` as the deployment
+readiness endpoint. `/ready` verifies the application database, cache and the
+read-only game connection, but returns only `ok` or `unavailable`; dependency
+names, connection details and exceptions remain private. The administration
+header uses the same probe instead of displaying a hard-coded health badge.
+
 For the first 97d+99i deployment, copy and review
 `docker/sql/create-game-web-login.sql`, replace its SQLCMD variables and run it
 from an existing database-administrator session. The template grants only the

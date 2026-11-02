@@ -54,12 +54,16 @@ use App\Http\Controllers\MarketController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RankingsController;
+use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\VoteController;
 use App\Modules\ServerModule;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PreviewController::class, 'home'])
     ->name('home');
+
+Route::get('/ready', ReadinessController::class)
+    ->name('ready');
 
 Route::get('/rankings', RankingsController::class)
     ->name('rankings');

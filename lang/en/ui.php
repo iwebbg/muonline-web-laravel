@@ -794,6 +794,7 @@ return [
         'heading' => 'Server control',
         'intro' => 'Typed settings, visible outcomes and an audit trail before configuration reaches the game database.',
         'services_healthy' => 'All services healthy',
+        'services_degraded' => 'Service check failed',
         'save_draft' => 'Save draft',
         'saving' => 'Saving…',
         'save_failed' => 'The reset draft could not be saved. Check the highlighted values and try again.',
