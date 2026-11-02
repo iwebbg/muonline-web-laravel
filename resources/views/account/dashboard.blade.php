@@ -272,42 +272,19 @@
 
                         <div x-show="itemStorage !== null && !itemStorageLoading" x-cloak>
                             <p class="kicker mt-7">{{ __('ui.account.equipment') }}</p>
-                            <div class="inventory-grid mt-3">
-                                @for ($slot = 0; $slot < 12; $slot++)
-                                    <div class="inventory-slot">
-                                        <template x-if="itemFor(itemStorage.character.equipment, {{ $slot }})">
-                                            <button
-                                                type="button"
-                                                class="inventory-item"
-                                                :class="`inventory-item-${itemFor(itemStorage.character.equipment, {{ $slot }}).rarity}`"
-                                                :aria-label="itemFor(itemStorage.character.equipment, {{ $slot }}).name"
-                                            >
-                                                <span x-text="itemFor(itemStorage.character.equipment, {{ $slot }}).code"></span>
-                                                <span class="item-tooltip" x-text="itemDescription(itemFor(itemStorage.character.equipment, {{ $slot }}))"></span>
-                                            </button>
-                                        </template>
-                                    </div>
-                                @endfor
-                            </div>
+                            <x-item-grid
+                                class="mt-3"
+                                :slots="12"
+                                items="itemStorage.character.equipment"
+                                :use-item-size="false"
+                            />
 
                             <p class="kicker mt-7">{{ __('ui.account.inventory_bag') }}</p>
-                            <div class="inventory-grid mt-3">
-                                @for ($slot = 0; $slot < 64; $slot++)
-                                    <div class="inventory-slot">
-                                        <template x-if="itemFor(itemStorage.character.inventory, {{ $slot }})">
-                                            <button
-                                                type="button"
-                                                class="inventory-item"
-                                                :class="`inventory-item-${itemFor(itemStorage.character.inventory, {{ $slot }}).rarity}`"
-                                                :aria-label="itemFor(itemStorage.character.inventory, {{ $slot }}).name"
-                                            >
-                                                <span x-text="itemFor(itemStorage.character.inventory, {{ $slot }}).code"></span>
-                                                <span class="item-tooltip" x-text="itemDescription(itemFor(itemStorage.character.inventory, {{ $slot }}))"></span>
-                                            </button>
-                                        </template>
-                                    </div>
-                                @endfor
-                            </div>
+                            <x-item-grid
+                                class="mt-3"
+                                :slots="64"
+                                items="itemStorage.character.inventory"
+                            />
 
                             <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
                                 <div>
@@ -329,23 +306,12 @@
                                 </div>
                             </div>
                             <p class="mt-4 text-sm text-steel" x-show="selectedWarehouseVault === null">{{ __('ui.account.no_warehouse') }}</p>
-                            <div class="inventory-grid mt-4" x-show="selectedWarehouseVault !== null">
-                                @for ($slot = 0; $slot < 120; $slot++)
-                                    <div class="inventory-slot">
-                                        <template x-if="selectedWarehouseVault && itemFor(selectedWarehouseVault.items, {{ $slot }})">
-                                            <button
-                                                type="button"
-                                                class="inventory-item"
-                                                :class="`inventory-item-${itemFor(selectedWarehouseVault.items, {{ $slot }}).rarity}`"
-                                                :aria-label="itemFor(selectedWarehouseVault.items, {{ $slot }}).name"
-                                            >
-                                                <span x-text="itemFor(selectedWarehouseVault.items, {{ $slot }}).code"></span>
-                                                <span class="item-tooltip" x-text="itemDescription(itemFor(selectedWarehouseVault.items, {{ $slot }}))"></span>
-                                            </button>
-                                        </template>
-                                    </div>
-                                @endfor
-                            </div>
+                            <x-item-grid
+                                class="mt-4"
+                                :slots="120"
+                                items="selectedWarehouseVault?.items ?? []"
+                                x-show="selectedWarehouseVault !== null"
+                            />
                         </div>
                     </article>
                 </div>

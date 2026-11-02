@@ -70,6 +70,13 @@ final class ItemStorageEndpointTest extends TestCase
         $response->assertJsonPath('storage.character.characterName', 'OwnKnight');
         $response->assertJsonPath('storage.character.equipment.0.slot', 0);
         $response->assertJsonPath('storage.character.equipment.0.code', '0:0');
+        $response->assertJsonPath('storage.character.equipment.0.name', 'Kris');
+        $response->assertJsonPath('storage.character.equipment.0.width', 1);
+        $response->assertJsonPath('storage.character.equipment.0.height', 2);
+        $response->assertJsonPath(
+            'storage.character.equipment.0.image',
+            '/images/items/97d_99i/0000.gif',
+        );
         $response->assertJsonPath('storage.character.inventory.0.slot', 0);
         $response->assertJsonPath('storage.character.inventory.0.code', '8:31');
         $response->assertJsonPath('storage.warehouse.zen', 30_000_000);

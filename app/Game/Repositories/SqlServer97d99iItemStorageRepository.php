@@ -7,6 +7,7 @@ use App\Game\Data\AccountItemStorage;
 use App\Game\Data\CharacterItemStorage;
 use App\Game\Data\ItemSlot;
 use App\Game\Data\WarehouseVault;
+use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
 use App\Game\Versions\Version97d99i\ItemCodec97d99i;
 use Illuminate\Database\DatabaseManager;
 use stdClass;
@@ -31,6 +32,7 @@ final readonly class SqlServer97d99iItemStorageRepository implements ItemStorage
     public function __construct(
         private DatabaseManager $database,
         private ItemCodec97d99i $codec,
+        private ItemCatalog97d99i $catalog,
     ) {}
 
     /**
@@ -173,9 +175,17 @@ final readonly class SqlServer97d99iItemStorageRepository implements ItemStorage
                 continue;
             }
 
-            $occupied[] = $slotOffset > 0
+            $item = $slotOffset > 0
                 ? $slot->withSlot($slot->slot - $slotOffset)
                 : $slot;
+            $definition = $this->catalog->definitionFor(
+                (int) $item->group,
+                (int) $item->index,
+            );
+
+            $occupied[] = $definition === null
+                ? $item
+                : $item->withDefinition($definition);
         }
 
         return $occupied;

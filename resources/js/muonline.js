@@ -640,14 +640,26 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         },
 
         /**
-         * Finds an occupied item by its visual grid slot.
+         * Places an item over every inventory cell reserved by its catalog dimensions.
          *
-         * @param {Array<object>} items Occupied decoded item slots.
-         * @param {number} slot The visual slot number.
-         * @returns {object|null}
+         * @param {object} item A decoded item with its starting slot and dimensions.
+         * @param {number} columns The number of columns in the target storage grid.
+         * @param {boolean} useItemSize Whether catalog dimensions should span multiple cells.
+         * @returns {object} Inline positioning properties for the item overlay.
          */
-        itemFor(items, slot) {
-            return items.find((item) => item.slot === slot) ?? null;
+        itemGridStyle(item, columns, useItemSize = true) {
+            const column = item.slot % columns;
+            const row = Math.floor(item.slot / columns);
+            const declaredWidth = useItemSize ? Math.max(1, item.width) : 1;
+            const declaredHeight = useItemSize ? Math.max(1, item.height) : 1;
+            const visibleWidth = Math.min(declaredWidth, columns - column);
+
+            return {
+                left: `calc(${column} * var(--inventory-cell-size))`,
+                top: `calc(${row} * var(--inventory-cell-size))`,
+                width: `calc(${visibleWidth} * var(--inventory-cell-size))`,
+                height: `calc(${declaredHeight} * var(--inventory-cell-size))`,
+            };
         },
 
         /**

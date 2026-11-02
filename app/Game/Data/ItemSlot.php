@@ -25,6 +25,10 @@ final readonly class ItemSlot
         public int $excellentMask,
         public int $ancientOption,
         public ?string $serial,
+        public ?string $name = null,
+        public int $width = 1,
+        public int $height = 1,
+        public ?string $image = null,
     ) {
         if (strlen($this->binary) !== 10) {
             throw new InvalidArgumentException('An item slot must contain exactly 10 bytes.');
@@ -65,11 +69,40 @@ final readonly class ItemSlot
             excellentMask: $this->excellentMask,
             ancientOption: $this->ancientOption,
             serial: $this->serial,
+            name: $this->name,
+            width: $this->width,
+            height: $this->height,
+            image: $this->image,
         );
     }
 
     /**
-     * Returns the stable group:index identifier used until a version catalog is installed.
+     * Returns the decoded item enriched with shared version catalog metadata.
+     */
+    public function withDefinition(ItemDefinition $definition): self
+    {
+        return new self(
+            slot: $this->slot,
+            binary: $this->binary,
+            group: $this->group,
+            index: $this->index,
+            level: $this->level,
+            durability: $this->durability,
+            optionLevel: $this->optionLevel,
+            hasSkill: $this->hasSkill,
+            hasLuck: $this->hasLuck,
+            excellentMask: $this->excellentMask,
+            ancientOption: $this->ancientOption,
+            serial: $this->serial,
+            name: $definition->name,
+            width: $definition->width,
+            height: $definition->height,
+            image: $definition->image,
+        );
+    }
+
+    /**
+     * Returns the stable group:index identifier shared by every item feature.
      */
     public function code(): string
     {
@@ -103,14 +136,17 @@ final readonly class ItemSlot
     /**
      * Serializes an occupied slot for the authenticated account interface.
      *
-     * @return array{slot: int, code: string, name: string, rarity: string, level: int, durability: int, optionLevel: int, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int}
+     * @return array{slot: int, code: string, name: string, width: int, height: int, image: string|null, rarity: string, level: int, durability: int, optionLevel: int, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int}
      */
     public function toArray(): array
     {
         return [
             'slot' => $this->slot,
             'code' => $this->code(),
-            'name' => 'Item '.$this->code(),
+            'name' => $this->name ?? 'Item '.$this->code(),
+            'width' => $this->width,
+            'height' => $this->height,
+            'image' => $this->image,
             'rarity' => $this->rarity(),
             'level' => $this->level ?? 0,
             'durability' => $this->durability ?? 0,
