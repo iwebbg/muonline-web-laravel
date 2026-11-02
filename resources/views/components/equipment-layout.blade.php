@@ -2,7 +2,11 @@
 
 <div {{ $attributes->class(['equipment-layout']) }}>
     @for ($slot = 0; $slot < 12; $slot++)
-        <div class="equipment-slot equipment-slot-{{ $slot }}" aria-hidden="true"></div>
+        <div
+            class="equipment-slot equipment-slot-{{ $slot }}"
+            :style="equipmentSlotStyle({{ $slot }}, itemFor({{ $items }}, {{ $slot }}))"
+            aria-hidden="true"
+        ></div>
     @endfor
 
     <template x-for="item in {{ $items }}" :key="`${item.slot}-${item.code}`">
@@ -10,6 +14,7 @@
             type="button"
             class="inventory-item equipment-item"
             :class="[`equipment-slot-${item.slot}`, `inventory-item-${item.rarity}`]"
+            :style="equipmentSlotStyle(item.slot, item)"
             :aria-label="item.name"
         >
             <template x-if="item.image !== null">

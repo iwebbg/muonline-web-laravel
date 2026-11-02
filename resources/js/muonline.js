@@ -1,4 +1,123 @@
 /**
+ * Maps legacy equipment slot numbers to their game-style layout regions.
+ *
+ * Dynamic regions use catalog dimensions while fixed accessory regions preserve
+ * the recognizable MuOnline equipment silhouette.
+ *
+ * @type {Record<number, object>}
+ */
+const equipmentSlotLayout = {
+    0: {
+        column: 1,
+        row: 3,
+        width: 2,
+        height: 4,
+        horizontal: 'end',
+        vertical: 'end',
+        dynamic: true,
+    },
+    1: {
+        column: 7,
+        row: 3,
+        width: 2,
+        height: 4,
+        horizontal: 'start',
+        vertical: 'end',
+        dynamic: true,
+    },
+    2: {
+        column: 4,
+        row: 1,
+        width: 2,
+        height: 2,
+        horizontal: 'start',
+        vertical: 'start',
+        dynamic: true,
+    },
+    3: {
+        column: 4,
+        row: 3,
+        width: 2,
+        height: 3,
+        horizontal: 'start',
+        vertical: 'end',
+        dynamic: true,
+    },
+    4: {
+        column: 4,
+        row: 7,
+        width: 2,
+        height: 2,
+        horizontal: 'start',
+        vertical: 'start',
+        dynamic: true,
+    },
+    5: {
+        column: 1,
+        row: 7,
+        width: 2,
+        height: 2,
+        horizontal: 'start',
+        vertical: 'start',
+        dynamic: true,
+    },
+    6: {
+        column: 7,
+        row: 7,
+        width: 2,
+        height: 2,
+        horizontal: 'start',
+        vertical: 'start',
+        dynamic: true,
+    },
+    7: {
+        column: 7,
+        row: 1,
+        width: 2,
+        height: 2,
+        horizontal: 'start',
+        vertical: 'start',
+        dynamic: false,
+    },
+    8: {
+        column: 1,
+        row: 1,
+        width: 2,
+        height: 2,
+        horizontal: 'start',
+        vertical: 'start',
+        dynamic: false,
+    },
+    9: {
+        column: 3,
+        row: 3,
+        width: 1,
+        height: 1,
+        horizontal: 'start',
+        vertical: 'start',
+        dynamic: false,
+    },
+    10: {
+        column: 3,
+        row: 6,
+        width: 1,
+        height: 1,
+        horizontal: 'start',
+        vertical: 'start',
+        dynamic: false,
+    },
+    11: {
+        column: 6,
+        row: 6,
+        width: 1,
+        height: 1,
+        horizontal: 'start',
+        vertical: 'start',
+        dynamic: false,
+    },
+};
+
+/**
  * Creates the responsive navigation state shared by all application areas.
  *
  * @returns {{mobileMenuOpen: boolean, toggleMobileMenu: Function, closeMobileMenu: Function}}
@@ -659,6 +778,56 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                 top: `calc(${row} * var(--inventory-cell-size))`,
                 width: `calc(${visibleWidth} * var(--inventory-cell-size))`,
                 height: `calc(${declaredHeight} * var(--inventory-cell-size))`,
+            };
+        },
+
+        /**
+         * Finds an equipped item by its verified legacy equipment slot.
+         *
+         * @param {Array<object>} items Decoded items in the equipment boundary.
+         * @param {number} slot The legacy equipment slot number.
+         * @returns {object|null}
+         */
+        itemFor(items, slot) {
+            return items.find((item) => item.slot === slot) ?? null;
+        },
+
+        /**
+         * Sizes and aligns one equipment slot from its catalog dimensions.
+         *
+         * @param {number} slot The legacy equipment slot number.
+         * @param {object|null} item The equipped item, or null for an empty placeholder.
+         * @returns {object} CSS grid placement properties.
+         */
+        equipmentSlotStyle(slot, item = null) {
+            const placement = equipmentSlotLayout[slot];
+
+            if (placement === undefined) {
+                return {};
+            }
+
+            let width = placement.width;
+            let height = placement.height;
+
+            if (placement.dynamic && item !== null) {
+                width = Math.max(1, Math.min(placement.width, item.width));
+                height = Math.max(1, Math.min(placement.height, item.height));
+            }
+
+            let column = placement.column;
+            let row = placement.row;
+
+            if (placement.horizontal === 'end') {
+                column += placement.width - width;
+            }
+
+            if (placement.vertical === 'end') {
+                row += placement.height - height;
+            }
+
+            return {
+                gridColumn: `${column} / span ${width}`,
+                gridRow: `${row} / span ${height}`,
             };
         },
 
