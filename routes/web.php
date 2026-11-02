@@ -24,6 +24,8 @@ use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ResetProfileController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredAccountController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NewsController;
@@ -42,6 +44,19 @@ Route::get('/news', [NewsController::class, 'index'])
 Route::get('/news/{slug}', [NewsController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('news.show');
+
+Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
+    ->name('password.request');
+Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
+    ->middleware('throttle:password-recovery-link')
+    ->name('password.email');
+Route::get('/reset-password/{account}/{token}', [NewPasswordController::class, 'create'])
+    ->where('account', '[A-Za-z0-9_-]{4,10}')
+    ->where('token', '[A-Za-z0-9]{64}')
+    ->name('password.reset');
+Route::post('/reset-password', [NewPasswordController::class, 'store'])
+    ->middleware('throttle:password-recovery-reset')
+    ->name('password.update');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/register', [RegisteredAccountController::class, 'create'])

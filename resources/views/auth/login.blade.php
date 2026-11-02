@@ -84,6 +84,9 @@
 
             <p class="mt-5 text-center text-xs leading-5 text-steel">{{ __('ui.auth.no_remember') }}</p>
             <p class="mt-3 text-center text-sm text-steel">
+                <a href="{{ route('password.request') }}" class="font-semibold text-gold hover:text-white">{{ __('ui.recovery.forgot_link') }}</a>
+            </p>
+            <p class="mt-3 text-center text-sm text-steel">
                 {{ __('ui.registration.have_no_account') }}
                 <a href="{{ route('register') }}" class="font-semibold text-gold hover:text-white">{{ __('ui.registration.open_form') }}</a>
             </p>

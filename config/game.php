@@ -10,6 +10,8 @@ return [
 
     'account_password_scheme' => env('GAME_ACCOUNT_PASSWORD_SCHEME', 'plaintext'),
 
+    'password_reset_ttl_minutes' => (int) env('GAME_PASSWORD_RESET_TTL_MINUTES', 60),
+
     'ranking_limit' => (int) env('GAME_RANKING_LIMIT', 10),
 
     'database_connections' => [

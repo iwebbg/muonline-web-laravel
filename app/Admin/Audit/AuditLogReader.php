@@ -3,6 +3,7 @@
 namespace App\Admin\Audit;
 
 use App\Models\AccountCredentialOperation;
+use App\Models\AccountPasswordRecoveryOperation;
 use App\Models\AccountRegistrationOperation;
 use App\Models\AdministratorIdentityRevision;
 use App\Models\CharacterGrandResetOperation;
@@ -39,6 +40,11 @@ final class AuditLogReader
         [
             'model' => AccountCredentialOperation::class,
             'type' => 'account_credentials',
+            'context' => ['settings_snapshot'],
+        ],
+        [
+            'model' => AccountPasswordRecoveryOperation::class,
+            'type' => 'account_password_recovery',
             'context' => ['settings_snapshot'],
         ],
         [
