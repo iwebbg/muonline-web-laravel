@@ -4,32 +4,17 @@
 
 @section('content')
     <div class="shell py-10 lg:py-14">
-        <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-                <div class="eyebrow mb-4">{{ __('ui.zen_bank.kicker') }}</div>
-                <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.zen_bank.heading') }}</h1>
-                <p class="mt-3 max-w-3xl text-silver">{{ __('ui.zen_bank.intro') }}</p>
-            </div>
-            <a href="{{ route('account.dashboard') }}" class="button button-ghost">{{ __('ui.web_storage.back_to_account') }}</a>
-        </div>
-
-        @if (session('zenBankStatus'))
-            <div class="mt-6 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">
-                {{ session('zenBankStatus') }}
-            </div>
-        @endif
-
-        @if ($errors->has('zenBank'))
-            <div class="mt-6 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">
-                {{ $errors->first('zenBank') }}
-            </div>
-        @endif
-
-        @if (! $gameWritesEnabled)
-            <div class="mt-6 rounded-2xl border border-amber-300/20 bg-amber-300/8 p-4 text-sm text-amber-100">
-                {{ __('ui.zen_bank.writes_disabled') }}
-            </div>
-        @endif
+        <x-account-feature-header
+            :kicker="__('ui.zen_bank.kicker')"
+            :heading="__('ui.zen_bank.heading')"
+            :intro="__('ui.zen_bank.intro')"
+        />
+        <x-account-operation-feedback
+            status-session="zenBankStatus"
+            error-key="zenBank"
+            :writes-enabled="$gameWritesEnabled"
+            :writes-disabled-message="__('ui.zen_bank.writes_disabled')"
+        />
 
         <section class="mt-8 grid gap-4 md:grid-cols-2">
             <article class="panel-card p-7">

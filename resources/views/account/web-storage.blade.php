@@ -4,45 +4,28 @@
 
 @section('content')
     <div class="shell py-10 lg:py-14">
-        <div class="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-                <div class="eyebrow mb-4">{{ __('ui.web_storage.kicker') }}</div>
-                <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.web_storage.heading') }}</h1>
-                <p class="mt-3 max-w-3xl text-silver">{{ __('ui.web_storage.intro') }}</p>
-            </div>
-            <a href="{{ route('account.dashboard') }}" class="button button-ghost">{{ __('ui.web_storage.back_to_account') }}</a>
-        </div>
-
-        @if (session('webStorageStatus'))
-            <div class="mt-6 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">{{ session('webStorageStatus') }}</div>
-        @endif
-        @if ($errors->has('webStorage'))
-            <div class="mt-6 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">{{ $errors->first('webStorage') }}</div>
-        @endif
-        @if (! $gameWritesEnabled)
-            <div class="mt-6 rounded-2xl border border-amber-300/20 bg-amber-300/8 p-4 text-sm text-amber-100">{{ __('ui.web_storage.writes_disabled') }}</div>
-        @endif
+        <x-account-feature-header
+            :kicker="__('ui.web_storage.kicker')"
+            :heading="__('ui.web_storage.heading')"
+            :intro="__('ui.web_storage.intro')"
+        />
+        <x-account-operation-feedback
+            status-session="webStorageStatus"
+            error-key="webStorage"
+            :writes-enabled="$gameWritesEnabled"
+            :writes-disabled-message="__('ui.web_storage.writes_disabled')"
+        />
 
         <section class="mt-8">
             <p class="kicker">{{ __('ui.web_storage.stored_items') }}</p>
             <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 @forelse ($storedItems as $storedItem)
-                    @php($item = $storedItem->item_snapshot)
-                    <article class="panel-card flex flex-col p-5">
-                        <div class="grid min-h-28 place-items-center rounded-2xl border border-white/8 bg-black/25 p-4">
-                            @if (($item['image'] ?? null) !== null)<img src="{{ $item['image'] }}" alt="{{ $item['name'] ?? __('ui.market.unknown_item') }}" class="max-h-24 max-w-full object-contain" loading="lazy">@endif
-                        </div>
-                        <h2 class="mt-4 font-semibold text-white">{{ $item['name'] ?? __('ui.market.unknown_item') }}{{ ($item['level'] ?? 0) > 0 ? ' +'.$item['level'] : '' }}</h2>
-                        <p class="mt-1 text-xs uppercase tracking-[0.14em] text-steel">{{ __('ui.web_storage.statuses.'.$storedItem->status->value) }}</p>
-                        @if ($storedItem->last_sync_error)<p class="mt-2 text-xs text-red-200">{{ $storedItem->last_sync_error }}</p>@endif
-                        @if ($storedItem->status === \App\WebStorage\WebStorageItemStatus::Available)
-                            <form method="POST" action="{{ route('account.web-storage.destroy', $storedItem) }}" class="mt-auto pt-5">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="button button-primary w-full" @disabled(! $gameWritesEnabled)>{{ __('ui.web_storage.withdraw') }}</button>
-                            </form>
-                        @endif
-                    </article>
+                    <x-custody-item-card
+                        :stored-item="$storedItem"
+                        :action-route="$storedItem->status === \App\WebStorage\WebStorageItemStatus::Available ? route('account.web-storage.destroy', $storedItem) : null"
+                        :action-label="__('ui.web_storage.withdraw')"
+                        :writes-enabled="$gameWritesEnabled"
+                    />
                 @empty
                     <div class="panel-card p-10 text-center text-steel sm:col-span-2 xl:col-span-4">{{ __('ui.web_storage.empty') }}</div>
                 @endforelse
