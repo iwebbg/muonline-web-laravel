@@ -71,6 +71,8 @@ final class AccountDashboardTest extends TestCase
         $response->assertSee('move-to-town-preview', false);
         $response->assertSee('character-move', false);
         $response->assertSee('item-storage', false);
+        $response->assertSee('Account security');
+        $response->assertSee('account/credentials', false);
     }
 
     /**
@@ -84,6 +86,7 @@ final class AccountDashboardTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('No characters found');
+        $response->assertSee('Account security');
     }
 
     /**

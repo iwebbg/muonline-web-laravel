@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Account\AccountCredentialController;
 use App\Http\Controllers\Account\CharacterGrandResetController;
 use App\Http\Controllers\Account\CharacterMoveController;
 use App\Http\Controllers\Account\CharacterPkClearController;
@@ -42,6 +43,9 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware('auth')->group(function (): void {
     Route::get('/account', AccountDashboardController::class)
         ->name('account.dashboard');
+    Route::put('/account/credentials', [AccountCredentialController::class, 'update'])
+        ->middleware('throttle:account-credentials')
+        ->name('account.credentials.update');
     Route::post('/account/reset-preview', ResetPreviewController::class)
         ->middleware('throttle:reset-preview')
         ->name('account.reset-preview');
