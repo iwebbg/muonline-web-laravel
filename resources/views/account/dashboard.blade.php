@@ -237,163 +237,16 @@
                 <p class="mx-auto mt-3 max-w-xl text-silver">{{ __('ui.account.no_characters_help') }}</p>
             </article>
         @else
-        <div class="mt-8 flex gap-3 overflow-x-auto pb-2">
-            <template x-for="(character, characterIndex) in characters" :key="character.name">
-                <button
-                    type="button"
-                    class="character-selector"
-                    :class="selectedCharacterIndex === characterIndex && 'character-selector-active'"
-                    @click="selectCharacter(characterIndex)"
-                >
-                    <img :src="character.image" :alt="character.class" class="size-11 rounded-xl object-cover object-top">
-                    <span class="text-left">
-                        <strong class="block text-sm text-white" x-text="character.name"></strong>
-                        <span class="block text-xs text-steel" x-text="character.class"></span>
-                    </span>
-                    <span class="ml-3 status-dot status-dot-small" :class="!character.online && 'status-dot-offline'"></span>
-                </button>
-            </template>
-        </div>
+        <x-account-character-selector class="mt-8" />
 
         <div class="mt-6 grid gap-6 xl:grid-cols-[22rem_1fr]">
-            <aside class="character-portrait-card">
-                <div class="absolute inset-x-10 top-14 h-48 rounded-full bg-crimson/20 blur-3xl" aria-hidden="true"></div>
-                <img
-                    :src="selectedCharacter.image"
-                    :alt="selectedCharacter.class"
-                    class="relative z-10 h-[27rem] w-full object-cover object-top"
-                >
-                <div class="relative z-20 -mt-28 bg-gradient-to-t from-[#0b0d12] via-[#0b0d12]/95 to-transparent px-6 pb-6 pt-28">
-                    <div class="flex items-end justify-between gap-3">
-                        <div>
-                            <p class="kicker" x-text="selectedCharacter.class"></p>
-                            <h2 class="mt-1 font-display text-3xl text-white" x-text="selectedCharacter.name"></h2>
-                        </div>
-                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-silver" x-text="selectedCharacter.map"></span>
-                    </div>
-                    <div class="mt-5 grid grid-cols-3 gap-2">
-                        <div class="portrait-metric"><strong x-text="selectedCharacter.level"></strong><span>{{ __('ui.account.level') }}</span></div>
-                        <div class="portrait-metric"><strong x-text="selectedCharacter.resets"></strong><span>{{ __('ui.account.resets') }}</span></div>
-                        <div class="portrait-metric"><strong x-text="selectedCharacter.grandResets"></strong><span>{{ __('ui.account.grand') }}</span></div>
-                    </div>
-                </div>
-            </aside>
+            <x-account-character-portrait />
 
             <section class="min-w-0">
-                <div class="segmented-control w-full overflow-x-auto sm:w-fit" role="tablist" aria-label="{{ __('ui.account.character_tools') }}">
-                    @foreach (['overview' => __('ui.account.overview'), 'inventory' => __('ui.account.inventory'), 'stats' => __('ui.account.allocate_stats'), 'stat-reset' => __('ui.account.stat_reset'), 'pk-clear' => __('ui.account.pk_clear'), 'move-to-town' => __('ui.account.move_to_town'), 'reset' => __('ui.account.reset'), 'grand-reset' => __('ui.account.grand_reset')] as $section => $label)
-                        <button
-                            type="button"
-                            role="tab"
-                            :aria-selected="activeSection === '{{ $section }}'"
-                            :class="activeSection === '{{ $section }}' && 'segmented-control-active'"
-                            @click="selectSection('{{ $section }}')"
-                        >{{ $label }}</button>
-                    @endforeach
-                </div>
+                <x-account-character-tabs />
 
-                <div class="mt-5" x-show="activeSection === 'overview'">
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <article class="panel-card">
-                            <p class="kicker">{{ __('ui.account.core_attributes') }}</p>
-                            <div class="mt-6 grid gap-4">
-                                @foreach (['strength' => __('ui.account.strength'), 'agility' => __('ui.account.agility'), 'vitality' => __('ui.account.vitality'), 'energy' => __('ui.account.energy')] as $stat => $label)
-                                    <div class="stat-line">
-                                        <span>{{ $label }}</span>
-                                        <strong x-text="selectedCharacter.{{ $stat }}.toLocaleString()"></strong>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </article>
-                        <article class="panel-card">
-                            <p class="kicker">{{ __('ui.account.quick_actions') }}</p>
-                            <div class="mt-6 grid gap-3">
-                                <button type="button" class="action-row" @click="selectSection('reset')">
-                                    <span><strong>{{ __('ui.account.reset_character') }}</strong><small>{{ __('ui.account.preview_cost') }}</small></span>
-                                    <span aria-hidden="true">→</span>
-                                </button>
-                                <button type="button" class="action-row" @click="selectSection('stats')">
-                                    <span><strong>{{ __('ui.account.allocate_stats') }}</strong><small><span x-text="selectedCharacter.points.toLocaleString()"></span> {{ __('ui.account.points_available') }}</small></span>
-                                    <span aria-hidden="true">→</span>
-                                </button>
-                                <button type="button" class="action-row" @click="selectSection('grand-reset')">
-                                    <span><strong>{{ __('ui.account.grand_reset_character') }}</strong><small>{{ __('ui.account.preview_cost') }}</small></span>
-                                    <span aria-hidden="true">→</span>
-                                </button>
-                                <button type="button" class="action-row" @click="selectSection('stat-reset')">
-                                    <span><strong>{{ __('ui.account.stat_reset_character') }}</strong><small>{{ __('ui.account.stat_reset_refund_help') }}</small></span>
-                                    <span aria-hidden="true">→</span>
-                                </button>
-                                <button type="button" class="action-row" @click="selectSection('pk-clear')">
-                                    <span><strong>{{ __('ui.account.pk_clear_character') }}</strong><small>{{ __('ui.account.pk_clear_help') }}</small></span>
-                                    <span aria-hidden="true">→</span>
-                                </button>
-                                <button type="button" class="action-row" @click="selectSection('move-to-town')">
-                                    <span><strong>{{ __('ui.account.move_to_town') }}</strong><small>{{ __('ui.account.offline_only') }}</small></span>
-                                    <span aria-hidden="true">→</span>
-                                </button>
-                            </div>
-                        </article>
-                    </div>
-                </div>
-
-                <div class="mt-5" x-show="activeSection === 'inventory'" x-cloak>
-                    <article class="panel-card">
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <p class="kicker">{{ __('ui.account.decoded_grid') }}</p>
-                                <h3 class="mt-2 text-xl font-semibold text-white">{{ __('ui.account.inventory') }}</h3>
-                            </div>
-                            <p class="text-sm text-steel">{{ __('ui.account.item_details') }}</p>
-                        </div>
-                        <p class="mt-6 text-sm text-steel" x-show="itemStorageLoading">{{ __('ui.account.item_storage_loading') }}</p>
-                        <p class="mt-6 text-sm text-crimson" x-show="itemStorageError" x-text="itemStorageError"></p>
-
-                        <template x-if="itemStorage !== null && !itemStorageLoading">
-                            <div>
-                                <p class="kicker mt-7">{{ __('ui.account.equipment') }}</p>
-                                <x-equipment-layout
-                                    class="mt-3"
-                                    items="itemStorage.character.equipment"
-                                />
-
-                                <p class="kicker mt-7">{{ __('ui.account.inventory_bag') }}</p>
-                                <x-item-grid
-                                    class="mt-3"
-                                    :slots="64"
-                                    items="itemStorage.character.inventory"
-                                />
-
-                                <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
-                                    <div>
-                                        <p class="kicker">{{ __('ui.account.warehouse') }}</p>
-                                        <p class="mt-2 text-sm text-steel">
-                                            {{ __('ui.account.warehouse_zen') }}:
-                                            <strong class="text-white" x-text="itemStorage.warehouse.zen.toLocaleString()"></strong>
-                                        </p>
-                                    </div>
-                                    <div class="segmented-control" x-show="itemStorage.warehouse.vaults.length > 1">
-                                        <template x-for="vault in itemStorage.warehouse.vaults" :key="vault.number">
-                                            <button
-                                                type="button"
-                                                :class="selectedVaultNumber === vault.number && 'segmented-control-active'"
-                                                @click="selectWarehouseVault(vault.number)"
-                                                x-text="`${resetPreviewConfiguration.vaultLabel} ${vault.number}`"
-                                            ></button>
-                                        </template>
-                                    </div>
-                                </div>
-                                <p class="mt-4 text-sm text-steel" x-show="selectedWarehouseVault === null">{{ __('ui.account.no_warehouse') }}</p>
-                                <x-item-grid
-                                    class="mt-4"
-                                    :slots="120"
-                                    items="selectedWarehouseVault?.items ?? []"
-                                    x-show="selectedWarehouseVault !== null"
-                                />
-                            </div>
-                        </template>
-                    </article>
-                </div>
+                <x-account-overview-panel />
+                <x-account-inventory-panel />
 
                 <div class="mt-5" x-show="activeSection === 'stats'" x-cloak>
                     <article class="panel-card">
