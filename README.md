@@ -94,8 +94,13 @@ Build the immutable images and apply application-owned migrations explicitly:
 
 ```bash
 ./docker/compose build
+./docker/compose run --rm app php artisan game:doctor
 ./docker/compose run --rm app php artisan migrate --force --no-interaction
 ```
+
+`game:doctor` is read-only and must pass before deployment. It verifies the
+required 97d+99i tables and columns, closed write switches, and rejects SQL
+Server identities that are members of `sysadmin` or `db_owner`.
 
 Then start the same services used for local development:
 
