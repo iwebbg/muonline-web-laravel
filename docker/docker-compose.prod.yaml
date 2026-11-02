@@ -4,6 +4,10 @@ x-app-environment: &app-environment
     APP_ENV: production
     APP_DEBUG: "false"
     APP_URL: https://${APP_DOMAIN:?Set APP_DOMAIN in docker/.env}
+    DB_DATABASE: ${DB_DATABASE:-/var/www/html/storage/app/database.sqlite}
+    SESSION_SECURE_COOKIE: "true"
+    SESSION_HTTP_ONLY: "true"
+    SESSION_SAME_SITE: lax
     REDIS_HOST: redis
 
 services:
@@ -20,7 +24,6 @@ services:
             <<: *app-environment
             CONTAINER_ROLE: app
         volumes:
-            - app-database:/var/www/html/database
             - app-storage:/var/www/html/storage
         depends_on:
             redis:
@@ -48,7 +51,6 @@ services:
             <<: *app-environment
             CONTAINER_ROLE: queue
         volumes:
-            - app-database:/var/www/html/database
             - app-storage:/var/www/html/storage
         depends_on:
             app:
@@ -69,7 +71,6 @@ services:
             <<: *app-environment
             CONTAINER_ROLE: scheduler
         volumes:
-            - app-database:/var/www/html/database
             - app-storage:/var/www/html/storage
         depends_on:
             app:
@@ -96,7 +97,7 @@ services:
             app:
                 condition: service_healthy
         healthcheck:
-            test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1/health >/dev/null || exit 1"]
+            test: ["CMD-SHELL", "curl --fail --silent --insecure --header 'Host: $${APP_DOMAIN}' https://127.0.0.1/up >/dev/null || exit 1"]
             start_period: 30s
             interval: 30s
             timeout: 5s
@@ -123,7 +124,6 @@ networks:
         driver: bridge
 
 volumes:
-    app-database:
     app-storage:
     certbot-www:
     letsencrypt:
