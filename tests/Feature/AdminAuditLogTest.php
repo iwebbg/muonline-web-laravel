@@ -8,6 +8,7 @@ use App\Game\Operations\CharacterOperationStatus;
 use App\Models\AccountRegistrationOperation;
 use App\Models\Administrator;
 use App\Models\CharacterResetOperation;
+use App\Models\EconomyRecoveryAction;
 use App\Models\MarketAdminAction;
 use App\Models\WebStorageItem;
 use App\Models\ZenBankOperation;
@@ -199,5 +200,30 @@ final class AdminAuditLogTest extends TestCase
             ->assertSee('game_balance_conflict')
             ->assertSee('20000000')
             ->assertSee('15000000');
+    }
+
+    /**
+     * Confirms administrator economy recovery attempts join the immutable audit trail.
+     */
+    public function test_administrator_can_filter_economy_recovery_actions(): void
+    {
+        $administrator = Administrator::factory()->create();
+        EconomyRecoveryAction::factory()->create([
+            'administrator_id' => $administrator->getKey(),
+            'account_id' => 'recoveryowner',
+            'before_status' => 'pending',
+            'after_status' => 'completed',
+        ]);
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?type=economy_recovery');
+
+        $response
+            ->assertOk()
+            ->assertSee('Economy recovery')
+            ->assertSee('recoveryowner')
+            ->assertSee('retry_sync')
+            ->assertSee('completed');
     }
 }

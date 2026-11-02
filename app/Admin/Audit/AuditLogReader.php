@@ -13,6 +13,7 @@ use App\Models\CharacterResetOperation;
 use App\Models\CharacterStatAllocationOperation;
 use App\Models\CharacterStatResetOperation;
 use App\Models\DownloadRevision;
+use App\Models\EconomyRecoveryAction;
 use App\Models\MarketAdminAction;
 use App\Models\ModerationOperation;
 use App\Models\NewsPostRevision;
@@ -108,6 +109,7 @@ final class AuditLogReader
             'market_recovery',
             'item_custody',
             'zen_bank',
+            'economy_recovery',
         ];
 
         foreach (self::OPERATION_SOURCES as $source) {
@@ -244,6 +246,17 @@ final class AuditLogReader
 
             foreach ($zenOperations as $zenOperation) {
                 $entries[] = $this->zenBankEntry($zenOperation);
+            }
+        }
+
+        if ($type === null || $type === 'economy_recovery') {
+            $recoveryActions = EconomyRecoveryAction::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($recoveryActions as $recoveryAction) {
+                $entries[] = $this->economyRecoveryEntry($recoveryAction);
             }
         }
 
@@ -513,6 +526,31 @@ final class AuditLogReader
                 'bank_balance' => $operation->after_bank_balance,
             ],
             occurredAt: $this->occurredAt($operation),
+        );
+    }
+
+    /**
+     * Normalizes one immutable administrator economy recovery action.
+     */
+    private function economyRecoveryEntry(EconomyRecoveryAction $action): AuditLogEntry
+    {
+        return new AuditLogEntry(
+            type: 'economy_recovery',
+            subject: $action->subject_type.':'.$action->subject_public_id,
+            characterName: null,
+            status: $action->outcome,
+            failureCode: $action->failure_code,
+            contextSnapshot: array_merge(
+                $action->context_snapshot ?? [],
+                [
+                    'action' => $action->action,
+                    'account_id' => $action->account_id,
+                    'administrator_id' => $action->administrator_id,
+                ],
+            ),
+            beforeSnapshot: ['status' => $action->before_status],
+            afterSnapshot: ['status' => $action->after_status],
+            occurredAt: $this->occurredAt($action),
         );
     }
 

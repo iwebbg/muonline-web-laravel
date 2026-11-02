@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
+use App\Http\Controllers\Admin\EconomyRecoveryController;
 use App\Http\Controllers\Admin\GameMasterController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModerationController;
@@ -223,6 +224,14 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                 Route::post('/economy/market/{marketListing}/retry', [AdminMarketController::class, 'retry'])
                     ->middleware('throttle:admin-market')
                     ->name('market.retry');
+                Route::get('/economy/recovery', [EconomyRecoveryController::class, 'index'])
+                    ->name('economy-recovery.index');
+                Route::post('/economy/recovery/storage/{webStorageItem}', [EconomyRecoveryController::class, 'retryStorage'])
+                    ->middleware('throttle:admin-economy-recovery')
+                    ->name('economy-recovery.storage.retry');
+                Route::post('/economy/recovery/zen/{zenBankOperation}', [EconomyRecoveryController::class, 'retryZen'])
+                    ->middleware('throttle:admin-economy-recovery')
+                    ->name('economy-recovery.zen.retry');
                 Route::post('/economy/market/{marketListing}/return', [AdminMarketController::class, 'returnItem'])
                     ->middleware('throttle:admin-market')
                     ->name('market.return');

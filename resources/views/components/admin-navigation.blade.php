@@ -39,6 +39,9 @@
             <a href="{{ route('admin.market.index') }}" class="admin-nav-link {{ $active === 'market' ? 'admin-nav-link-active' : '' }}">
                 <span>◇</span>{{ __('ui.admin.market_nav') }}
             </a>
+            <a href="{{ route('admin.economy-recovery.index') }}" class="admin-nav-link {{ $active === 'economy-recovery' ? 'admin-nav-link-active' : '' }}">
+                <span>⟳</span>{{ __('ui.admin.recovery_nav') }}
+            </a>
         @else
             <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◈</span>{{ __('ui.admin.economy') }}</span>
         @endif
