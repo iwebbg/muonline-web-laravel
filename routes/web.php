@@ -10,6 +10,7 @@ use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
 use App\Http\Controllers\Account\ItemStorageController;
+use App\Http\Controllers\Account\MarketListingController;
 use App\Http\Controllers\Account\MoveToTownPreviewController;
 use App\Http\Controllers\Account\PkClearPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
@@ -34,6 +35,7 @@ use App\Http\Controllers\Auth\RegisteredAccountController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\MarketController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RankingsController;
@@ -59,6 +61,9 @@ Route::get('/guides/{slug}', [GuideController::class, 'show'])
 
 Route::get('/downloads', DownloadController::class)
     ->name('downloads.index');
+
+Route::get('/market', MarketController::class)
+    ->name('market.index');
 
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
     ->name('password.request');
@@ -134,6 +139,12 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/account/vip-purchases', VipPurchaseController::class)
         ->middleware('throttle:vip-purchase')
         ->name('account.vip-purchases.store');
+    Route::post('/market/listings', [MarketListingController::class, 'store'])
+        ->middleware('throttle:market-listing')
+        ->name('market.listings.store');
+    Route::delete('/market/listings/{marketListing}', [MarketListingController::class, 'destroy'])
+        ->middleware('throttle:market-listing')
+        ->name('market.listings.destroy');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

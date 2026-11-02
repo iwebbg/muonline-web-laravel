@@ -33,6 +33,7 @@
                     <a href="{{ route('news.index') }}" class="nav-link {{ request()->routeIs('news.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.news') }}</a>
                     <a href="{{ route('guides.index') }}" class="nav-link {{ request()->routeIs('guides.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.guides') }}</a>
                     <a href="{{ route('downloads.index') }}" class="nav-link {{ request()->routeIs('downloads.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.downloads') }}</a>
+                    <a href="{{ route('market.index') }}" class="nav-link {{ request()->routeIs('market.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.market') }}</a>
                     <a href="{{ route('home') }}#events" class="nav-link">{{ __('ui.navigation.events') }}</a>
                     <a href="{{ route('account.dashboard') }}" class="nav-link {{ request()->routeIs('account.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.account') }}</a>
                     <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.admin') }}</a>
@@ -94,6 +95,7 @@
                     <a href="{{ route('news.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.news') }}</a>
                     <a href="{{ route('guides.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.guides') }}</a>
                     <a href="{{ route('downloads.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.downloads') }}</a>
+                    <a href="{{ route('market.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.market') }}</a>
                     <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.account_panel') }}</a>
                     @guest
                         <a href="{{ route('register') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.register') }}</a>

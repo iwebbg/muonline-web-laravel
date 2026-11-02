@@ -14,3 +14,7 @@ Artisan::command('inspire', function () {
 Schedule::command('vip:sync-pending')
     ->everyMinute()
     ->withoutOverlapping();
+
+Schedule::command('market:sync-escrow')
+    ->everyMinute()
+    ->withoutOverlapping();
