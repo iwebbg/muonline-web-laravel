@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Auth\GameAccount;
+use App\Models\AccountWallet;
+use App\Models\WalletTransaction;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -11,6 +14,8 @@ use Tests\TestCase;
  */
 final class AccountDashboardTest extends TestCase
 {
+    use LazilyRefreshDatabase;
+
     /**
      * Creates isolated 97d+99i character and online-status tables.
      */
@@ -110,6 +115,49 @@ final class AccountDashboardTest extends TestCase
         $response->assertOk();
         $response->assertSee('value="invalid-address"', false);
         $response->assertSee('credentialsOpen: true', false);
+    }
+
+    /**
+     * Confirms players see only their Credits balance and safely escaped ledger history.
+     */
+    public function test_dashboard_displays_owned_wallet_and_transaction_history(): void
+    {
+        $wallet = AccountWallet::factory()->create([
+            'account_id' => 'owner',
+            'balance' => 125,
+        ]);
+        WalletTransaction::factory()->create([
+            'account_wallet_id' => $wallet->getKey(),
+            'account_id' => 'owner',
+            'amount' => 125,
+            'balance_before' => 0,
+            'balance_after' => 125,
+            'reason' => '<script>alert("private-wallet")</script>',
+        ]);
+        $otherWallet = AccountWallet::factory()->create([
+            'account_id' => 'other',
+            'balance' => 999,
+        ]);
+        WalletTransaction::factory()->create([
+            'account_wallet_id' => $otherWallet->getKey(),
+            'account_id' => 'other',
+            'amount' => 999,
+            'balance_before' => 0,
+            'balance_after' => 999,
+            'reason' => 'Other account private transaction',
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account');
+
+        $response
+            ->assertOk()
+            ->assertSee('125')
+            ->assertSee('Credits and transaction history')
+            ->assertDontSee('<script>alert("private-wallet")</script>', false)
+            ->assertSee('&lt;script&gt;', false)
+            ->assertDontSee('Other account private transaction');
     }
 
     /**

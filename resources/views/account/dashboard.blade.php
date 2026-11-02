@@ -186,6 +186,10 @@
                     <span>{{ __('ui.account.vip') }}</span>
                     <strong class="text-gold">{{ $account->vip ? __('ui.account.vip_active') : __('ui.account.vip_inactive') }}</strong>
                 </div>
+                <x-account-wallet-modal
+                    :balance="$walletBalance"
+                    :transactions="$walletTransactions"
+                />
                 <x-account-credentials-modal
                     :account="$account"
                     :game-writes-enabled="$gameWritesEnabled"

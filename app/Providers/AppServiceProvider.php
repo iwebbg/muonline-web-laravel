@@ -15,11 +15,13 @@ use App\Game\Contracts\CharacterPkClearRepository;
 use App\Game\Contracts\CharacterResetRepository;
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
+use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\ModerationRepository;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
+use App\Game\Repositories\LegacyGameAccountLookupRepository;
 use App\Game\Repositories\SqlServer97d99iAccountCredentialRepository;
 use App\Game\Repositories\SqlServer97d99iAccountPasswordRecoveryRepository;
 use App\Game\Repositories\SqlServer97d99iAccountReadRepository;
@@ -70,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CharacterStatResetRepository::class, SqlServer97d99iCharacterStatResetRepository::class);
         $this->app->bind(ItemStorageRepository::class, SqlServer97d99iItemStorageRepository::class);
         $this->app->bind(ModerationRepository::class, SqlServer97d99iModerationRepository::class);
+        $this->app->bind(GameAccountLookupRepository::class, LegacyGameAccountLookupRepository::class);
     }
 
     /**
@@ -99,6 +102,13 @@ class AppServiceProvider extends ServiceProvider
             $limiterKey = Str::transliterate($email.'|'.$request->ip());
 
             return Limit::perMinute(5)->by($limiterKey);
+        });
+
+        RateLimiter::for('admin-wallet', function (Request $request): Limit {
+            $administratorId = (string) ($request->user('admin')?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($administratorId.'|'.$request->ip());
+
+            return Limit::perMinute(20)->by($limiterKey);
         });
 
         RateLimiter::for('reset-preview', function (Request $request): Limit {

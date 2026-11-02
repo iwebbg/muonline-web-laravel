@@ -348,6 +348,61 @@ export function downloadManager(downloads, createUrl) {
 }
 
 /**
+ * Creates the wallet adjustment preview and confirmation state.
+ *
+ * @param {number} initialBalance The authoritative balance rendered by Laravel.
+ * @returns {object}
+ */
+export function walletManager(initialBalance) {
+    return {
+        initialBalance,
+        direction: 'credit',
+        amount: 1,
+        confirmationOpen: false,
+
+        /**
+         * Calculates the client-side preview without replacing server validation.
+         *
+         * @returns {number}
+         */
+        get previewBalance() {
+            const normalizedAmount = Number.isFinite(Number(this.amount))
+                ? Math.max(0, Number(this.amount))
+                : 0;
+
+            return this.direction === 'credit'
+                ? this.initialBalance + normalizedAmount
+                : this.initialBalance - normalizedAmount;
+        },
+
+        /**
+         * Opens confirmation only after native form constraints pass.
+         */
+        openConfirmation() {
+            if (!this.$refs.walletForm.reportValidity()) {
+                return;
+            }
+
+            this.confirmationOpen = true;
+        },
+
+        /**
+         * Closes confirmation without submitting a wallet write.
+         */
+        closeConfirmation() {
+            this.confirmationOpen = false;
+        },
+
+        /**
+         * Submits the unchanged form and shared idempotency key exactly once per click.
+         */
+        submitAdjustment() {
+            this.$refs.walletForm.submit();
+        },
+    };
+}
+
+/**
  * Creates the full-administrator Game Master identity editor state.
  *
  * @param {string} createUrl The route used to create a Game Master.

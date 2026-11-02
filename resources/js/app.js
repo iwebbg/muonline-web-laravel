@@ -11,6 +11,7 @@ import {
     rankingBoard,
     rankingExplorer,
     resetSettings,
+    walletManager,
 } from './muonline';
 
 window.Alpine = Alpine;
@@ -25,5 +26,6 @@ Alpine.data('moderationPanel', moderationPanel);
 Alpine.data('rankingBoard', rankingBoard);
 Alpine.data('rankingExplorer', rankingExplorer);
 Alpine.data('resetSettings', resetSettings);
+Alpine.data('walletManager', walletManager);
 
 Alpine.start();

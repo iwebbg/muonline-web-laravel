@@ -16,6 +16,7 @@ use App\Models\DownloadRevision;
 use App\Models\ModerationOperation;
 use App\Models\NewsPostRevision;
 use App\Models\ResetProfileRevision;
+use App\Models\WalletTransaction;
 use BackedEnum;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -98,6 +99,7 @@ final class AuditLogReader
             'game_master_identity',
             'news_content',
             'download_content',
+            'wallet_adjustment',
         ];
 
         foreach (self::OPERATION_SOURCES as $source) {
@@ -190,6 +192,17 @@ final class AuditLogReader
                     subjectPrefix: 'content:download:',
                     contentKey: 'download_id',
                 );
+            }
+        }
+
+        if ($type === null || $type === 'wallet_adjustment') {
+            $walletTransactions = WalletTransaction::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($walletTransactions as $walletTransaction) {
+                $entries[] = $this->walletTransactionEntry($walletTransaction);
             }
         }
 
@@ -328,6 +341,35 @@ final class AuditLogReader
             beforeSnapshot: null,
             afterSnapshot: $snapshot,
             occurredAt: $this->occurredAt($revision),
+        );
+    }
+
+    /**
+     * Normalizes one append-only wallet transaction for the shared audit view.
+     */
+    private function walletTransactionEntry(
+        WalletTransaction $transaction,
+    ): AuditLogEntry {
+        return new AuditLogEntry(
+            type: 'wallet_adjustment',
+            subject: $transaction->account_id,
+            characterName: null,
+            status: 'completed',
+            failureCode: null,
+            contextSnapshot: [
+                'currency' => $transaction->currency->value,
+                'type' => $transaction->type->value,
+                'amount' => $transaction->amount,
+                'reason' => $transaction->reason,
+                'performed_by_administrator_id' => $transaction->performed_by_administrator_id,
+            ],
+            beforeSnapshot: [
+                'balance' => $transaction->balance_before,
+            ],
+            afterSnapshot: [
+                'balance' => $transaction->balance_after,
+            ],
+            occurredAt: $this->occurredAt($transaction),
         );
     }
 

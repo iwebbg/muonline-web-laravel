@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\GameMasterController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ResetProfileController;
+use App\Http\Controllers\Admin\WalletController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -149,6 +150,15 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('audit-log');
         Route::get('/moderation', [ModerationController::class, 'index'])
             ->name('moderation');
+        Route::get('/economy/wallet', [WalletController::class, 'index'])
+            ->middleware('admin.permission:'.AdministratorPermission::ManageEconomy->value)
+            ->name('wallet.index');
+        Route::post('/economy/wallet', [WalletController::class, 'store'])
+            ->middleware([
+                'admin.permission:'.AdministratorPermission::ManageEconomy->value,
+                'throttle:admin-wallet',
+            ])
+            ->name('wallet.store');
         Route::post('/moderation/accounts', [ModerationController::class, 'account'])
             ->middleware([
                 'admin.permission:'.AdministratorPermission::ModerateAccounts->value,

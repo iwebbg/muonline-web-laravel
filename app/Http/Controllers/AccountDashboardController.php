@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Auth\GameAccount;
+use App\Economy\WalletCurrency;
 use App\Game\Contracts\AccountReadRepository;
+use App\Models\AccountWallet;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -35,9 +37,22 @@ final class AccountDashboardController extends Controller
             $characters[] = $characterEntry->toArray();
         }
 
+        $wallet = AccountWallet::query()
+            ->where('account_id', $account->username)
+            ->where('currency', WalletCurrency::Credits)
+            ->first();
+        $walletTransactions = $wallet === null
+            ? collect()
+            : $wallet->transactions()
+                ->latest('id')
+                ->limit(20)
+                ->get();
+
         return view('account.dashboard', [
             'account' => $account,
             'characters' => $characters,
+            'walletBalance' => $wallet?->balance ?? 0,
+            'walletTransactions' => $walletTransactions,
             'gameWritesEnabled' => (bool) config('game.writes_enabled', false)
                 && ! (bool) config('database.connections.game.readonly', true),
         ]);
