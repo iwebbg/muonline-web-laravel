@@ -774,6 +774,11 @@
         padding: 0.2rem;
     }
 
+    .inventory-item:hover,
+    .inventory-item:focus-visible {
+        z-index: 40;
+    }
+
     .equipment-slot-0 {
         grid-column: 1 / span 2;
         grid-row: 3 / span 4;
