@@ -29,6 +29,24 @@ final class DiagnoseGameDatabase extends Command
         'Guild' => ['G_Name', 'G_Master', 'G_Score'],
         'GuildMember' => ['Name', 'G_Name'],
         'GameServerInfo' => ['ItemCount'],
+        'VI_CURR_INFO' => ['memb___id', 'memb_guid'],
+    ];
+
+    /**
+     * Lists every object permission required by enabled 97d+99i write adapters.
+     *
+     * @var array<string, list<string>>
+     */
+    private const REQUIRED_OBJECT_PERMISSIONS = [
+        'dbo.MEMB_INFO' => ['SELECT', 'INSERT', 'UPDATE'],
+        'dbo.MEMB_STAT' => ['SELECT'],
+        'dbo.Character' => ['SELECT', 'UPDATE'],
+        'dbo.warehouse' => ['SELECT', 'UPDATE'],
+        'dbo.Guild' => ['SELECT'],
+        'dbo.GuildMember' => ['SELECT'],
+        'dbo.VI_CURR_INFO' => ['SELECT', 'INSERT'],
+        'dbo.GameServerInfo' => ['SELECT'],
+        'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
     ];
 
     /**
@@ -49,12 +67,14 @@ final class DiagnoseGameDatabase extends Command
         $schemaIsValid = $this->verifySchema($connection);
         $permissionsAreSafe = $this->verifyPermissions($connection);
         $itemSerialSourceIsAvailable = $this->verifyItemSerialSource($connection);
+        $objectPermissionsAreAvailable = $this->verifyObjectPermissions($connection);
         $configurationIsSafe = $this->verifySafetyConfiguration();
 
         if (
             ! $schemaIsValid
             || ! $permissionsAreSafe
             || ! $itemSerialSourceIsAvailable
+            || ! $objectPermissionsAreAvailable
             || ! $configurationIsSafe
         ) {
             $this->components->error('Game database diagnostics failed.');
@@ -65,6 +85,40 @@ final class DiagnoseGameDatabase extends Command
         $this->components->info('Game database diagnostics passed.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Confirms the SQL identity has the exact read and write capabilities used by adapters.
+     */
+    private function verifyObjectPermissions(Connection $connection): bool
+    {
+        if ($connection->getDriverName() !== 'sqlsrv') {
+            $this->components->warn('Object permission verification skipped for a non-SQL Server test connection.');
+
+            return true;
+        }
+
+        $valid = true;
+
+        foreach (self::REQUIRED_OBJECT_PERMISSIONS as $object => $permissions) {
+            foreach ($permissions as $permission) {
+                $result = $connection->selectOne(
+                    'SELECT HAS_PERMS_BY_NAME(?, ?, ?) AS has_permission',
+                    [$object, 'OBJECT', $permission],
+                );
+
+                if ((int) ($result->has_permission ?? 0) !== 1) {
+                    $this->components->error("Missing SQL permission: {$permission} on {$object}");
+                    $valid = false;
+                }
+            }
+        }
+
+        if ($valid) {
+            $this->components->info('Required adapter object permissions are available.');
+        }
+
+        return $valid;
     }
 
     /**

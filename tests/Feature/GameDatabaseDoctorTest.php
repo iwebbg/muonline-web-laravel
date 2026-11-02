@@ -79,6 +79,7 @@ final class GameDatabaseDoctorTest extends TestCase
         $connection->statement('CREATE TABLE MEMB_STAT (memb___id TEXT, ConnectStat INTEGER)');
         $connection->statement('CREATE TABLE Guild (G_Name TEXT, G_Master TEXT, G_Score INTEGER)');
         $connection->statement('CREATE TABLE GameServerInfo (ItemCount INTEGER)');
+        $connection->statement('CREATE TABLE VI_CURR_INFO (memb___id TEXT, memb_guid INTEGER)');
 
         if ($includeGuildMember) {
             $connection->statement('CREATE TABLE GuildMember (Name TEXT, G_Name TEXT)');

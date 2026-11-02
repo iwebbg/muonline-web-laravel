@@ -142,3 +142,11 @@ Keep `GAME_DB_READONLY=true` and `GAME_WRITES_ENABLED=false` during initial
 deployment and smoke testing. Enable writes only after the least-privilege SQL
 account, backup and rollback procedure have been verified. Email delivery can
 remain `MAIL_MAILER=log` until provider credentials are configured and tested.
+
+For the first 97d+99i deployment, copy and review
+`docker/sql/create-game-web-login.sql`, replace its SQLCMD variables and run it
+from an existing database-administrator session. The template grants only the
+tables and `WZ_GetItemSerial` procedure used by the adapter; it grants no
+`DELETE`, DDL, `db_owner` or `sysadmin` membership. Put the resulting login in
+`GAME_DB_USERNAME` / `GAME_DB_PASSWORD`, keep both write switches closed and
+rerun `game:doctor` before any staged write test.
