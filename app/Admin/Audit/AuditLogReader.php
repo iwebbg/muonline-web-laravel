@@ -14,6 +14,7 @@ use App\Models\CharacterStatAllocationOperation;
 use App\Models\CharacterStatResetOperation;
 use App\Models\DownloadRevision;
 use App\Models\EconomyRecoveryAction;
+use App\Models\EventScheduleEntryRevision;
 use App\Models\MarketAdminAction;
 use App\Models\ModerationOperation;
 use App\Models\ModuleProfileRevision;
@@ -114,6 +115,7 @@ final class AuditLogReader
             'economy_recovery',
             'vote_reward',
             'module_profile',
+            'event_schedule',
         ];
 
         foreach (self::OPERATION_SOURCES as $source) {
@@ -283,6 +285,17 @@ final class AuditLogReader
 
             foreach ($moduleRevisions as $moduleRevision) {
                 $entries[] = $this->moduleProfileEntry($moduleRevision);
+            }
+        }
+
+        if ($type === null || $type === 'event_schedule') {
+            $eventRevisions = EventScheduleEntryRevision::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($eventRevisions as $eventRevision) {
+                $entries[] = $this->eventScheduleEntry($eventRevision);
             }
         }
 
@@ -620,6 +633,28 @@ final class AuditLogReader
             status: 'completed',
             failureCode: null,
             contextSnapshot: [
+                'revision' => $revision->revision,
+                'changed_by_administrator_id' => $revision->changed_by_administrator_id,
+            ],
+            beforeSnapshot: $revision->before_snapshot,
+            afterSnapshot: $revision->after_snapshot,
+            occurredAt: $this->occurredAt($revision),
+        );
+    }
+
+    /**
+     * Normalizes one immutable event schedule revision.
+     */
+    private function eventScheduleEntry(EventScheduleEntryRevision $revision): AuditLogEntry
+    {
+        return new AuditLogEntry(
+            type: 'event_schedule',
+            subject: 'event-schedule:'.$revision->event_schedule_entry_id,
+            characterName: null,
+            status: 'completed',
+            failureCode: null,
+            contextSnapshot: [
+                'action' => $revision->action,
                 'revision' => $revision->revision,
                 'changed_by_administrator_id' => $revision->changed_by_administrator_id,
             ],

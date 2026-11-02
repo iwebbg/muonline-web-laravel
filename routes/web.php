@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthentica
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
 use App\Http\Controllers\Admin\EconomyRecoveryController;
+use App\Http\Controllers\Admin\EventScheduleController;
 use App\Http\Controllers\Admin\GameMasterController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModerationController;
@@ -365,6 +366,15 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/modules', [ModuleProfileController::class, 'update'])
             ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->name('modules.update');
+        Route::get('/event-schedules', [EventScheduleController::class, 'index'])
+            ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
+            ->name('event-schedules.index');
+        Route::post('/event-schedules', [EventScheduleController::class, 'store'])
+            ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
+            ->name('event-schedules.store');
+        Route::put('/event-schedules/{eventScheduleEntry}', [EventScheduleController::class, 'update'])
+            ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
+            ->name('event-schedules.update');
         Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])
             ->name('logout');
     });

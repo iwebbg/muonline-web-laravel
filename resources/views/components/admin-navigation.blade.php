@@ -15,6 +15,9 @@
             <a href="{{ route('admin.dashboard') }}#character-rules" class="admin-nav-link {{ $active === 'character-rules' ? 'admin-nav-link-active' : '' }}">
                 <span>↻</span>{{ __('ui.admin.character_rules') }}
             </a>
+            <a href="{{ route('admin.event-schedules.index') }}" class="admin-nav-link {{ $active === 'event-schedules' ? 'admin-nav-link-active' : '' }}">
+                <span>◷</span>{{ __('ui.admin.event_schedules_nav') }}
+            </a>
         @endif
         @if (
             auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateAccounts)

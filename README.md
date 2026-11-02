@@ -34,6 +34,12 @@ optional ISO weekday list (`days_of_week`), or `interval_minutes` with an
 schedule calculator, nearest-event ordering, live timer and expanded list do
 not require event-specific controller or JavaScript changes.
 
+Administrators with the settings capability can publish bilingual event
+overrides from **Administration → Event schedules**. Overrides are scoped to
+the active event profile and game version, merge by stable event key and keep
+immutable before/after revisions. The reviewed PHP profile remains the safe
+fallback until an override is published; MuServer files are never edited.
+
 Player-market listings keep the original 10-byte item in recoverable escrow.
 `GAME_MARKET_LISTING_DURATION_DAYS` controls their lifetime (30 days by
 default); the scheduler automatically removes expired listings and retries the
