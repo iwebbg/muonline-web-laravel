@@ -56,13 +56,23 @@ use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RankingsController;
 use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\VoteController;
+use App\Http\Middleware\SetLocale;
 use App\Modules\ServerModule;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 Route::get('/', [PreviewController::class, 'home'])
     ->name('home');
 
 Route::get('/ready', ReadinessController::class)
+    ->withoutMiddleware([
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        PreventRequestForgery::class,
+        SetLocale::class,
+    ])
     ->name('ready');
 
 Route::get('/rankings', RankingsController::class)

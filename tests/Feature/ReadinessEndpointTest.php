@@ -109,4 +109,30 @@ final class ReadinessEndpointTest extends TestCase
             ]);
         $response->assertDontSee('private-cache-failure');
     }
+
+    /**
+     * Confirms monitoring stays available when the stateful browser session backend is down.
+     */
+    public function test_readiness_does_not_depend_on_browser_session_storage(): void
+    {
+        config([
+            'cache.default' => 'array',
+            'game.data_source' => 'fixture',
+            'session.driver' => 'redis',
+            'session.connection' => 'readiness-unavailable',
+            'database.redis.readiness-unavailable' => [
+                'host' => '127.0.0.1',
+                'port' => 1,
+                'database' => 15,
+            ],
+        ]);
+
+        $response = $this->getJson('/ready');
+
+        $response
+            ->assertOk()
+            ->assertExactJson([
+                'status' => 'ok',
+            ]);
+    }
 }
