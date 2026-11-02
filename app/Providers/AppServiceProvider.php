@@ -131,6 +131,13 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($limiterKey);
         });
 
+        RateLimiter::for('market-purchase', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(10)->by($limiterKey);
+        });
+
         RateLimiter::for('reset-preview', function (Request $request): Limit {
             $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
             $limiterKey = Str::transliterate($accountId.'|'.$request->ip());

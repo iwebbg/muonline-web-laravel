@@ -56,6 +56,21 @@
                             </div>
                             <span class="rounded-full border border-white/8 px-3 py-1 text-xs text-steel">{{ __('ui.market.escrowed') }}</span>
                         </div>
+                        @auth
+                            @if ($listing->seller_account_id !== $currentAccountId)
+                                <form method="POST" action="{{ route('market.listings.purchase', $listing) }}" class="mt-4">
+                                    @csrf
+                                    <input type="hidden" name="idempotency_key" value="{{ $purchaseIdempotencyKeys[$listing->getKey()] }}">
+                                    <button type="submit" class="button button-primary w-full" @disabled(! $gameWritesEnabled)>
+                                        {{ __('ui.market.buy_now') }}
+                                    </button>
+                                </form>
+                            @else
+                                <p class="mt-4 text-center text-xs uppercase tracking-[0.14em] text-steel">{{ __('ui.market.your_listing') }}</p>
+                            @endif
+                        @else
+                            <a href="{{ route('login') }}" class="button button-ghost mt-4 w-full">{{ __('ui.market.sign_in_to_buy') }}</a>
+                        @endauth
                     </article>
                 @empty
                     <div class="panel-card p-10 text-center text-steel sm:col-span-2 xl:col-span-4">{{ __('ui.market.no_listings') }}</div>
@@ -162,6 +177,32 @@
                                 </tr>
                             @empty
                                 <tr><td colspan="4" class="px-5 py-10 text-center text-steel">{{ __('ui.market.no_personal_listings') }}</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="mt-12">
+                <p class="kicker">{{ __('ui.market.my_purchases') }}</p>
+                <div class="mt-5 overflow-x-auto rounded-2xl border border-white/8 bg-black/20">
+                    <table class="min-w-full text-left text-sm">
+                        <thead class="text-xs uppercase tracking-[0.14em] text-steel">
+                            <tr>
+                                <th class="px-5 py-4">{{ __('ui.market.item') }}</th>
+                                <th class="px-5 py-4">{{ __('ui.market.price') }}</th>
+                                <th class="px-5 py-4">{{ __('ui.market.status') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/6">
+                            @forelse ($myPurchases as $listing)
+                                <tr>
+                                    <td class="px-5 py-4 text-white">{{ $listing->item_snapshot['name'] ?? __('ui.market.unknown_item') }}</td>
+                                    <td class="px-5 py-4 text-gold">{{ number_format($listing->price_credits) }}</td>
+                                    <td class="px-5 py-4 text-silver">{{ __('ui.market.statuses.'.$listing->status->value) }}</td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="3" class="px-5 py-10 text-center text-steel">{{ __('ui.market.no_purchases') }}</td></tr>
                             @endforelse
                         </tbody>
                     </table>

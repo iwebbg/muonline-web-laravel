@@ -15,5 +15,7 @@ enum MarketListingBlockReason: string
     case ItemChanged = 'item_changed';
     case StorageFull = 'storage_full';
     case ListingUnavailable = 'listing_unavailable';
+    case OwnListing = 'own_listing';
+    case InsufficientCredits = 'insufficient_credits';
     case IdempotencyConflict = 'idempotency_conflict';
 }

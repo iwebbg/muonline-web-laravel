@@ -11,5 +11,6 @@ enum WalletTransactionType: string
     case AdminDebit = 'admin_debit';
     case Reward = 'reward';
     case Purchase = 'purchase';
+    case Sale = 'sale';
     case Refund = 'refund';
 }

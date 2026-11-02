@@ -11,6 +11,7 @@ use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
 use App\Http\Controllers\Account\ItemStorageController;
 use App\Http\Controllers\Account\MarketListingController;
+use App\Http\Controllers\Account\MarketPurchaseController;
 use App\Http\Controllers\Account\MoveToTownPreviewController;
 use App\Http\Controllers\Account\PkClearPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
@@ -145,6 +146,9 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/market/listings/{marketListing}', [MarketListingController::class, 'destroy'])
         ->middleware('throttle:market-listing')
         ->name('market.listings.destroy');
+    Route::post('/market/listings/{marketListing}/purchase', MarketPurchaseController::class)
+        ->middleware('throttle:market-purchase')
+        ->name('market.listings.purchase');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

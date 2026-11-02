@@ -41,6 +41,13 @@ final class MarketController extends Controller
         $selectedCharacter = null;
         $warehouseVaults = [];
         $myListings = collect();
+        $myPurchases = collect();
+        $purchaseIdempotencyKeys = [];
+        $currentAccountId = $account instanceof GameAccount ? $account->username : null;
+
+        foreach ($listings as $listing) {
+            $purchaseIdempotencyKeys[$listing->getKey()] = (string) Str::uuid();
+        }
 
         if ($account instanceof GameAccount) {
             $characterEntries = $this->accountReadRepository->charactersFor($account->username);
@@ -66,6 +73,11 @@ final class MarketController extends Controller
                 ->latest('id')
                 ->limit(50)
                 ->get();
+            $myPurchases = MarketListing::query()
+                ->where('buyer_account_id', $account->username)
+                ->latest('purchased_at')
+                ->limit(50)
+                ->get();
         }
 
         return view('market.index', [
@@ -74,9 +86,12 @@ final class MarketController extends Controller
             'selectedCharacter' => $selectedCharacter,
             'warehouseVaults' => $warehouseVaults,
             'myListings' => $myListings,
+            'myPurchases' => $myPurchases,
+            'purchaseIdempotencyKeys' => $purchaseIdempotencyKeys,
             'listingIdempotencyKey' => (string) Str::uuid(),
             'gameWritesEnabled' => (bool) config('game.writes_enabled', false)
                 && ! (bool) config('database.connections.game.readonly', true),
+            'currentAccountId' => $currentAccountId,
         ]);
     }
 

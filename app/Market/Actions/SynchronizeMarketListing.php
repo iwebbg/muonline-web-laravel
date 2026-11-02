@@ -22,7 +22,7 @@ final readonly class SynchronizeMarketListing
     ) {}
 
     /**
-     * Attempts extraction or return while preserving retryable application state.
+     * Attempts extraction, buyer delivery or return while preserving retryable state.
      */
     public function execute(MarketListing $listing): bool
     {
@@ -46,6 +46,20 @@ final readonly class SynchronizeMarketListing
                 $listing->forceFill([
                     'status' => MarketListingStatus::Active,
                     'activated_at' => now(),
+                    'last_sync_error' => null,
+                ]);
+            } elseif ($listing->status === MarketListingStatus::DeliveryPending) {
+                $snapshot = $listing->item_snapshot;
+                $this->escrowRepository->deposit(
+                    accountId: (string) $listing->buyer_account_id,
+                    itemBinary: $listing->item_binary,
+                    width: (int) ($snapshot['width'] ?? 1),
+                    height: (int) ($snapshot['height'] ?? 1),
+                );
+                $listing->forceFill([
+                    'status' => MarketListingStatus::Delivered,
+                    'escrow_key' => null,
+                    'delivered_at' => now(),
                     'last_sync_error' => null,
                 ]);
             } elseif ($listing->status === MarketListingStatus::ReturnPending) {

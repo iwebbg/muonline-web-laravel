@@ -45,6 +45,7 @@ final readonly class AdjustWalletBalance
             [
                 WalletTransactionType::AdminCredit,
                 WalletTransactionType::Reward,
+                WalletTransactionType::Sale,
                 WalletTransactionType::Refund,
             ],
             true,

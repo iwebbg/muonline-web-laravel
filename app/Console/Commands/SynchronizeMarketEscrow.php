@@ -10,10 +10,10 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 /**
- * Retries interrupted market extractions and item returns in bounded batches.
+ * Retries interrupted market extractions, deliveries and returns in bounded batches.
  */
 #[Signature('market:sync-escrow')]
-#[Description('Retry pending MuOnline market escrow extraction and return writes.')]
+#[Description('Retry pending MuOnline market escrow extraction, delivery and return writes.')]
 final class SynchronizeMarketEscrow extends Command
 {
     /**
@@ -35,6 +35,7 @@ final class SynchronizeMarketEscrow extends Command
         $listings = MarketListing::query()
             ->whereIn('status', [
                 MarketListingStatus::Extracting->value,
+                MarketListingStatus::DeliveryPending->value,
                 MarketListingStatus::ReturnPending->value,
             ])
             ->orderBy('id')
