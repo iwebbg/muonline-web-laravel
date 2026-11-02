@@ -36,6 +36,9 @@
             <a href="{{ route('admin.vip-plans.index') }}" class="admin-nav-link {{ $active === 'vip-plans' ? 'admin-nav-link-active' : '' }}">
                 <span>◆</span>{{ __('ui.admin.vip_plans_nav') }}
             </a>
+            <a href="{{ route('admin.vote-sites.index') }}" class="admin-nav-link {{ $active === 'vote-rewards' ? 'admin-nav-link-active' : '' }}">
+                <span>✦</span>{{ __('ui.admin.vote_rewards_nav') }}
+            </a>
             <a href="{{ route('admin.market.index') }}" class="admin-nav-link {{ $active === 'market' ? 'admin-nav-link-active' : '' }}">
                 <span>◇</span>{{ __('ui.admin.market_nav') }}
             </a>

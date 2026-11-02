@@ -20,6 +20,7 @@ use App\Http\Controllers\Account\ResetPreviewController;
 use App\Http\Controllers\Account\StatAllocationPreviewController;
 use App\Http\Controllers\Account\StatResetPreviewController;
 use App\Http\Controllers\Account\VipPurchaseController;
+use App\Http\Controllers\Account\VoteClaimController;
 use App\Http\Controllers\Account\WebStorageController;
 use App\Http\Controllers\Account\ZenBankController;
 use App\Http\Controllers\AccountDashboardController;
@@ -34,6 +35,8 @@ use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ResetProfileController;
 use App\Http\Controllers\Admin\VipPlanController;
+use App\Http\Controllers\Admin\VoteClaimReviewController;
+use App\Http\Controllers\Admin\VoteSiteController;
 use App\Http\Controllers\Admin\WalletController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -46,6 +49,7 @@ use App\Http\Controllers\MarketController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RankingsController;
+use App\Http\Controllers\VoteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PreviewController::class, 'home'])
@@ -101,6 +105,11 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware('auth')->group(function (): void {
     Route::get('/account', AccountDashboardController::class)
         ->name('account.dashboard');
+    Route::get('/votes', VoteController::class)
+        ->name('votes.index');
+    Route::post('/votes/{voteSite}/claims', VoteClaimController::class)
+        ->middleware('throttle:vote-claim')
+        ->name('votes.claims.store');
     Route::put('/account/credentials', [AccountCredentialController::class, 'update'])
         ->middleware('throttle:account-credentials')
         ->name('account.credentials.update');
@@ -219,6 +228,17 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                     ->name('vip-plans.update');
                 Route::delete('/economy/vip-plans/{vipPlan}', [VipPlanController::class, 'destroy'])
                     ->name('vip-plans.destroy');
+                Route::get('/economy/votes', [VoteSiteController::class, 'index'])
+                    ->name('vote-sites.index');
+                Route::post('/economy/votes', [VoteSiteController::class, 'store'])
+                    ->name('vote-sites.store');
+                Route::put('/economy/votes/{voteSite}', [VoteSiteController::class, 'update'])
+                    ->name('vote-sites.update');
+                Route::delete('/economy/votes/{voteSite}', [VoteSiteController::class, 'destroy'])
+                    ->name('vote-sites.destroy');
+                Route::post('/economy/vote-claims/{voteClaim}/review', VoteClaimReviewController::class)
+                    ->middleware('throttle:admin-vote-review')
+                    ->name('vote-claims.review');
                 Route::get('/economy/market', [AdminMarketController::class, 'index'])
                     ->name('market.index');
                 Route::post('/economy/market/{marketListing}/retry', [AdminMarketController::class, 'retry'])

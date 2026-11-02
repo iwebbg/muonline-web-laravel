@@ -18,6 +18,7 @@ use App\Models\MarketAdminAction;
 use App\Models\ModerationOperation;
 use App\Models\NewsPostRevision;
 use App\Models\ResetProfileRevision;
+use App\Models\VoteClaim;
 use App\Models\WalletTransaction;
 use App\Models\WebStorageItem;
 use App\Models\ZenBankOperation;
@@ -110,6 +111,7 @@ final class AuditLogReader
             'item_custody',
             'zen_bank',
             'economy_recovery',
+            'vote_reward',
         ];
 
         foreach (self::OPERATION_SOURCES as $source) {
@@ -257,6 +259,17 @@ final class AuditLogReader
 
             foreach ($recoveryActions as $recoveryAction) {
                 $entries[] = $this->economyRecoveryEntry($recoveryAction);
+            }
+        }
+
+        if ($type === null || $type === 'vote_reward') {
+            $voteClaims = VoteClaim::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($voteClaims as $voteClaim) {
+                $entries[] = $this->voteClaimEntry($voteClaim);
             }
         }
 
@@ -551,6 +564,34 @@ final class AuditLogReader
             beforeSnapshot: ['status' => $action->before_status],
             afterSnapshot: ['status' => $action->after_status],
             occurredAt: $this->occurredAt($action),
+        );
+    }
+
+    /**
+     * Normalizes one manually reviewed vote claim and both reward ledger outcomes.
+     */
+    private function voteClaimEntry(VoteClaim $claim): AuditLogEntry
+    {
+        return new AuditLogEntry(
+            type: 'vote_reward',
+            subject: $claim->account_id,
+            characterName: null,
+            status: $claim->status->value,
+            failureCode: $claim->rejection_reason,
+            contextSnapshot: [
+                'vote_site_id' => $claim->vote_site_id,
+                'reward_credits' => $claim->reward_credits,
+                'reward_zen' => $claim->reward_zen,
+                'wallet_transaction_id' => $claim->wallet_transaction_id,
+                'reviewed_by_administrator_id' => $claim->reviewed_by_administrator_id,
+            ],
+            beforeSnapshot: [
+                'zen_balance' => $claim->zen_balance_before,
+            ],
+            afterSnapshot: [
+                'zen_balance' => $claim->zen_balance_after,
+            ],
+            occurredAt: $this->occurredAt($claim),
         );
     }
 

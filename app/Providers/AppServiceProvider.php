@@ -129,6 +129,20 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($limiterKey);
         });
 
+        RateLimiter::for('vote-claim', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(5)->by($limiterKey);
+        });
+
+        RateLimiter::for('admin-vote-review', function (Request $request): Limit {
+            $administratorId = (string) ($request->user('admin')?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($administratorId.'|'.$request->ip());
+
+            return Limit::perMinute(30)->by($limiterKey);
+        });
+
         RateLimiter::for('market-listing', function (Request $request): Limit {
             $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
             $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
