@@ -12,7 +12,9 @@ use App\Models\CharacterPkClearOperation;
 use App\Models\CharacterResetOperation;
 use App\Models\CharacterStatAllocationOperation;
 use App\Models\CharacterStatResetOperation;
+use App\Models\DownloadRevision;
 use App\Models\ModerationOperation;
+use App\Models\NewsPostRevision;
 use App\Models\ResetProfileRevision;
 use BackedEnum;
 use DateTimeImmutable;
@@ -94,6 +96,8 @@ final class AuditLogReader
         $types = [
             'reset_profile',
             'game_master_identity',
+            'news_content',
+            'download_content',
         ];
 
         foreach (self::OPERATION_SOURCES as $source) {
@@ -154,6 +158,38 @@ final class AuditLogReader
 
             foreach ($identityRevisions as $identityRevision) {
                 $entries[] = $this->identityRevisionEntry($identityRevision);
+            }
+        }
+
+        if ($type === null || $type === 'news_content') {
+            $newsRevisions = NewsPostRevision::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($newsRevisions as $newsRevision) {
+                $entries[] = $this->contentRevisionEntry(
+                    revision: $newsRevision,
+                    type: 'news_content',
+                    subjectPrefix: 'content:news:',
+                    contentKey: 'news_post_id',
+                );
+            }
+        }
+
+        if ($type === null || $type === 'download_content') {
+            $downloadRevisions = DownloadRevision::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($downloadRevisions as $downloadRevision) {
+                $entries[] = $this->contentRevisionEntry(
+                    revision: $downloadRevision,
+                    type: 'download_content',
+                    subjectPrefix: 'content:download:',
+                    contentKey: 'download_id',
+                );
             }
         }
 
@@ -261,6 +297,36 @@ final class AuditLogReader
             ],
             beforeSnapshot: $revision->before_snapshot,
             afterSnapshot: $revision->after_snapshot,
+            occurredAt: $this->occurredAt($revision),
+        );
+    }
+
+    /**
+     * Normalizes one immutable public-content revision for the shared audit view.
+     */
+    private function contentRevisionEntry(
+        Model $revision,
+        string $type,
+        string $subjectPrefix,
+        string $contentKey,
+    ): AuditLogEntry {
+        $contentId = $revision->getAttribute($contentKey);
+        $administratorId = $revision->getAttribute('administrator_id');
+        $action = $revision->getAttribute('action');
+        $snapshot = $this->nullableSnapshot($revision, 'snapshot');
+
+        return new AuditLogEntry(
+            type: $type,
+            subject: $subjectPrefix.$contentId,
+            characterName: null,
+            status: 'completed',
+            failureCode: null,
+            contextSnapshot: [
+                'action' => $action,
+                'administrator_id' => $administratorId,
+            ],
+            beforeSnapshot: null,
+            afterSnapshot: $snapshot,
             occurredAt: $this->occurredAt($revision),
         );
     }

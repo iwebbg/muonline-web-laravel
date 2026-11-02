@@ -259,6 +259,95 @@ export function contentManager(posts, createUrl) {
 }
 
 /**
+ * Creates the bilingual download editor and recoverable-delete dialog state.
+ *
+ * @param {Array<object>} downloads The administrator-visible download records.
+ * @param {string} createUrl The route used to create downloads.
+ * @returns {object}
+ */
+export function downloadManager(downloads, createUrl) {
+    /**
+     * Returns a fresh download form state without sharing mutable values.
+     *
+     * @returns {object}
+     */
+    const emptyForm = () => ({
+        slug: '',
+        category: 'client',
+        title_en: '',
+        title_bg: '',
+        description_en: '',
+        description_bg: '',
+        version: '',
+        file_size: '',
+        download_url: '',
+        checksum_sha256: '',
+        sort_order: 0,
+        status: 'draft',
+        published_at: '',
+    });
+
+    return {
+        downloads,
+        editorOpen: false,
+        deleteOpen: false,
+        editing: false,
+        formAction: createUrl,
+        deleteAction: '',
+        form: emptyForm(),
+
+        /**
+         * Opens a blank bilingual download form.
+         */
+        openCreate() {
+            this.editing = false;
+            this.formAction = createUrl;
+            this.form = emptyForm();
+            this.editorOpen = true;
+            this.$nextTick(() => this.$refs.downloadTitle?.focus());
+        },
+
+        /**
+         * Opens an existing download in the shared editor.
+         *
+         * @param {object} download The selected administrator download payload.
+         */
+        openEdit(download) {
+            this.editing = true;
+            this.formAction = download.update_url;
+            this.form = { ...download };
+            this.editorOpen = true;
+            this.$nextTick(() => this.$refs.downloadTitle?.focus());
+        },
+
+        /**
+         * Closes the editor without persisting changes.
+         */
+        closeEditor() {
+            this.editorOpen = false;
+        },
+
+        /**
+         * Opens the recoverable-delete confirmation for one download.
+         *
+         * @param {object} download The download selected for deletion.
+         */
+        openDelete(download) {
+            this.form.title_en = download.title_en;
+            this.deleteAction = download.delete_url;
+            this.deleteOpen = true;
+        },
+
+        /**
+         * Closes the delete dialog without changing content.
+         */
+        closeDelete() {
+            this.deleteOpen = false;
+        },
+    };
+}
+
+/**
  * Creates the full-administrator Game Master identity editor state.
  *
  * @param {string} createUrl The route used to create a Game Master.

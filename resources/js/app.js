@@ -4,6 +4,7 @@ import {
     accountPanel,
     applicationNavigation,
     contentManager,
+    downloadManager,
     eventSchedule,
     gameMasterManager,
     moderationPanel,
@@ -17,6 +18,7 @@ window.Alpine = Alpine;
 Alpine.data('accountPanel', accountPanel);
 Alpine.data('applicationNavigation', applicationNavigation);
 Alpine.data('contentManager', contentManager);
+Alpine.data('downloadManager', downloadManager);
 Alpine.data('eventSchedule', eventSchedule);
 Alpine.data('gameMasterManager', gameMasterManager);
 Alpine.data('moderationPanel', moderationPanel);

@@ -19,6 +19,7 @@ use App\Http\Controllers\AccountDashboardController;
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
 use App\Http\Controllers\Admin\GameMasterController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredAccountController;
+use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\GuideController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NewsController;
@@ -51,6 +53,9 @@ Route::get('/guides', [GuideController::class, 'index'])
 Route::get('/guides/{slug}', [GuideController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('guides.show');
+
+Route::get('/downloads', DownloadController::class)
+    ->name('downloads.index');
 
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
     ->name('password.request');
@@ -166,6 +171,14 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                     ->name('news-posts.update');
                 Route::delete('/content/news/{newsPost}', [AdminNewsPostController::class, 'destroy'])
                     ->name('news-posts.destroy');
+                Route::get('/content/downloads', [AdminDownloadController::class, 'index'])
+                    ->name('downloads.index');
+                Route::post('/content/downloads', [AdminDownloadController::class, 'store'])
+                    ->name('downloads.store');
+                Route::put('/content/downloads/{download}', [AdminDownloadController::class, 'update'])
+                    ->name('downloads.update');
+                Route::delete('/content/downloads/{download}', [AdminDownloadController::class, 'destroy'])
+                    ->name('downloads.destroy');
             });
         Route::middleware('admin.full')->group(function (): void {
             Route::get('/game-masters', [GameMasterController::class, 'index'])

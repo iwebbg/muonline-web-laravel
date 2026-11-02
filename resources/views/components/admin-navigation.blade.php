@@ -35,6 +35,9 @@
             <a href="{{ route('admin.news-posts.index') }}" class="admin-nav-link {{ $active === 'content' ? 'admin-nav-link-active' : '' }}">
                 <span>☷</span>{{ __('ui.admin.content') }}
             </a>
+            <a href="{{ route('admin.downloads.index') }}" class="admin-nav-link {{ $active === 'downloads' ? 'admin-nav-link-active' : '' }}">
+                <span>⇩</span>{{ __('ui.admin.downloads') }}
+            </a>
         @else
             <span class="admin-nav-link opacity-45" aria-disabled="true"><span>☷</span>{{ __('ui.admin.content') }}</span>
         @endif
