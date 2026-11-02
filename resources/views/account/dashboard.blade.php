@@ -1,3 +1,4 @@
+@inject('moduleManager', 'App\Modules\ModuleManager')
 @extends('layouts.app')
 
 @section('title', __('ui.account.title'))
@@ -182,32 +183,40 @@
                     <span>{{ __('ui.account.signed_in_as') }}</span>
                     <strong>{{ $account->username }}</strong>
                 </div>
-                <x-account-vip-modal
-                    :characters="$characters"
-                    :plans="$vipPlans"
-                    :entitlements="$vipEntitlements"
-                    :active-entitlement-count="$activeVipEntitlementCount"
-                    :purchases="$vipPurchases"
-                    :balance="$walletBalance"
-                    :idempotency-key="$vipIdempotencyKey"
-                    :game-writes-enabled="$gameWritesEnabled"
-                />
+                @if ($moduleManager->enabled(\App\Modules\ServerModule::Vip))
+                    <x-account-vip-modal
+                        :characters="$characters"
+                        :plans="$vipPlans"
+                        :entitlements="$vipEntitlements"
+                        :active-entitlement-count="$activeVipEntitlementCount"
+                        :purchases="$vipPurchases"
+                        :balance="$walletBalance"
+                        :idempotency-key="$vipIdempotencyKey"
+                        :game-writes-enabled="$gameWritesEnabled"
+                    />
+                @endif
                 <x-account-wallet-modal
                     :balance="$walletBalance"
                     :transactions="$walletTransactions"
                 />
+                @if ($moduleManager->enabled(\App\Modules\ServerModule::WebStorage))
                 <a href="{{ route('account.web-storage.index') }}" class="resource-chip text-left">
                     <span>{{ __('ui.web_storage.kicker') }}</span>
                     <strong class="text-gold">{{ __('ui.web_storage.open') }}</strong>
                 </a>
+                @endif
+                @if ($moduleManager->enabled(\App\Modules\ServerModule::JewelBank))
                 <a href="{{ route('account.jewel-bank.index') }}" class="resource-chip text-left">
                     <span>{{ __('ui.jewel_bank.kicker') }}</span>
                     <strong class="text-gold">{{ __('ui.jewel_bank.open') }}</strong>
                 </a>
+                @endif
+                @if ($moduleManager->enabled(\App\Modules\ServerModule::ZenBank))
                 <a href="{{ route('account.zen-bank.index') }}" class="resource-chip text-left">
                     <span>{{ __('ui.zen_bank.kicker') }}</span>
                     <strong class="text-gold">{{ __('ui.zen_bank.open') }}</strong>
                 </a>
+                @endif
                 <x-account-credentials-modal
                     :account="$account"
                     :game-writes-enabled="$gameWritesEnabled"

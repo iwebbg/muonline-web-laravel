@@ -142,7 +142,12 @@
                                         </div>
                                         <label class="field-group mt-4">
                                             <span>{{ __('ui.market.sale_type') }}</span>
-                                            <select name="sale_type" x-model="saleType"><option value="fixed">{{ __('ui.market.fixed_price') }}</option><option value="auction">{{ __('ui.market.auction') }}</option></select>
+                                            <select name="sale_type" x-model="saleType">
+                                                <option value="fixed">{{ __('ui.market.fixed_price') }}</option>
+                                                @if ($auctionEnabled)
+                                                    <option value="auction">{{ __('ui.market.auction') }}</option>
+                                                @endif
+                                            </select>
                                         </label>
                                         <label class="field-group mt-4">
                                             <span x-text="saleType === 'auction' ? @js(__('ui.market.minimum_bid')) : @js(__('ui.market.price_credits'))">{{ __('ui.market.price_credits') }}</span>

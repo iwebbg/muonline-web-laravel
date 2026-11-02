@@ -31,6 +31,7 @@ return [
     ),
 
     'profile' => [
+        'key' => env('GAME_SERVER_PROFILE', 'darksteam_97d99i'),
         'name' => env('GAME_SERVER_NAME', 'MuOnline 97d+99i'),
         'version' => env('GAME_SERVER_VERSION', '97d + 99i'),
         'experience' => env('GAME_SERVER_EXPERIENCE', '9999x'),

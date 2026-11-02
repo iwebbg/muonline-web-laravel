@@ -48,7 +48,11 @@
         @else
             <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◈</span>{{ __('ui.admin.economy') }}</span>
         @endif
-        <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◇</span>{{ __('ui.admin.modules') }}</span>
+        @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageSettings))
+            <a href="{{ route('admin.modules.index') }}" class="admin-nav-link {{ $active === 'modules' ? 'admin-nav-link-active' : '' }}">
+                <span>◫</span>{{ __('ui.admin.modules') }}
+            </a>
+        @endif
         @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageContent))
             <a href="{{ route('admin.news-posts.index') }}" class="admin-nav-link {{ $active === 'content' ? 'admin-nav-link-active' : '' }}">
                 <span>☷</span>{{ __('ui.admin.content') }}

@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\EconomyRecoveryController;
 use App\Http\Controllers\Admin\GameMasterController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModerationController;
+use App\Http\Controllers\Admin\ModuleProfileController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ResetProfileController;
 use App\Http\Controllers\Admin\VipPlanController;
@@ -52,6 +53,7 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RankingsController;
 use App\Http\Controllers\VoteController;
+use App\Modules\ServerModule;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PreviewController::class, 'home'])
@@ -82,26 +84,39 @@ Route::get('/downloads', DownloadController::class)
     ->name('downloads.index');
 
 Route::get('/market', MarketController::class)
+    ->middleware('module.enabled:'.ServerModule::Market->value)
     ->name('market.index');
 
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
+    ->middleware('module.enabled:'.ServerModule::PasswordRecovery->value)
     ->name('password.request');
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-    ->middleware('throttle:password-recovery-link')
+    ->middleware([
+        'module.enabled:'.ServerModule::PasswordRecovery->value,
+        'throttle:password-recovery-link',
+    ])
     ->name('password.email');
 Route::get('/reset-password/{account}/{token}', [NewPasswordController::class, 'create'])
+    ->middleware('module.enabled:'.ServerModule::PasswordRecovery->value)
     ->where('account', '[A-Za-z0-9_-]{4,10}')
     ->where('token', '[A-Za-z0-9]{64}')
     ->name('password.reset');
 Route::post('/reset-password', [NewPasswordController::class, 'store'])
-    ->middleware('throttle:password-recovery-reset')
+    ->middleware([
+        'module.enabled:'.ServerModule::PasswordRecovery->value,
+        'throttle:password-recovery-reset',
+    ])
     ->name('password.update');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/register', [RegisteredAccountController::class, 'create'])
+        ->middleware('module.enabled:'.ServerModule::Registration->value)
         ->name('register');
     Route::post('/register', [RegisteredAccountController::class, 'store'])
-        ->middleware('throttle:registration')
+        ->middleware([
+            'module.enabled:'.ServerModule::Registration->value,
+            'throttle:registration',
+        ])
         ->name('register.store');
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
@@ -114,9 +129,13 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/account', AccountDashboardController::class)
         ->name('account.dashboard');
     Route::get('/votes', VoteController::class)
+        ->middleware('module.enabled:'.ServerModule::VoteRewards->value)
         ->name('votes.index');
     Route::post('/votes/{voteSite}/claims', VoteClaimController::class)
-        ->middleware('throttle:vote-claim')
+        ->middleware([
+            'module.enabled:'.ServerModule::VoteRewards->value,
+            'throttle:vote-claim',
+        ])
         ->name('votes.claims.store');
     Route::put('/account/credentials', [AccountCredentialController::class, 'update'])
         ->middleware('throttle:account-credentials')
@@ -161,40 +180,74 @@ Route::middleware('auth')->group(function (): void {
         ->middleware('throttle:item-storage')
         ->name('account.item-storage');
     Route::post('/account/vip-purchases', VipPurchaseController::class)
-        ->middleware('throttle:vip-purchase')
+        ->middleware([
+            'module.enabled:'.ServerModule::Vip->value,
+            'throttle:vip-purchase',
+        ])
         ->name('account.vip-purchases.store');
     Route::get('/account/web-storage', [WebStorageController::class, 'index'])
+        ->middleware('module.enabled:'.ServerModule::WebStorage->value)
         ->name('account.web-storage.index');
     Route::post('/account/web-storage', [WebStorageController::class, 'store'])
-        ->middleware('throttle:web-storage')
+        ->middleware([
+            'module.enabled:'.ServerModule::WebStorage->value,
+            'throttle:web-storage',
+        ])
         ->name('account.web-storage.store');
     Route::delete('/account/web-storage/{webStorageItem}', [WebStorageController::class, 'destroy'])
-        ->middleware('throttle:web-storage')
+        ->middleware([
+            'module.enabled:'.ServerModule::WebStorage->value,
+            'throttle:web-storage',
+        ])
         ->name('account.web-storage.destroy');
     Route::get('/account/jewel-bank', [JewelBankController::class, 'index'])
+        ->middleware('module.enabled:'.ServerModule::JewelBank->value)
         ->name('account.jewel-bank.index');
     Route::post('/account/jewel-bank', [JewelBankController::class, 'store'])
-        ->middleware('throttle:jewel-bank')
+        ->middleware([
+            'module.enabled:'.ServerModule::JewelBank->value,
+            'throttle:jewel-bank',
+        ])
         ->name('account.jewel-bank.store');
     Route::delete('/account/jewel-bank/{webStorageItem}', [JewelBankController::class, 'destroy'])
-        ->middleware('throttle:jewel-bank')
+        ->middleware([
+            'module.enabled:'.ServerModule::JewelBank->value,
+            'throttle:jewel-bank',
+        ])
         ->name('account.jewel-bank.destroy');
     Route::get('/account/zen-bank', [ZenBankController::class, 'index'])
+        ->middleware('module.enabled:'.ServerModule::ZenBank->value)
         ->name('account.zen-bank.index');
     Route::post('/account/zen-bank', [ZenBankController::class, 'store'])
-        ->middleware('throttle:zen-bank')
+        ->middleware([
+            'module.enabled:'.ServerModule::ZenBank->value,
+            'throttle:zen-bank',
+        ])
         ->name('account.zen-bank.store');
     Route::post('/market/listings', [MarketListingController::class, 'store'])
-        ->middleware('throttle:market-listing')
+        ->middleware([
+            'module.enabled:'.ServerModule::Market->value,
+            'throttle:market-listing',
+        ])
         ->name('market.listings.store');
     Route::delete('/market/listings/{marketListing}', [MarketListingController::class, 'destroy'])
-        ->middleware('throttle:market-listing')
+        ->middleware([
+            'module.enabled:'.ServerModule::Market->value,
+            'throttle:market-listing',
+        ])
         ->name('market.listings.destroy');
     Route::post('/market/listings/{marketListing}/purchase', MarketPurchaseController::class)
-        ->middleware('throttle:market-purchase')
+        ->middleware([
+            'module.enabled:'.ServerModule::Market->value,
+            'throttle:market-purchase',
+        ])
         ->name('market.listings.purchase');
     Route::post('/market/listings/{marketListing}/bids', AuctionBidController::class)
-        ->middleware('throttle:auction-bid')
+        ->middleware([
+            'module.enabled:'.ServerModule::Market->value,
+            'module.enabled:'.ServerModule::Auction->value,
+            'throttle:auction-bid',
+        ])
         ->name('market.listings.bids.store');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
@@ -306,6 +359,12 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/reset-profile', [ResetProfileController::class, 'update'])
             ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->name('reset-profile.update');
+        Route::get('/modules', [ModuleProfileController::class, 'index'])
+            ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
+            ->name('modules.index');
+        Route::put('/modules', [ModuleProfileController::class, 'update'])
+            ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
+            ->name('modules.update');
         Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])
             ->name('logout');
     });

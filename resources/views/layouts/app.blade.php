@@ -1,3 +1,4 @@
+@inject('moduleManager', 'App\Modules\ModuleManager')
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
     <head>
@@ -33,9 +34,13 @@
                     <a href="{{ route('news.index') }}" class="nav-link {{ request()->routeIs('news.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.news') }}</a>
                     <a href="{{ route('guides.index') }}" class="nav-link {{ request()->routeIs('guides.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.guides') }}</a>
                     <a href="{{ route('downloads.index') }}" class="nav-link {{ request()->routeIs('downloads.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.downloads') }}</a>
-                    <a href="{{ route('market.index') }}" class="nav-link {{ request()->routeIs('market.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.market') }}</a>
+                    @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
+                        <a href="{{ route('market.index') }}" class="nav-link {{ request()->routeIs('market.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.market') }}</a>
+                    @endif
                     @auth
+                        @if ($moduleManager->enabled(\App\Modules\ServerModule::VoteRewards))
                         <a href="{{ route('votes.index') }}" class="nav-link {{ request()->routeIs('votes.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.votes') }}</a>
+                        @endif
                     @endauth
                     <a href="{{ route('home') }}#events" class="nav-link">{{ __('ui.navigation.events') }}</a>
                     <a href="{{ route('account.dashboard') }}" class="nav-link {{ request()->routeIs('account.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.account') }}</a>
@@ -66,7 +71,9 @@
                             <button type="submit" class="button button-primary">{{ __('ui.navigation.logout') }}</button>
                         </form>
                     @else
-                        <a href="{{ route('register') }}" class="button button-ghost">{{ __('ui.navigation.register') }}</a>
+                        @if ($moduleManager->enabled(\App\Modules\ServerModule::Registration))
+                            <a href="{{ route('register') }}" class="button button-ghost">{{ __('ui.navigation.register') }}</a>
+                        @endif
                         <a href="{{ route('login') }}" class="button button-primary">{{ __('ui.navigation.enter_account') }}</a>
                     @endauth
                 </div>
@@ -98,13 +105,19 @@
                     <a href="{{ route('news.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.news') }}</a>
                     <a href="{{ route('guides.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.guides') }}</a>
                     <a href="{{ route('downloads.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.downloads') }}</a>
-                    <a href="{{ route('market.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.market') }}</a>
+                    @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
+                        <a href="{{ route('market.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.market') }}</a>
+                    @endif
                     @auth
-                        <a href="{{ route('votes.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.votes') }}</a>
+                        @if ($moduleManager->enabled(\App\Modules\ServerModule::VoteRewards))
+                            <a href="{{ route('votes.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.votes') }}</a>
+                        @endif
                     @endauth
                     <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.account_panel') }}</a>
                     @guest
+                        @if ($moduleManager->enabled(\App\Modules\ServerModule::Registration))
                         <a href="{{ route('register') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.register') }}</a>
+                        @endif
                     @endguest
                     <a href="{{ route('admin.dashboard') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.administration') }}</a>
                     @auth

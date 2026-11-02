@@ -11,6 +11,8 @@ use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
 use App\Models\MarketListing;
+use App\Modules\ModuleManager;
+use App\Modules\ServerModule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -25,10 +27,19 @@ final class MarketListingController extends Controller
     public function store(
         StoreMarketListingRequest $request,
         CreateMarketListing $createMarketListing,
+        ModuleManager $moduleManager,
     ): RedirectResponse {
         $account = $request->user();
 
         abort_unless($account instanceof GameAccount, 403);
+
+        $saleType = MarketSaleType::from($request->string('sale_type')->toString());
+
+        abort_unless(
+            $saleType !== MarketSaleType::Auction
+            || $moduleManager->enabled(ServerModule::Auction),
+            404,
+        );
 
         try {
             $listing = $createMarketListing->execute(
@@ -38,7 +49,7 @@ final class MarketListingController extends Controller
                 slot: $request->integer('slot'),
                 priceCredits: $request->integer('price_credits'),
                 idempotencyKey: $request->string('idempotency_key')->toString(),
-                saleType: MarketSaleType::from($request->string('sale_type')->toString()),
+                saleType: $saleType,
                 bidIncrementCredits: $request->integer('bid_increment_credits'),
             );
         } catch (MarketListingRejected $exception) {

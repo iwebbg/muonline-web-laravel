@@ -42,6 +42,7 @@ use App\Game\Repositories\SqlServer97d99iMarketItemEscrowRepository;
 use App\Game\Repositories\SqlServer97d99iModerationRepository;
 use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
 use App\Game\Repositories\SqlServer97d99iZenBankRepository;
+use App\Modules\ModuleManager;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseManager;
@@ -51,6 +52,9 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 
+/**
+ * Registers version-aware game adapters, module settings and request limiters.
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -84,6 +88,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ModerationRepository::class, SqlServer97d99iModerationRepository::class);
         $this->app->bind(ZenBankRepository::class, SqlServer97d99iZenBankRepository::class);
         $this->app->bind(GameAccountLookupRepository::class, LegacyGameAccountLookupRepository::class);
+        $this->app->singleton(ModuleManager::class);
     }
 
     /**

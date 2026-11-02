@@ -16,6 +16,7 @@ use App\Models\DownloadRevision;
 use App\Models\EconomyRecoveryAction;
 use App\Models\MarketAdminAction;
 use App\Models\ModerationOperation;
+use App\Models\ModuleProfileRevision;
 use App\Models\NewsPostRevision;
 use App\Models\ResetProfileRevision;
 use App\Models\VoteClaim;
@@ -112,6 +113,7 @@ final class AuditLogReader
             'zen_bank',
             'economy_recovery',
             'vote_reward',
+            'module_profile',
         ];
 
         foreach (self::OPERATION_SOURCES as $source) {
@@ -270,6 +272,17 @@ final class AuditLogReader
 
             foreach ($voteClaims as $voteClaim) {
                 $entries[] = $this->voteClaimEntry($voteClaim);
+            }
+        }
+
+        if ($type === null || $type === 'module_profile') {
+            $moduleRevisions = ModuleProfileRevision::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($moduleRevisions as $moduleRevision) {
+                $entries[] = $this->moduleProfileEntry($moduleRevision);
             }
         }
 
@@ -592,6 +605,27 @@ final class AuditLogReader
                 'zen_balance' => $claim->zen_balance_after,
             ],
             occurredAt: $this->occurredAt($claim),
+        );
+    }
+
+    /**
+     * Normalizes one immutable module availability revision.
+     */
+    private function moduleProfileEntry(ModuleProfileRevision $revision): AuditLogEntry
+    {
+        return new AuditLogEntry(
+            type: 'module_profile',
+            subject: 'module-profile:'.$revision->module_profile_id,
+            characterName: null,
+            status: 'completed',
+            failureCode: null,
+            contextSnapshot: [
+                'revision' => $revision->revision,
+                'changed_by_administrator_id' => $revision->changed_by_administrator_id,
+            ],
+            beforeSnapshot: $revision->before_snapshot,
+            afterSnapshot: $revision->after_snapshot,
+            occurredAt: $this->occurredAt($revision),
         );
     }
 

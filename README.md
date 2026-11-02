@@ -50,6 +50,14 @@ Bank is backed by the same physical-item records: its displayed count is never
 a synthetic balance and currently supports Chaos, Bless, Soul, Life and
 Creation jewels from the verified 97d+99i catalog.
 
+Player-facing modules are controlled from **Administration → Modules**. Each
+published configuration is scoped to `GAME_SERVER_PROFILE` and
+`GAME_SERVER_VERSION`, uses optimistic revisions and records immutable
+before/after snapshots in the shared administrator audit log. Disabled routes
+return `404` and disappear from player navigation, while existing custody and
+recovery records remain available to administrators. Timed auctions cannot be
+enabled unless the player market is also enabled.
+
 Zen Bank uses an application ledger plus compare-and-set warehouse updates.
 Deposits, withdrawals and retries are idempotent; interrupted transfers remain
 recoverable, while an unexpected game balance produces an audited conflict

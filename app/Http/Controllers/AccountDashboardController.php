@@ -9,6 +9,8 @@ use App\Models\AccountWallet;
 use App\Models\VipEntitlement;
 use App\Models\VipPlan;
 use App\Models\VipPurchase;
+use App\Modules\ModuleManager;
+use App\Modules\ServerModule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -23,6 +25,7 @@ final class AccountDashboardController extends Controller
      */
     public function __construct(
         private readonly AccountReadRepository $accountReadRepository,
+        private readonly ModuleManager $moduleManager,
     ) {}
 
     /**
@@ -51,11 +54,14 @@ final class AccountDashboardController extends Controller
                 ->latest('id')
                 ->limit(20)
                 ->get();
-        $vipPlanEntries = VipPlan::query()
-            ->available()
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get();
+        $vipEnabled = $this->moduleManager->enabled(ServerModule::Vip);
+        $vipPlanEntries = $vipEnabled
+            ? VipPlan::query()
+                ->available()
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get()
+            : collect();
         $vipPlans = [];
 
         foreach ($vipPlanEntries as $vipPlanEntry) {
@@ -68,10 +74,12 @@ final class AccountDashboardController extends Controller
             ];
         }
 
-        $vipEntitlements = VipEntitlement::query()
-            ->where('account_id', $account->username)
-            ->get()
-            ->keyBy('character_name');
+        $vipEntitlements = $vipEnabled
+            ? VipEntitlement::query()
+                ->where('account_id', $account->username)
+                ->get()
+                ->keyBy('character_name')
+            : collect();
         $activeVipEntitlementCount = 0;
 
         foreach ($vipEntitlements as $vipEntitlement) {
@@ -80,11 +88,13 @@ final class AccountDashboardController extends Controller
             }
         }
 
-        $vipPurchases = VipPurchase::query()
-            ->where('account_id', $account->username)
-            ->latest('id')
-            ->limit(10)
-            ->get();
+        $vipPurchases = $vipEnabled
+            ? VipPurchase::query()
+                ->where('account_id', $account->username)
+                ->latest('id')
+                ->limit(10)
+                ->get()
+            : collect();
 
         return view('account.dashboard', [
             'account' => $account,
