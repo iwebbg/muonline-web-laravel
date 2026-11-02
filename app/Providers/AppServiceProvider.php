@@ -12,6 +12,7 @@ use App\Game\Contracts\CharacterPkClearRepository;
 use App\Game\Contracts\CharacterResetRepository;
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
+use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
@@ -22,6 +23,7 @@ use App\Game\Repositories\SqlServer97d99iCharacterPkClearRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterResetRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterStatAllocationRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterStatResetRepository;
+use App\Game\Repositories\SqlServer97d99iItemStorageRepository;
 use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
@@ -55,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CharacterPkClearRepository::class, SqlServer97d99iCharacterPkClearRepository::class);
         $this->app->bind(CharacterStatAllocationRepository::class, SqlServer97d99iCharacterStatAllocationRepository::class);
         $this->app->bind(CharacterStatResetRepository::class, SqlServer97d99iCharacterStatResetRepository::class);
+        $this->app->bind(ItemStorageRepository::class, SqlServer97d99iItemStorageRepository::class);
     }
 
     /**
@@ -162,6 +165,13 @@ class AppServiceProvider extends ServiceProvider
             $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
 
             return Limit::perMinute(5)->by($limiterKey);
+        });
+
+        RateLimiter::for('item-storage', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(30)->by($limiterKey);
         });
     }
 }

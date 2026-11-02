@@ -7,6 +7,7 @@ use App\Http\Controllers\Account\CharacterResetController;
 use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
+use App\Http\Controllers\Account\ItemStorageController;
 use App\Http\Controllers\Account\MoveToTownPreviewController;
 use App\Http\Controllers\Account\PkClearPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
@@ -71,6 +72,9 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/account/character-move', CharacterMoveController::class)
         ->middleware('throttle:move-to-town')
         ->name('account.character-move');
+    Route::post('/account/item-storage', ItemStorageController::class)
+        ->middleware('throttle:item-storage')
+        ->name('account.item-storage');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

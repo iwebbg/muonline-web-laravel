@@ -251,6 +251,11 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         statConfirmationOpen: false,
         statExecuting: false,
         statSuccessMessage: null,
+        itemStorage: null,
+        itemStorageLoading: false,
+        itemStorageError: null,
+        itemStorageRequestId: 0,
+        selectedVaultNumber: null,
         allocations: {
             strength: 0,
             agility: 0,
@@ -289,6 +294,21 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             }
 
             return allocatedPoints;
+        },
+
+        /**
+         * Returns the currently selected decoded warehouse vault.
+         *
+         * @returns {object|null}
+         */
+        get selectedWarehouseVault() {
+            if (this.itemStorage === null) {
+                return null;
+            }
+
+            return this.itemStorage.warehouse.vaults.find(
+                (vault) => vault.number === this.selectedVaultNumber,
+            ) ?? null;
         },
 
         /**
@@ -464,6 +484,11 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
          */
         selectCharacter(characterIndex) {
             this.selectedCharacterIndex = characterIndex;
+            this.itemStorageRequestId += 1;
+            this.itemStorage = null;
+            this.itemStorageError = null;
+            this.itemStorageLoading = false;
+            this.selectedVaultNumber = null;
             this.resetAllocations();
             this.resetPreview = null;
             this.resetPreviewError = null;
@@ -506,6 +531,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             if (this.activeSection === 'move-to-town') {
                 void this.loadMoveToTownPreview();
             }
+
+            if (this.activeSection === 'inventory') {
+                void this.loadItemStorage();
+            }
         },
 
         /**
@@ -535,6 +564,104 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             if (section === 'move-to-town') {
                 void this.loadMoveToTownPreview();
             }
+
+            if (section === 'inventory') {
+                void this.loadItemStorage();
+            }
+        },
+
+        /**
+         * Loads ownership-scoped equipment, inventory and warehouse data on demand.
+         */
+        async loadItemStorage() {
+            if (this.resetPreviewConfiguration === null) {
+                return;
+            }
+
+            const requestId = this.itemStorageRequestId + 1;
+
+            this.itemStorageRequestId = requestId;
+            this.itemStorageLoading = true;
+            this.itemStorageError = null;
+
+            try {
+                const response = await window.fetch(
+                    this.resetPreviewConfiguration.itemStorageUrl,
+                    {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.resetPreviewConfiguration.csrfToken,
+                        },
+                        body: JSON.stringify({
+                            characterName: this.selectedCharacter.name,
+                        }),
+                    },
+                );
+
+                if (!response.ok) {
+                    throw new Error(`Item storage request failed with status ${response.status}.`);
+                }
+
+                const responsePayload = await response.json();
+
+                if (requestId !== this.itemStorageRequestId) {
+                    return;
+                }
+
+                this.itemStorage = responsePayload.storage;
+
+                const activeVault = this.itemStorage.warehouse.vaults.find(
+                    (vault) => vault.active,
+                );
+                const firstVault = this.itemStorage.warehouse.vaults[0] ?? null;
+
+                this.selectedVaultNumber = activeVault?.number ?? firstVault?.number ?? null;
+            } catch {
+                if (requestId === this.itemStorageRequestId) {
+                    this.itemStorageError = this.resetPreviewConfiguration.itemStorageFailed;
+                }
+            } finally {
+                if (requestId === this.itemStorageRequestId) {
+                    this.itemStorageLoading = false;
+                }
+            }
+        },
+
+        /**
+         * Selects one already-loaded MultiVault warehouse without another request.
+         *
+         * @param {number} vaultNumber The numbered vault selected by the player.
+         */
+        selectWarehouseVault(vaultNumber) {
+            this.selectedVaultNumber = vaultNumber;
+        },
+
+        /**
+         * Finds an occupied item by its visual grid slot.
+         *
+         * @param {Array<object>} items Occupied decoded item slots.
+         * @param {number} slot The visual slot number.
+         * @returns {object|null}
+         */
+        itemFor(items, slot) {
+            return items.find((item) => item.slot === slot) ?? null;
+        },
+
+        /**
+         * Builds the initial technical item tooltip without relying on an external catalog.
+         *
+         * @param {object} item A decoded 97d+99i item.
+         * @returns {string}
+         */
+        itemDescription(item) {
+            const level = item.level > 0 ? ` +${item.level}` : '';
+            const luck = item.hasLuck ? ' · Luck' : '';
+            const skill = item.hasSkill ? ' · Skill' : '';
+
+            return `${item.name}${level}${luck}${skill}`;
         },
 
         /**

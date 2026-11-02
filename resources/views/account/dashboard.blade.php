@@ -20,6 +20,7 @@
                 'moveToTownExecuteUrl' => route('account.character-move'),
                 'statPreviewUrl' => route('account.stat-allocation-preview'),
                 'statExecuteUrl' => route('account.stat-allocations.store'),
+                'itemStorageUrl' => route('account.item-storage'),
                 'writesEnabled' => $gameWritesEnabled,
                 'csrfToken' => csrf_token(),
                 'previewFailed' => __('ui.account.reset_preview_failed'),
@@ -40,6 +41,8 @@
                 'statPreviewFailed' => __('ui.account.allocation_preview_failed'),
                 'statExecutionFailed' => __('ui.account.stat_allocation_failed'),
                 'statCompleted' => __('ui.account.stat_allocation_completed'),
+                'itemStorageFailed' => __('ui.account.item_storage_failed'),
+                'vaultLabel' => __('ui.account.vault'),
                 'inventoryPolicies' => [
                     'keep_all' => __('ui.account.inventory_keep_all'),
                     'clear_bag' => __('ui.account.inventory_clear_bag'),
@@ -264,18 +267,85 @@
                             </div>
                             <p class="text-sm text-steel">{{ __('ui.account.item_details') }}</p>
                         </div>
-                        <div class="inventory-grid mt-6">
-                            @for ($slot = 0; $slot < 64; $slot++)
-                                @php($item = collect($inventoryItems)->firstWhere('slot', $slot))
-                                <div class="inventory-slot">
-                                    @if ($item)
-                                        <button type="button" class="inventory-item inventory-item-{{ $item['rarity'] }}" aria-label="{{ $item['name'] }}">
-                                            <span>{{ $item['code'] }}</span>
-                                            <span class="item-tooltip">{{ $item['name'] }}</span>
-                                        </button>
-                                    @endif
+                        <p class="mt-6 text-sm text-steel" x-show="itemStorageLoading">{{ __('ui.account.item_storage_loading') }}</p>
+                        <p class="mt-6 text-sm text-crimson" x-show="itemStorageError" x-text="itemStorageError"></p>
+
+                        <div x-show="itemStorage !== null && !itemStorageLoading" x-cloak>
+                            <p class="kicker mt-7">{{ __('ui.account.equipment') }}</p>
+                            <div class="inventory-grid mt-3">
+                                @for ($slot = 0; $slot < 12; $slot++)
+                                    <div class="inventory-slot">
+                                        <template x-if="itemFor(itemStorage.character.equipment, {{ $slot }})">
+                                            <button
+                                                type="button"
+                                                class="inventory-item"
+                                                :class="`inventory-item-${itemFor(itemStorage.character.equipment, {{ $slot }}).rarity}`"
+                                                :aria-label="itemFor(itemStorage.character.equipment, {{ $slot }}).name"
+                                            >
+                                                <span x-text="itemFor(itemStorage.character.equipment, {{ $slot }}).code"></span>
+                                                <span class="item-tooltip" x-text="itemDescription(itemFor(itemStorage.character.equipment, {{ $slot }}))"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                @endfor
+                            </div>
+
+                            <p class="kicker mt-7">{{ __('ui.account.inventory_bag') }}</p>
+                            <div class="inventory-grid mt-3">
+                                @for ($slot = 0; $slot < 64; $slot++)
+                                    <div class="inventory-slot">
+                                        <template x-if="itemFor(itemStorage.character.inventory, {{ $slot }})">
+                                            <button
+                                                type="button"
+                                                class="inventory-item"
+                                                :class="`inventory-item-${itemFor(itemStorage.character.inventory, {{ $slot }}).rarity}`"
+                                                :aria-label="itemFor(itemStorage.character.inventory, {{ $slot }}).name"
+                                            >
+                                                <span x-text="itemFor(itemStorage.character.inventory, {{ $slot }}).code"></span>
+                                                <span class="item-tooltip" x-text="itemDescription(itemFor(itemStorage.character.inventory, {{ $slot }}))"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                @endfor
+                            </div>
+
+                            <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
+                                <div>
+                                    <p class="kicker">{{ __('ui.account.warehouse') }}</p>
+                                    <p class="mt-2 text-sm text-steel">
+                                        {{ __('ui.account.warehouse_zen') }}:
+                                        <strong class="text-white" x-text="itemStorage.warehouse.zen.toLocaleString()"></strong>
+                                    </p>
                                 </div>
-                            @endfor
+                                <div class="segmented-control" x-show="itemStorage.warehouse.vaults.length > 1">
+                                    <template x-for="vault in itemStorage.warehouse.vaults" :key="vault.number">
+                                        <button
+                                            type="button"
+                                            :class="selectedVaultNumber === vault.number && 'segmented-control-active'"
+                                            @click="selectWarehouseVault(vault.number)"
+                                            x-text="`${resetPreviewConfiguration.vaultLabel} ${vault.number}`"
+                                        ></button>
+                                    </template>
+                                </div>
+                            </div>
+                            <p class="mt-4 text-sm text-steel" x-show="selectedWarehouseVault === null">{{ __('ui.account.no_warehouse') }}</p>
+                            <div class="inventory-grid mt-4" x-show="selectedWarehouseVault !== null">
+                                @for ($slot = 0; $slot < 120; $slot++)
+                                    <div class="inventory-slot">
+                                        <template x-if="selectedWarehouseVault && itemFor(selectedWarehouseVault.items, {{ $slot }})">
+                                            <button
+                                                type="button"
+                                                class="inventory-item"
+                                                :class="`inventory-item-${itemFor(selectedWarehouseVault.items, {{ $slot }}).rarity}`"
+                                                :aria-label="itemFor(selectedWarehouseVault.items, {{ $slot }}).name"
+                                            >
+                                                <span x-text="itemFor(selectedWarehouseVault.items, {{ $slot }}).code"></span>
+                                                <span class="item-tooltip" x-text="itemDescription(itemFor(selectedWarehouseVault.items, {{ $slot }}))"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                @endfor
+                            </div>
                         </div>
                     </article>
                 </div>

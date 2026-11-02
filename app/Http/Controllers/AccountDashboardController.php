@@ -38,7 +38,6 @@ final class AccountDashboardController extends Controller
         return view('account.dashboard', [
             'account' => $account,
             'characters' => $characters,
-            'inventoryItems' => [],
             'gameWritesEnabled' => (bool) config('game.writes_enabled', false)
                 && ! (bool) config('database.connections.game.readonly', true),
         ]);
