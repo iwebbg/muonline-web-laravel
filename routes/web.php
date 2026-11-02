@@ -11,6 +11,7 @@ use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
 use App\Http\Controllers\Account\ItemStorageController;
+use App\Http\Controllers\Account\JewelBankController;
 use App\Http\Controllers\Account\MarketListingController;
 use App\Http\Controllers\Account\MarketPurchaseController;
 use App\Http\Controllers\Account\MoveToTownPreviewController;
@@ -151,6 +152,14 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/account/web-storage/{webStorageItem}', [WebStorageController::class, 'destroy'])
         ->middleware('throttle:web-storage')
         ->name('account.web-storage.destroy');
+    Route::get('/account/jewel-bank', [JewelBankController::class, 'index'])
+        ->name('account.jewel-bank.index');
+    Route::post('/account/jewel-bank', [JewelBankController::class, 'store'])
+        ->middleware('throttle:jewel-bank')
+        ->name('account.jewel-bank.store');
+    Route::delete('/account/jewel-bank/{webStorageItem}', [JewelBankController::class, 'destroy'])
+        ->middleware('throttle:jewel-bank')
+        ->name('account.jewel-bank.destroy');
     Route::post('/market/listings', [MarketListingController::class, 'store'])
         ->middleware('throttle:market-listing')
         ->name('market.listings.store');

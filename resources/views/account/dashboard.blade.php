@@ -200,6 +200,10 @@
                     <span>{{ __('ui.web_storage.kicker') }}</span>
                     <strong class="text-gold">{{ __('ui.web_storage.open') }}</strong>
                 </a>
+                <a href="{{ route('account.jewel-bank.index') }}" class="resource-chip text-left">
+                    <span>{{ __('ui.jewel_bank.kicker') }}</span>
+                    <strong class="text-gold">{{ __('ui.jewel_bank.open') }}</strong>
+                </a>
                 <x-account-credentials-modal
                     :account="$account"
                     :game-writes-enabled="$gameWritesEnabled"

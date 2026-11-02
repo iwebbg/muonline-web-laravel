@@ -154,6 +154,13 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by($limiterKey);
         });
 
+        RateLimiter::for('jewel-bank', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(10)->by($limiterKey);
+        });
+
         RateLimiter::for('admin-market', function (Request $request): Limit {
             $administratorId = (string) ($request->user('admin')?->getAuthIdentifier() ?? 'guest');
             $limiterKey = Str::transliterate($administratorId.'|'.$request->ip());
