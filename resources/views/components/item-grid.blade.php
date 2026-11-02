@@ -26,7 +26,7 @@
                 >
             </template>
             <span x-show="item.image === null" x-text="item.code"></span>
-            <span class="item-tooltip" x-text="itemDescription(item)"></span>
+            <x-item-tooltip item="item" />
         </button>
     </template>
 </div>

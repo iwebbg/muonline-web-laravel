@@ -81,6 +81,8 @@ final class ItemCatalog97d99i
                 width: max(1, (int) ($record['width'] ?? 1)),
                 height: max(1, (int) ($record['height'] ?? 1)),
                 image: isset($record['image']) ? (string) $record['image'] : null,
+                excellentType: (int) ($record['excellentType'] ?? 0),
+                optionType: (int) ($record['optionType'] ?? 0),
             );
 
             if ($definition->code() !== $code || $definition->name === '') {

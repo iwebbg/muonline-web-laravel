@@ -24,6 +24,8 @@ final class ItemCatalog97d99iTest extends TestCase
         self::assertSame(1, $definition->width);
         self::assertSame(2, $definition->height);
         self::assertSame('/images/items/97d_99i/0000.gif', $definition->image);
+        self::assertSame(0, $definition->excellentType);
+        self::assertSame(0, $definition->optionType);
     }
 
     /**
@@ -40,6 +42,24 @@ final class ItemCatalog97d99iTest extends TestCase
         self::assertSame(1, $definition->width);
         self::assertSame(1, $definition->height);
         self::assertNull($definition->image);
+    }
+
+    /**
+     * Confirms armor and shields retain their different additional option formulas.
+     */
+    public function test_it_returns_version_specific_option_types(): void
+    {
+        $catalog = $this->catalog();
+
+        $shield = $catalog->definitionFor(6, 0);
+        $armor = $catalog->definitionFor(8, 0);
+
+        self::assertNotNull($shield);
+        self::assertSame(1, $shield->excellentType);
+        self::assertSame(2, $shield->optionType);
+        self::assertNotNull($armor);
+        self::assertSame(1, $armor->excellentType);
+        self::assertSame(0, $armor->optionType);
     }
 
     /**

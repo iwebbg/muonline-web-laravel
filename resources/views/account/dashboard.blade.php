@@ -43,6 +43,44 @@
                 'statCompleted' => __('ui.account.stat_allocation_completed'),
                 'itemStorageFailed' => __('ui.account.item_storage_failed'),
                 'vaultLabel' => __('ui.account.vault'),
+                'itemOptionLabels' => [
+                    'durability' => __('ui.account.item_durability'),
+                    'skill' => __('ui.account.item_skill'),
+                    'luckSoul' => __('ui.account.item_luck_soul'),
+                    'luckCritical' => __('ui.account.item_luck_critical'),
+                    'additionalDamage' => __('ui.account.item_additional_damage'),
+                    'additionalDefense' => __('ui.account.item_additional_defense'),
+                    'additionalDefenseRate' => __('ui.account.item_additional_defense_rate'),
+                    'automaticHpRecovery' => __('ui.account.item_automatic_hp_recovery'),
+                    'ancientOption' => __('ui.account.item_ancient_option'),
+                    'excellentPrefix' => __('ui.account.item_excellent_prefix'),
+                    'excellent' => [
+                        'weapon' => [
+                            __('ui.account.item_excellent_weapon_mana'),
+                            __('ui.account.item_excellent_weapon_life'),
+                            __('ui.account.item_excellent_weapon_speed'),
+                            __('ui.account.item_excellent_weapon_damage_percent'),
+                            __('ui.account.item_excellent_weapon_damage_level'),
+                            __('ui.account.item_excellent_weapon_rate'),
+                        ],
+                        'armor' => [
+                            __('ui.account.item_excellent_armor_zen'),
+                            __('ui.account.item_excellent_armor_success_rate'),
+                            __('ui.account.item_excellent_armor_reflect'),
+                            __('ui.account.item_excellent_armor_damage_decrease'),
+                            __('ui.account.item_excellent_armor_mana'),
+                            __('ui.account.item_excellent_armor_life'),
+                        ],
+                        'wing' => [
+                            __('ui.account.item_excellent_wing_life'),
+                            __('ui.account.item_excellent_wing_mana'),
+                            __('ui.account.item_excellent_wing_mana_loss'),
+                            __('ui.account.item_excellent_wing_life_transfer'),
+                            __('ui.account.item_excellent_wing_speed'),
+                            '',
+                        ],
+                    ],
+                ],
                 'inventoryPolicies' => [
                     'keep_all' => __('ui.account.inventory_keep_all'),
                     'clear_bag' => __('ui.account.inventory_clear_bag'),
@@ -272,11 +310,9 @@
 
                         <div x-show="itemStorage !== null && !itemStorageLoading" x-cloak>
                             <p class="kicker mt-7">{{ __('ui.account.equipment') }}</p>
-                            <x-item-grid
+                            <x-equipment-layout
                                 class="mt-3"
-                                :slots="12"
                                 items="itemStorage.character.equipment"
-                                :use-item-size="false"
                             />
 
                             <p class="kicker mt-7">{{ __('ui.account.inventory_bag') }}</p>

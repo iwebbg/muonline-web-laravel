@@ -17,6 +17,8 @@ final readonly class ItemDefinition
         public int $width,
         public int $height,
         public ?string $image,
+        public int $excellentType,
+        public int $optionType,
     ) {}
 
     /**

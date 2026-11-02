@@ -663,17 +663,105 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         },
 
         /**
-         * Builds the initial technical item tooltip without relying on an external catalog.
+         * Builds the item title with its level and excellent classification.
          *
          * @param {object} item A decoded 97d+99i item.
          * @returns {string}
          */
-        itemDescription(item) {
+        itemTitle(item) {
+            const labels = this.resetPreviewConfiguration.itemOptionLabels;
             const level = item.level > 0 ? ` +${item.level}` : '';
-            const luck = item.hasLuck ? ' · Luck' : '';
-            const skill = item.hasSkill ? ' · Skill' : '';
+            const prefix = item.excellentMask > 0 && item.excellentType !== 4
+                ? `${labels.excellentPrefix} `
+                : '';
 
-            return `${item.name}${level}${luck}${skill}`;
+            return `${prefix}${item.name}${level}`;
+        },
+
+        /**
+         * Formats the current durability value for an item tooltip.
+         *
+         * @param {object} item A decoded 97d+99i item.
+         * @returns {string}
+         */
+        itemDurabilityText(item) {
+            const label = this.resetPreviewConfiguration.itemOptionLabels.durability;
+
+            return `${label}: ${item.durability}`;
+        },
+
+        /**
+         * Formats the version-specific additional option encoded on an item.
+         *
+         * @param {object} item A decoded 97d+99i item.
+         * @returns {string|null}
+         */
+        itemAdditionalOption(item) {
+            if (item.optionLevel <= 0) {
+                return null;
+            }
+
+            const labels = this.resetPreviewConfiguration.itemOptionLabels;
+
+            if (item.optionType === 1) {
+                return `${labels.automaticHpRecovery} +${item.optionLevel}%`;
+            }
+
+            if (item.optionType === 2) {
+                return `${labels.additionalDefenseRate} +${item.optionLevel * 5}`;
+            }
+
+            const label = item.excellentType === 1
+                ? labels.additionalDefense
+                : labels.additionalDamage;
+
+            return `${label} +${item.optionLevel * 4}`;
+        },
+
+        /**
+         * Returns every excellent option enabled by the item's six-bit mask.
+         *
+         * @param {object} item A decoded 97d+99i item.
+         * @returns {Array<string>}
+         */
+        itemExcellentOptions(item) {
+            if (item.excellentMask <= 0) {
+                return [];
+            }
+
+            const optionGroups = this.resetPreviewConfiguration.itemOptionLabels.excellent;
+            let optionGroup = optionGroups.weapon;
+
+            if (item.excellentType === 4) {
+                optionGroup = optionGroups.wing;
+            } else if (item.excellentType === 1) {
+                optionGroup = optionGroups.armor;
+            }
+
+            const enabledOptions = [];
+
+            for (let optionIndex = 0; optionIndex < 6; optionIndex += 1) {
+                const optionEnabled = (item.excellentMask & (1 << optionIndex)) !== 0;
+                const optionLabel = optionGroup[optionIndex] ?? '';
+
+                if (optionEnabled && optionLabel !== '') {
+                    enabledOptions.push(optionLabel);
+                }
+            }
+
+            return enabledOptions;
+        },
+
+        /**
+         * Formats the retained ancient option byte without guessing a set name.
+         *
+         * @param {object} item A decoded 97d+99i item.
+         * @returns {string}
+         */
+        itemAncientOption(item) {
+            const label = this.resetPreviewConfiguration.itemOptionLabels.ancientOption;
+
+            return `${label}: ${item.ancientOption}`;
         },
 
         /**

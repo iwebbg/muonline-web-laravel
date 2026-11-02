@@ -29,6 +29,8 @@ final readonly class ItemSlot
         public int $width = 1,
         public int $height = 1,
         public ?string $image = null,
+        public int $excellentType = 0,
+        public int $optionType = 0,
     ) {
         if (strlen($this->binary) !== 10) {
             throw new InvalidArgumentException('An item slot must contain exactly 10 bytes.');
@@ -73,6 +75,8 @@ final readonly class ItemSlot
             width: $this->width,
             height: $this->height,
             image: $this->image,
+            excellentType: $this->excellentType,
+            optionType: $this->optionType,
         );
     }
 
@@ -98,6 +102,8 @@ final readonly class ItemSlot
             width: $definition->width,
             height: $definition->height,
             image: $definition->image,
+            excellentType: $definition->excellentType,
+            optionType: $definition->optionType,
         );
     }
 
@@ -136,7 +142,7 @@ final readonly class ItemSlot
     /**
      * Serializes an occupied slot for the authenticated account interface.
      *
-     * @return array{slot: int, code: string, name: string, width: int, height: int, image: string|null, rarity: string, level: int, durability: int, optionLevel: int, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int}
+     * @return array{slot: int, code: string, name: string, width: int, height: int, image: string|null, excellentType: int, optionType: int, rarity: string, level: int, durability: int, optionLevel: int, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int}
      */
     public function toArray(): array
     {
@@ -147,6 +153,8 @@ final readonly class ItemSlot
             'width' => $this->width,
             'height' => $this->height,
             'image' => $this->image,
+            'excellentType' => $this->excellentType,
+            'optionType' => $this->optionType,
             'rarity' => $this->rarity(),
             'level' => $this->level ?? 0,
             'durability' => $this->durability ?? 0,
