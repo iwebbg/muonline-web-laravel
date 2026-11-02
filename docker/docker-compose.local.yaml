@@ -48,6 +48,27 @@ services:
         networks:
             - application
 
+    scheduler:
+        build:
+            context: ..
+            dockerfile: docker/php/Dockerfile
+            target: development
+        restart: unless-stopped
+        working_dir: /var/www/html
+        env_file:
+            - ../.env
+        environment:
+            CONTAINER_ROLE: scheduler
+            REDIS_HOST: redis
+        volumes:
+            - ..:/var/www/html
+            - composer-vendor:/var/www/html/vendor
+        depends_on:
+            redis:
+                condition: service_healthy
+        networks:
+            - application
+
     redis:
         image: redis:8-alpine
         restart: unless-stopped

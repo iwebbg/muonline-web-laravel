@@ -44,6 +44,19 @@ application Credits ledger; a higher bid atomically releases the previous hold.
 At expiry the scheduler credits the seller and delivers the original item to
 the winner, or returns it to the seller when no valid bid exists.
 
+Web Storage keeps each original item blob and serial in application custody,
+then returns those exact bytes to the first valid warehouse rectangle. Jewel
+Bank is backed by the same physical-item records: its displayed count is never
+a synthetic balance and currently supports Chaos, Bless, Soul, Life and
+Creation jewels from the verified 97d+99i catalog.
+
+Zen Bank uses an application ledger plus compare-and-set warehouse updates.
+Deposits, withdrawals and retries are idempotent; interrupted transfers remain
+recoverable, while an unexpected game balance produces an audited conflict
+instead of silently overwriting Zen. VIP, market escrow, Web Storage and Zen
+Bank recovery commands run every minute in both local and production scheduler
+containers.
+
 ## Local development
 
 The supported runtime is provided by Docker and uses PHP 8.5, Microsoft ODBC
@@ -58,6 +71,8 @@ cp docker/.env.example docker/.env
 The application is then available at `http://localhost`. Nginx owns local
 port 80 and forwards PHP requests to the Laravel PHP-FPM container. The first
 milestone uses fixture data and does not require MuOnline database credentials.
+The local scheduler service runs the same pending-operation recovery jobs used
+in production.
 
 ## Production deployment
 
@@ -75,10 +90,17 @@ DOCKER_ENV=production
 APP_DOMAIN=mu.example.com
 ```
 
-Then start the same launcher used for local development:
+Build the immutable images and apply application-owned migrations explicitly:
 
 ```bash
-./docker/compose up --detach --build
+./docker/compose build
+./docker/compose run --rm app php artisan migrate --force --no-interaction
+```
+
+Then start the same services used for local development:
+
+```bash
+./docker/compose up --detach
 ```
 
 Laravel, application database and MuOnline SQL Server settings remain in the
@@ -88,3 +110,8 @@ there. Public DNS must point to the host and inbound ports 80 and 443 must be
 reachable so Certbot can complete the initial HTTP challenge. The certificate
 email is derived as `webmaster@APP_DOMAIN`. Renewal runs twice daily and reloads
 Nginx only after a successful renewal.
+
+Keep `GAME_DB_READONLY=true` and `GAME_WRITES_ENABLED=false` during initial
+deployment and smoke testing. Enable writes only after the least-privilege SQL
+account, backup and rollback procedure have been verified. Email delivery can
+remain `MAIL_MAILER=log` until provider credentials are configured and tested.
