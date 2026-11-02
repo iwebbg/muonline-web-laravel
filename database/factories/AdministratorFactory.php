@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Admin\Authorization\AdministratorPermission;
+use App\Admin\Authorization\AdministratorRole;
 use App\Models\Administrator;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -29,6 +31,8 @@ class AdministratorFactory extends Factory
             'password' => static::$password ??= Hash::make('Strong!Password123'),
             'is_active' => true,
             'last_login_at' => null,
+            'role' => AdministratorRole::Administrator,
+            'permissions' => null,
         ];
     }
 
@@ -39,6 +43,25 @@ class AdministratorFactory extends Factory
     {
         return $this->state(fn (array $attributes): array => [
             'is_active' => false,
+        ]);
+    }
+
+    /**
+     * Creates a Game Master with only the explicitly supplied capabilities.
+     *
+     * @param  list<AdministratorPermission>  $permissions
+     */
+    public function gameMaster(array $permissions = []): static
+    {
+        $permissionValues = [];
+
+        foreach ($permissions as $permission) {
+            $permissionValues[] = $permission->value;
+        }
+
+        return $this->state(fn (array $attributes): array => [
+            'role' => AdministratorRole::GameMaster,
+            'permissions' => $permissionValues,
         ]);
     }
 }

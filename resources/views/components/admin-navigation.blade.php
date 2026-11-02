@@ -8,18 +8,22 @@
         {{ __('ui.admin.control_areas') }}
     </p>
     <nav class="grid gap-1" aria-label="{{ __('ui.admin.sections_label') }}">
-        <a href="{{ route('admin.dashboard') }}" class="admin-nav-link {{ $active === 'overview' ? 'admin-nav-link-active' : '' }}">
-            <span>⌁</span>{{ __('ui.admin.overview') }}
-        </a>
-        <a href="{{ route('admin.dashboard') }}#character-rules" class="admin-nav-link {{ $active === 'character-rules' ? 'admin-nav-link-active' : '' }}">
-            <span>↻</span>{{ __('ui.admin.character_rules') }}
-        </a>
+        @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageSettings))
+            <a href="{{ route('admin.dashboard') }}" class="admin-nav-link {{ $active === 'overview' ? 'admin-nav-link-active' : '' }}">
+                <span>⌁</span>{{ __('ui.admin.overview') }}
+            </a>
+            <a href="{{ route('admin.dashboard') }}#character-rules" class="admin-nav-link {{ $active === 'character-rules' ? 'admin-nav-link-active' : '' }}">
+                <span>↻</span>{{ __('ui.admin.character_rules') }}
+            </a>
+        @endif
         <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◈</span>{{ __('ui.admin.economy') }}</span>
         <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◇</span>{{ __('ui.admin.modules') }}</span>
         <span class="admin-nav-link opacity-45" aria-disabled="true"><span>☷</span>{{ __('ui.admin.content') }}</span>
-        <a href="{{ route('admin.audit-log') }}" class="admin-nav-link {{ $active === 'audit-log' ? 'admin-nav-link-active' : '' }}">
-            <span>◎</span>{{ __('ui.admin.audit_log') }}
-        </a>
+        @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ViewAuditLog))
+            <a href="{{ route('admin.audit-log') }}" class="admin-nav-link {{ $active === 'audit-log' ? 'admin-nav-link-active' : '' }}">
+                <span>◎</span>{{ __('ui.admin.audit_log') }}
+            </a>
+        @endif
     </nav>
 
     @if ($resetRevision !== null)

@@ -1,5 +1,6 @@
 <?php
 
+use App\Admin\Authorization\AdministratorPermission;
 use App\Http\Controllers\Account\AccountCredentialController;
 use App\Http\Controllers\Account\CharacterGrandResetController;
 use App\Http\Controllers\Account\CharacterMoveController;
@@ -103,8 +104,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/', AdminDashboardController::class)
             ->name('dashboard');
         Route::get('/audit-log', AdminAuditLogController::class)
+            ->middleware('admin.permission:'.AdministratorPermission::ViewAuditLog->value)
             ->name('audit-log');
         Route::put('/reset-profile', [ResetProfileController::class, 'update'])
+            ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->name('reset-profile.update');
         Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])
             ->name('logout');

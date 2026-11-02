@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Admin\Authorization\AdministratorPermission;
 use App\Http\Controllers\Controller;
+use App\Models\Administrator;
 use App\Models\ResetProfileRevision;
 use App\Reset\ResetProfileReader;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
@@ -16,8 +20,22 @@ final class DashboardController extends Controller
     /**
      * Displays the current typed policy and recent immutable revision history.
      */
-    public function __invoke(ResetProfileReader $resetProfileReader): View
-    {
+    public function __invoke(
+        Request $request,
+        ResetProfileReader $resetProfileReader,
+    ): View|RedirectResponse {
+        $administrator = $request->user('admin');
+
+        abort_unless($administrator instanceof Administrator, 403);
+
+        if (! $administrator->hasPermission(AdministratorPermission::ManageSettings)) {
+            if ($administrator->hasPermission(AdministratorPermission::ViewAuditLog)) {
+                return redirect()->route('admin.audit-log');
+            }
+
+            abort(403);
+        }
+
         $recentRevisions = $resetProfileReader->recentRevisions();
 
         return view('admin.dashboard', [
