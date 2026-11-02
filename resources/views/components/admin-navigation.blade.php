@@ -33,6 +33,9 @@
             <a href="{{ route('admin.wallet.index') }}" class="admin-nav-link {{ $active === 'economy' ? 'admin-nav-link-active' : '' }}">
                 <span>◈</span>{{ __('ui.admin.economy') }}
             </a>
+            <a href="{{ route('admin.vip-plans.index') }}" class="admin-nav-link {{ $active === 'vip-plans' ? 'admin-nav-link-active' : '' }}">
+                <span>◆</span>{{ __('ui.admin.vip_plans_nav') }}
+            </a>
         @else
             <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◈</span>{{ __('ui.admin.economy') }}</span>
         @endif

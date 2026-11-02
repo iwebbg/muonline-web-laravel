@@ -12,6 +12,7 @@ import {
     rankingExplorer,
     resetSettings,
     walletManager,
+    vipPurchaseManager,
 } from './muonline';
 
 window.Alpine = Alpine;
@@ -27,5 +28,6 @@ Alpine.data('rankingBoard', rankingBoard);
 Alpine.data('rankingExplorer', rankingExplorer);
 Alpine.data('resetSettings', resetSettings);
 Alpine.data('walletManager', walletManager);
+Alpine.data('vipPurchaseManager', vipPurchaseManager);
 
 Alpine.start();

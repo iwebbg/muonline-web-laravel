@@ -182,10 +182,16 @@
                     <span>{{ __('ui.account.signed_in_as') }}</span>
                     <strong>{{ $account->username }}</strong>
                 </div>
-                <div class="resource-chip">
-                    <span>{{ __('ui.account.vip') }}</span>
-                    <strong class="text-gold">{{ $account->vip ? __('ui.account.vip_active') : __('ui.account.vip_inactive') }}</strong>
-                </div>
+                <x-account-vip-modal
+                    :characters="$characters"
+                    :plans="$vipPlans"
+                    :entitlements="$vipEntitlements"
+                    :active-entitlement-count="$activeVipEntitlementCount"
+                    :purchases="$vipPurchases"
+                    :balance="$walletBalance"
+                    :idempotency-key="$vipIdempotencyKey"
+                    :game-writes-enabled="$gameWritesEnabled"
+                />
                 <x-account-wallet-modal
                     :balance="$walletBalance"
                     :transactions="$walletTransactions"

@@ -15,6 +15,7 @@ use App\Http\Controllers\Account\PkClearPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
 use App\Http\Controllers\Account\StatAllocationPreviewController;
 use App\Http\Controllers\Account\StatResetPreviewController;
+use App\Http\Controllers\Account\VipPurchaseController;
 use App\Http\Controllers\AccountDashboardController;
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\Admin\GameMasterController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ResetProfileController;
+use App\Http\Controllers\Admin\VipPlanController;
 use App\Http\Controllers\Admin\WalletController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
@@ -129,6 +131,9 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/account/item-storage', ItemStorageController::class)
         ->middleware('throttle:item-storage')
         ->name('account.item-storage');
+    Route::post('/account/vip-purchases', VipPurchaseController::class)
+        ->middleware('throttle:vip-purchase')
+        ->name('account.vip-purchases.store');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });
@@ -159,6 +164,17 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                 'throttle:admin-wallet',
             ])
             ->name('wallet.store');
+        Route::middleware('admin.permission:'.AdministratorPermission::ManageEconomy->value)
+            ->group(function (): void {
+                Route::get('/economy/vip-plans', [VipPlanController::class, 'index'])
+                    ->name('vip-plans.index');
+                Route::post('/economy/vip-plans', [VipPlanController::class, 'store'])
+                    ->name('vip-plans.store');
+                Route::put('/economy/vip-plans/{vipPlan}', [VipPlanController::class, 'update'])
+                    ->name('vip-plans.update');
+                Route::delete('/economy/vip-plans/{vipPlan}', [VipPlanController::class, 'destroy'])
+                    ->name('vip-plans.destroy');
+            });
         Route::post('/moderation/accounts', [ModerationController::class, 'account'])
             ->middleware([
                 'admin.permission:'.AdministratorPermission::ModerateAccounts->value,

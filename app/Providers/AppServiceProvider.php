@@ -15,6 +15,7 @@ use App\Game\Contracts\CharacterPkClearRepository;
 use App\Game\Contracts\CharacterResetRepository;
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
+use App\Game\Contracts\CharacterVipRepository;
 use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\ModerationRepository;
@@ -32,6 +33,7 @@ use App\Game\Repositories\SqlServer97d99iCharacterPkClearRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterResetRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterStatAllocationRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterStatResetRepository;
+use App\Game\Repositories\SqlServer97d99iCharacterVipRepository;
 use App\Game\Repositories\SqlServer97d99iItemStorageRepository;
 use App\Game\Repositories\SqlServer97d99iModerationRepository;
 use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
@@ -70,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CharacterPkClearRepository::class, SqlServer97d99iCharacterPkClearRepository::class);
         $this->app->bind(CharacterStatAllocationRepository::class, SqlServer97d99iCharacterStatAllocationRepository::class);
         $this->app->bind(CharacterStatResetRepository::class, SqlServer97d99iCharacterStatResetRepository::class);
+        $this->app->bind(CharacterVipRepository::class, SqlServer97d99iCharacterVipRepository::class);
         $this->app->bind(ItemStorageRepository::class, SqlServer97d99iItemStorageRepository::class);
         $this->app->bind(ModerationRepository::class, SqlServer97d99iModerationRepository::class);
         $this->app->bind(GameAccountLookupRepository::class, LegacyGameAccountLookupRepository::class);
@@ -109,6 +112,13 @@ class AppServiceProvider extends ServiceProvider
             $limiterKey = Str::transliterate($administratorId.'|'.$request->ip());
 
             return Limit::perMinute(20)->by($limiterKey);
+        });
+
+        RateLimiter::for('vip-purchase', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(5)->by($limiterKey);
         });
 
         RateLimiter::for('reset-preview', function (Request $request): Limit {

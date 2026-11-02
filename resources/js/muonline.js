@@ -403,6 +403,45 @@ export function walletManager(initialBalance) {
 }
 
 /**
+ * Creates the modal state for one idempotent character VIP purchase.
+ *
+ * @param {Array<object>} plans Localized VIP plans available to the player.
+ * @param {string} initialPlanId The plan restored from old input or the first offer.
+ * @param {string} initialCharacter The character restored from old input or account order.
+ * @param {boolean} initiallyOpen Whether validation feedback should reopen the modal.
+ * @returns {object} Alpine state for plan selection and purchase confirmation.
+ */
+export function vipPurchaseManager(
+    plans,
+    initialPlanId,
+    initialCharacter,
+    initiallyOpen,
+) {
+    return {
+        vipOpen: initiallyOpen,
+        confirmationOpen: false,
+        plans,
+        selectedPlanId: initialPlanId,
+        selectedCharacter: initialCharacter,
+
+        /**
+         * Returns the currently selected localized plan without callback functions.
+         *
+         * @returns {object|null}
+         */
+        get selectedPlan() {
+            for (const plan of this.plans) {
+                if (String(plan.id) === String(this.selectedPlanId)) {
+                    return plan;
+                }
+            }
+
+            return null;
+        },
+    };
+}
+
+/**
  * Creates the full-administrator Game Master identity editor state.
  *
  * @param {string} createUrl The route used to create a Game Master.

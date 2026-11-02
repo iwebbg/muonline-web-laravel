@@ -37,11 +37,26 @@ final readonly class AdjustWalletBalance
         WalletTransactionType $type,
         int $amount,
         string $reason,
-        int $administratorId,
+        ?int $administratorId,
         string $idempotencyKey,
     ): WalletTransaction {
-        $isCredit = $type === WalletTransactionType::AdminCredit && $amount > 0;
-        $isDebit = $type === WalletTransactionType::AdminDebit && $amount < 0;
+        $isCredit = in_array(
+            $type,
+            [
+                WalletTransactionType::AdminCredit,
+                WalletTransactionType::Reward,
+                WalletTransactionType::Refund,
+            ],
+            true,
+        ) && $amount > 0;
+        $isDebit = in_array(
+            $type,
+            [
+                WalletTransactionType::AdminDebit,
+                WalletTransactionType::Purchase,
+            ],
+            true,
+        ) && $amount < 0;
 
         if (! $isCredit && ! $isDebit) {
             throw new WalletAdjustmentRejected(
@@ -165,7 +180,7 @@ final readonly class AdjustWalletBalance
         WalletTransactionType $type,
         int $amount,
         string $reason,
-        int $administratorId,
+        ?int $administratorId,
     ): string {
         $payload = json_encode([
             'account_id' => $accountId,

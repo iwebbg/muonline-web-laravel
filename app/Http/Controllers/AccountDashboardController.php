@@ -6,7 +6,11 @@ use App\Auth\GameAccount;
 use App\Economy\WalletCurrency;
 use App\Game\Contracts\AccountReadRepository;
 use App\Models\AccountWallet;
+use App\Models\VipEntitlement;
+use App\Models\VipPlan;
+use App\Models\VipPurchase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
@@ -47,12 +51,51 @@ final class AccountDashboardController extends Controller
                 ->latest('id')
                 ->limit(20)
                 ->get();
+        $vipPlanEntries = VipPlan::query()
+            ->available()
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+        $vipPlans = [];
+
+        foreach ($vipPlanEntries as $vipPlanEntry) {
+            $vipPlans[] = [
+                'id' => $vipPlanEntry->getKey(),
+                'name' => $vipPlanEntry->localizedName(app()->getLocale()),
+                'description' => $vipPlanEntry->localizedDescription(app()->getLocale()),
+                'durationDays' => $vipPlanEntry->duration_days,
+                'priceCredits' => $vipPlanEntry->price_credits,
+            ];
+        }
+
+        $vipEntitlements = VipEntitlement::query()
+            ->where('account_id', $account->username)
+            ->get()
+            ->keyBy('character_name');
+        $activeVipEntitlementCount = 0;
+
+        foreach ($vipEntitlements as $vipEntitlement) {
+            if ($vipEntitlement->expires_at->isFuture()) {
+                $activeVipEntitlementCount++;
+            }
+        }
+
+        $vipPurchases = VipPurchase::query()
+            ->where('account_id', $account->username)
+            ->latest('id')
+            ->limit(10)
+            ->get();
 
         return view('account.dashboard', [
             'account' => $account,
             'characters' => $characters,
             'walletBalance' => $wallet?->balance ?? 0,
             'walletTransactions' => $walletTransactions,
+            'vipPlans' => $vipPlans,
+            'vipEntitlements' => $vipEntitlements,
+            'activeVipEntitlementCount' => $activeVipEntitlementCount,
+            'vipPurchases' => $vipPurchases,
+            'vipIdempotencyKey' => (string) Str::uuid(),
             'gameWritesEnabled' => (bool) config('game.writes_enabled', false)
                 && ! (bool) config('database.connections.game.readonly', true),
         ]);
