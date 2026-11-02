@@ -9,6 +9,10 @@ use App\Models\AccountRegistrationOperation;
 use App\Models\Administrator;
 use App\Models\CharacterResetOperation;
 use App\Models\MarketAdminAction;
+use App\Models\WebStorageItem;
+use App\Models\ZenBankOperation;
+use App\WebStorage\WebStorageItemStatus;
+use App\ZenBank\ZenBankOperationStatus;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -140,5 +144,60 @@ final class AdminAuditLogTest extends TestCase
             ->assertSee('marketseller')
             ->assertSee('force_return')
             ->assertSee('returned');
+    }
+
+    /**
+     * Confirms exact-item custody entries expose fingerprints and lifecycle failures.
+     */
+    public function test_administrator_can_filter_item_custody_events(): void
+    {
+        $administrator = Administrator::factory()->create();
+        WebStorageItem::factory()->create([
+            'account_id' => 'vaultowner',
+            'source_character_name' => 'VaultHero',
+            'status' => WebStorageItemStatus::Failed,
+            'last_sync_error' => 'item_changed',
+            'escrow_key' => null,
+        ]);
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?type=item_custody&status=failed');
+
+        $response
+            ->assertOk()
+            ->assertSee('Item custody')
+            ->assertSee('vaultowner')
+            ->assertSee('VaultHero')
+            ->assertSee('item_changed');
+    }
+
+    /**
+     * Confirms conflicted Zen transfers expose their exact before and after ledger values.
+     */
+    public function test_administrator_can_filter_zen_bank_events(): void
+    {
+        $administrator = Administrator::factory()->create();
+        ZenBankOperation::factory()->create([
+            'account_id' => 'zenowner',
+            'character_name' => 'ZenHero',
+            'status' => ZenBankOperationStatus::Conflict,
+            'last_sync_error' => 'game_balance_conflict',
+            'before_game_zen' => 20_000_000,
+            'after_game_zen' => 15_000_000,
+        ]);
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?type=zen_bank&status=failed');
+
+        $response
+            ->assertOk()
+            ->assertSee('Zen Bank')
+            ->assertSee('zenowner')
+            ->assertSee('ZenHero')
+            ->assertSee('game_balance_conflict')
+            ->assertSee('20000000')
+            ->assertSee('15000000');
     }
 }

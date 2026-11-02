@@ -1023,6 +1023,8 @@ return [
             'download_content' => 'Съдържание за изтегляне',
             'wallet_adjustment' => 'Wallet корекция',
             'market_recovery' => 'Market възстановяване',
+            'item_custody' => 'Съхранение на предмети',
+            'zen_bank' => 'Zen Bank',
             'reset_profile' => 'Ревизия на ресет профил',
         ],
         'audit_statuses' => [

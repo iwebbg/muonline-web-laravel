@@ -1023,6 +1023,8 @@ return [
             'download_content' => 'Download content',
             'wallet_adjustment' => 'Wallet adjustment',
             'market_recovery' => 'Market recovery',
+            'item_custody' => 'Item custody',
+            'zen_bank' => 'Zen Bank',
             'reset_profile' => 'Reset profile revision',
         ],
         'audit_statuses' => [

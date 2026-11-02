@@ -18,6 +18,10 @@ use App\Models\ModerationOperation;
 use App\Models\NewsPostRevision;
 use App\Models\ResetProfileRevision;
 use App\Models\WalletTransaction;
+use App\Models\WebStorageItem;
+use App\Models\ZenBankOperation;
+use App\WebStorage\WebStorageItemStatus;
+use App\ZenBank\ZenBankOperationStatus;
 use BackedEnum;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -102,6 +106,8 @@ final class AuditLogReader
             'download_content',
             'wallet_adjustment',
             'market_recovery',
+            'item_custody',
+            'zen_bank',
         ];
 
         foreach (self::OPERATION_SOURCES as $source) {
@@ -216,6 +222,28 @@ final class AuditLogReader
 
             foreach ($marketActions as $marketAction) {
                 $entries[] = $this->marketActionEntry($marketAction);
+            }
+        }
+
+        if ($type === null || $type === 'item_custody') {
+            $storedItems = WebStorageItem::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($storedItems as $storedItem) {
+                $entries[] = $this->webStorageEntry($storedItem);
+            }
+        }
+
+        if ($type === null || $type === 'zen_bank') {
+            $zenOperations = ZenBankOperation::query()
+                ->latest()
+                ->limit($limit)
+                ->get();
+
+            foreach ($zenOperations as $zenOperation) {
+                $entries[] = $this->zenBankEntry($zenOperation);
             }
         }
 
@@ -411,6 +439,80 @@ final class AuditLogReader
                 'status' => $action->after_status,
             ],
             occurredAt: $this->occurredAt($action),
+        );
+    }
+
+    /**
+     * Normalizes one exact-item custody lifecycle for the shared audit view.
+     */
+    private function webStorageEntry(WebStorageItem $item): AuditLogEntry
+    {
+        $status = match ($item->status) {
+            WebStorageItemStatus::Storing,
+            WebStorageItemStatus::WithdrawalPending => 'pending',
+            WebStorageItemStatus::Failed => 'failed',
+            WebStorageItemStatus::Available,
+            WebStorageItemStatus::Withdrawn => 'completed',
+        };
+
+        return new AuditLogEntry(
+            type: 'item_custody',
+            subject: $item->account_id,
+            characterName: $item->source_character_name,
+            status: $status,
+            failureCode: $item->last_sync_error,
+            contextSnapshot: [
+                'public_id' => $item->public_id,
+                'item_code' => $item->item_snapshot['code'] ?? null,
+                'item_name' => $item->item_snapshot['name'] ?? null,
+                'item_fingerprint' => $item->item_fingerprint,
+                'sync_attempts' => $item->sync_attempts,
+            ],
+            beforeSnapshot: [
+                'vault' => $item->source_vault,
+                'slot' => $item->source_slot,
+            ],
+            afterSnapshot: [
+                'status' => $item->status->value,
+                'stored_at' => $item->stored_at?->toIso8601String(),
+                'withdrawn_at' => $item->withdrawn_at?->toIso8601String(),
+            ],
+            occurredAt: $this->occurredAt($item),
+        );
+    }
+
+    /**
+     * Normalizes one recoverable Zen ledger transfer for the shared audit view.
+     */
+    private function zenBankEntry(ZenBankOperation $operation): AuditLogEntry
+    {
+        $status = match ($operation->status) {
+            ZenBankOperationStatus::Pending => 'pending',
+            ZenBankOperationStatus::Completed => 'completed',
+            ZenBankOperationStatus::Conflict => 'failed',
+        };
+
+        return new AuditLogEntry(
+            type: 'zen_bank',
+            subject: $operation->account_id,
+            characterName: $operation->character_name,
+            status: $status,
+            failureCode: $operation->last_sync_error,
+            contextSnapshot: [
+                'public_id' => $operation->public_id,
+                'type' => $operation->type->value,
+                'amount' => $operation->amount,
+                'sync_attempts' => $operation->sync_attempts,
+            ],
+            beforeSnapshot: [
+                'game_zen' => $operation->before_game_zen,
+                'bank_balance' => $operation->before_bank_balance,
+            ],
+            afterSnapshot: [
+                'game_zen' => $operation->after_game_zen,
+                'bank_balance' => $operation->after_bank_balance,
+            ],
+            occurredAt: $this->occurredAt($operation),
         );
     }
 
