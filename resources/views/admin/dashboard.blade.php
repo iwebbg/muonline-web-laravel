@@ -55,27 +55,12 @@
         </div>
 
         <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <aside class="panel-card h-fit p-3">
-                <p class="px-3 pb-3 pt-2 text-xs font-semibold uppercase tracking-[0.2em] text-steel">{{ __('ui.admin.control_areas') }}</p>
-                <nav class="grid gap-1" aria-label="{{ __('ui.admin.sections_label') }}">
-                    <a href="#" class="admin-nav-link"><span>⌁</span>{{ __('ui.admin.overview') }}</a>
-                    <a href="#" class="admin-nav-link admin-nav-link-active"><span>↻</span>{{ __('ui.admin.character_rules') }}</a>
-                    <a href="#" class="admin-nav-link"><span>◈</span>{{ __('ui.admin.economy') }}</a>
-                    <a href="#" class="admin-nav-link"><span>◇</span>{{ __('ui.admin.modules') }}</a>
-                    <a href="#" class="admin-nav-link"><span>☷</span>{{ __('ui.admin.content') }}</a>
-                    <a href="#" class="admin-nav-link"><span>◎</span>{{ __('ui.admin.audit_log') }}</a>
-                </nav>
-                <div class="mt-4 rounded-xl border border-white/8 bg-black/20 p-3">
-                    <p class="text-xs uppercase tracking-[0.18em] text-steel">{{ __('ui.admin.active_profile') }}</p>
-                    <p class="mt-2 text-sm font-semibold text-white">{{ __('ui.admin.medium_reset') }}</p>
-                    <p class="mt-1 text-xs text-steel">
-                        {{ __('ui.admin.current_revision', ['revision' => '']) }}
-                        <span x-text="revision">{{ $resetRevision }}</span>
-                    </p>
-                </div>
-            </aside>
+            <x-admin-navigation
+                active="character-rules"
+                :reset-revision="$resetRevision"
+            />
 
-            <div class="grid min-w-0 gap-6 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+            <div id="character-rules" class="grid min-w-0 scroll-mt-28 gap-6 2xl:grid-cols-[minmax(0,1fr)_22rem]">
                 <form
                     id="reset-profile-form"
                     method="POST"

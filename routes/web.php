@@ -15,6 +15,7 @@ use App\Http\Controllers\Account\ResetPreviewController;
 use App\Http\Controllers\Account\StatAllocationPreviewController;
 use App\Http\Controllers\Account\StatResetPreviewController;
 use App\Http\Controllers\AccountDashboardController;
+use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ResetProfileController;
@@ -101,6 +102,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::middleware('auth:admin')->group(function (): void {
         Route::get('/', AdminDashboardController::class)
             ->name('dashboard');
+        Route::get('/audit-log', AdminAuditLogController::class)
+            ->name('audit-log');
         Route::put('/reset-profile', [ResetProfileController::class, 'update'])
             ->name('reset-profile.update');
         Route::post('/logout', [AdminAuthenticatedSessionController::class, 'destroy'])
