@@ -23,6 +23,7 @@ use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Game\Contracts\ModerationRepository;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
+use App\Game\Contracts\ZenBankRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
 use App\Game\Repositories\LegacyGameAccountLookupRepository;
 use App\Game\Repositories\SqlServer97d99iAccountCredentialRepository;
@@ -40,6 +41,7 @@ use App\Game\Repositories\SqlServer97d99iItemStorageRepository;
 use App\Game\Repositories\SqlServer97d99iMarketItemEscrowRepository;
 use App\Game\Repositories\SqlServer97d99iModerationRepository;
 use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
+use App\Game\Repositories\SqlServer97d99iZenBankRepository;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseManager;
@@ -80,6 +82,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ItemEscrowRepository::class, SqlServer97d99iMarketItemEscrowRepository::class);
         $this->app->bind(MarketItemEscrowRepository::class, SqlServer97d99iMarketItemEscrowRepository::class);
         $this->app->bind(ModerationRepository::class, SqlServer97d99iModerationRepository::class);
+        $this->app->bind(ZenBankRepository::class, SqlServer97d99iZenBankRepository::class);
         $this->app->bind(GameAccountLookupRepository::class, LegacyGameAccountLookupRepository::class);
     }
 
@@ -155,6 +158,13 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('jewel-bank', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(10)->by($limiterKey);
+        });
+
+        RateLimiter::for('zen-bank', function (Request $request): Limit {
             $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
             $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
 

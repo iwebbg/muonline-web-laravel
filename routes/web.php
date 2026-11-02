@@ -21,6 +21,7 @@ use App\Http\Controllers\Account\StatAllocationPreviewController;
 use App\Http\Controllers\Account\StatResetPreviewController;
 use App\Http\Controllers\Account\VipPurchaseController;
 use App\Http\Controllers\Account\WebStorageController;
+use App\Http\Controllers\Account\ZenBankController;
 use App\Http\Controllers\AccountDashboardController;
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
@@ -160,6 +161,11 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/account/jewel-bank/{webStorageItem}', [JewelBankController::class, 'destroy'])
         ->middleware('throttle:jewel-bank')
         ->name('account.jewel-bank.destroy');
+    Route::get('/account/zen-bank', [ZenBankController::class, 'index'])
+        ->name('account.zen-bank.index');
+    Route::post('/account/zen-bank', [ZenBankController::class, 'store'])
+        ->middleware('throttle:zen-bank')
+        ->name('account.zen-bank.store');
     Route::post('/market/listings', [MarketListingController::class, 'store'])
         ->middleware('throttle:market-listing')
         ->name('market.listings.store');

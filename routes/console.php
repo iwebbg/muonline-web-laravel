@@ -22,3 +22,7 @@ Schedule::command('market:sync-escrow')
 Schedule::command('web-storage:sync')
     ->everyMinute()
     ->withoutOverlapping();
+
+Schedule::command('zen-bank:sync')
+    ->everyMinute()
+    ->withoutOverlapping();

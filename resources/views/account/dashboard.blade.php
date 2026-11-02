@@ -204,6 +204,10 @@
                     <span>{{ __('ui.jewel_bank.kicker') }}</span>
                     <strong class="text-gold">{{ __('ui.jewel_bank.open') }}</strong>
                 </a>
+                <a href="{{ route('account.zen-bank.index') }}" class="resource-chip text-left">
+                    <span>{{ __('ui.zen_bank.kicker') }}</span>
+                    <strong class="text-gold">{{ __('ui.zen_bank.open') }}</strong>
+                </a>
                 <x-account-credentials-modal
                     :account="$account"
                     :game-writes-enabled="$gameWritesEnabled"
