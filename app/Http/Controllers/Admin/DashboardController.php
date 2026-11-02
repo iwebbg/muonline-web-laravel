@@ -29,6 +29,13 @@ final class DashboardController extends Controller
         abort_unless($administrator instanceof Administrator, 403);
 
         if (! $administrator->hasPermission(AdministratorPermission::ManageSettings)) {
+            if (
+                $administrator->hasPermission(AdministratorPermission::ModerateAccounts)
+                || $administrator->hasPermission(AdministratorPermission::ModerateCharacters)
+            ) {
+                return redirect()->route('admin.moderation');
+            }
+
             if ($administrator->hasPermission(AdministratorPermission::ViewAuditLog)) {
                 return redirect()->route('admin.audit-log');
             }

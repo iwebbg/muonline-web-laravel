@@ -118,6 +118,46 @@ const equipmentSlotLayout = {
 };
 
 /**
+ * Creates the administrator moderation confirmation-dialog state.
+ *
+ * @returns {{modalOpen: boolean, targetType: string, targetIdentifier: string, action: string, reason: string, idempotencyKey: string, openModeration: Function, closeModeration: Function}}
+ */
+export function moderationPanel() {
+    return {
+        modalOpen: false,
+        targetType: 'account',
+        targetIdentifier: '',
+        action: 'block',
+        reason: '',
+        idempotencyKey: '',
+
+        /**
+         * Opens a fresh, idempotent confirmation for the selected game target.
+         *
+         * @param {string} type The legacy target type.
+         * @param {string} identifier The account ID or character name.
+         * @param {string} nextAction The block or unblock operation.
+         */
+        openModeration(type, identifier, nextAction) {
+            this.targetType = type;
+            this.targetIdentifier = identifier;
+            this.action = nextAction;
+            this.reason = '';
+            this.idempotencyKey = window.crypto.randomUUID();
+            this.modalOpen = true;
+            this.$nextTick(() => this.$refs.moderationReason?.focus());
+        },
+
+        /**
+         * Closes the confirmation dialog without submitting a game mutation.
+         */
+        closeModeration() {
+            this.modalOpen = false;
+        },
+    };
+}
+
+/**
  * Creates the responsive navigation state shared by all application areas.
  *
  * @returns {{mobileMenuOpen: boolean, toggleMobileMenu: Function, closeMobileMenu: Function}}

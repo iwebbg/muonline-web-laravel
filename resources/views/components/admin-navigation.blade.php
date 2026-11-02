@@ -16,6 +16,14 @@
                 <span>↻</span>{{ __('ui.admin.character_rules') }}
             </a>
         @endif
+        @if (
+            auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateAccounts)
+            || auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateCharacters)
+        )
+            <a href="{{ route('admin.moderation') }}" class="admin-nav-link {{ $active === 'moderation' ? 'admin-nav-link-active' : '' }}">
+                <span>⚑</span>{{ __('ui.admin.moderation') }}
+            </a>
+        @endif
         <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◈</span>{{ __('ui.admin.economy') }}</span>
         <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◇</span>{{ __('ui.admin.modules') }}</span>
         <span class="admin-nav-link opacity-45" aria-disabled="true"><span>☷</span>{{ __('ui.admin.content') }}</span>

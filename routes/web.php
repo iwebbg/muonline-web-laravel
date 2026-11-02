@@ -19,6 +19,7 @@ use App\Http\Controllers\AccountDashboardController;
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\ResetProfileController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredAccountController;
@@ -106,6 +107,20 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/audit-log', AdminAuditLogController::class)
             ->middleware('admin.permission:'.AdministratorPermission::ViewAuditLog->value)
             ->name('audit-log');
+        Route::get('/moderation', [ModerationController::class, 'index'])
+            ->name('moderation');
+        Route::post('/moderation/accounts', [ModerationController::class, 'account'])
+            ->middleware([
+                'admin.permission:'.AdministratorPermission::ModerateAccounts->value,
+                'throttle:admin-moderation',
+            ])
+            ->name('moderation.accounts');
+        Route::post('/moderation/characters', [ModerationController::class, 'character'])
+            ->middleware([
+                'admin.permission:'.AdministratorPermission::ModerateCharacters->value,
+                'throttle:admin-moderation',
+            ])
+            ->name('moderation.characters');
         Route::put('/reset-profile', [ResetProfileController::class, 'update'])
             ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->name('reset-profile.update');

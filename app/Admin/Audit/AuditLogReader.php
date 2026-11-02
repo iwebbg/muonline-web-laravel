@@ -10,6 +10,7 @@ use App\Models\CharacterPkClearOperation;
 use App\Models\CharacterResetOperation;
 use App\Models\CharacterStatAllocationOperation;
 use App\Models\CharacterStatResetOperation;
+use App\Models\ModerationOperation;
 use App\Models\ResetProfileRevision;
 use BackedEnum;
 use DateTimeImmutable;
@@ -68,6 +69,11 @@ final class AuditLogReader
             'model' => CharacterMoveOperation::class,
             'type' => 'move_to_town',
             'context' => ['rule_snapshot'],
+        ],
+        [
+            'model' => ModerationOperation::class,
+            'type' => 'moderation',
+            'context' => ['context_snapshot'],
         ],
     ];
 
@@ -167,10 +173,15 @@ final class AuditLogReader
             : (string) $statusAttribute;
         $characterName = $record->getAttribute('character_name');
         $failureCode = $record->getAttribute('failure_code');
+        $accountId = $record->getAttribute('account_id');
+        $targetIdentifier = $record->getAttribute('target_identifier');
+        $subject = is_string($accountId) && $accountId !== ''
+            ? $accountId
+            : (string) $targetIdentifier;
 
         return new AuditLogEntry(
             type: $type,
-            subject: (string) $record->getAttribute('account_id'),
+            subject: $subject,
             characterName: is_string($characterName) ? $characterName : null,
             status: $status,
             failureCode: is_string($failureCode) ? $failureCode : null,
