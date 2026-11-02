@@ -58,6 +58,7 @@
                             <button type="submit" class="button button-primary">{{ __('ui.navigation.logout') }}</button>
                         </form>
                     @else
+                        <a href="{{ route('register') }}" class="button button-ghost">{{ __('ui.navigation.register') }}</a>
                         <a href="{{ route('login') }}" class="button button-primary">{{ __('ui.navigation.enter_account') }}</a>
                     @endauth
                 </div>
@@ -87,6 +88,9 @@
                     <a href="{{ route('home') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.realm') }}</a>
                     <a href="{{ route('home') }}#rankings" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.rankings') }}</a>
                     <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.account_panel') }}</a>
+                    @guest
+                        <a href="{{ route('register') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.register') }}</a>
+                    @endguest
                     <a href="{{ route('admin.dashboard') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.administration') }}</a>
                     @auth
                         <form method="POST" action="{{ route('logout') }}">

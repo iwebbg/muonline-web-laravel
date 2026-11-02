@@ -31,6 +31,12 @@
             <form method="POST" action="{{ route('login.store') }}" class="mt-8 grid gap-5">
                 @csrf
 
+                @if (session('status'))
+                    <div class="rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100" role="status">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
                 <label class="field-group">
                     <span>{{ __('ui.auth.username') }}</span>
                     <input
@@ -77,6 +83,10 @@
             </form>
 
             <p class="mt-5 text-center text-xs leading-5 text-steel">{{ __('ui.auth.no_remember') }}</p>
+            <p class="mt-3 text-center text-sm text-steel">
+                {{ __('ui.registration.have_no_account') }}
+                <a href="{{ route('register') }}" class="font-semibold text-gold hover:text-white">{{ __('ui.registration.open_form') }}</a>
+            </p>
         </section>
     </div>
 @endsection

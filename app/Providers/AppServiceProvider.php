@@ -6,6 +6,7 @@ use App\Auth\GameAccountUserProvider;
 use App\Game\Clocks\SqlServerRealmClock;
 use App\Game\Clocks\SystemRealmClock;
 use App\Game\Contracts\AccountReadRepository;
+use App\Game\Contracts\AccountRegistrationRepository;
 use App\Game\Contracts\CharacterGrandResetRepository;
 use App\Game\Contracts\CharacterMoveRepository;
 use App\Game\Contracts\CharacterPkClearRepository;
@@ -17,6 +18,7 @@ use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
 use App\Game\Repositories\SqlServer97d99iAccountReadRepository;
+use App\Game\Repositories\SqlServer97d99iAccountRegistrationRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterGrandResetRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterMoveRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterPkClearRepository;
@@ -50,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(RealmReadRepository::class, $repositoryClass);
         $this->app->bind(RealmClock::class, $clockClass);
+        $this->app->bind(AccountRegistrationRepository::class, SqlServer97d99iAccountRegistrationRepository::class);
         $this->app->bind(AccountReadRepository::class, SqlServer97d99iAccountReadRepository::class);
         $this->app->bind(CharacterResetRepository::class, SqlServer97d99iCharacterResetRepository::class);
         $this->app->bind(CharacterGrandResetRepository::class, SqlServer97d99iCharacterGrandResetRepository::class);
@@ -74,6 +77,12 @@ class AppServiceProvider extends ServiceProvider
             $limiterKey = Str::transliterate($username.'|'.$request->ip());
 
             return Limit::perMinute(5)->by($limiterKey);
+        });
+
+        RateLimiter::for('registration', function (Request $request): Limit {
+            $limiterKey = Str::transliterate('registration|'.$request->ip());
+
+            return Limit::perHour(10)->by($limiterKey);
         });
 
         RateLimiter::for('admin-login', function (Request $request): Limit {
