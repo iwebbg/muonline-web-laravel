@@ -37,6 +37,14 @@ if [ "${DB_CONNECTION:-}" = "sqlite" ]; then
 
     mkdir -p "$database_directory"
     touch "$database_path"
+
+    if [ "${APP_ENV:-production}" != "production" ]; then
+        chmod a+rwx "$database_directory"
+        chmod a+rw "$database_path"
+    else
+        chmod u+rwx "$database_directory"
+        chmod u+rw "$database_path"
+    fi
 fi
 
 if [ "$container_role" = "app" ] && [ "${AUTO_MIGRATE:-false}" = "true" ]; then
