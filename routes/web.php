@@ -20,10 +20,12 @@ use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ModerationController;
+use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ResetProfileController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredAccountController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RankingsController;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +35,12 @@ Route::get('/', [PreviewController::class, 'home'])
 
 Route::get('/rankings', RankingsController::class)
     ->name('rankings');
+
+Route::get('/news', [NewsController::class, 'index'])
+    ->name('news.index');
+Route::get('/news/{slug}', [NewsController::class, 'show'])
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('news.show');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/register', [RegisteredAccountController::class, 'create'])
@@ -125,6 +133,17 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                 'throttle:admin-moderation',
             ])
             ->name('moderation.characters');
+        Route::middleware('admin.permission:'.AdministratorPermission::ManageContent->value)
+            ->group(function (): void {
+                Route::get('/content/news', [AdminNewsPostController::class, 'index'])
+                    ->name('news-posts.index');
+                Route::post('/content/news', [AdminNewsPostController::class, 'store'])
+                    ->name('news-posts.store');
+                Route::put('/content/news/{newsPost}', [AdminNewsPostController::class, 'update'])
+                    ->name('news-posts.update');
+                Route::delete('/content/news/{newsPost}', [AdminNewsPostController::class, 'destroy'])
+                    ->name('news-posts.destroy');
+            });
         Route::put('/reset-profile', [ResetProfileController::class, 'update'])
             ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->name('reset-profile.update');

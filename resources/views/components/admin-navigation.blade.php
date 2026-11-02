@@ -26,7 +26,13 @@
         @endif
         <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◈</span>{{ __('ui.admin.economy') }}</span>
         <span class="admin-nav-link opacity-45" aria-disabled="true"><span>◇</span>{{ __('ui.admin.modules') }}</span>
-        <span class="admin-nav-link opacity-45" aria-disabled="true"><span>☷</span>{{ __('ui.admin.content') }}</span>
+        @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageContent))
+            <a href="{{ route('admin.news-posts.index') }}" class="admin-nav-link {{ $active === 'content' ? 'admin-nav-link-active' : '' }}">
+                <span>☷</span>{{ __('ui.admin.content') }}
+            </a>
+        @else
+            <span class="admin-nav-link opacity-45" aria-disabled="true"><span>☷</span>{{ __('ui.admin.content') }}</span>
+        @endif
         @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ViewAuditLog))
             <a href="{{ route('admin.audit-log') }}" class="admin-nav-link {{ $active === 'audit-log' ? 'admin-nav-link-active' : '' }}">
                 <span>◎</span>{{ __('ui.admin.audit_log') }}

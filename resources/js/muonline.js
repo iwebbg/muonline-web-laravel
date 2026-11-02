@@ -158,6 +158,104 @@ export function moderationPanel() {
 }
 
 /**
+ * Creates the bilingual news editor and recoverable-delete confirmation state.
+ *
+ * @param {Array<object>} posts The administrator-visible article records.
+ * @param {string} createUrl The application route used to create articles.
+ * @returns {object}
+ */
+export function contentManager(posts, createUrl) {
+    return {
+        posts,
+        editorOpen: false,
+        deleteOpen: false,
+        editing: false,
+        formAction: createUrl,
+        deleteAction: '',
+        form: {
+            slug: '',
+            title_en: '',
+            title_bg: '',
+            excerpt_en: '',
+            excerpt_bg: '',
+            body_en: '',
+            body_bg: '',
+            status: 'draft',
+            published_at: '',
+        },
+
+        /**
+         * Opens a blank bilingual article form.
+         */
+        openCreate() {
+            this.editing = false;
+            this.formAction = createUrl;
+            this.form = {
+                slug: '',
+                title_en: '',
+                title_bg: '',
+                excerpt_en: '',
+                excerpt_bg: '',
+                body_en: '',
+                body_bg: '',
+                status: 'draft',
+                published_at: '',
+            };
+            this.editorOpen = true;
+            this.$nextTick(() => this.$refs.newsTitle?.focus());
+        },
+
+        /**
+         * Opens an existing article in the same bilingual editor.
+         *
+         * @param {object} post The selected administrator article payload.
+         */
+        openEdit(post) {
+            this.editing = true;
+            this.formAction = post.update_url;
+            this.form = {
+                slug: post.slug,
+                title_en: post.title_en,
+                title_bg: post.title_bg,
+                excerpt_en: post.excerpt_en,
+                excerpt_bg: post.excerpt_bg,
+                body_en: post.body_en,
+                body_bg: post.body_bg,
+                status: post.status,
+                published_at: post.published_at,
+            };
+            this.editorOpen = true;
+            this.$nextTick(() => this.$refs.newsTitle?.focus());
+        },
+
+        /**
+         * Closes the article editor without persisting changes.
+         */
+        closeEditor() {
+            this.editorOpen = false;
+        },
+
+        /**
+         * Opens the soft-delete confirmation for one selected article.
+         *
+         * @param {object} post The article selected for recoverable deletion.
+         */
+        openDelete(post) {
+            this.form.title_en = post.title_en;
+            this.deleteAction = post.delete_url;
+            this.deleteOpen = true;
+        },
+
+        /**
+         * Closes the soft-delete confirmation without changing content.
+         */
+        closeDelete() {
+            this.deleteOpen = false;
+        },
+    };
+}
+
+/**
  * Creates the responsive navigation state shared by all application areas.
  *
  * @returns {{mobileMenuOpen: boolean, toggleMobileMenu: Function, closeMobileMenu: Function}}

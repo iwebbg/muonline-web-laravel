@@ -36,6 +36,10 @@ final class DashboardController extends Controller
                 return redirect()->route('admin.moderation');
             }
 
+            if ($administrator->hasPermission(AdministratorPermission::ManageContent)) {
+                return redirect()->route('admin.news-posts.index');
+            }
+
             if ($administrator->hasPermission(AdministratorPermission::ViewAuditLog)) {
                 return redirect()->route('admin.audit-log');
             }
