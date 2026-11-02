@@ -50,6 +50,42 @@ final class DiagnoseGameDatabase extends Command
     ];
 
     /**
+     * Lists object capabilities that the web identity must never inherit.
+     *
+     * @var array<string, list<string>>
+     */
+    private const FORBIDDEN_OBJECT_PERMISSIONS = [
+        'dbo.MEMB_INFO' => ['DELETE', 'CONTROL', 'ALTER', 'TAKE OWNERSHIP'],
+        'dbo.MEMB_STAT' => ['INSERT', 'UPDATE', 'DELETE', 'CONTROL', 'ALTER', 'TAKE OWNERSHIP'],
+        'dbo.Character' => ['INSERT', 'DELETE', 'CONTROL', 'ALTER', 'TAKE OWNERSHIP'],
+        'dbo.warehouse' => ['INSERT', 'DELETE', 'CONTROL', 'ALTER', 'TAKE OWNERSHIP'],
+        'dbo.Guild' => ['INSERT', 'UPDATE', 'DELETE', 'CONTROL', 'ALTER', 'TAKE OWNERSHIP'],
+        'dbo.GuildMember' => ['INSERT', 'UPDATE', 'DELETE', 'CONTROL', 'ALTER', 'TAKE OWNERSHIP'],
+        'dbo.VI_CURR_INFO' => ['UPDATE', 'DELETE', 'CONTROL', 'ALTER', 'TAKE OWNERSHIP'],
+        'dbo.GameServerInfo' => ['INSERT', 'UPDATE', 'DELETE', 'CONTROL', 'ALTER', 'TAKE OWNERSHIP'],
+        'dbo.WZ_GetItemSerial' => ['CONTROL', 'ALTER', 'TAKE OWNERSHIP'],
+    ];
+
+    /**
+     * Lists elevated server and database permissions forbidden to the web identity.
+     *
+     * @var array<string, list<string>>
+     */
+    private const FORBIDDEN_SCOPE_PERMISSIONS = [
+        'SERVER' => ['CONTROL SERVER', 'ALTER ANY LOGIN'],
+        'DATABASE' => [
+            'CONTROL',
+            'ALTER',
+            'TAKE OWNERSHIP',
+            'BACKUP DATABASE',
+            'CREATE TABLE',
+            'CREATE PROCEDURE',
+            'CREATE VIEW',
+            'CREATE FUNCTION',
+        ],
+    ];
+
+    /**
      * Executes read-only diagnostics and fails on unsafe production boundaries.
      */
     public function handle(DatabaseManager $database): int
@@ -66,6 +102,7 @@ final class DiagnoseGameDatabase extends Command
         $this->components->info('Game database connection is available.');
         $schemaIsValid = $this->verifySchema($connection);
         $permissionsAreSafe = $this->verifyPermissions($connection);
+        $scopePermissionsAreSafe = $this->verifyScopePermissions($connection);
         $itemSerialSourceIsAvailable = $this->verifyItemSerialSource($connection);
         $objectPermissionsAreAvailable = $this->verifyObjectPermissions($connection);
         $configurationIsSafe = $this->verifySafetyConfiguration();
@@ -73,6 +110,7 @@ final class DiagnoseGameDatabase extends Command
         if (
             ! $schemaIsValid
             || ! $permissionsAreSafe
+            || ! $scopePermissionsAreSafe
             || ! $itemSerialSourceIsAvailable
             || ! $objectPermissionsAreAvailable
             || ! $configurationIsSafe
@@ -85,6 +123,41 @@ final class DiagnoseGameDatabase extends Command
         $this->components->info('Game database diagnostics passed.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Rejects broad server and database capabilities inherited through custom roles.
+     */
+    private function verifyScopePermissions(Connection $connection): bool
+    {
+        if ($connection->getDriverName() !== 'sqlsrv') {
+            $this->components->warn('Elevated permission verification skipped for a non-SQL Server test connection.');
+
+            return true;
+        }
+
+        $valid = true;
+
+        foreach (self::FORBIDDEN_SCOPE_PERMISSIONS as $scope => $permissions) {
+            foreach ($permissions as $permission) {
+                $securable = $scope === 'DATABASE' ? $connection->getDatabaseName() : null;
+                $result = $connection->selectOne(
+                    'SELECT HAS_PERMS_BY_NAME(?, ?, ?) AS has_permission',
+                    [$securable, $scope, $permission],
+                );
+
+                if ((int) ($result->has_permission ?? 0) === 1) {
+                    $this->components->error("Unsafe SQL permission: {$permission} on {$scope}");
+                    $valid = false;
+                }
+            }
+        }
+
+        if ($valid) {
+            $this->components->info('SQL identity has no forbidden elevated permissions.');
+        }
+
+        return $valid;
     }
 
     /**
@@ -109,6 +182,20 @@ final class DiagnoseGameDatabase extends Command
 
                 if ((int) ($result->has_permission ?? 0) !== 1) {
                     $this->components->error("Missing SQL permission: {$permission} on {$object}");
+                    $valid = false;
+                }
+            }
+        }
+
+        foreach (self::FORBIDDEN_OBJECT_PERMISSIONS as $object => $permissions) {
+            foreach ($permissions as $permission) {
+                $result = $connection->selectOne(
+                    'SELECT HAS_PERMS_BY_NAME(?, ?, ?) AS has_permission',
+                    [$object, 'OBJECT', $permission],
+                );
+
+                if ((int) ($result->has_permission ?? 0) === 1) {
+                    $this->components->error("Unsafe SQL permission: {$permission} on {$object}");
                     $valid = false;
                 }
             }

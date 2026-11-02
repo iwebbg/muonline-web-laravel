@@ -122,7 +122,9 @@ Build the immutable images and apply application-owned migrations explicitly:
 
 `game:doctor` is read-only and must pass before deployment. It verifies the
 required 97d+99i tables and columns, closed write switches, and rejects SQL
-Server identities that are members of `sysadmin` or `db_owner`.
+Server identities that are members of `sysadmin` or `db_owner`. It also checks
+the exact adapter object grants and rejects inherited server, database, DDL,
+delete and unrelated mutation permissions.
 
 Then start the same services used for local development:
 
