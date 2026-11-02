@@ -63,7 +63,7 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
      */
     public function topCharacters(int $limit): array
     {
-        $connection = $this->database->connection('game');
+        $connection = $this->database->connection($this->rankingConnectionName());
         $normalizedLimit = $this->normalizeLimit($limit);
         $rows = $connection
             ->table('Character as characters')
@@ -104,7 +104,7 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
      */
     public function topGuilds(int $limit): array
     {
-        $connection = $this->database->connection('game');
+        $connection = $this->database->connection($this->rankingConnectionName());
         $normalizedLimit = $this->normalizeLimit($limit);
         $rows = $connection
             ->table('Guild')
@@ -137,5 +137,15 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
     private function normalizeLimit(int $limit): int
     {
         return max(1, min($limit, 100));
+    }
+
+    /**
+     * Returns the profile-selected read-only connection used by ranking queries.
+     */
+    private function rankingConnectionName(): string
+    {
+        $connectionName = (string) config('game.database_connections.rankings', 'game');
+
+        return $connectionName === '' ? 'game' : $connectionName;
     }
 }

@@ -12,6 +12,11 @@ return [
 
     'ranking_limit' => (int) env('GAME_RANKING_LIMIT', 10),
 
+    'database_connections' => [
+        'primary' => 'game',
+        'rankings' => env('GAME_RANKING_CONNECTION', 'game'),
+    ],
+
     'event_timezone' => env('GAME_EVENT_TIMEZONE', 'Europe/Sofia'),
 
     'event_profile' => env('GAME_EVENT_PROFILE', 'darksteam_97d99i'),

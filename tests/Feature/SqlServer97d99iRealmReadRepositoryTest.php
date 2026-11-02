@@ -126,4 +126,61 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
             $this->assertTrue(str_starts_with($normalizedQuery, 'select'));
         }
     }
+
+    /**
+     * Confirms rankings can use a separate read-only database on newer profiles.
+     */
+    public function test_repository_can_route_rankings_to_named_database_connection(): void
+    {
+        config()->set('database.connections.ranking', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+            'foreign_key_constraints' => true,
+            'readonly' => true,
+        ]);
+        config()->set('game.database_connections.rankings', 'ranking');
+
+        $database = $this->app->make(DatabaseManager::class);
+
+        $database->purge('ranking');
+
+        $rankingConnection = $database->connection('ranking');
+
+        $rankingConnection->statement('CREATE TABLE MEMB_STAT (memb___id TEXT PRIMARY KEY, ConnectStat INTEGER NULL)');
+        $rankingConnection->statement('CREATE TABLE Character (AccountID TEXT NOT NULL, Name TEXT PRIMARY KEY, cLevel INTEGER NULL, Class INTEGER NULL, Resets INTEGER NOT NULL, GrandResets INTEGER NOT NULL)');
+        $rankingConnection->statement('CREATE TABLE Guild (G_Name TEXT NOT NULL, G_Master TEXT NULL, G_Score INTEGER NULL, G_Count INTEGER NULL)');
+        $rankingConnection->table('MEMB_STAT')->insert([
+            'memb___id' => 'ranking-account',
+            'ConnectStat' => 1,
+        ]);
+        $rankingConnection->table('Character')->insert([
+            'AccountID' => 'ranking-account',
+            'Name' => 'RankingHero',
+            'cLevel' => 400,
+            'Class' => 17,
+            'Resets' => 99,
+            'GrandResets' => 9,
+        ]);
+        $rankingConnection->table('Guild')->insert([
+            'G_Name' => 'RankingGuild',
+            'G_Master' => 'RankingHero',
+            'G_Score' => 9_999,
+            'G_Count' => 40,
+        ]);
+
+        $repository = new SqlServer97d99iRealmReadRepository(
+            database: $database,
+            classMapper: new CharacterClassMapper,
+        );
+
+        $characters = $repository->topCharacters(10);
+        $guilds = $repository->topGuilds(10);
+
+        $this->assertCount(1, $characters);
+        $this->assertSame('RankingHero', $characters[0]->name);
+        $this->assertTrue($characters[0]->online);
+        $this->assertCount(1, $guilds);
+        $this->assertSame('RankingGuild', $guilds[0]->name);
+    }
 }
