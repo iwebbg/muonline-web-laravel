@@ -152,3 +152,43 @@ tables and `WZ_GetItemSerial` procedure used by the adapter; it grants no
 `DELETE`, DDL, `db_owner` or `sysadmin` membership. Put the resulting login in
 `GAME_DB_USERNAME` / `GAME_DB_PASSWORD`, keep both write switches closed and
 rerun `game:doctor` before any staged write test.
+
+## Backup and restore rehearsal
+
+The application database and the MuOnline database have separate ownership and
+must be backed up independently. Laravel never attempts to back up or restore
+the game database with its restricted SQL identity.
+
+Create a consistent, integrity-checked snapshot of the application-owned
+SQLite database before migrations or a deployment:
+
+```bash
+./docker/compose exec -T app php artisan app:backup --name=pre-deploy.sqlite
+mkdir -p backups
+./docker/compose cp app:/var/www/html/storage/app/private/backups/pre-deploy.sqlite backups/pre-deploy.sqlite
+```
+
+The command refuses directory traversal, unsupported application database
+drivers and existing filenames. Keep the copied snapshot off-host; a file left
+only inside the Docker volume is not a disaster-recovery backup.
+
+Use a SQL Server administrator outside this application to create a native
+`COPY_ONLY` backup of `MuOnline` with checksums. Run `RESTORE VERIFYONLY` and a
+full restore to a separate rehearsal database on the test SQL Server. The web
+login must continue to fail `BACKUP DATABASE` and restore permissions in
+`game:doctor`.
+
+For an application-database restore rehearsal, use a disposable deployment:
+
+1. Keep `GAME_DB_READONLY=true` and `GAME_WRITES_ENABLED=false`.
+2. Stop the disposable app, queue and scheduler containers.
+3. Preserve its current SQLite file, then place the copied snapshot at the
+   configured `DB_DATABASE` path inside `app-storage`.
+4. Start the app and run `php artisan migrate:status`, `php artisan about` and
+   `php artisan game:doctor`.
+5. Smoke-test public, account and administrator authentication before any write
+   switch is considered.
+
+Never rehearse a restore over the only production copy. Record the source Git
+commit, backup checksums, migration status, test results and rollback decision
+for each production release.
