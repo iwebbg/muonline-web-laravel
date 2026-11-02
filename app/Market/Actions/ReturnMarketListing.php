@@ -48,6 +48,10 @@ final readonly class ReturnMarketListing
                 throw new MarketListingRejected(MarketListingBlockReason::ListingUnavailable);
             }
 
+            if ($lockedListing->highest_bid_id !== null) {
+                throw new MarketListingRejected(MarketListingBlockReason::ListingUnavailable);
+            }
+
             $lockedListing->update([
                 'status' => MarketListingStatus::ReturnPending,
             ]);

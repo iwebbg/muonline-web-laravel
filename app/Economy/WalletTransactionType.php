@@ -12,5 +12,7 @@ enum WalletTransactionType: string
     case Reward = 'reward';
     case Purchase = 'purchase';
     case Sale = 'sale';
+    case AuctionHold = 'auction_hold';
+    case AuctionRelease = 'auction_release';
     case Refund = 'refund';
 }

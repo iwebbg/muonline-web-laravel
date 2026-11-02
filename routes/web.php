@@ -2,6 +2,7 @@
 
 use App\Admin\Authorization\AdministratorPermission;
 use App\Http\Controllers\Account\AccountCredentialController;
+use App\Http\Controllers\Account\AuctionBidController;
 use App\Http\Controllers\Account\CharacterGrandResetController;
 use App\Http\Controllers\Account\CharacterMoveController;
 use App\Http\Controllers\Account\CharacterPkClearController;
@@ -150,6 +151,9 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/market/listings/{marketListing}/purchase', MarketPurchaseController::class)
         ->middleware('throttle:market-purchase')
         ->name('market.listings.purchase');
+    Route::post('/market/listings/{marketListing}/bids', AuctionBidController::class)
+        ->middleware('throttle:auction-bid')
+        ->name('market.listings.bids.store');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

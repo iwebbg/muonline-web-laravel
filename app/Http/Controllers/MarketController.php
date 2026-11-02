@@ -43,10 +43,12 @@ final class MarketController extends Controller
         $myListings = collect();
         $myPurchases = collect();
         $purchaseIdempotencyKeys = [];
+        $bidIdempotencyKeys = [];
         $currentAccountId = $account instanceof GameAccount ? $account->username : null;
 
         foreach ($listings as $listing) {
             $purchaseIdempotencyKeys[$listing->getKey()] = (string) Str::uuid();
+            $bidIdempotencyKeys[$listing->getKey()] = (string) Str::uuid();
         }
 
         if ($account instanceof GameAccount) {
@@ -88,6 +90,7 @@ final class MarketController extends Controller
             'myListings' => $myListings,
             'myPurchases' => $myPurchases,
             'purchaseIdempotencyKeys' => $purchaseIdempotencyKeys,
+            'bidIdempotencyKeys' => $bidIdempotencyKeys,
             'listingIdempotencyKey' => (string) Str::uuid(),
             'gameWritesEnabled' => (bool) config('game.writes_enabled', false)
                 && ! (bool) config('database.connections.game.readonly', true),

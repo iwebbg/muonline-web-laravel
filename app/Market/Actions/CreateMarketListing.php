@@ -9,6 +9,7 @@ use App\Game\Data\WarehouseVault;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use App\Market\MarketListingStatus;
+use App\Market\MarketSaleType;
 use App\Models\MarketListing;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
@@ -37,6 +38,8 @@ final readonly class CreateMarketListing
         int $slot,
         int $priceCredits,
         string $idempotencyKey,
+        MarketSaleType $saleType = MarketSaleType::Fixed,
+        int $bidIncrementCredits = 0,
     ): MarketListing {
         $requestHash = $this->requestHash(
             accountId: $accountId,
@@ -44,6 +47,8 @@ final readonly class CreateMarketListing
             vault: $vault,
             slot: $slot,
             priceCredits: $priceCredits,
+            saleType: $saleType,
+            bidIncrementCredits: $bidIncrementCredits,
         );
         $existingListing = MarketListing::query()
             ->where('idempotency_key', $idempotencyKey)
@@ -105,6 +110,13 @@ final readonly class CreateMarketListing
                 'escrow_key' => $itemFingerprint,
                 'item_snapshot' => $item->toArray(),
                 'price_credits' => $priceCredits,
+                'sale_type' => $saleType,
+                'minimum_bid_credits' => $saleType === MarketSaleType::Auction
+                    ? $priceCredits
+                    : null,
+                'bid_increment_credits' => $saleType === MarketSaleType::Auction
+                    ? max(1, $bidIncrementCredits)
+                    : null,
                 'status' => MarketListingStatus::Extracting,
                 'sync_attempts' => 0,
                 'expires_at' => now()->addDays(
@@ -175,6 +187,8 @@ final readonly class CreateMarketListing
         int $vault,
         int $slot,
         int $priceCredits,
+        MarketSaleType $saleType,
+        int $bidIncrementCredits,
     ): string {
         $payload = json_encode([
             'account_id' => $accountId,
@@ -182,6 +196,8 @@ final readonly class CreateMarketListing
             'vault' => $vault,
             'slot' => $slot,
             'price_credits' => $priceCredits,
+            'sale_type' => $saleType->value,
+            'bid_increment_credits' => $bidIncrementCredits,
         ], JSON_THROW_ON_ERROR);
 
         return hash('sha256', $payload);

@@ -10,6 +10,7 @@ use App\Economy\WalletTransactionType;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use App\Market\MarketListingStatus;
+use App\Market\MarketSaleType;
 use App\Models\MarketListing;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -81,7 +82,10 @@ final readonly class PurchaseMarketListing
                     return $lockedListing;
                 }
 
-                if ($lockedListing->status !== MarketListingStatus::Active) {
+                if (
+                    $lockedListing->status !== MarketListingStatus::Active
+                    || $lockedListing->sale_type !== MarketSaleType::Fixed
+                ) {
                     throw new MarketListingRejected(MarketListingBlockReason::ListingUnavailable);
                 }
 

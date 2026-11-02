@@ -49,21 +49,31 @@
                         </div>
                         <p class="mt-4 text-lg font-semibold text-white">{{ $item['name'] ?? __('ui.market.unknown_item') }}{{ ($item['level'] ?? 0) > 0 ? ' +'.$item['level'] : '' }}</p>
                         <p class="mt-1 text-xs uppercase tracking-[0.14em] text-steel">{{ $item['code'] ?? '' }} · {{ ucfirst((string) ($item['rarity'] ?? 'normal')) }}</p>
+                        @if ($listing->sale_type === \App\Market\MarketSaleType::Auction)
+                            <p class="mt-2 text-xs text-amber-100">{{ __('ui.market.ends_at') }} {{ $listing->expires_at?->format('Y-m-d H:i') }}</p>
+                        @endif
                         <div class="mt-auto flex items-end justify-between gap-4 pt-5">
                             <div>
-                                <p class="text-xs uppercase tracking-[0.14em] text-steel">{{ __('ui.market.price') }}</p>
-                                <p class="mt-1 text-xl font-bold text-gold">{{ number_format($listing->price_credits) }} Credits</p>
+                                <p class="text-xs uppercase tracking-[0.14em] text-steel">{{ $listing->sale_type === \App\Market\MarketSaleType::Auction ? __('ui.market.current_bid') : __('ui.market.price') }}</p>
+                                <p class="mt-1 text-xl font-bold text-gold">{{ number_format($listing->highest_bid_credits ?? $listing->price_credits) }} Credits</p>
                             </div>
                             <span class="rounded-full border border-white/8 px-3 py-1 text-xs text-steel">{{ __('ui.market.escrowed') }}</span>
                         </div>
                         @auth
-                            @if ($listing->seller_account_id !== $currentAccountId)
+                            @if ($listing->seller_account_id !== $currentAccountId && $listing->sale_type === \App\Market\MarketSaleType::Fixed)
                                 <form method="POST" action="{{ route('market.listings.purchase', $listing) }}" class="mt-4">
                                     @csrf
                                     <input type="hidden" name="idempotency_key" value="{{ $purchaseIdempotencyKeys[$listing->getKey()] }}">
                                     <button type="submit" class="button button-primary w-full" @disabled(! $gameWritesEnabled)>
                                         {{ __('ui.market.buy_now') }}
                                     </button>
+                                </form>
+                            @elseif ($listing->seller_account_id !== $currentAccountId)
+                                <form method="POST" action="{{ route('market.listings.bids.store', $listing) }}" class="mt-4 grid grid-cols-[1fr_auto] gap-2">
+                                    @csrf
+                                    <input type="hidden" name="idempotency_key" value="{{ $bidIdempotencyKeys[$listing->getKey()] }}">
+                                    <input type="number" name="amount_credits" min="{{ ($listing->highest_bid_credits ?? ($listing->minimum_bid_credits - $listing->bid_increment_credits)) + $listing->bid_increment_credits }}" value="{{ ($listing->highest_bid_credits ?? ($listing->minimum_bid_credits - $listing->bid_increment_credits)) + $listing->bid_increment_credits }}" required>
+                                    <button type="submit" class="button button-primary" @disabled(! $gameWritesEnabled)>{{ __('ui.market.place_bid') }}</button>
                                 </form>
                             @else
                                 <p class="mt-4 text-center text-xs uppercase tracking-[0.14em] text-steel">{{ __('ui.market.your_listing') }}</p>
@@ -115,7 +125,7 @@
                             </div>
                             <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                                 @forelse ($vault->items as $item)
-                                    <form method="POST" action="{{ route('market.listings.store') }}" class="rounded-2xl border border-white/8 bg-black/20 p-4">
+                                    <form method="POST" action="{{ route('market.listings.store') }}" class="rounded-2xl border border-white/8 bg-black/20 p-4" x-data="{ saleType: 'fixed' }">
                                         @csrf
                                         <input type="hidden" name="character_name" value="{{ $selectedCharacter }}">
                                         <input type="hidden" name="vault" value="{{ $vault->number }}">
@@ -131,8 +141,16 @@
                                             </div>
                                         </div>
                                         <label class="field-group mt-4">
-                                            <span>{{ __('ui.market.price_credits') }}</span>
+                                            <span>{{ __('ui.market.sale_type') }}</span>
+                                            <select name="sale_type" x-model="saleType"><option value="fixed">{{ __('ui.market.fixed_price') }}</option><option value="auction">{{ __('ui.market.auction') }}</option></select>
+                                        </label>
+                                        <label class="field-group mt-4">
+                                            <span x-text="saleType === 'auction' ? @js(__('ui.market.minimum_bid')) : @js(__('ui.market.price_credits'))">{{ __('ui.market.price_credits') }}</span>
                                             <input type="number" name="price_credits" min="1" max="1000000000" value="100" required>
+                                        </label>
+                                        <label class="field-group mt-4" x-show="saleType === 'auction'" x-cloak>
+                                            <span>{{ __('ui.market.bid_increment') }}</span>
+                                            <input type="number" name="bid_increment_credits" min="1" max="1000000000" value="10" x-bind:required="saleType === 'auction'">
                                         </label>
                                         <button type="submit" class="button button-primary mt-4 w-full" @disabled(! $gameWritesEnabled)>{{ __('ui.market.move_to_escrow') }}</button>
                                     </form>
@@ -166,7 +184,7 @@
                                     <td class="px-5 py-4 text-gold">{{ number_format($listing->price_credits) }}</td>
                                     <td class="px-5 py-4 text-silver">{{ __('ui.market.statuses.'.$listing->status->value) }}</td>
                                     <td class="px-5 py-4 text-right">
-                                        @if ($listing->status === \App\Market\MarketListingStatus::Active)
+                                        @if ($listing->status === \App\Market\MarketListingStatus::Active && $listing->highest_bid_id === null)
                                             <form method="POST" action="{{ route('market.listings.destroy', $listing) }}">
                                                 @csrf
                                                 @method('DELETE')

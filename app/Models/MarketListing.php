@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Market\MarketListingStatus;
+use App\Market\MarketSaleType;
 use Database\Factories\MarketListingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Stores one original 97d+99i item blob in recoverable market escrow.
@@ -27,6 +29,12 @@ use Illuminate\Database\Eloquent\Model;
     'escrow_key',
     'item_snapshot',
     'price_credits',
+    'sale_type',
+    'minimum_bid_credits',
+    'bid_increment_credits',
+    'highest_bid_credits',
+    'highest_bidder_account_id',
+    'highest_bid_id',
     'buyer_wallet_transaction_id',
     'seller_wallet_transaction_id',
     'status',
@@ -36,6 +44,7 @@ use Illuminate\Database\Eloquent\Model;
     'activated_at',
     'purchased_at',
     'delivered_at',
+    'settled_at',
     'returned_at',
     'expires_at',
 ])]
@@ -53,6 +62,16 @@ final class MarketListing extends Model
     }
 
     /**
+     * Returns all immutable bids placed against this escrow listing.
+     *
+     * @return HasMany<AuctionBid, $this>
+     */
+    public function bids(): HasMany
+    {
+        return $this->hasMany(AuctionBid::class);
+    }
+
+    /**
      * Casts escrow state and public snapshots to stable PHP values.
      *
      * @return array<string, string>
@@ -64,6 +83,11 @@ final class MarketListing extends Model
             'source_slot' => 'integer',
             'item_snapshot' => 'array',
             'price_credits' => 'integer',
+            'sale_type' => MarketSaleType::class,
+            'minimum_bid_credits' => 'integer',
+            'bid_increment_credits' => 'integer',
+            'highest_bid_credits' => 'integer',
+            'highest_bid_id' => 'integer',
             'buyer_wallet_transaction_id' => 'integer',
             'seller_wallet_transaction_id' => 'integer',
             'status' => MarketListingStatus::class,
@@ -72,6 +96,7 @@ final class MarketListing extends Model
             'activated_at' => 'immutable_datetime',
             'purchased_at' => 'immutable_datetime',
             'delivered_at' => 'immutable_datetime',
+            'settled_at' => 'immutable_datetime',
             'returned_at' => 'immutable_datetime',
             'expires_at' => 'immutable_datetime',
         ];

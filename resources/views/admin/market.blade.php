@@ -90,7 +90,7 @@
                                                         <button class="button button-ghost" type="submit" @disabled(! $gameWritesEnabled)>{{ __('ui.admin.market_retry') }}</button>
                                                     </form>
                                                 @endif
-                                                @if ($listing->status === \App\Market\MarketListingStatus::Active)
+                                                @if ($listing->status === \App\Market\MarketListingStatus::Active && $listing->highest_bid_id === null)
                                                     <form method="POST" action="{{ route('admin.market.return', $listing) }}" onsubmit="return confirm(@js(__('ui.admin.market_return_confirm')))">
                                                         @csrf
                                                         <button class="button button-ghost text-amber-100" type="submit" @disabled(! $gameWritesEnabled)>{{ __('ui.admin.market_force_return') }}</button>

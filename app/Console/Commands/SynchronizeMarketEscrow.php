@@ -2,8 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Market\Actions\SettleExpiredAuction;
 use App\Market\Actions\SynchronizeMarketListing;
+use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingStatus;
+use App\Market\MarketSaleType;
 use App\Models\MarketListing;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -19,8 +22,10 @@ final class SynchronizeMarketEscrow extends Command
     /**
      * Executes one bounded synchronization pass.
      */
-    public function handle(SynchronizeMarketListing $synchronizeMarketListing): int
-    {
+    public function handle(
+        SynchronizeMarketListing $synchronizeMarketListing,
+        SettleExpiredAuction $settleExpiredAuction,
+    ): int {
         $writesEnabled = (bool) config('game.writes_enabled', false);
         $connectionReadOnly = (bool) config('database.connections.game.readonly', true);
 
@@ -32,17 +37,41 @@ final class SynchronizeMarketEscrow extends Command
 
         $synchronized = 0;
         $pending = 0;
-        $expiredListingIds = MarketListing::query()
+        $processedAuctionIds = [];
+        $expiredListings = MarketListing::query()
             ->where('status', MarketListingStatus::Active)
             ->whereNotNull('expires_at')
             ->where('expires_at', '<=', now())
             ->orderBy('id')
             ->limit(100)
-            ->pluck('id');
+            ->get();
 
-        foreach ($expiredListingIds as $expiredListingId) {
+        foreach ($expiredListings as $expiredListing) {
+            if ($expiredListing->sale_type === MarketSaleType::Auction) {
+                $processedAuctionIds[] = $expiredListing->getKey();
+                try {
+                    $settledListing = $settleExpiredAuction->execute(
+                        (int) $expiredListing->getKey(),
+                    );
+
+                    if (in_array(
+                        $settledListing->status,
+                        [MarketListingStatus::Delivered, MarketListingStatus::Returned],
+                        true,
+                    )) {
+                        $synchronized++;
+                    } else {
+                        $pending++;
+                    }
+                } catch (MarketListingRejected) {
+                    $pending++;
+                }
+
+                continue;
+            }
+
             MarketListing::query()
-                ->whereKey($expiredListingId)
+                ->whereKey($expiredListing->getKey())
                 ->where('status', MarketListingStatus::Active)
                 ->update([
                     'status' => MarketListingStatus::ReturnPending,
@@ -55,6 +84,10 @@ final class SynchronizeMarketEscrow extends Command
                 MarketListingStatus::DeliveryPending->value,
                 MarketListingStatus::ReturnPending->value,
             ])
+            ->when(
+                $processedAuctionIds !== [],
+                fn ($query) => $query->whereNotIn('id', $processedAuctionIds),
+            )
             ->orderBy('id')
             ->limit(100)
             ->get();

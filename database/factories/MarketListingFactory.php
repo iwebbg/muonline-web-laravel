@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Market\MarketListingStatus;
+use App\Market\MarketSaleType;
 use App\Models\MarketListing;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -49,6 +50,12 @@ final class MarketListingFactory extends Factory
                 'rarity' => 'normal',
             ],
             'price_credits' => 100,
+            'sale_type' => MarketSaleType::Fixed,
+            'minimum_bid_credits' => null,
+            'bid_increment_credits' => null,
+            'highest_bid_credits' => null,
+            'highest_bidder_account_id' => null,
+            'highest_bid_id' => null,
             'buyer_wallet_transaction_id' => null,
             'seller_wallet_transaction_id' => null,
             'status' => MarketListingStatus::Active,
@@ -58,6 +65,7 @@ final class MarketListingFactory extends Factory
             'activated_at' => now(),
             'purchased_at' => null,
             'delivered_at' => null,
+            'settled_at' => null,
             'returned_at' => null,
             'expires_at' => now()->addDays(30),
         ];

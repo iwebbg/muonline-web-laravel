@@ -39,6 +39,11 @@ Player-market listings keep the original 10-byte item in recoverable escrow.
 default); the scheduler automatically removes expired listings and retries the
 exact item return until the seller's active warehouse can accept it.
 
+Timed auctions use the same lossless escrow. Each leading bid is held in the
+application Credits ledger; a higher bid atomically releases the previous hold.
+At expiry the scheduler credits the seller and delivers the original item to
+the winner, or returns it to the seller when no valid bid exists.
+
 ## Local development
 
 The supported runtime is provided by Docker and uses PHP 8.5, Microsoft ODBC

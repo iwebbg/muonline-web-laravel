@@ -9,6 +9,7 @@ use App\Market\Actions\CreateMarketListing;
 use App\Market\Actions\ReturnMarketListing;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingStatus;
+use App\Market\MarketSaleType;
 use App\Models\MarketListing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,6 +38,8 @@ final class MarketListingController extends Controller
                 slot: $request->integer('slot'),
                 priceCredits: $request->integer('price_credits'),
                 idempotencyKey: $request->string('idempotency_key')->toString(),
+                saleType: MarketSaleType::from($request->string('sale_type')->toString()),
+                bidIncrementCredits: $request->integer('bid_increment_credits'),
             );
         } catch (MarketListingRejected $exception) {
             return back()->withErrors([

@@ -17,5 +17,7 @@ enum MarketListingBlockReason: string
     case ListingUnavailable = 'listing_unavailable';
     case OwnListing = 'own_listing';
     case InsufficientCredits = 'insufficient_credits';
+    case AuctionUnavailable = 'auction_unavailable';
+    case BidTooLow = 'bid_too_low';
     case IdempotencyConflict = 'idempotency_conflict';
 }

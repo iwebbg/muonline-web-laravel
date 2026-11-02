@@ -46,6 +46,7 @@ final readonly class AdjustWalletBalance
                 WalletTransactionType::AdminCredit,
                 WalletTransactionType::Reward,
                 WalletTransactionType::Sale,
+                WalletTransactionType::AuctionRelease,
                 WalletTransactionType::Refund,
             ],
             true,
@@ -55,6 +56,7 @@ final readonly class AdjustWalletBalance
             [
                 WalletTransactionType::AdminDebit,
                 WalletTransactionType::Purchase,
+                WalletTransactionType::AuctionHold,
             ],
             true,
         ) && $amount < 0;
