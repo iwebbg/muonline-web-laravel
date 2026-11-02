@@ -14,6 +14,8 @@
                 'grandResetExecuteUrl' => route('account.character-grand-reset'),
                 'statResetPreviewUrl' => route('account.stat-reset-preview'),
                 'statResetExecuteUrl' => route('account.character-stat-reset'),
+                'pkClearPreviewUrl' => route('account.pk-clear-preview'),
+                'pkClearExecuteUrl' => route('account.character-pk-clear'),
                 'statPreviewUrl' => route('account.stat-allocation-preview'),
                 'statExecuteUrl' => route('account.stat-allocations.store'),
                 'writesEnabled' => $gameWritesEnabled,
@@ -27,6 +29,9 @@
                 'statResetPreviewFailed' => __('ui.account.stat_reset_preview_failed'),
                 'statResetExecutionFailed' => __('ui.account.stat_reset_operation_failed'),
                 'statResetCompleted' => __('ui.account.stat_reset_completed'),
+                'pkClearPreviewFailed' => __('ui.account.pk_clear_preview_failed'),
+                'pkClearExecutionFailed' => __('ui.account.pk_clear_operation_failed'),
+                'pkClearCompleted' => __('ui.account.pk_clear_completed'),
                 'statPreviewFailed' => __('ui.account.allocation_preview_failed'),
                 'statExecutionFailed' => __('ui.account.stat_allocation_failed'),
                 'statCompleted' => __('ui.account.stat_allocation_completed'),
@@ -80,6 +85,22 @@
                     'writes_disabled' => __('ui.account.reset_writes_disabled'),
                     'operation_in_progress' => __('ui.account.stat_reset_operation_in_progress'),
                     'idempotency_conflict' => __('ui.account.stat_reset_idempotency_conflict'),
+                ],
+                'pkClearBlockReasons' => [
+                    'profile_disabled' => __('ui.account.pk_clear_profile_disabled'),
+                    'character_online' => __('ui.account.reset_character_online'),
+                    'level_too_low' => __('ui.account.pk_clear_level_too_low'),
+                    'character_not_killer' => __('ui.account.pk_clear_not_killer'),
+                    'price_limit_exceeded' => __('ui.account.pk_clear_price_limit'),
+                    'insufficient_zen' => __('ui.account.pk_clear_insufficient_zen'),
+                    'writes_disabled' => __('ui.account.reset_writes_disabled'),
+                    'operation_in_progress' => __('ui.account.pk_clear_operation_in_progress'),
+                    'idempotency_conflict' => __('ui.account.pk_clear_idempotency_conflict'),
+                ],
+                'pkClearPriceModes' => [
+                    'fixed' => __('ui.account.pk_clear_price_fixed'),
+                    'by_pk_level' => __('ui.account.pk_clear_price_by_level'),
+                    'by_pk_count' => __('ui.account.pk_clear_price_by_count'),
                 ],
                 'statBlockReasons' => [
                     'character_online' => __('ui.account.reset_character_online'),
@@ -164,7 +185,7 @@
 
             <section class="min-w-0">
                 <div class="segmented-control w-full overflow-x-auto sm:w-fit" role="tablist" aria-label="{{ __('ui.account.character_tools') }}">
-                    @foreach (['overview' => __('ui.account.overview'), 'inventory' => __('ui.account.inventory'), 'stats' => __('ui.account.allocate_stats'), 'stat-reset' => __('ui.account.stat_reset'), 'reset' => __('ui.account.reset'), 'grand-reset' => __('ui.account.grand_reset')] as $section => $label)
+                    @foreach (['overview' => __('ui.account.overview'), 'inventory' => __('ui.account.inventory'), 'stats' => __('ui.account.allocate_stats'), 'stat-reset' => __('ui.account.stat_reset'), 'pk-clear' => __('ui.account.pk_clear'), 'reset' => __('ui.account.reset'), 'grand-reset' => __('ui.account.grand_reset')] as $section => $label)
                         <button
                             type="button"
                             role="tab"
@@ -205,6 +226,10 @@
                                 </button>
                                 <button type="button" class="action-row" @click="selectSection('stat-reset')">
                                     <span><strong>{{ __('ui.account.stat_reset_character') }}</strong><small>{{ __('ui.account.stat_reset_refund_help') }}</small></span>
+                                    <span aria-hidden="true">→</span>
+                                </button>
+                                <button type="button" class="action-row" @click="selectSection('pk-clear')">
+                                    <span><strong>{{ __('ui.account.pk_clear_character') }}</strong><small>{{ __('ui.account.pk_clear_help') }}</small></span>
                                     <span aria-hidden="true">→</span>
                                 </button>
                                 <button type="button" class="action-row">
@@ -496,6 +521,76 @@
                                     >
                                         {{ __('ui.account.stat_reset_confirm') }}
                                     </button>
+                                </div>
+                            </div>
+                        </template>
+                    </article>
+                </div>
+
+                <div class="mt-5" x-show="activeSection === 'pk-clear'" x-cloak>
+                    <article class="panel-card">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="kicker">{{ __('ui.account.transactional_operation') }}</p>
+                                <h3 class="mt-2 text-xl font-semibold text-white">{{ __('ui.account.pk_clear_preview') }}</h3>
+                                <p class="mt-2 text-sm text-steel">{{ __('ui.account.pk_clear_help') }}</p>
+                            </div>
+                            <span class="preview-badge">{{ __('ui.account.preview_only') }}</span>
+                        </div>
+
+                        <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" x-show="pkClearPreviewLoading">
+                            @for ($placeholder = 0; $placeholder < 4; $placeholder++)
+                                <div class="outcome-card animate-pulse" aria-hidden="true">
+                                    <span class="h-3 w-20 rounded bg-white/8"></span>
+                                    <strong class="mt-3 h-6 w-28 rounded bg-white/10"></strong>
+                                </div>
+                            @endfor
+                        </div>
+
+                        <div class="mt-7 rounded-2xl border border-red-300/20 bg-red-400/8 p-4 text-sm text-red-100" x-show="pkClearPreviewError" x-text="pkClearPreviewError" role="alert"></div>
+                        <div class="mt-7 rounded-2xl border border-emerald-300/20 bg-emerald-300/7 p-4 text-sm text-emerald-100" x-show="pkClearSuccessMessage" x-text="pkClearSuccessMessage" role="status"></div>
+
+                        <template x-if="pkClearPreview !== null && !pkClearPreviewLoading">
+                            <div>
+                                <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                    <div class="outcome-card"><span>{{ __('ui.account.pk_level') }}</span><strong><span x-text="pkClearPreview.currentPkLevel"></span> → <span x-text="pkClearPreview.resultingPkLevel"></span></strong></div>
+                                    <div class="outcome-card"><span>{{ __('ui.account.pk_count') }}</span><strong><span x-text="pkClearPreview.currentPkCount"></span> → <span x-text="pkClearPreview.resultingPkCount"></span></strong></div>
+                                    <div class="outcome-card"><span>{{ __('ui.account.pk_time') }}</span><strong><span x-text="pkClearPreview.currentPkTime.toLocaleString()"></span> → <span x-text="pkClearPreview.resultingPkTime"></span></strong></div>
+                                    <div class="outcome-card"><span>{{ __('ui.account.cost') }}</span><strong><span x-text="pkClearPreview.zenCost.toLocaleString()"></span> Zen</strong></div>
+                                </div>
+                                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                                    <div class="outcome-card"><span>{{ __('ui.account.zen_after_pk_clear') }}</span><strong x-text="pkClearPreview.resultingZen.toLocaleString()"></strong></div>
+                                    <div class="outcome-card"><span>{{ __('ui.account.pk_clear_price_formula') }}</span><strong x-text="pkClearPriceModeLabel"></strong></div>
+                                </div>
+
+                                <div class="mt-6 rounded-2xl border p-4 text-sm leading-6" :class="pkClearPreview.eligible ? 'border-emerald-300/20 bg-emerald-300/7 text-emerald-100' : 'border-amber-300/20 bg-amber-300/7 text-amber-100'">
+                                    <strong class="block" x-text="pkClearPreview.eligible ? @js(__('ui.account.pk_clear_requirements_met')) : @js(__('ui.account.pk_clear_requirements_failed'))"></strong>
+                                    <ul class="mt-2 grid gap-1" x-show="!pkClearPreview.eligible">
+                                        <template x-for="blockMessage in pkClearBlockMessages" :key="blockMessage">
+                                            <li>• <span x-text="blockMessage"></span></li>
+                                        </template>
+                                    </ul>
+                                </div>
+
+                                <div class="mt-6 rounded-2xl border border-white/10 bg-white/4 p-4 text-sm leading-6 text-silver">
+                                    <span x-show="resetPreviewConfiguration.writesEnabled">{{ __('ui.account.pk_clear_preview_notice') }}</span>
+                                    <span x-show="!resetPreviewConfiguration.writesEnabled">{{ __('ui.account.reset_writes_disabled') }}</span>
+                                </div>
+
+                                <div class="mt-6 rounded-2xl border border-gold/20 bg-gold/5 p-5" x-show="pkClearConfirmationOpen" x-cloak>
+                                    <strong class="block text-white">{{ __('ui.account.pk_clear_confirm') }}</strong>
+                                    <p class="mt-2 text-sm leading-6 text-silver">{{ __('ui.account.pk_clear_confirm_help') }}</p>
+                                    <div class="mt-5 flex flex-wrap justify-end gap-3">
+                                        <button type="button" class="button button-ghost" :disabled="pkClearExecuting" @click="closePkClearConfirmation">{{ __('ui.account.reset_cancel') }}</button>
+                                        <button type="button" class="button button-primary" :disabled="pkClearExecuting" @click="executePkClear">
+                                            <span x-show="!pkClearExecuting">{{ __('ui.account.pk_clear_now') }}</span>
+                                            <span x-show="pkClearExecuting">{{ __('ui.account.pk_clearing') }}</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-7 flex justify-end" x-show="!pkClearConfirmationOpen">
+                                    <button type="button" class="button button-primary" :disabled="!pkClearPreview.eligible || !resetPreviewConfiguration.writesEnabled || pkClearExecuting" @click="openPkClearConfirmation">{{ __('ui.account.pk_clear_confirm') }}</button>
                                 </div>
                             </div>
                         </template>

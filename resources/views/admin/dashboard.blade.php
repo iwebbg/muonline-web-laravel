@@ -290,6 +290,45 @@
                             </label>
                         </div>
                     </div>
+
+                    <div class="mt-8 border-t border-white/8 pt-7">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                                <p class="kicker">{{ __('ui.admin.pk_clear_profile') }}</p>
+                                <p class="mt-2 text-sm text-steel">{{ __('ui.admin.pk_clear_profile_help') }}</p>
+                            </div>
+                            <label class="toggle-control">
+                                <input type="checkbox" name="pkClearEnabled" value="1" x-model="settings.pkClearEnabled">
+                                <span aria-hidden="true"></span>
+                                <span>{{ __('ui.admin.pk_clear_enabled') }}</span>
+                            </label>
+                        </div>
+
+                        <div class="mt-7 grid gap-6 md:grid-cols-3">
+                            <label class="field-group">
+                                <span>{{ __('ui.admin.pk_clear_required_level') }}</span>
+                                <input type="number" name="pkClearRequiredLevel" min="1" max="400" x-model.number="settings.pkClearRequiredLevel">
+                                <small>{{ __('ui.admin.pk_clear_required_level_help') }}</small>
+                                <small class="text-red-300" x-show="firstValidationError('pkClearRequiredLevel')" x-text="firstValidationError('pkClearRequiredLevel')"></small>
+                            </label>
+                            <label class="field-group">
+                                <span>{{ __('ui.admin.pk_clear_base_zen_cost') }}</span>
+                                <input type="number" name="pkClearBaseZenCost" min="0" max="2000000000" step="100000" x-model.number="settings.pkClearBaseZenCost">
+                                <small>{{ __('ui.admin.pk_clear_base_zen_cost_help') }}</small>
+                                <small class="text-red-300" x-show="firstValidationError('pkClearBaseZenCost')" x-text="firstValidationError('pkClearBaseZenCost')"></small>
+                            </label>
+                            <label class="field-group">
+                                <span>{{ __('ui.admin.pk_clear_price_mode') }}</span>
+                                <select name="pkClearPriceMode" x-model="settings.pkClearPriceMode">
+                                    <option value="fixed">{{ __('ui.admin.pk_clear_price_fixed') }}</option>
+                                    <option value="by_pk_level">{{ __('ui.admin.pk_clear_price_by_level') }}</option>
+                                    <option value="by_pk_count">{{ __('ui.admin.pk_clear_price_by_count') }}</option>
+                                </select>
+                                <small>{{ __('ui.admin.pk_clear_price_mode_help') }}</small>
+                                <small class="text-red-300" x-show="firstValidationError('pkClearPriceMode')" x-text="firstValidationError('pkClearPriceMode')"></small>
+                            </label>
+                        </div>
+                    </div>
                 </form>
 
                 <aside class="grid content-start gap-4">

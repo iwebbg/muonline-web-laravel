@@ -48,6 +48,10 @@ final class ResetProfileReader
             statResetRequiredLevel: $profile->stat_reset_required_level,
             statResetRequiredResets: $profile->stat_reset_required_resets,
             statResetZenCost: $profile->stat_reset_zen_cost,
+            pkClearEnabled: $profile->pk_clear_enabled,
+            pkClearRequiredLevel: $profile->pk_clear_required_level,
+            pkClearBaseZenCost: $profile->pk_clear_base_zen_cost,
+            pkClearPriceMode: $profile->pk_clear_price_mode,
         );
     }
 

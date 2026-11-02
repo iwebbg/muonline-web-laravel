@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\PkClear\PkClearPriceMode;
 use App\Reset\InventoryPolicy;
 use App\Reset\PointsMode;
 use App\Reset\ResetProfileSettings;
@@ -81,5 +82,35 @@ final class ResetProfileSettingsTest extends TestCase
         $this->assertSame(1, $settings->statResetRequiredLevel);
         $this->assertSame(1, $settings->statResetRequiredResets);
         $this->assertSame(0, $settings->statResetZenCost);
+    }
+
+    /**
+     * Confirms PK clear defaults match DarksTeam and each price formula remains deterministic.
+     */
+    public function test_pk_clear_defaults_and_price_formulas_match_darksteam(): void
+    {
+        $settings = ResetProfileSettings::defaults();
+
+        $this->assertTrue($settings->pkClearEnabled);
+        $this->assertSame(100, $settings->pkClearRequiredLevel);
+        $this->assertSame(100_000, $settings->pkClearZenCostFor(6, 4));
+
+        $byPkLevel = new ResetProfileSettings(
+            enabled: true,
+            requiredLevel: 350,
+            maximumResets: 999,
+            maximumStat: 32_767,
+            grandResetRequiredResets: 100,
+            baseZenCost: 15_000_000,
+            multiplyCostByReset: true,
+            clearStats: true,
+            pointsMode: PointsMode::Cumulative,
+            pointsPerReset: 500,
+            inventoryPolicy: InventoryPolicy::KeepAll,
+            pkClearBaseZenCost: 100_000,
+            pkClearPriceMode: PkClearPriceMode::ByPkLevel,
+        );
+
+        $this->assertSame(600_000, $byPkLevel->pkClearZenCostFor(6, 4));
     }
 }

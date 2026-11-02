@@ -230,6 +230,13 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         statResetConfirmationOpen: false,
         statResetExecuting: false,
         statResetSuccessMessage: null,
+        pkClearPreview: null,
+        pkClearPreviewLoading: false,
+        pkClearPreviewError: null,
+        pkClearPreviewRequestId: 0,
+        pkClearConfirmationOpen: false,
+        pkClearExecuting: false,
+        pkClearSuccessMessage: null,
         statPreview: null,
         statPreviewLoading: false,
         statPreviewError: null,
@@ -369,6 +376,41 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         },
 
         /**
+         * Returns localized explanations for every failed PK-clear requirement.
+         *
+         * @returns {Array<string>}
+         */
+        get pkClearBlockMessages() {
+            if (this.pkClearPreview === null) {
+                return [];
+            }
+
+            const reasonLabels = this.resetPreviewConfiguration.pkClearBlockReasons;
+            const messages = [];
+
+            for (const reason of this.pkClearPreview.blockReasons) {
+                messages.push(reasonLabels[reason] ?? reason);
+            }
+
+            return messages;
+        },
+
+        /**
+         * Returns the localized PK-clear price formula from the active server profile.
+         *
+         * @returns {string}
+         */
+        get pkClearPriceModeLabel() {
+            if (this.pkClearPreview === null) {
+                return '';
+            }
+
+            const labels = this.resetPreviewConfiguration.pkClearPriceModes;
+
+            return labels[this.pkClearPreview.priceMode] ?? this.pkClearPreview.priceMode;
+        },
+
+        /**
          * Returns localized explanations for every failed allocation requirement.
          *
          * @returns {Array<string>}
@@ -408,6 +450,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             this.statResetPreviewError = null;
             this.statResetConfirmationOpen = false;
             this.statResetSuccessMessage = null;
+            this.pkClearPreview = null;
+            this.pkClearPreviewError = null;
+            this.pkClearConfirmationOpen = false;
+            this.pkClearSuccessMessage = null;
             this.statSuccessMessage = null;
 
             if (this.activeSection === 'reset') {
@@ -420,6 +466,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
 
             if (this.activeSection === 'stat-reset') {
                 void this.loadStatResetPreview();
+            }
+
+            if (this.activeSection === 'pk-clear') {
+                void this.loadPkClearPreview();
             }
         },
 
@@ -441,6 +491,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
 
             if (section === 'stat-reset') {
                 void this.loadStatResetPreview();
+            }
+
+            if (section === 'pk-clear') {
+                void this.loadPkClearPreview();
             }
         },
 
@@ -882,6 +936,145 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                 this.statResetPreviewError = this.resetPreviewConfiguration.statResetExecutionFailed;
             } finally {
                 this.statResetExecuting = false;
+            }
+        },
+
+        /**
+         * Loads a fresh ownership-scoped PK-clear preview for the selected character.
+         */
+        async loadPkClearPreview() {
+            if (this.resetPreviewConfiguration === null) {
+                return;
+            }
+
+            const requestId = this.pkClearPreviewRequestId + 1;
+
+            this.pkClearPreviewRequestId = requestId;
+            this.pkClearPreviewLoading = true;
+            this.pkClearPreviewError = null;
+
+            try {
+                const response = await window.fetch(
+                    this.resetPreviewConfiguration.pkClearPreviewUrl,
+                    {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.resetPreviewConfiguration.csrfToken,
+                        },
+                        body: JSON.stringify({
+                            characterName: this.selectedCharacter.name,
+                        }),
+                    },
+                );
+
+                if (!response.ok) {
+                    throw new Error(`PK-clear preview request failed with status ${response.status}.`);
+                }
+
+                const responsePayload = await response.json();
+
+                if (requestId !== this.pkClearPreviewRequestId) {
+                    return;
+                }
+
+                this.pkClearPreview = responsePayload.preview;
+            } catch {
+                if (requestId === this.pkClearPreviewRequestId) {
+                    this.pkClearPreviewError = this.resetPreviewConfiguration.pkClearPreviewFailed;
+                }
+            } finally {
+                if (requestId === this.pkClearPreviewRequestId) {
+                    this.pkClearPreviewLoading = false;
+                }
+            }
+        },
+
+        /**
+         * Shows the final PK-clear confirmation for an eligible writable preview.
+         */
+        openPkClearConfirmation() {
+            if (
+                this.pkClearPreview === null
+                || !this.pkClearPreview.eligible
+                || !this.resetPreviewConfiguration.writesEnabled
+            ) {
+                return;
+            }
+
+            this.pkClearConfirmationOpen = true;
+            this.pkClearPreviewError = null;
+        },
+
+        /**
+         * Closes the PK-clear confirmation while no request is running.
+         */
+        closePkClearConfirmation() {
+            if (this.pkClearExecuting) {
+                return;
+            }
+
+            this.pkClearConfirmationOpen = false;
+        },
+
+        /**
+         * Executes the confirmed PK clear with an at-most-once operation key.
+         */
+        async executePkClear() {
+            if (
+                this.pkClearExecuting
+                || this.pkClearPreview === null
+                || !this.pkClearPreview.eligible
+                || !this.resetPreviewConfiguration.writesEnabled
+            ) {
+                return;
+            }
+
+            this.pkClearExecuting = true;
+            this.pkClearPreviewError = null;
+            this.pkClearSuccessMessage = null;
+
+            try {
+                const response = await window.fetch(
+                    this.resetPreviewConfiguration.pkClearExecuteUrl,
+                    {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.resetPreviewConfiguration.csrfToken,
+                        },
+                        body: JSON.stringify({
+                            characterName: this.selectedCharacter.name,
+                            idempotencyKey: this.createIdempotencyKey(),
+                        }),
+                    },
+                );
+                const responsePayload = await response.json();
+
+                if (!response.ok) {
+                    const reasonMessages = this.resetPreviewConfiguration.pkClearBlockReasons;
+
+                    this.pkClearPreviewError = reasonMessages[responsePayload.reason]
+                        ?? responsePayload.message
+                        ?? this.resetPreviewConfiguration.pkClearExecutionFailed;
+
+                    return;
+                }
+
+                this.selectedCharacter.zen = responsePayload.result.afterZen;
+                this.pkClearConfirmationOpen = false;
+                this.pkClearSuccessMessage = responsePayload.message
+                    ?? this.resetPreviewConfiguration.pkClearCompleted;
+
+                await this.loadPkClearPreview();
+            } catch {
+                this.pkClearPreviewError = this.resetPreviewConfiguration.pkClearExecutionFailed;
+            } finally {
+                this.pkClearExecuting = false;
             }
         },
 

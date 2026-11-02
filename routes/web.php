@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Account\CharacterGrandResetController;
+use App\Http\Controllers\Account\CharacterPkClearController;
 use App\Http\Controllers\Account\CharacterResetController;
 use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
+use App\Http\Controllers\Account\PkClearPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
 use App\Http\Controllers\Account\StatAllocationPreviewController;
 use App\Http\Controllers\Account\StatResetPreviewController;
@@ -55,6 +57,12 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/account/character-stat-reset', CharacterStatResetController::class)
         ->middleware('throttle:stat-reset')
         ->name('account.character-stat-reset');
+    Route::post('/account/pk-clear-preview', PkClearPreviewController::class)
+        ->middleware('throttle:pk-clear-preview')
+        ->name('account.pk-clear-preview');
+    Route::post('/account/character-pk-clear', CharacterPkClearController::class)
+        ->middleware('throttle:pk-clear')
+        ->name('account.character-pk-clear');
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\GrandReset\GrandResetPointsMode;
 use App\Models\Administrator;
+use App\PkClear\PkClearPriceMode;
 use App\Reset\InventoryPolicy;
 use App\Reset\PointsMode;
 use App\Reset\ResetProfileSettings;
@@ -56,6 +57,10 @@ final class UpdateResetProfileRequest extends FormRequest
             'statResetRequiredLevel' => ['required', 'integer', 'min:1', 'max:400'],
             'statResetRequiredResets' => ['required', 'integer', 'min:0', 'max:10000', 'lte:maximumResets'],
             'statResetZenCost' => ['required', 'integer', 'min:0', 'max:2000000000'],
+            'pkClearEnabled' => ['required', 'boolean'],
+            'pkClearRequiredLevel' => ['required', 'integer', 'min:1', 'max:400'],
+            'pkClearBaseZenCost' => ['required', 'integer', 'min:0', 'max:2000000000'],
+            'pkClearPriceMode' => ['required', Rule::enum(PkClearPriceMode::class)],
         ];
     }
 
@@ -92,6 +97,10 @@ final class UpdateResetProfileRequest extends FormRequest
             statResetRequiredLevel: (int) $validated['statResetRequiredLevel'],
             statResetRequiredResets: (int) $validated['statResetRequiredResets'],
             statResetZenCost: (int) $validated['statResetZenCost'],
+            pkClearEnabled: (bool) $validated['pkClearEnabled'],
+            pkClearRequiredLevel: (int) $validated['pkClearRequiredLevel'],
+            pkClearBaseZenCost: (int) $validated['pkClearBaseZenCost'],
+            pkClearPriceMode: PkClearPriceMode::from((string) $validated['pkClearPriceMode']),
         );
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Reset;
 
 use App\GrandReset\GrandResetPointsMode;
+use App\PkClear\PkClearPriceMode;
 
 /**
  * Carries one validated reset policy without leaking unstructured setting arrays.
@@ -38,6 +39,10 @@ final readonly class ResetProfileSettings
         public int $statResetRequiredLevel = 1,
         public int $statResetRequiredResets = 1,
         public int $statResetZenCost = 0,
+        public bool $pkClearEnabled = true,
+        public int $pkClearRequiredLevel = 100,
+        public int $pkClearBaseZenCost = 100_000,
+        public PkClearPriceMode $pkClearPriceMode = PkClearPriceMode::Fixed,
     ) {}
 
     /**
@@ -71,6 +76,22 @@ final readonly class ResetProfileSettings
             statResetRequiredLevel: 1,
             statResetRequiredResets: 1,
             statResetZenCost: 0,
+            pkClearEnabled: true,
+            pkClearRequiredLevel: 100,
+            pkClearBaseZenCost: 100_000,
+            pkClearPriceMode: PkClearPriceMode::Fixed,
+        );
+    }
+
+    /**
+     * Calculates the DarksTeam-compatible Zen charge for clearing PK state.
+     */
+    public function pkClearZenCostFor(int $pkLevel, int $pkCount): int
+    {
+        return $this->pkClearPriceMode->zenCost(
+            baseZenCost: $this->pkClearBaseZenCost,
+            pkLevel: $pkLevel,
+            pkCount: $pkCount,
         );
     }
 
@@ -169,6 +190,10 @@ final readonly class ResetProfileSettings
             'statResetRequiredLevel' => $this->statResetRequiredLevel,
             'statResetRequiredResets' => $this->statResetRequiredResets,
             'statResetZenCost' => $this->statResetZenCost,
+            'pkClearEnabled' => $this->pkClearEnabled,
+            'pkClearRequiredLevel' => $this->pkClearRequiredLevel,
+            'pkClearBaseZenCost' => $this->pkClearBaseZenCost,
+            'pkClearPriceMode' => $this->pkClearPriceMode->value,
         ];
     }
 
@@ -205,6 +230,10 @@ final readonly class ResetProfileSettings
             'stat_reset_required_level' => $this->statResetRequiredLevel,
             'stat_reset_required_resets' => $this->statResetRequiredResets,
             'stat_reset_zen_cost' => $this->statResetZenCost,
+            'pk_clear_enabled' => $this->pkClearEnabled,
+            'pk_clear_required_level' => $this->pkClearRequiredLevel,
+            'pk_clear_base_zen_cost' => $this->pkClearBaseZenCost,
+            'pk_clear_price_mode' => $this->pkClearPriceMode->value,
         ];
     }
 }
