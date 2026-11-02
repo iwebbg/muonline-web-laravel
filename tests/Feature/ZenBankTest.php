@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Auth\GameAccount;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\ZenBankRepository;
 use App\Game\Data\AccountCharacter;
@@ -187,6 +188,44 @@ final class ZenBankTest extends TestCase
     }
 
     /**
+     * Confirms the authenticated page renders its own balances and transfer history.
+     */
+    public function test_page_displays_account_scoped_balance_and_history(): void
+    {
+        $balance = AccountZenBalance::factory()->create([
+            'account_id' => 'pagezen',
+            'balance' => 4_000_000,
+        ]);
+        ZenBankOperation::factory()->create([
+            'account_zen_balance_id' => $balance->getKey(),
+            'account_id' => 'pagezen',
+            'amount' => 2_000_000,
+        ]);
+        ZenBankOperation::factory()->create(['account_id' => 'hiddenzen']);
+        $this->mock(AccountReadRepository::class)
+            ->shouldReceive('charactersFor')
+            ->once()
+            ->with('pagezen')
+            ->andReturn([$this->character()]);
+        $this->mock(ZenBankRepository::class)
+            ->shouldReceive('currentBalance')
+            ->once()
+            ->with('pagezen')
+            ->andReturn(12_000_000);
+
+        $response = $this
+            ->actingAs($this->account('pagezen'))
+            ->get(route('account.zen-bank.index'));
+
+        $response
+            ->assertOk()
+            ->assertSee('4,000,000')
+            ->assertSee('12,000,000')
+            ->assertSee('2,000,000')
+            ->assertDontSee('hiddenzen');
+    }
+
+    /**
      * Executes the production operation action with one offline owned character.
      */
     private function createOperation(
@@ -261,5 +300,21 @@ final class ZenBankTest extends TestCase
         $connection->table('warehouse')->insert(['AccountID' => 'owner06', 'Money' => 10_000_000]);
 
         return $database;
+    }
+
+    /**
+     * Creates one authenticated legacy account identity.
+     */
+    private function account(string $username): GameAccount
+    {
+        return new GameAccount(
+            guid: 1,
+            username: $username,
+            displayName: $username,
+            email: null,
+            blocked: false,
+            vip: false,
+            password: 'secret',
+        );
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Auth\GameAccount;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\ItemEscrowRepository;
 use App\Game\Contracts\ItemStorageRepository;
@@ -186,6 +187,50 @@ final class WebStorageTest extends TestCase
     }
 
     /**
+     * Confirms the page renders only authenticated account custody records.
+     */
+    public function test_page_is_scoped_to_authenticated_account(): void
+    {
+        WebStorageItem::factory()->create([
+            'account_id' => 'pageowner',
+            'item_snapshot' => array_merge(
+                WebStorageItem::factory()->make()->item_snapshot,
+                ['name' => 'Visible custody item'],
+            ),
+        ]);
+        WebStorageItem::factory()->create([
+            'account_id' => 'otheracct',
+            'item_snapshot' => array_merge(
+                WebStorageItem::factory()->make()->item_snapshot,
+                ['name' => 'Hidden custody item'],
+            ),
+        ]);
+        $this->mock(AccountReadRepository::class)
+            ->shouldReceive('charactersFor')
+            ->once()
+            ->with('pageowner')
+            ->andReturn([$this->character('StorageChar')]);
+        $this->mock(ItemStorageRepository::class)
+            ->shouldReceive('forAccountAndCharacter')
+            ->once()
+            ->with('pageowner', 'StorageChar')
+            ->andReturn(new AccountItemStorage(
+                character: new CharacterItemStorage('StorageChar', [], []),
+                warehouseZen: 0,
+                vaults: [],
+            ));
+
+        $response = $this
+            ->actingAs($this->account('pageowner'))
+            ->get(route('account.web-storage.index'));
+
+        $response
+            ->assertOk()
+            ->assertSee('Visible custody item')
+            ->assertDontSee('Hidden custody item');
+    }
+
+    /**
      * Executes the production storage action with common item coordinates.
      */
     private function storeItem(string $accountId, string $idempotencyKey): WebStorageItem
@@ -266,6 +311,22 @@ final class WebStorageTest extends TestCase
             energy: 100,
             map: 'Lorencia',
             online: false,
+        );
+    }
+
+    /**
+     * Creates one authenticated legacy account identity.
+     */
+    private function account(string $username): GameAccount
+    {
+        return new GameAccount(
+            guid: 1,
+            username: $username,
+            displayName: $username,
+            email: null,
+            blocked: false,
+            vip: false,
+            password: 'secret',
         );
     }
 }
