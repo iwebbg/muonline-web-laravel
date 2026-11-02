@@ -25,10 +25,14 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredAccountController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\RankingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PreviewController::class, 'home'])
     ->name('home');
+
+Route::get('/rankings', RankingsController::class)
+    ->name('rankings');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/register', [RegisteredAccountController::class, 'create'])

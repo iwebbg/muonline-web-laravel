@@ -204,6 +204,96 @@ export function rankingBoard(initialTab = 'players') {
 }
 
 /**
+ * Creates client-side search, tabs and incremental disclosure for full rankings.
+ *
+ * @param {{players: Array<object>, guilds: Array<object>}} rankings The server-ordered public ranking rows.
+ * @returns {object}
+ */
+export function rankingExplorer(rankings) {
+    return {
+        activeTab: 'players',
+        search: '',
+        onlineOnly: false,
+        displayLimit: 25,
+        players: rankings.players,
+        guilds: rankings.guilds,
+
+        /**
+         * Selects one ranking category and resets incremental disclosure.
+         *
+         * @param {string} tab The players or guilds category key.
+         */
+        selectTab(tab) {
+            this.activeTab = tab;
+            this.displayLimit = 25;
+        },
+
+        /**
+         * Resets the visible-row count after a search or online filter changes.
+         */
+        resetDisplayLimit() {
+            this.displayLimit = 25;
+        },
+
+        /**
+         * Returns players matching the current name, class and online filters.
+         *
+         * @returns {Array<object>}
+         */
+        get filteredPlayers() {
+            const query = this.search.trim().toLocaleLowerCase();
+
+            return this.players.filter((player) => {
+                const matchesQuery = query === ''
+                    || player.name.toLocaleLowerCase().includes(query)
+                    || player.class.toLocaleLowerCase().includes(query);
+                const matchesOnline = !this.onlineOnly || player.online;
+
+                return matchesQuery && matchesOnline;
+            });
+        },
+
+        /**
+         * Returns guilds matching the current guild or master search.
+         *
+         * @returns {Array<object>}
+         */
+        get filteredGuilds() {
+            const query = this.search.trim().toLocaleLowerCase();
+
+            return this.guilds.filter((guild) => query === ''
+                || guild.name.toLocaleLowerCase().includes(query)
+                || guild.master.toLocaleLowerCase().includes(query));
+        },
+
+        /**
+         * Returns only the currently disclosed player rows.
+         *
+         * @returns {Array<object>}
+         */
+        get visiblePlayers() {
+            return this.filteredPlayers.slice(0, this.displayLimit);
+        },
+
+        /**
+         * Returns only the currently disclosed guild rows.
+         *
+         * @returns {Array<object>}
+         */
+        get visibleGuilds() {
+            return this.filteredGuilds.slice(0, this.displayLimit);
+        },
+
+        /**
+         * Reveals the next ranking page without a network request.
+         */
+        showMore() {
+            this.displayLimit += 25;
+        },
+    };
+}
+
+/**
  * Creates server-synchronized countdowns for recurring realm events.
  *
  * @param {Array<object>} initialEvents Server-calculated occurrences for each event.

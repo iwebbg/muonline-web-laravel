@@ -21,7 +21,7 @@
 
             <div class="mt-9 flex flex-wrap gap-3">
                 <a href="{{ route('account.dashboard') }}" class="button button-primary button-large">{{ __('ui.home.start') }}</a>
-                <a href="#rankings" class="button button-ghost button-large">{{ __('ui.home.explore_rankings') }}</a>
+                <a href="{{ route('rankings') }}" class="button button-ghost button-large">{{ __('ui.home.explore_rankings') }}</a>
             </div>
 
             <dl class="mt-12 grid max-w-2xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-4">
