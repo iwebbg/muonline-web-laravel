@@ -187,9 +187,9 @@ final class WebStorageTest extends TestCase
     }
 
     /**
-     * Confirms the page renders only authenticated account custody records.
+     * Confirms the legacy page redirects to unified account item management.
      */
-    public function test_page_is_scoped_to_authenticated_account(): void
+    public function test_page_redirects_to_unified_account_inventory(): void
     {
         WebStorageItem::factory()->create([
             'account_id' => 'pageowner',
@@ -205,29 +205,11 @@ final class WebStorageTest extends TestCase
                 ['name' => 'Hidden custody item'],
             ),
         ]);
-        $this->mock(AccountReadRepository::class)
-            ->shouldReceive('charactersFor')
-            ->once()
-            ->with('pageowner')
-            ->andReturn([$this->character('StorageChar')]);
-        $this->mock(ItemStorageRepository::class)
-            ->shouldReceive('forAccountAndCharacter')
-            ->once()
-            ->with('pageowner', 'StorageChar')
-            ->andReturn(new AccountItemStorage(
-                character: new CharacterItemStorage('StorageChar', [], []),
-                warehouseZen: 0,
-                vaults: [],
-            ));
-
         $response = $this
             ->actingAs($this->account('pageowner'))
             ->get(route('account.web-storage.index'));
 
-        $response
-            ->assertOk()
-            ->assertSee('Visible custody item')
-            ->assertDontSee('Hidden custody item');
+        $response->assertRedirect(route('account.dashboard', ['section' => 'inventory']));
     }
 
     /**

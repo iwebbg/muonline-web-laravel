@@ -11,7 +11,7 @@
                 <p class="mt-3 max-w-3xl text-silver">{{ __('ui.market.intro') }}</p>
             </div>
             @auth
-                <a href="#sell-items" class="button button-primary">{{ __('ui.market.sell_item') }}</a>
+                <a href="{{ route('account.dashboard', ['section' => 'inventory']) }}" class="button button-primary">{{ __('ui.market.sell_item') }}</a>
             @else
                 <a href="{{ route('login') }}" class="button button-primary">{{ __('ui.market.sign_in_to_sell') }}</a>
             @endauth
@@ -41,13 +41,14 @@
             <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 @forelse ($listings as $listing)
                     @php($item = $listing->item_snapshot)
+                    @php($itemTone = ($item['excellentType'] ?? 0) === 4 ? 'wing' : (($item['excellentMask'] ?? 0) > 0 ? 'excellent' : ($item['rarity'] ?? 'normal')))
                     <article class="panel-card flex min-h-64 flex-col p-5">
                         <div class="grid min-h-28 place-items-center rounded-2xl border border-white/8 bg-black/25 p-4">
                             @if (($item['image'] ?? null) !== null)
                                 <img src="{{ $item['image'] }}" alt="{{ $item['name'] ?? __('ui.market.unknown_item') }}" class="max-h-24 max-w-full object-contain" loading="lazy">
                             @endif
                         </div>
-                        <p class="mt-4 text-lg font-semibold text-white">{{ $item['name'] ?? __('ui.market.unknown_item') }}{{ ($item['level'] ?? 0) > 0 ? ' +'.$item['level'] : '' }}</p>
+                        <p class="item-name-{{ $itemTone }} mt-4 text-lg font-semibold">{{ $item['name'] ?? __('ui.market.unknown_item') }}{{ ($item['level'] ?? 0) > 0 ? ' +'.$item['level'] : '' }}</p>
                         <p class="mt-1 text-xs uppercase tracking-[0.14em] text-steel">{{ $item['code'] ?? '' }} · {{ ucfirst((string) ($item['rarity'] ?? 'normal')) }}</p>
                         @if ($listing->sale_type === \App\Market\MarketSaleType::Auction)
                             <p class="mt-2 text-xs text-amber-100">{{ __('ui.market.ends_at') }} {{ $listing->expires_at?->format('Y-m-d H:i') }}</p>
@@ -91,85 +92,6 @@
         </section>
 
         @auth
-            <section id="sell-items" class="mt-12 scroll-mt-28">
-                <div>
-                    <p class="kicker">{{ __('ui.market.seller_workspace') }}</p>
-                    <h2 class="mt-2 text-2xl font-semibold text-white">{{ __('ui.market.warehouse_escrow') }}</h2>
-                    <p class="mt-2 max-w-3xl text-sm leading-6 text-silver">{{ __('ui.market.escrow_help') }}</p>
-                </div>
-
-                <form method="GET" action="{{ route('market.index') }}" class="panel-card mt-5 flex flex-col gap-4 p-5 sm:flex-row sm:items-end">
-                    <label class="field-group flex-1">
-                        <span>{{ __('ui.market.character') }}</span>
-                        <select name="character" required>
-                            @foreach ($characters as $character)
-                                <option value="{{ $character['name'] }}" @selected($selectedCharacter === $character['name'])>
-                                    {{ $character['name'] }}{{ $character['online'] ? ' · '.__('ui.market.online') : '' }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </label>
-                    <button type="submit" class="button button-ghost">{{ __('ui.market.load_warehouse') }}</button>
-                </form>
-
-                @if (! $gameWritesEnabled)
-                    <div class="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/8 p-4 text-sm text-amber-100">{{ __('ui.market.writes_disabled') }}</div>
-                @endif
-
-                <div class="mt-5 grid gap-6">
-                    @forelse ($warehouseVaults as $vault)
-                        <article class="panel-card p-5 sm:p-7">
-                            <div class="flex items-center justify-between gap-4">
-                                <h3 class="text-xl font-semibold text-white">{{ __('ui.market.vault', ['number' => $vault->number + 1]) }}</h3>
-                                @if ($vault->active)<span class="text-xs uppercase tracking-[0.14em] text-emerald-300">{{ __('ui.market.active_vault') }}</span>@endif
-                            </div>
-                            <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                                @forelse ($vault->items as $item)
-                                    <form method="POST" action="{{ route('market.listings.store') }}" class="rounded-2xl border border-white/8 bg-black/20 p-4" x-data="{ saleType: 'fixed' }">
-                                        @csrf
-                                        <input type="hidden" name="character_name" value="{{ $selectedCharacter }}">
-                                        <input type="hidden" name="vault" value="{{ $vault->number }}">
-                                        <input type="hidden" name="slot" value="{{ $item->slot }}">
-                                        <input type="hidden" name="idempotency_key" value="{{ $listingIdempotencyKey }}">
-                                        <div class="flex min-h-20 items-center gap-4">
-                                            @if ($item->image !== null)
-                                                <img src="{{ $item->image }}" alt="{{ $item->name }}" class="size-16 object-contain" loading="lazy">
-                                            @endif
-                                            <div>
-                                                <strong class="text-white">{{ $item->name }}{{ ($item->level ?? 0) > 0 ? ' +'.$item->level : '' }}</strong>
-                                                <p class="mt-1 text-xs text-steel">{{ $item->code() }} · {{ ucfirst($item->rarity()) }}</p>
-                                            </div>
-                                        </div>
-                                        <label class="field-group mt-4">
-                                            <span>{{ __('ui.market.sale_type') }}</span>
-                                            <select name="sale_type" x-model="saleType">
-                                                <option value="fixed">{{ __('ui.market.fixed_price') }}</option>
-                                                @if ($auctionEnabled)
-                                                    <option value="auction">{{ __('ui.market.auction') }}</option>
-                                                @endif
-                                            </select>
-                                        </label>
-                                        <label class="field-group mt-4">
-                                            <span x-text="saleType === 'auction' ? @js(__('ui.market.minimum_bid')) : @js(__('ui.market.price_credits'))">{{ __('ui.market.price_credits') }}</span>
-                                            <input type="number" name="price_credits" min="1" max="1000000000" value="100" required>
-                                        </label>
-                                        <label class="field-group mt-4" x-show="saleType === 'auction'" x-cloak>
-                                            <span>{{ __('ui.market.bid_increment') }}</span>
-                                            <input type="number" name="bid_increment_credits" min="1" max="1000000000" value="10" x-bind:required="saleType === 'auction'">
-                                        </label>
-                                        <button type="submit" class="button button-primary mt-4 w-full" @disabled(! $gameWritesEnabled)>{{ __('ui.market.move_to_escrow') }}</button>
-                                    </form>
-                                @empty
-                                    <p class="text-sm text-steel">{{ __('ui.market.empty_vault') }}</p>
-                                @endforelse
-                            </div>
-                        </article>
-                    @empty
-                        <div class="panel-card p-8 text-center text-steel">{{ __('ui.market.no_warehouse') }}</div>
-                    @endforelse
-                </div>
-            </section>
-
             <section class="mt-12">
                 <p class="kicker">{{ __('ui.market.my_listings') }}</p>
                 <div class="mt-5 overflow-x-auto rounded-2xl border border-white/8 bg-black/20">

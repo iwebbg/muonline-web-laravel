@@ -2,6 +2,7 @@
     'slots',
     'items',
     'useItemSize' => true,
+    'itemAction' => null,
 ])
 
 <div {{ $attributes->class(['inventory-grid']) }}>
@@ -16,6 +17,9 @@
             :class="`inventory-item-${item.rarity}`"
             :style="itemGridStyle(item, 8, {{ $useItemSize ? 'true' : 'false' }})"
             :aria-label="item.name"
+            @if ($itemAction !== null)
+                @click="{{ $itemAction }}(item)"
+            @endif
         >
             <template x-if="item.image !== null">
                 <img

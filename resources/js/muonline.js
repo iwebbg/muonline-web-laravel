@@ -1100,7 +1100,7 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         characters,
         resetPreviewConfiguration,
         selectedCharacterIndex: 0,
-        activeSection: 'overview',
+        activeSection: resetPreviewConfiguration?.initialSection ?? 'overview',
         resetPreview: null,
         resetPreviewLoading: false,
         resetPreviewError: null,
@@ -1148,7 +1148,22 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         itemStorageError: null,
         itemStorageRequestId: 0,
         selectedVaultNumber: null,
+        itemActionModalOpen: false,
+        selectedActionItem: null,
+        selectedWebStorageItem: null,
+        selectedItemLocation: null,
+        itemActionIdempotencyKey: null,
+        itemSaleType: 'fixed',
         allocations: createEmptyStatAllocations(characters[0] ?? null),
+
+        /**
+         * Loads item storage immediately when a deep link opens the inventory section.
+         */
+        init() {
+            if (this.activeSection === 'inventory') {
+                void this.loadItemStorage();
+            }
+        },
 
         /**
          * Returns the currently selected character record.
@@ -1540,6 +1555,43 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         },
 
         /**
+         * Opens exact-item actions for one game warehouse item.
+         *
+         * @param {object} item The decoded warehouse item selected by the player.
+         */
+        openWarehouseItemActions(item) {
+            this.selectedActionItem = item;
+            this.selectedWebStorageItem = null;
+            this.selectedItemLocation = 'warehouse';
+            this.itemActionIdempotencyKey = window.crypto.randomUUID();
+            this.itemSaleType = 'fixed';
+            this.itemActionModalOpen = true;
+        },
+
+        /**
+         * Opens the return action for one exact item held in web storage.
+         *
+         * @param {object} storedItem The account-scoped web storage record.
+         */
+        openWebStorageItemActions(storedItem) {
+            this.selectedActionItem = storedItem.item;
+            this.selectedWebStorageItem = storedItem;
+            this.selectedItemLocation = 'web';
+            this.itemActionIdempotencyKey = null;
+            this.itemActionModalOpen = true;
+        },
+
+        /**
+         * Closes the item action dialog and clears its exact-item selection.
+         */
+        closeItemActions() {
+            this.itemActionModalOpen = false;
+            this.selectedActionItem = null;
+            this.selectedWebStorageItem = null;
+            this.selectedItemLocation = null;
+        },
+
+        /**
          * Places an item over every inventory cell reserved by its catalog dimensions.
          *
          * @param {object} item A decoded item with its starting slot and dimensions.
@@ -1626,6 +1678,24 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                 : '';
 
             return `${prefix}${item.name}${level}`;
+        },
+
+        /**
+         * Returns the visual name tone for wings and option-bearing items.
+         *
+         * @param {object} item A decoded game item.
+         * @returns {string}
+         */
+        itemNameTone(item) {
+            if (item?.excellentType === 4) {
+                return 'wing';
+            }
+
+            if (item?.excellentMask > 0) {
+                return 'excellent';
+            }
+
+            return item?.rarity ?? 'normal';
         },
 
         /**

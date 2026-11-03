@@ -95,6 +95,7 @@ final class AccountPanelConfiguration
             'statCompleted' => $this->translate('ui.account.stat_allocation_completed'),
             'itemStorageFailed' => $this->translate('ui.account.item_storage_failed'),
             'vaultLabel' => $this->translate('ui.account.vault'),
+            'mainVaultLabel' => $this->translate('ui.account.main_vault'),
         ];
     }
 

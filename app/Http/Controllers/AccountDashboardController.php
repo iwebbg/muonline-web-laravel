@@ -11,9 +11,12 @@ use App\Models\AccountWallet;
 use App\Models\VipEntitlement;
 use App\Models\VipPlan;
 use App\Models\VipPurchase;
+use App\Models\WebStorageItem;
 use App\Modules\ModuleManager;
 use App\Modules\ServerModule;
+use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -113,6 +116,37 @@ final class AccountDashboardController extends Controller
             writesEnabled: $gameWritesEnabled,
             csrfToken: $request->session()->token(),
         );
+        $webStorageEnabled = $this->moduleManager->enabled(ServerModule::WebStorage);
+        $marketEnabled = $this->moduleManager->enabled(ServerModule::Market);
+        $auctionEnabled = $this->moduleManager->enabled(ServerModule::Auction);
+        $webStorageItems = [];
+
+        if ($webStorageEnabled && Schema::hasTable('web_storage_items')) {
+            $storedItems = WebStorageItem::query()
+                ->where('account_id', $account->username)
+                ->where('status', WebStorageItemStatus::Available)
+                ->latest('id')
+                ->limit(100)
+                ->get();
+
+            foreach ($storedItems as $storedItem) {
+                $webStorageItems[] = [
+                    'publicId' => $storedItem->public_id,
+                    'item' => $storedItem->item_snapshot,
+                    'withdrawUrl' => route('account.web-storage.destroy', $storedItem),
+                ];
+            }
+        }
+
+        $accountPanelConfiguration['initialSection'] = $request->string('section')->toString() === 'inventory'
+            ? 'inventory'
+            : 'overview';
+        $accountPanelConfiguration['webStorageEnabled'] = $webStorageEnabled;
+        $accountPanelConfiguration['marketEnabled'] = $marketEnabled;
+        $accountPanelConfiguration['auctionEnabled'] = $auctionEnabled;
+        $accountPanelConfiguration['webStorageStoreUrl'] = route('account.web-storage.store');
+        $accountPanelConfiguration['marketListingStoreUrl'] = route('market.listings.store');
+        $accountPanelConfiguration['webStorageItems'] = $webStorageItems;
 
         return view('account.dashboard', [
             'account' => $account,

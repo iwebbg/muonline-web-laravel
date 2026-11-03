@@ -3,8 +3,6 @@
 namespace Tests\Feature;
 
 use App\Auth\GameAccount;
-use App\Game\Contracts\AccountReadRepository;
-use App\Game\Contracts\ItemStorageRepository;
 use App\Market\MarketListingStatus;
 use App\Models\MarketListing;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -58,18 +56,14 @@ final class MarketPageTest extends TestCase
             'item_snapshot' => ['name' => 'Other Private History'],
             'status' => MarketListingStatus::Returned,
         ]);
-        $reader = $this->mock(AccountReadRepository::class);
-        $reader->shouldReceive('charactersFor')->once()->with('owner')->andReturn([]);
-        $storage = $this->mock(ItemStorageRepository::class);
-        $storage->shouldNotReceive('forAccountAndCharacter');
-
         $response = $this
             ->actingAs($this->account('owner'))
             ->get('/market');
 
         $response
             ->assertOk()
-            ->assertSee('Warehouse to escrow')
+            ->assertDontSee('Warehouse to escrow')
+            ->assertSee(route('account.dashboard', ['section' => 'inventory']), false)
             ->assertSee('Owned Market Item')
             ->assertDontSee('Other Private History');
     }

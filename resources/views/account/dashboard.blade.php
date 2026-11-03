@@ -39,10 +39,10 @@
                     :transactions="$walletTransactions"
                 />
                 @if ($moduleManager->enabled(\App\Modules\ServerModule::WebStorage))
-                <a href="{{ route('account.web-storage.index') }}" class="resource-chip text-left">
+                <button type="button" class="resource-chip text-left" @click="selectSection('inventory')">
                     <span>{{ __('ui.web_storage.kicker') }}</span>
                     <strong class="text-gold">{{ __('ui.web_storage.open') }}</strong>
-                </a>
+                </button>
                 @endif
                 @if ($moduleManager->enabled(\App\Modules\ServerModule::JewelBank))
                 <a href="{{ route('account.jewel-bank.index') }}" class="resource-chip text-left">

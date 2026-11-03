@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Auth\GameAccount;
 use App\Models\AccountWallet;
 use App\Models\WalletTransaction;
+use App\Models\WebStorageItem;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -158,6 +159,41 @@ final class AccountDashboardTest extends TestCase
             ->assertDontSee('<script>alert("private-wallet")</script>', false)
             ->assertSee('&lt;script&gt;', false)
             ->assertDontSee('Other account private transaction');
+    }
+
+    /**
+     * Confirms available web-vault items are managed from the unified inventory panel.
+     */
+    public function test_dashboard_includes_owned_web_storage_items_and_item_actions(): void
+    {
+        $storedItem = WebStorageItem::factory()->create([
+            'account_id' => 'owner',
+            'item_snapshot' => [
+                ...WebStorageItem::factory()->make()->item_snapshot,
+                'name' => 'Excellent Unified Sword',
+                'excellentMask' => 1,
+                'excellentType' => 0,
+            ],
+        ]);
+        WebStorageItem::factory()->create([
+            'account_id' => 'other',
+            'item_snapshot' => [
+                ...WebStorageItem::factory()->make()->item_snapshot,
+                'name' => 'Hidden Web Item',
+            ],
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account?section=inventory');
+
+        $response
+            ->assertOk()
+            ->assertSee('Excellent Unified Sword')
+            ->assertSee($storedItem->public_id)
+            ->assertSee('marketListingStoreUrl')
+            ->assertSee('Main Vault')
+            ->assertDontSee('Hidden Web Item');
     }
 
     /**

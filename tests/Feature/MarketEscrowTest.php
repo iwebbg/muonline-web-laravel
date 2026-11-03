@@ -263,6 +263,27 @@ final class MarketEscrowTest extends TestCase
     }
 
     /**
+     * Confirms game delivery rejects a vault without a free item rectangle.
+     */
+    public function test_adapter_rejects_deposit_when_game_vault_has_no_item_space(): void
+    {
+        $database = $this->configurePortableGameSchema(slot: 5);
+        $occupiedItem = "\x01\x00\x20\x09\x08\x07\x06\x00\x00\x00";
+        $database->connection('game')
+            ->table('warehouse')
+            ->where('AccountID', 'seller05')
+            ->update(['Items' => str_repeat($occupiedItem, 120)]);
+        $repository = $this->repository($database);
+
+        try {
+            $repository->deposit('seller05', $this->itemBinary, 1, 2);
+            $this->fail('A full game vault must reject item delivery.');
+        } catch (MarketListingRejected $exception) {
+            $this->assertSame(MarketListingBlockReason::StorageFull, $exception->reason);
+        }
+    }
+
+    /**
      * Confirms SQL Server receives arbitrary item bytes as hexadecimal varbinary input.
      */
     public function test_sql_server_binary_writes_do_not_bind_item_bytes_as_text(): void

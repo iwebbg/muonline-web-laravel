@@ -3,7 +3,7 @@
 <span class="item-tooltip">
     <strong
         class="item-tooltip-title"
-        :class="'item-tooltip-title-' + {{ $item }}.rarity"
+        :class="'item-tooltip-title-' + itemNameTone({{ $item }})"
         x-text="itemTitle({{ $item }})"
     ></strong>
     <span
