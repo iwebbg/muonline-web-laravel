@@ -64,9 +64,9 @@ final class AdminGameServerManagementTest extends TestCase
     }
 
     /**
-     * Confirms external destinations require a valid URL and bounded counters.
+     * Confirms external destinations require a valid status-capable URL.
      */
-    public function test_external_server_validation_rejects_missing_url_and_impossible_online_count(): void
+    public function test_external_server_validation_rejects_missing_url(): void
     {
         $administrator = Administrator::factory()->create();
         GameServer::factory()->current()->create();
@@ -77,11 +77,9 @@ final class AdminGameServerManagementTest extends TestCase
             ->post(route('admin.game-servers.store'), $this->serverPayload([
                 '_token' => $csrfToken,
                 'website_url' => null,
-                'online_count' => 501,
-                'capacity' => 500,
             ]));
 
-        $response->assertSessionHasErrors(['website_url', 'online_count']);
+        $response->assertSessionHasErrors(['website_url']);
     }
 
     /**
@@ -118,8 +116,8 @@ final class AdminGameServerManagementTest extends TestCase
             'experience' => '100x',
             'drop' => '35%',
             'capacity' => 500,
-            'online_count' => 184,
-            'is_online' => '1',
+            'show_online_status' => '1',
+            'show_online_users' => '1',
             'is_current' => '0',
             'is_visible' => '1',
             'website_url' => 'https://hard.dreammu.example',

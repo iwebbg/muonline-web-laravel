@@ -56,6 +56,7 @@ use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RankingsController;
 use App\Http\Controllers\ReadinessController;
+use App\Http\Controllers\ServerStatusController;
 use App\Http\Controllers\VoteController;
 use App\Http\Middleware\SetLocale;
 use App\Modules\ServerModule;
@@ -75,6 +76,16 @@ Route::get('/ready', ReadinessController::class)
         SetLocale::class,
     ])
     ->name('ready');
+
+Route::get('/server/status', ServerStatusController::class)
+    ->withoutMiddleware([
+        StartSession::class,
+        ShareErrorsFromSession::class,
+        PreventRequestForgery::class,
+        SetLocale::class,
+    ])
+    ->middleware('throttle:server-status')
+    ->name('server.status');
 
 Route::get('/rankings/data', [RankingsController::class, 'data'])
     ->name('rankings.data');

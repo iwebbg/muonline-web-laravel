@@ -17,8 +17,8 @@ use Illuminate\Database\Eloquent\Model;
     'experience',
     'drop',
     'capacity',
-    'online_count',
-    'is_online',
+    'show_online_status',
+    'show_online_users',
     'is_current',
     'is_visible',
     'website_url',
@@ -38,8 +38,8 @@ final class GameServer extends Model
     {
         return [
             'capacity' => 'integer',
-            'online_count' => 'integer',
-            'is_online' => 'boolean',
+            'show_online_status' => 'boolean',
+            'show_online_users' => 'boolean',
             'is_current' => 'boolean',
             'is_visible' => 'boolean',
             'sort_order' => 'integer',

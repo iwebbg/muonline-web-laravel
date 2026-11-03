@@ -83,20 +83,25 @@
                                 class="group flex items-center justify-between gap-4 rounded-xl px-3 py-3 transition hover:bg-white/[0.06]"
                             >
                                 <span class="flex min-w-0 items-center gap-3">
-                                    <span @class([
-                                        'size-2.5 shrink-0 rounded-full',
-                                        'bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,.65)]' => $directoryServer['is_online'],
-                                        'bg-red-400 shadow-[0_0_12px_rgba(248,113,113,.5)]' => ! $directoryServer['is_online'],
-                                    ])></span>
+                                    @if ($directoryServer['show_online_status'])
+                                        <span @class([
+                                            'size-2.5 shrink-0 rounded-full',
+                                            'bg-steel/60' => ! $directoryServer['status_reachable'],
+                                            'bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,.65)]' => $directoryServer['status_reachable'] && $directoryServer['is_online'],
+                                            'bg-red-400 shadow-[0_0_12px_rgba(248,113,113,.5)]' => $directoryServer['status_reachable'] && ! $directoryServer['is_online'],
+                                        ])></span>
+                                    @endif
                                     <span class="min-w-0">
                                         <strong class="block truncate text-sm text-white group-hover:text-gold">{{ $directoryServer['name'] }}</strong>
                                         <span class="mt-0.5 block text-xs text-steel">{{ $directoryServer['version'] }} · {{ $directoryServer['experience'] }} · {{ $directoryServer['drop'] }}</span>
                                     </span>
                                 </span>
-                                <span class="shrink-0 text-right">
-                                    <strong class="block text-sm text-white">{{ number_format($directoryServer['online']) }}</strong>
-                                    <span class="text-[0.58rem] uppercase tracking-widest text-steel">{{ __('ui.home.online_short') }}</span>
-                                </span>
+                                @if ($directoryServer['show_online_users'])
+                                    <span class="shrink-0 text-right">
+                                        <strong class="block text-sm text-white">{{ $directoryServer['status_reachable'] ? number_format($directoryServer['online']) : '—' }}</strong>
+                                        <span class="text-[0.58rem] uppercase tracking-widest text-steel">{{ $directoryServer['status_reachable'] ? __('ui.home.online_short') : __('ui.home.status_unavailable') }}</span>
+                                    </span>
+                                @endif
                             </a>
                         @endforeach
                     </div>

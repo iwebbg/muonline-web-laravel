@@ -13,6 +13,13 @@ use Illuminate\Support\Facades\Schema;
 final class GameServerDirectory
 {
     /**
+     * Creates the directory with the cached remote status client.
+     */
+    public function __construct(
+        private readonly RemoteGameServerStatusClient $remoteStatusClient,
+    ) {}
+
+    /**
      * Combines live local metrics with administrator-managed server metadata.
      *
      * @return array{current: array<string, mixed>, entries: list<array<string, mixed>>}
@@ -98,6 +105,9 @@ final class GameServerDirectory
             'drop' => $server->drop,
             'capacity' => $server->capacity,
             'is_online' => $currentServerOnline,
+            'status_reachable' => true,
+            'show_online_status' => $server->show_online_status,
+            'show_online_users' => $server->show_online_users,
             'is_current' => true,
             'url' => route('home'),
         ];
@@ -110,6 +120,11 @@ final class GameServerDirectory
      */
     private function serializeExternal(GameServer $server): array
     {
+        $shouldReadStatus = $server->show_online_status || $server->show_online_users;
+        $remoteStatus = $shouldReadStatus
+            ? $this->remoteStatusClient->status($server)
+            : RemoteGameServerStatus::unavailable();
+
         return [
             'id' => $server->getKey(),
             'slug' => $server->slug,
@@ -117,13 +132,20 @@ final class GameServerDirectory
             'version' => $server->version,
             'experience' => $server->experience,
             'drop' => $server->drop,
-            'online' => $server->online_count,
+            'online' => $server->show_online_users
+                ? $remoteStatus->onlineUsers
+                : null,
             'capacity' => $server->capacity,
             'accounts' => null,
             'characters' => null,
             'guilds' => null,
             'data_source' => 'directory',
-            'is_online' => $server->is_online,
+            'is_online' => $server->show_online_status
+                ? $remoteStatus->online
+                : null,
+            'status_reachable' => $remoteStatus->reachable,
+            'show_online_status' => $server->show_online_status,
+            'show_online_users' => $server->show_online_users,
             'is_current' => false,
             'url' => $server->website_url,
         ];
@@ -143,6 +165,9 @@ final class GameServerDirectory
             'id' => 0,
             'slug' => 'current-server',
             'is_online' => $currentServerOnline,
+            'status_reachable' => true,
+            'show_online_status' => true,
+            'show_online_users' => true,
             'is_current' => true,
             'url' => route('home'),
         ];

@@ -75,8 +75,10 @@ enabled unless the player market is also enabled.
 Public server identity and related server websites are controlled from
 **Administration → Game servers**. Exactly one database record is marked as the
 current website; it uses live counters from this installation's game database.
-Other records are external links with manually maintained public status data,
-so one website never writes to or impersonates another server database.
+Other records are external links whose optional status and player count are
+read from the related website's public `/server/status` endpoint and cached for
+ten minutes. One website never writes to or impersonates another server
+database.
 
 Zen Bank uses an application ledger plus compare-and-set warehouse updates.
 Deposits, withdrawals and retries are idempotent; interrupted transfers remain

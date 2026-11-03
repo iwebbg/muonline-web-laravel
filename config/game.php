@@ -42,6 +42,12 @@ return [
         'cache_seconds' => (int) env('GAME_SERVER_STATUS_CACHE_SECONDS', 10),
     ],
 
+    'server_directory' => [
+        'status_cache_seconds' => 600,
+        'status_connect_timeout_seconds' => 1.0,
+        'status_timeout_seconds' => 2.0,
+    ],
+
     'profile' => [
         'key' => env('GAME_SERVER_PROFILE', 'darksteam_97d99i'),
         'name' => 'MuOnline 97d+99i',

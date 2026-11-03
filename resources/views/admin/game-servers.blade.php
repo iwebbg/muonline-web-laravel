@@ -42,21 +42,15 @@
                                         <span class="rounded-full border border-sky-300/25 bg-sky-300/8 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-sky-200">{{ __('ui.admin.server_external') }}</span>
                                     @endif
                                     <span class="rounded-full border border-white/10 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-steel">{{ $server['is_visible'] ? __('ui.admin.server_visible') : __('ui.admin.server_hidden') }}</span>
-                                    <span @class([
-                                        'rounded-full border px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-widest',
-                                        'border-emerald-300/25 text-emerald-200' => $server['is_online'],
-                                        'border-red-300/25 text-red-200' => ! $server['is_online'],
-                                    ])>{{ $server['is_online'] ? __('ui.home.online') : __('ui.home.offline') }}</span>
+                                    <span class="rounded-full border border-violet-300/25 bg-violet-300/8 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-violet-200">{{ __('ui.admin.server_status_api') }}</span>
                                 </div>
                                 <h2 class="mt-3 truncate text-xl font-semibold text-white">{{ $server['name'] }}</h2>
                                 <p class="mt-1 text-sm text-steel">{{ $server['version'] }} · {{ $server['experience'] }} · {{ $server['drop'] }}</p>
                                 <p class="mt-2 truncate text-xs text-steel">{{ $server['is_current'] ? __('ui.admin.server_local_data_help') : $server['website_url'] }}</p>
                             </div>
-                            <div class="flex shrink-0 items-center gap-4">
-                                <div class="text-right">
-                                    <strong class="block text-xl text-white">{{ number_format($server['online_count']) }}</strong>
-                                    <span class="text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.home.online_short') }}</span>
-                                </div>
+                            <div class="flex shrink-0 flex-wrap items-center gap-3">
+                                <span class="text-xs text-steel">{{ $server['show_online_status'] ? __('ui.admin.server_status_visible') : __('ui.admin.server_status_hidden') }}</span>
+                                <span class="text-xs text-steel">{{ $server['show_online_users'] ? __('ui.admin.server_users_visible') : __('ui.admin.server_users_hidden') }}</span>
                                 <button type="button" class="button button-ghost" x-on:click="openEdit(@js($server))">{{ __('ui.admin.news_edit') }}</button>
                                 @if (! $server['is_current'])
                                     <button type="button" class="button button-ghost text-red-200" x-on:click="openDelete(@js($server))">{{ __('ui.admin.news_delete') }}</button>
@@ -96,25 +90,26 @@
                         <label class="field-group"><span>{{ __('ui.home.experience') }}</span><input type="text" name="experience" x-model="form.experience" required maxlength="40"></label>
                         <label class="field-group"><span>{{ __('ui.home.drop') }}</span><input type="text" name="drop" x-model="form.drop" required maxlength="40"></label>
                     </div>
-                    <div class="grid gap-5 md:grid-cols-3">
+                    <div class="grid gap-5 md:grid-cols-2">
                         <label class="field-group"><span>{{ __('ui.admin.server_capacity') }}</span><input type="number" name="capacity" x-model.number="form.capacity" min="1" max="100000" required></label>
-                        <label class="field-group"><span>{{ __('ui.admin.server_online_count') }}</span><input type="number" name="online_count" x-model.number="form.online_count" min="0" x-bind:max="form.capacity" required></label>
                         <label class="field-group"><span>{{ __('ui.admin.download_sort_order') }}</span><input type="number" name="sort_order" x-model.number="form.sort_order" min="0" max="10000" required></label>
                     </div>
                     <label class="field-group" x-show="!form.is_current"><span>{{ __('ui.admin.server_website_url') }}</span><input type="url" name="website_url" x-model="form.website_url" maxlength="2048" x-bind:required="!form.is_current" placeholder="https://hard.dreammu.example"></label>
 
-                    <div class="grid gap-3 sm:grid-cols-3">
+                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-silver">
                             <input type="hidden" name="is_current" value="0"><input type="checkbox" name="is_current" value="1" x-model="form.is_current" class="size-4 accent-amber-400">{{ __('ui.admin.server_current') }}
                         </label>
                         <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-silver">
                             <input type="hidden" name="is_visible" value="0"><input type="checkbox" name="is_visible" value="1" x-model="form.is_visible" class="size-4 accent-amber-400">{{ __('ui.admin.server_visible') }}
                         </label>
-                        <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-silver" x-show="!form.is_current">
-                            <input type="hidden" name="is_online" value="0"><input type="checkbox" name="is_online" value="1" x-model="form.is_online" class="size-4 accent-amber-400">{{ __('ui.admin.server_mark_online') }}
+                        <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-silver">
+                            <input type="hidden" name="show_online_status" value="0"><input type="checkbox" name="show_online_status" value="1" x-model="form.show_online_status" class="size-4 accent-amber-400">{{ __('ui.admin.server_show_online_status') }}
+                        </label>
+                        <label class="flex items-center gap-3 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-silver">
+                            <input type="hidden" name="show_online_users" value="0"><input type="checkbox" name="show_online_users" value="1" x-model="form.show_online_users" class="size-4 accent-amber-400">{{ __('ui.admin.server_show_online_users') }}
                         </label>
                     </div>
-                    <input x-show="form.is_current" type="hidden" name="is_online" value="0" x-bind:disabled="!form.is_current">
 
                     <p class="text-sm text-steel">{{ __('ui.admin.server_form_help') }}</p>
                     <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

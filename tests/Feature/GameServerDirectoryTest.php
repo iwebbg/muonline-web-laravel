@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\GameServer;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 /**
@@ -18,6 +20,14 @@ final class GameServerDirectoryTest extends TestCase
      */
     public function test_home_uses_current_database_server_and_lists_external_destination(): void
     {
+        Cache::flush();
+        Http::fake([
+            'https://hard.dreammu.example/server/status' => Http::response([
+                'online' => true,
+                'online_users' => 184,
+                'generated_at' => now()->toAtomString(),
+            ]),
+        ]);
         GameServer::factory()->current()->create([
             'name' => 'DreamMu 97d+99i Easy',
             'version' => '97d Easy',
@@ -30,7 +40,6 @@ final class GameServerDirectoryTest extends TestCase
             'version' => '1.0M',
             'experience' => '100x',
             'drop' => '35%',
-            'online_count' => 184,
             'website_url' => 'https://hard.dreammu.example',
         ]);
 
@@ -52,6 +61,7 @@ final class GameServerDirectoryTest extends TestCase
      */
     public function test_home_hides_disabled_server_destinations(): void
     {
+        Http::fake();
         GameServer::factory()->current()->create();
         GameServer::factory()->create([
             'name' => 'Hidden development server',
@@ -61,5 +71,34 @@ final class GameServerDirectoryTest extends TestCase
         $this->get('/')
             ->assertOk()
             ->assertDontSee('Hidden development server');
+    }
+
+    /**
+     * Confirms visibility flags suppress remote status fields in the selector.
+     */
+    public function test_home_honors_status_and_user_visibility_flags(): void
+    {
+        Cache::flush();
+        Http::fake([
+            'https://private.dreammu.example/server/status' => Http::response([
+                'online' => true,
+                'online_users' => 321,
+                'generated_at' => now()->toAtomString(),
+            ]),
+        ]);
+        GameServer::factory()->current()->create();
+        GameServer::factory()->create([
+            'name' => 'Private counters server',
+            'website_url' => 'https://private.dreammu.example',
+            'show_online_status' => false,
+            'show_online_users' => false,
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Private counters server')
+            ->assertDontSee('321');
+
+        Http::assertNothingSent();
     }
 }

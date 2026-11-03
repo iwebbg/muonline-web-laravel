@@ -134,6 +134,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perHour(10)->by($limiterKey);
         });
 
+        RateLimiter::for('server-status', function (Request $request): Limit {
+            return Limit::perMinute(60)->by('server-status|'.$request->ip());
+        });
+
         RateLimiter::for('admin-login', function (Request $request): Limit {
             $email = Str::lower($request->string('email')->toString());
             $limiterKey = Str::transliterate($email.'|'.$request->ip());

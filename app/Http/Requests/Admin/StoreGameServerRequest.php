@@ -44,8 +44,8 @@ final class StoreGameServerRequest extends FormRequest
             'experience' => ['required', 'string', 'max:40'],
             'drop' => ['required', 'string', 'max:40'],
             'capacity' => ['required', 'integer', 'between:1,100000'],
-            'online_count' => ['required', 'integer', 'min:0', 'lte:capacity'],
-            'is_online' => ['required', 'boolean'],
+            'show_online_status' => ['required', 'boolean'],
+            'show_online_users' => ['required', 'boolean'],
             'is_current' => ['required', 'boolean'],
             'is_visible' => ['required', 'boolean'],
             'website_url' => [
@@ -73,16 +73,16 @@ final class StoreGameServerRequest extends FormRequest
             'experience',
             'drop',
             'capacity',
-            'online_count',
-            'is_online',
+            'show_online_status',
+            'show_online_users',
             'is_current',
             'is_visible',
             'website_url',
             'sort_order',
         ]);
         $attributes['capacity'] = $this->integer('capacity');
-        $attributes['online_count'] = $this->integer('online_count');
-        $attributes['is_online'] = $this->boolean('is_online');
+        $attributes['show_online_status'] = $this->boolean('show_online_status');
+        $attributes['show_online_users'] = $this->boolean('show_online_users');
         $attributes['is_current'] = $this->boolean('is_current');
         $attributes['is_visible'] = $this->boolean('is_visible');
         $attributes['sort_order'] = $this->integer('sort_order');
