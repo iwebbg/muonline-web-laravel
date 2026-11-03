@@ -476,92 +476,172 @@
         color: white;
     }
 
-    .ranking-row {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        border-bottom: 1px solid rgb(255 255 255 / 0.07);
-        padding: 1rem 1.15rem;
-        transition: background-color 150ms ease;
-    }
-
-    .ranking-row:last-child {
-        border-bottom: 0;
-    }
-
-    .ranking-row:hover {
-        background: rgb(255 255 255 / 0.03);
-    }
-
-    .ranking-position {
-        display: grid;
-        width: 2.3rem;
-        height: 2.3rem;
-        flex: none;
-        place-items: center;
-        border: 1px solid rgb(242 184 91 / 0.16);
-        border-radius: 0.7rem;
-        background: rgb(242 184 91 / 0.055);
-        color: var(--color-gold);
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 0.72rem;
-    }
-
-    .ranking-card {
-        display: flex;
+    .ranking-showcase-card {
+        position: relative;
+        display: block;
         min-width: 0;
-        align-items: center;
-        gap: 0.85rem;
-        border: 1px solid rgb(255 255 255 / 0.08);
-        border-radius: 1rem;
-        background: rgb(255 255 255 / 0.025);
-        padding: 0.85rem;
-        transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+        overflow: hidden;
+        border: 1px solid rgb(255 255 255 / 0.11);
+        border-radius: 1.6rem;
+        background: rgb(10 12 16 / 0.94);
+        box-shadow: 0 24px 70px rgb(0 0 0 / 0.3);
+        transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
     }
 
-    .ranking-card:hover {
-        border-color: rgb(242 184 91 / 0.24);
-        background: rgb(255 255 255 / 0.05);
-        transform: translateY(-1px);
+    .ranking-showcase-card:hover {
+        border-color: rgb(242 184 91 / 0.34);
+        box-shadow: 0 30px 90px rgb(0 0 0 / 0.48), 0 0 36px rgb(242 184 91 / 0.08);
+        transform: translateY(-0.35rem);
     }
 
-    .ranking-card-position {
+    .ranking-showcase-card-champion {
+        border-color: rgb(242 184 91 / 0.32);
+        box-shadow: 0 30px 90px rgb(0 0 0 / 0.42), 0 0 48px rgb(242 184 91 / 0.1);
+    }
+
+    .ranking-showcase-media {
+        position: relative;
+        aspect-ratio: 4 / 4.3;
+        overflow: hidden;
+        background: #11141b;
+    }
+
+    .ranking-showcase-media > img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+        transition: transform 400ms ease;
+    }
+
+    .ranking-showcase-card:hover .ranking-showcase-media > img {
+        transform: scale(1.035);
+    }
+
+    .ranking-showcase-media::after {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, transparent 48%, rgb(8 9 13 / 0.2) 68%, #0a0c10 100%);
+        content: '';
+        pointer-events: none;
+    }
+
+    .ranking-medal {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        z-index: 2;
         display: grid;
-        min-width: 3rem;
-        min-height: 2rem;
-        flex: none;
+        width: 4rem;
+        height: 4rem;
         place-items: center;
-        border: 1px solid rgb(242 184 91 / 0.2);
-        border-radius: 999px;
-        background: rgb(242 184 91 / 0.07);
+        border: 1px solid rgb(242 184 91 / 0.34);
+        border-radius: 50%;
+        background: rgb(8 9 13 / 0.82);
+        box-shadow: 0 12px 30px rgb(0 0 0 / 0.4), inset 0 1px rgb(255 255 255 / 0.1);
+        backdrop-filter: blur(12px);
         color: var(--color-gold);
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 0.72rem;
-        letter-spacing: 0.04em;
+        text-align: center;
     }
 
-    .ranking-card-stat {
-        min-width: 2.8rem;
-        text-align: right;
-    }
-
-    .ranking-card-stat strong,
-    .ranking-card-stat span {
+    .ranking-medal span,
+    .ranking-medal strong {
         display: block;
     }
 
-    .ranking-card-stat strong {
-        color: white;
-        font-size: 0.9rem;
+    .ranking-medal span {
+        font-size: 0.5rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        line-height: 1;
+        text-transform: uppercase;
     }
 
-    .ranking-card-stat span {
-        margin-top: 0.15rem;
-        color: var(--color-steel);
-        font-size: 0.55rem;
-        font-weight: 700;
-        letter-spacing: 0.11em;
+    .ranking-medal strong {
+        margin-top: 0.2rem;
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+
+    .ranking-showcase-online {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.25rem;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border: 1px solid rgb(101 223 154 / 0.28);
+        border-radius: 999px;
+        background: rgb(8 9 13 / 0.76);
+        padding: 0.45rem 0.65rem;
+        color: #9af0bd;
+        font-size: 0.58rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
+        backdrop-filter: blur(12px);
+    }
+
+    .ranking-showcase-body {
+        position: relative;
+        z-index: 1;
+        margin-top: -1.5rem;
+        padding: 0 1.25rem 1.25rem;
+    }
+
+    .ranking-showcase-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.55rem;
+        margin-top: 1.15rem;
+    }
+
+    .ranking-showcase-metrics-two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ranking-showcase-metric {
+        border: 1px solid rgb(255 255 255 / 0.08);
+        border-radius: 0.85rem;
+        background: rgb(255 255 255 / 0.035);
+        padding: 0.75rem 0.45rem;
+        text-align: center;
+    }
+
+    .ranking-showcase-metric strong,
+    .ranking-showcase-metric span {
+        display: block;
+    }
+
+    .ranking-showcase-metric strong {
+        color: white;
+        font-size: 1rem;
+    }
+
+    .ranking-showcase-metric span {
+        margin-top: 0.25rem;
+        color: var(--color-steel);
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .ranking-showcase-guild .ranking-showcase-media {
+        display: grid;
+        place-items: center;
+        background:
+            radial-gradient(circle at 50% 46%, rgb(242 184 91 / 0.18), transparent 11rem),
+            linear-gradient(145deg, #171b24, #090b10);
+    }
+
+    .ranking-showcase-guild .guild-mark {
+        z-index: 1;
+        width: min(44%, 10rem);
+        border-radius: 1rem;
+        box-shadow: 0 20px 55px rgb(0 0 0 / 0.5), 0 0 40px rgb(242 184 91 / 0.12);
     }
 
     .guild-mark {
@@ -585,29 +665,6 @@
     .guild-mark-large {
         width: 5rem;
         border-radius: 0.8rem;
-    }
-
-    .ranking-value {
-        min-width: 4.4rem;
-        text-align: right;
-    }
-
-    .ranking-value strong,
-    .ranking-value span {
-        display: block;
-    }
-
-    .ranking-value strong {
-        color: white;
-        font-size: 1rem;
-    }
-
-    .ranking-value span {
-        margin-top: 0.15rem;
-        color: var(--color-steel);
-        font-size: 0.62rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
     }
 
     .resource-chip {

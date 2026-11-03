@@ -206,8 +206,8 @@ return [
         ],
     ],
     'footer' => [
-        'tagline' => 'MuOnline Web · modern control for a classic server.',
-        'prototype' => 'Interactive control center · live server data',
+        'tagline' => 'MuOnline 97d+99i · Your classic adventure continues.',
+        'prototype' => 'Play · Compete · Conquer',
     ],
     'auth' => [
         'title' => 'Player sign in · MuOnline Web',
@@ -361,6 +361,7 @@ return [
         'ranking_category' => 'Ranking category',
         'top_players' => 'Top players',
         'top_guilds' => 'Top guilds',
+        'rank' => 'Rank',
         'level' => 'level',
         'resets' => 'resets',
         'grand' => 'grand',

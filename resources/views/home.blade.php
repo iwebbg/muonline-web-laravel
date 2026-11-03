@@ -220,56 +220,93 @@
             </div>
         </div>
 
-        <div class="mt-8 rounded-3xl border border-white/10 bg-panel/88 p-3 shadow-2xl shadow-black/25 sm:p-4">
-            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3" x-show="activeTab === 'players'">
-                @foreach ($rankings['players'] as $index => $player)
-                    <a href="{{ route('characters.show', $player['name']) }}" class="ranking-card">
-                        <span class="ranking-card-position">({{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }})</span>
-                        <img src="{{ $player['image'] }}" alt="" class="size-12 flex-none rounded-xl object-cover object-top" loading="lazy">
-                        <div class="min-w-0 flex-1">
-                            <div class="flex items-center gap-2">
-                                <p class="truncate font-semibold text-white">{{ $player['name'] }}</p>
-                                @if ($player['online'])
-                                    <span class="status-dot status-dot-small" title="{{ __('ui.home.online_status') }}"></span>
-                                @endif
+        <div class="mt-8">
+            <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3" x-show="activeTab === 'players'" x-transition.opacity>
+                @foreach (array_slice($rankings['players'], 0, 3) as $index => $player)
+                    <a
+                        href="{{ route('characters.show', $player['name']) }}"
+                        @class([
+                            'ranking-showcase-card',
+                            'ranking-showcase-card-champion' => $index === 0,
+                        ])
+                    >
+                        <div class="ranking-showcase-media">
+                            <img src="{{ $player['image'] }}" alt="{{ $player['class'] }}" loading="lazy">
+                            <div class="ranking-medal">
+                                <div>
+                                    <span>{{ __('ui.home.rank') }}</span>
+                                    <strong>{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</strong>
+                                </div>
                             </div>
-                            <p class="mt-1 text-sm text-steel">{{ $player['class'] }}</p>
+                            @if ($player['online'])
+                                <span class="ranking-showcase-online">
+                                    <span class="status-dot status-dot-small"></span>
+                                    {{ __('ui.home.online_status') }}
+                                </span>
+                            @endif
                         </div>
-                        <div class="ranking-card-stat hidden sm:block">
-                            <strong>{{ $player['level'] }}</strong>
-                            <span>{{ __('ui.home.level') }}</span>
-                        </div>
-                        <div class="ranking-card-stat">
-                            <strong>{{ $player['resets'] }}</strong>
-                            <span>{{ __('ui.home.resets') }}</span>
-                        </div>
-                        <div class="ranking-card-stat hidden sm:block">
-                            <strong>{{ $player['grand_resets'] }}</strong>
-                            <span>{{ __('ui.home.grand') }}</span>
+                        <div class="ranking-showcase-body">
+                            <p class="kicker">{{ $player['class'] }}</p>
+                            <h3 class="mt-2 truncate font-display text-3xl text-white">{{ $player['name'] }}</h3>
+                            <div class="ranking-showcase-metrics">
+                                <div class="ranking-showcase-metric">
+                                    <strong>{{ $player['level'] }}</strong>
+                                    <span>{{ __('ui.home.level') }}</span>
+                                </div>
+                                <div class="ranking-showcase-metric">
+                                    <strong>{{ $player['resets'] }}</strong>
+                                    <span>{{ __('ui.home.resets') }}</span>
+                                </div>
+                                <div class="ranking-showcase-metric">
+                                    <strong>{{ $player['grand_resets'] }}</strong>
+                                    <span>{{ __('ui.home.grand') }}</span>
+                                </div>
+                            </div>
                         </div>
                     </a>
                 @endforeach
             </div>
 
-            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3" x-show="activeTab === 'guilds'" x-cloak>
-                @foreach ($rankings['guilds'] as $index => $guild)
-                    <a href="{{ route('guilds.show', $guild['name']) }}" class="ranking-card">
-                        <span class="ranking-card-position">({{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }})</span>
-                        <x-guild-mark :pixels="$guild['mark_colors']" :label="$guild['name']" />
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate font-semibold text-white">{{ $guild['name'] }}</p>
-                            <p class="mt-1 text-sm text-steel">{{ __('ui.home.master', ['name' => $guild['master']]) }}</p>
+            <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3" x-show="activeTab === 'guilds'" x-transition.opacity x-cloak>
+                @foreach (array_slice($rankings['guilds'], 0, 3) as $index => $guild)
+                    <a
+                        href="{{ route('guilds.show', $guild['name']) }}"
+                        @class([
+                            'ranking-showcase-card ranking-showcase-guild',
+                            'ranking-showcase-card-champion' => $index === 0,
+                        ])
+                    >
+                        <div class="ranking-showcase-media">
+                            <div class="ranking-medal">
+                                <div>
+                                    <span>{{ __('ui.home.rank') }}</span>
+                                    <strong>{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</strong>
+                                </div>
+                            </div>
+                            <x-guild-mark :pixels="$guild['mark_colors']" :label="$guild['name']" />
                         </div>
-                        <div class="ranking-card-stat">
-                            <strong>{{ number_format($guild['score']) }}</strong>
-                            <span>{{ __('ui.home.score') }}</span>
-                        </div>
-                        <div class="ranking-card-stat hidden sm:block">
-                            <strong>{{ $guild['members'] }}</strong>
-                            <span>{{ __('ui.home.members') }}</span>
+                        <div class="ranking-showcase-body">
+                            <p class="kicker">{{ __('ui.home.master', ['name' => $guild['master']]) }}</p>
+                            <h3 class="mt-2 truncate font-display text-3xl text-white">{{ $guild['name'] }}</h3>
+                            <div class="ranking-showcase-metrics ranking-showcase-metrics-two">
+                                <div class="ranking-showcase-metric">
+                                    <strong>{{ number_format($guild['score']) }}</strong>
+                                    <span>{{ __('ui.home.score') }}</span>
+                                </div>
+                                <div class="ranking-showcase-metric">
+                                    <strong>{{ $guild['members'] }}</strong>
+                                    <span>{{ __('ui.home.members') }}</span>
+                                </div>
+                            </div>
                         </div>
                     </a>
                 @endforeach
+            </div>
+
+            <div class="mt-7 text-center">
+                <a href="{{ route('rankings') }}" class="button button-ghost button-large">
+                    {{ __('ui.home.explore_rankings') }}
+                </a>
             </div>
         </div>
     </section>

@@ -28,8 +28,9 @@ class InteractiveShellTest extends TestCase
         $response->assertDontSee('Live database');
         $response->assertDontSee('Season zero');
         $response->assertDontSee('warriors online');
-        $response->assertSee('(01)');
-        $response->assertSee('ranking-card', false);
+        $response->assertSee('ranking-medal', false);
+        $response->assertSee('ranking-showcase-card', false);
+        $response->assertSee('ranking-showcase-card-champion', false);
         $response->assertSee('guild-mark', false);
         $response->assertSee('Blood Castle');
         $response->assertSee('eventSchedule(', false);
