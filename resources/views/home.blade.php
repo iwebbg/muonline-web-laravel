@@ -220,11 +220,12 @@
             </div>
         </div>
 
-        <div class="mt-8 overflow-hidden rounded-3xl border border-white/10 bg-panel/88 shadow-2xl shadow-black/25">
-            <div x-show="activeTab === 'players'">
+        <div class="mt-8 rounded-3xl border border-white/10 bg-panel/88 p-3 shadow-2xl shadow-black/25 sm:p-4">
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3" x-show="activeTab === 'players'">
                 @foreach ($rankings['players'] as $index => $player)
-                    <div class="ranking-row">
-                        <div class="ranking-position">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</div>
+                    <a href="{{ route('characters.show', $player['name']) }}" class="ranking-card">
+                        <span class="ranking-card-position">({{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }})</span>
+                        <img src="{{ $player['image'] }}" alt="" class="size-12 flex-none rounded-xl object-cover object-top" loading="lazy">
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2">
                                 <p class="truncate font-semibold text-white">{{ $player['name'] }}</p>
@@ -234,35 +235,40 @@
                             </div>
                             <p class="mt-1 text-sm text-steel">{{ $player['class'] }}</p>
                         </div>
-                        <div class="ranking-value">
+                        <div class="ranking-card-stat hidden sm:block">
+                            <strong>{{ $player['level'] }}</strong>
+                            <span>{{ __('ui.home.level') }}</span>
+                        </div>
+                        <div class="ranking-card-stat">
                             <strong>{{ $player['resets'] }}</strong>
                             <span>{{ __('ui.home.resets') }}</span>
                         </div>
-                        <div class="ranking-value hidden sm:block">
+                        <div class="ranking-card-stat hidden sm:block">
                             <strong>{{ $player['grand_resets'] }}</strong>
                             <span>{{ __('ui.home.grand') }}</span>
                         </div>
-                    </div>
+                    </a>
                 @endforeach
             </div>
 
-            <div x-show="activeTab === 'guilds'" x-cloak>
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3" x-show="activeTab === 'guilds'" x-cloak>
                 @foreach ($rankings['guilds'] as $index => $guild)
-                    <div class="ranking-row">
-                        <div class="ranking-position">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</div>
+                    <a href="{{ route('guilds.show', $guild['name']) }}" class="ranking-card">
+                        <span class="ranking-card-position">({{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }})</span>
+                        <x-guild-mark :pixels="$guild['mark_colors']" :label="$guild['name']" />
                         <div class="min-w-0 flex-1">
                             <p class="truncate font-semibold text-white">{{ $guild['name'] }}</p>
                             <p class="mt-1 text-sm text-steel">{{ __('ui.home.master', ['name' => $guild['master']]) }}</p>
                         </div>
-                        <div class="ranking-value">
+                        <div class="ranking-card-stat">
                             <strong>{{ number_format($guild['score']) }}</strong>
                             <span>{{ __('ui.home.score') }}</span>
                         </div>
-                        <div class="ranking-value hidden sm:block">
+                        <div class="ranking-card-stat hidden sm:block">
                             <strong>{{ $guild['members'] }}</strong>
                             <span>{{ __('ui.home.members') }}</span>
                         </div>
-                    </div>
+                    </a>
                 @endforeach
             </div>
         </div>

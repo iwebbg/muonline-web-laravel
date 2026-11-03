@@ -9,12 +9,20 @@ use App\Game\Data\PublicCharacterProfile;
 use App\Game\Data\PublicGuildMember;
 use App\Game\Data\PublicGuildProfile;
 use App\Game\Data\RealmOverview;
+use App\Game\Versions\Version97d99i\GuildMarkDecoder;
 
 /**
  * Supplies deterministic public realm data while no game database is connected.
  */
 final class FixtureRealmReadRepository implements RealmReadRepository
 {
+    /**
+     * Creates the fixture repository with the real 97d+99i guild-mark decoder.
+     */
+    public function __construct(
+        private readonly GuildMarkDecoder $guildMarkDecoder,
+    ) {}
+
     /**
      * Returns the fixture realm overview used by local development and tests.
      */
@@ -45,6 +53,8 @@ final class FixtureRealmReadRepository implements RealmReadRepository
             new CharacterRankingEntry(
                 name: 'KoPeH',
                 className: 'Blade Knight',
+                image: '/images/characters/blade-knight.png',
+                level: 400,
                 resets: 20,
                 grandResets: 7,
                 online: true,
@@ -52,6 +62,8 @@ final class FixtureRealmReadRepository implements RealmReadRepository
             new CharacterRankingEntry(
                 name: 'iwebbg',
                 className: 'Soul Master',
+                image: '/images/characters/soul-master.jpg',
+                level: 400,
                 resets: 20,
                 grandResets: 5,
                 online: true,
@@ -59,6 +71,8 @@ final class FixtureRealmReadRepository implements RealmReadRepository
             new CharacterRankingEntry(
                 name: 'EvilDeviL',
                 className: 'Magic Gladiator',
+                image: '/images/characters/magic-gladiator.png',
+                level: 400,
                 resets: 19,
                 grandResets: 5,
                 online: false,
@@ -66,6 +80,8 @@ final class FixtureRealmReadRepository implements RealmReadRepository
             new CharacterRankingEntry(
                 name: 'Athena',
                 className: 'Muse Elf',
+                image: '/images/characters/muse-elf.png',
+                level: 390,
                 resets: 18,
                 grandResets: 4,
                 online: true,
@@ -88,24 +104,28 @@ final class FixtureRealmReadRepository implements RealmReadRepository
                 master: 'KoPeH',
                 score: 1840,
                 members: 34,
+                markColors: $this->fixtureMarkColors('1111111113133331133311111313111113133331111111111333333111111111'),
             ),
             new GuildRankingEntry(
                 name: 'Immortal',
                 master: 'iwebbg',
                 score: 1625,
                 members: 29,
+                markColors: $this->fixtureMarkColors('1111111114111141141111411441144114444441144114411441144111111111'),
             ),
             new GuildRankingEntry(
                 name: 'NoMercy',
                 master: 'EvilDeviL',
                 score: 1490,
                 members: 27,
+                markColors: $this->fixtureMarkColors('111111111CCCCCC11C1111C11C1CC1C11C1111C11CCCCCC11111111111111111'),
             ),
             new GuildRankingEntry(
                 name: 'Valhalla',
                 master: 'Athena',
                 score: 1320,
                 members: 21,
+                markColors: $this->fixtureMarkColors('1111111116666661161111611661166116666661166116611661166111111111'),
             ),
         ];
 
@@ -186,6 +206,7 @@ final class FixtureRealmReadRepository implements RealmReadRepository
                 master: 'KoPeH',
                 score: 1840,
                 notice: 'Strength through unity.',
+                markColors: $this->fixtureMarkColors('1111111113133331133311111313111113133331111111111333333111111111'),
                 members: [
                     new PublicGuildMember(
                         name: 'KoPeH',
@@ -218,5 +239,19 @@ final class FixtureRealmReadRepository implements RealmReadRepository
     private function normalizeLimit(int $limit): int
     {
         return max(1, min($limit, 100));
+    }
+
+    /**
+     * Decodes one readable hexadecimal fixture into the production mark shape.
+     *
+     * @return list<string>
+     */
+    private function fixtureMarkColors(string $hexadecimalMark): array
+    {
+        $binaryMark = hex2bin($hexadecimalMark);
+
+        return $this->guildMarkDecoder->colors(
+            is_string($binaryMark) ? $binaryMark : '',
+        );
     }
 }

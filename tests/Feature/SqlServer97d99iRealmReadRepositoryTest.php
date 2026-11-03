@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
 use App\Game\Versions\Version97d99i\CharacterClassMapper;
 use App\Game\Versions\Version97d99i\CharacterImageMapper;
+use App\Game\Versions\Version97d99i\GuildMarkDecoder;
 use App\Game\Versions\Version97d99i\MapNameMapper;
 use Illuminate\Database\DatabaseManager;
 use Tests\TestCase;
@@ -37,7 +38,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
         $connection->statement('CREATE TABLE MEMB_INFO (memb___id TEXT PRIMARY KEY)');
         $connection->statement('CREATE TABLE MEMB_STAT (memb___id TEXT PRIMARY KEY, ConnectStat INTEGER NULL)');
         $connection->statement('CREATE TABLE Character (AccountID TEXT NOT NULL, Name TEXT PRIMARY KEY, cLevel INTEGER NULL, Class INTEGER NULL, Resets INTEGER NOT NULL, GrandResets INTEGER NOT NULL, MapNumber INTEGER NULL, PkLevel INTEGER NULL, IsVip INTEGER NULL)');
-        $connection->statement('CREATE TABLE Guild (G_Name TEXT NOT NULL, G_Master TEXT NULL, G_Score INTEGER NULL, G_Count INTEGER NULL, G_Notice TEXT NULL)');
+        $connection->statement('CREATE TABLE Guild (G_Name TEXT NOT NULL, G_Master TEXT NULL, G_Score INTEGER NULL, G_Count INTEGER NULL, G_Notice TEXT NULL, G_Mark BLOB NULL)');
         $connection->statement('CREATE TABLE GuildMember (Name TEXT NOT NULL, G_Name TEXT NOT NULL, G_Level INTEGER NULL)');
     }
 
@@ -89,12 +90,14 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
                 'G_Master' => 'Knight',
                 'G_Score' => 1800,
                 'G_Count' => 25,
+                'G_Mark' => hex2bin('1111111113133331133311111313111113133331111111111333333111111111'),
             ],
             [
                 'G_Name' => 'Wizards',
                 'G_Master' => 'Wizard',
                 'G_Score' => 1200,
                 'G_Count' => 18,
+                'G_Mark' => hex2bin('1111111114111141141111411441144114444441144114411441144111111111'),
             ],
         ]);
 
@@ -105,6 +108,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
             database: $database,
             classMapper: new CharacterClassMapper,
             imageMapper: new CharacterImageMapper,
+            guildMarkDecoder: new GuildMarkDecoder,
             mapNameMapper: new MapNameMapper,
         );
         $overview = $repository->overview();
@@ -119,11 +123,15 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
         $this->assertCount(2, $characters);
         $this->assertSame('Knight', $characters[0]->name);
         $this->assertSame('Blade Knight', $characters[0]->className);
+        $this->assertSame('/images/characters/blade-knight.png', $characters[0]->image);
+        $this->assertSame(400, $characters[0]->level);
         $this->assertTrue($characters[0]->online);
         $this->assertSame('Wizard', $characters[1]->name);
         $this->assertFalse($characters[1]->online);
         $this->assertCount(1, $guilds);
         $this->assertSame('Legends', $guilds[0]->name);
+        $this->assertCount(64, $guilds[0]->markColors);
+        $this->assertSame('#000000', $guilds[0]->markColors[0]);
 
         foreach ($connection->getQueryLog() as $query) {
             $normalizedQuery = strtolower(ltrim($query['query']));
@@ -154,7 +162,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
 
         $rankingConnection->statement('CREATE TABLE MEMB_STAT (memb___id TEXT PRIMARY KEY, ConnectStat INTEGER NULL)');
         $rankingConnection->statement('CREATE TABLE Character (AccountID TEXT NOT NULL, Name TEXT PRIMARY KEY, cLevel INTEGER NULL, Class INTEGER NULL, Resets INTEGER NOT NULL, GrandResets INTEGER NOT NULL, MapNumber INTEGER NULL, PkLevel INTEGER NULL, IsVip INTEGER NULL)');
-        $rankingConnection->statement('CREATE TABLE Guild (G_Name TEXT NOT NULL, G_Master TEXT NULL, G_Score INTEGER NULL, G_Count INTEGER NULL, G_Notice TEXT NULL)');
+        $rankingConnection->statement('CREATE TABLE Guild (G_Name TEXT NOT NULL, G_Master TEXT NULL, G_Score INTEGER NULL, G_Count INTEGER NULL, G_Notice TEXT NULL, G_Mark BLOB NULL)');
         $rankingConnection->statement('CREATE TABLE GuildMember (Name TEXT NOT NULL, G_Name TEXT NOT NULL, G_Level INTEGER NULL)');
         $rankingConnection->table('MEMB_STAT')->insert([
             'memb___id' => 'ranking-account',
@@ -173,12 +181,14 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
             'G_Master' => 'RankingHero',
             'G_Score' => 9_999,
             'G_Count' => 40,
+            'G_Mark' => hex2bin('1111111114111141141111411441144114444441144114411441144111111111'),
         ]);
 
         $repository = new SqlServer97d99iRealmReadRepository(
             database: $database,
             classMapper: new CharacterClassMapper,
             imageMapper: new CharacterImageMapper,
+            guildMarkDecoder: new GuildMarkDecoder,
             mapNameMapper: new MapNameMapper,
         );
 
@@ -220,6 +230,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
             'G_Score' => 777,
             'G_Count' => 1,
             'G_Notice' => 'Welcome heroes.',
+            'G_Mark' => hex2bin('1111111113133331133311111313111113133331111111111333333111111111'),
         ]);
         $connection->table('GuildMember')->insert([
             'Name' => 'PublicHero',
@@ -232,6 +243,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
             database: $database,
             classMapper: new CharacterClassMapper,
             imageMapper: new CharacterImageMapper,
+            guildMarkDecoder: new GuildMarkDecoder,
             mapNameMapper: new MapNameMapper,
         );
 
@@ -246,6 +258,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
         $this->assertTrue($character->vip);
         $this->assertNotNull($guild);
         $this->assertSame('Welcome heroes.', $guild->notice);
+        $this->assertCount(64, $guild->markColors);
         $this->assertCount(1, $guild->members);
         $this->assertTrue($guild->members[0]->master);
 

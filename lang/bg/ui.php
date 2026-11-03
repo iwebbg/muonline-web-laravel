@@ -361,6 +361,7 @@ return [
         'ranking_category' => 'Категория на класацията',
         'top_players' => 'Топ играчи',
         'top_guilds' => 'Топ гилдии',
+        'level' => 'ниво',
         'resets' => 'ресета',
         'grand' => 'гранд',
         'master' => 'Майстор · :name',

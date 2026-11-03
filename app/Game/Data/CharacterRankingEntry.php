@@ -13,6 +13,8 @@ final readonly class CharacterRankingEntry
     public function __construct(
         public string $name,
         public string $className,
+        public string $image,
+        public int $level,
         public int $resets,
         public int $grandResets,
         public bool $online,
@@ -21,13 +23,15 @@ final readonly class CharacterRankingEntry
     /**
      * Converts the entry to the stable shape consumed by the ranking view.
      *
-     * @return array{name: string, class: string, resets: int, grand_resets: int, online: bool}
+     * @return array{name: string, class: string, image: string, level: int, resets: int, grand_resets: int, online: bool}
      */
     public function toArray(): array
     {
         return [
             'name' => $this->name,
             'class' => $this->className,
+            'image' => $this->image,
+            'level' => $this->level,
             'resets' => $this->resets,
             'grand_resets' => $this->grandResets,
             'online' => $this->online,

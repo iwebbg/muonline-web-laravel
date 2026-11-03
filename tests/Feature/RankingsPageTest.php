@@ -23,7 +23,12 @@ final class RankingsPageTest extends TestCase
             ->assertSee('KoPeH')
             ->assertSee('Blade Knight')
             ->assertSee('Legends')
-            ->assertSee('Online only');
+            ->assertSee('guild.mark_colors', false)
+            ->assertSee('Online only')
+            ->assertViewHas('rankings', function (array $rankings): bool {
+                return $rankings['players'][0]['image'] === '/images/characters/blade-knight.png'
+                    && count($rankings['guilds'][0]['mark_colors']) === 64;
+            });
     }
 
     /**

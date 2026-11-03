@@ -87,7 +87,10 @@
                             <tr class="transition hover:bg-white/[0.025]">
                                 <td class="px-5 py-4 font-display text-xl text-gold sm:px-6" x-text="`#${player.rank}`"></td>
                                 <td class="px-5 py-4 font-semibold text-white sm:px-6">
-                                    <a x-bind:href="player.profile_url" class="transition hover:text-gold" x-text="player.name"></a>
+                                    <a x-bind:href="player.profile_url" class="flex items-center gap-3 transition hover:text-gold">
+                                        <img x-bind:src="player.image" alt="" class="size-10 rounded-lg object-cover object-top" loading="lazy">
+                                        <span x-text="player.name"></span>
+                                    </a>
                                 </td>
                                 <td class="px-5 py-4 text-silver sm:px-6" x-text="player.class"></td>
                                 <td class="px-5 py-4 text-right font-semibold text-white sm:px-6" x-text="player.resets"></td>
@@ -133,7 +136,14 @@
                             <tr class="transition hover:bg-white/[0.025]">
                                 <td class="px-5 py-4 font-display text-xl text-gold sm:px-6" x-text="`#${guild.rank}`"></td>
                                 <td class="px-5 py-4 font-semibold text-white sm:px-6">
-                                    <a x-bind:href="guild.profile_url" class="transition hover:text-gold" x-text="guild.name"></a>
+                                    <a x-bind:href="guild.profile_url" class="flex items-center gap-3 transition hover:text-gold">
+                                        <span class="guild-mark" aria-hidden="true">
+                                            <template x-for="(color, pixelIndex) in guild.mark_colors" x-bind:key="pixelIndex">
+                                                <span class="guild-mark-pixel" x-bind:style="`background-color: ${color}`"></span>
+                                            </template>
+                                        </span>
+                                        <span x-text="guild.name"></span>
+                                    </a>
                                 </td>
                                 <td class="px-5 py-4 text-silver sm:px-6" x-text="guild.master"></td>
                                 <td class="px-5 py-4 text-right font-semibold text-white sm:px-6" x-text="guild.score"></td>

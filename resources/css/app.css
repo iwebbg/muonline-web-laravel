@@ -507,6 +507,86 @@
         font-size: 0.72rem;
     }
 
+    .ranking-card {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 0.85rem;
+        border: 1px solid rgb(255 255 255 / 0.08);
+        border-radius: 1rem;
+        background: rgb(255 255 255 / 0.025);
+        padding: 0.85rem;
+        transition: border-color 150ms ease, background-color 150ms ease, transform 150ms ease;
+    }
+
+    .ranking-card:hover {
+        border-color: rgb(242 184 91 / 0.24);
+        background: rgb(255 255 255 / 0.05);
+        transform: translateY(-1px);
+    }
+
+    .ranking-card-position {
+        display: grid;
+        min-width: 3rem;
+        min-height: 2rem;
+        flex: none;
+        place-items: center;
+        border: 1px solid rgb(242 184 91 / 0.2);
+        border-radius: 999px;
+        background: rgb(242 184 91 / 0.07);
+        color: var(--color-gold);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.04em;
+    }
+
+    .ranking-card-stat {
+        min-width: 2.8rem;
+        text-align: right;
+    }
+
+    .ranking-card-stat strong,
+    .ranking-card-stat span {
+        display: block;
+    }
+
+    .ranking-card-stat strong {
+        color: white;
+        font-size: 0.9rem;
+    }
+
+    .ranking-card-stat span {
+        margin-top: 0.15rem;
+        color: var(--color-steel);
+        font-size: 0.55rem;
+        font-weight: 700;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+    }
+
+    .guild-mark {
+        display: inline-grid;
+        width: 3rem;
+        aspect-ratio: 1;
+        flex: none;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        overflow: hidden;
+        border: 1px solid rgb(255 255 255 / 0.13);
+        border-radius: 0.55rem;
+        background: #111318;
+        box-shadow: 0 8px 22px rgb(0 0 0 / 0.28);
+        image-rendering: pixelated;
+    }
+
+    .guild-mark-pixel {
+        aspect-ratio: 1;
+    }
+
+    .guild-mark-large {
+        width: 5rem;
+        border-radius: 0.8rem;
+    }
+
     .ranking-value {
         min-width: 4.4rem;
         text-align: right;

@@ -39,6 +39,7 @@ final class PublicProfilePageTest extends TestCase
             ->assertSee('Strength through unity.')
             ->assertSee('KoPeH')
             ->assertSee('Athena')
+            ->assertSee('guild-mark-large', false)
             ->assertSee(route('characters.show', 'KoPeH'), false);
     }
 

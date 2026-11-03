@@ -8,8 +8,13 @@
         <div class="absolute inset-0 bg-gradient-to-b from-ink/35 via-ink/85 to-ink"></div>
         <div class="shell relative py-14 sm:py-20">
             <a href="{{ route('rankings') }}" class="text-sm text-steel transition hover:text-white">← {{ __('ui.profiles.back_to_rankings') }}</a>
-            <p class="kicker mt-8">{{ __('ui.profiles.guild_profile') }}</p>
-            <h1 class="mt-4 font-display text-5xl text-white sm:text-7xl">{{ $guild->name }}</h1>
+            <div class="mt-8 flex items-center gap-5">
+                <x-guild-mark :pixels="$guild->markColors" :label="$guild->name" class="guild-mark-large" />
+                <div>
+                    <p class="kicker">{{ __('ui.profiles.guild_profile') }}</p>
+                    <h1 class="mt-2 font-display text-5xl text-white sm:text-7xl">{{ $guild->name }}</h1>
+                </div>
+            </div>
             <div class="mt-6 flex flex-wrap gap-3">
                 <a href="{{ route('characters.show', $guild->master) }}" class="button button-ghost">
                     {{ __('ui.rankings.master') }}: {{ $guild->master }}

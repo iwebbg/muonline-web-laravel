@@ -10,6 +10,7 @@ final readonly class PublicGuildProfile
     /**
      * Creates a public guild record from the version-specific schema adapter.
      *
+     * @param  list<string>  $markColors
      * @param  list<PublicGuildMember>  $members
      */
     public function __construct(
@@ -17,6 +18,7 @@ final readonly class PublicGuildProfile
         public string $master,
         public int $score,
         public string $notice,
+        public array $markColors,
         public array $members,
     ) {}
 }

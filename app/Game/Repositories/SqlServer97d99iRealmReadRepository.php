@@ -11,6 +11,7 @@ use App\Game\Data\PublicGuildProfile;
 use App\Game\Data\RealmOverview;
 use App\Game\Versions\Version97d99i\CharacterClassMapper;
 use App\Game\Versions\Version97d99i\CharacterImageMapper;
+use App\Game\Versions\Version97d99i\GuildMarkDecoder;
 use App\Game\Versions\Version97d99i\MapNameMapper;
 use Illuminate\Database\DatabaseManager;
 use stdClass;
@@ -27,6 +28,7 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
         private readonly DatabaseManager $database,
         private readonly CharacterClassMapper $classMapper,
         private readonly CharacterImageMapper $imageMapper,
+        private readonly GuildMarkDecoder $guildMarkDecoder,
         private readonly MapNameMapper $mapNameMapper,
     ) {}
 
@@ -79,6 +81,7 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
             ->select([
                 'characters.Name as name',
                 'characters.Class as class_code',
+                'characters.cLevel as level',
                 'characters.Resets as resets',
                 'characters.GrandResets as grand_resets',
                 'account_status.ConnectStat as connect_stat',
@@ -96,6 +99,8 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
             $entries[] = new CharacterRankingEntry(
                 name: (string) $row->name,
                 className: $className,
+                image: $this->imageMapper->pathFor((int) $row->class_code),
+                level: (int) $row->level,
                 resets: (int) $row->resets,
                 grandResets: (int) $row->grand_resets,
                 online: $isOnline,
@@ -121,6 +126,7 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
                 'G_Master as master',
                 'G_Score as score',
                 'G_Count as members',
+                'G_Mark as mark',
             ])
             ->orderByDesc('G_Score')
             ->limit($normalizedLimit)
@@ -133,6 +139,9 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
                 master: (string) $row->master,
                 score: (int) $row->score,
                 members: (int) $row->members,
+                markColors: $this->guildMarkDecoder->colors(
+                    is_string($row->mark) ? $row->mark : '',
+                ),
             );
         }
 
@@ -198,6 +207,7 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
                 'G_Master as master',
                 'G_Score as score',
                 'G_Notice as notice',
+                'G_Mark as mark',
             ]);
 
         if (! $guild instanceof stdClass) {
@@ -239,6 +249,9 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
             master: (string) $guild->master,
             score: (int) $guild->score,
             notice: (string) ($guild->notice ?? ''),
+            markColors: $this->guildMarkDecoder->colors(
+                is_string($guild->mark) ? $guild->mark : '',
+            ),
             members: $members,
         );
     }

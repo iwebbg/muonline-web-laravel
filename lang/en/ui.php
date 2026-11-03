@@ -361,6 +361,7 @@ return [
         'ranking_category' => 'Ranking category',
         'top_players' => 'Top players',
         'top_guilds' => 'Top guilds',
+        'level' => 'level',
         'resets' => 'resets',
         'grand' => 'grand',
         'master' => 'Master · :name',
