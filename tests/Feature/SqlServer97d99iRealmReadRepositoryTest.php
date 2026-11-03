@@ -5,11 +5,9 @@ namespace Tests\Feature;
 use App\Game\Data\CharacterRankingQuery;
 use App\Game\Rankings\RankingBoard;
 use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
-use App\Game\Versions\Version97d99i\CharacterClassFilter;
-use App\Game\Versions\Version97d99i\CharacterClassMapper;
-use App\Game\Versions\Version97d99i\CharacterImageMapper;
 use App\Game\Versions\Version97d99i\GuildMarkDecoder;
 use App\Game\Versions\Version97d99i\MapNameMapper;
+use App\Game\Versions\Version97d99i\Version97d99iProfile;
 use Illuminate\Database\DatabaseManager;
 use Tests\TestCase;
 
@@ -109,8 +107,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
 
         $repository = new SqlServer97d99iRealmReadRepository(
             database: $database,
-            classMapper: new CharacterClassMapper,
-            imageMapper: new CharacterImageMapper,
+            versionProfile: new Version97d99iProfile,
             guildMarkDecoder: new GuildMarkDecoder,
             mapNameMapper: new MapNameMapper,
         );
@@ -164,14 +161,13 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
 
         $repository = new SqlServer97d99iRealmReadRepository(
             database: $database,
-            classMapper: new CharacterClassMapper,
-            imageMapper: new CharacterImageMapper,
+            versionProfile: new Version97d99iProfile,
             guildMarkDecoder: new GuildMarkDecoder,
             mapNameMapper: new MapNameMapper,
         );
         $page = $repository->characterRankings(new CharacterRankingQuery(
             board: RankingBoard::PlayerKillers,
-            classFilter: CharacterClassFilter::BladeKnight,
+            classFilter: (new Version97d99iProfile)->classForKey('bk'),
             page: 2,
             perPage: 1,
             search: '',
@@ -231,8 +227,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
 
         $repository = new SqlServer97d99iRealmReadRepository(
             database: $database,
-            classMapper: new CharacterClassMapper,
-            imageMapper: new CharacterImageMapper,
+            versionProfile: new Version97d99iProfile,
             guildMarkDecoder: new GuildMarkDecoder,
             mapNameMapper: new MapNameMapper,
         );
@@ -286,8 +281,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
         $connection->enableQueryLog();
         $repository = new SqlServer97d99iRealmReadRepository(
             database: $database,
-            classMapper: new CharacterClassMapper,
-            imageMapper: new CharacterImageMapper,
+            versionProfile: new Version97d99iProfile,
             guildMarkDecoder: new GuildMarkDecoder,
             mapNameMapper: new MapNameMapper,
         );

@@ -11,22 +11,22 @@
             </div>
         </div>
         <div class="mt-7 grid gap-3">
-            @foreach (['strength' => __('ui.account.strength'), 'agility' => __('ui.account.agility'), 'vitality' => __('ui.account.vitality'), 'energy' => __('ui.account.energy')] as $stat => $label)
+            <template x-for="statDefinition in selectedCharacter.statDefinitions" :key="statDefinition.key">
                 <div class="allocation-row">
                     <div>
-                        <strong>{{ $label }}</strong>
+                        <strong x-text="statDefinition.label"></strong>
                         <span>
-                            <span x-text="selectedCharacter.{{ $stat }}.toLocaleString()"></span>
-                            <span class="text-gold" x-show="allocations.{{ $stat }} > 0">+ <span x-text="allocations.{{ $stat }}"></span></span>
+                            <span x-text="selectedCharacter.stats[statDefinition.key].toLocaleString()"></span>
+                            <span class="text-gold" x-show="allocations[statDefinition.key] > 0">+ <span x-text="allocations[statDefinition.key]"></span></span>
                         </span>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button type="button" class="step-button" @click="removePoints('{{ $stat }}', 10)">−10</button>
-                        <button type="button" class="step-button" @click="allocatePoints('{{ $stat }}', 10)">+10</button>
-                        <button type="button" class="step-button" @click="allocatePoints('{{ $stat }}', 100)">+100</button>
+                        <button type="button" class="step-button" @click="removePoints(statDefinition.key, 10)">−10</button>
+                        <button type="button" class="step-button" @click="allocatePoints(statDefinition.key, 10)">+10</button>
+                        <button type="button" class="step-button" @click="allocatePoints(statDefinition.key, 100)">+100</button>
                     </div>
                 </div>
-            @endforeach
+            </template>
         </div>
 
         <div
@@ -54,16 +54,16 @@
                 </div>
 
                 <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    @foreach (['strength' => __('ui.account.strength'), 'agility' => __('ui.account.agility'), 'vitality' => __('ui.account.vitality'), 'energy' => __('ui.account.energy')] as $stat => $label)
+                    <template x-for="statDefinition in selectedCharacter.statDefinitions" :key="statDefinition.key">
                         <div class="outcome-card">
-                            <span>{{ $label }}</span>
+                            <span x-text="statDefinition.label"></span>
                             <strong>
-                                <span x-text="statPreview.currentStats.{{ $stat }}.toLocaleString()"></span>
+                                <span x-text="statPreview.currentStats[statDefinition.key].toLocaleString()"></span>
                                 →
-                                <span x-text="statPreview.resultingStats.{{ $stat }}.toLocaleString()"></span>
+                                <span x-text="statPreview.resultingStats[statDefinition.key].toLocaleString()"></span>
                             </strong>
                         </div>
-                    @endforeach
+                    </template>
                 </div>
 
                 <div class="mt-4 grid gap-3 sm:grid-cols-3">

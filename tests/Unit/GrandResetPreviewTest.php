@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Game\Data\AccountCharacter;
-use App\Game\Versions\Version97d99i\CharacterBaseStatsMapper;
+use App\Game\Versions\Version97d99i\Version97d99iProfile;
 use App\GrandReset\Actions\PreviewCharacterGrandReset;
 use App\GrandReset\GrandResetBlockReason;
 use App\GrandReset\GrandResetPointsMode;
@@ -104,7 +104,7 @@ final class GrandResetPreviewTest extends TestCase
         ?ResetProfileSettings $settings = null,
     ): GrandResetPreview {
         $action = new PreviewCharacterGrandReset(
-            new CharacterBaseStatsMapper,
+            new Version97d99iProfile,
         );
 
         return $action->handle(

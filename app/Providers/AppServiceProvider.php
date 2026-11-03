@@ -5,48 +5,15 @@ namespace App\Providers;
 use App\Auth\GameAccountUserProvider;
 use App\Game\Clocks\SqlServerRealmClock;
 use App\Game\Clocks\SystemRealmClock;
-use App\Game\Contracts\AccountCredentialRepository;
-use App\Game\Contracts\AccountPasswordRecoveryRepository;
-use App\Game\Contracts\AccountReadRepository;
-use App\Game\Contracts\AccountRegistrationRepository;
-use App\Game\Contracts\CharacterGrandResetRepository;
-use App\Game\Contracts\CharacterMoveRepository;
-use App\Game\Contracts\CharacterPkClearRepository;
-use App\Game\Contracts\CharacterResetRepository;
-use App\Game\Contracts\CharacterStatAllocationRepository;
-use App\Game\Contracts\CharacterStatResetRepository;
-use App\Game\Contracts\CharacterVipRepository;
 use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\GameServerStatus;
-use App\Game\Contracts\ItemEscrowRepository;
-use App\Game\Contracts\ItemSerialRepository;
-use App\Game\Contracts\ItemStorageRepository;
-use App\Game\Contracts\MarketItemEscrowRepository;
-use App\Game\Contracts\ModerationRepository;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
-use App\Game\Contracts\ZenBankRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
 use App\Game\Repositories\LegacyGameAccountLookupRepository;
-use App\Game\Repositories\SqlServer97d99iAccountCredentialRepository;
-use App\Game\Repositories\SqlServer97d99iAccountPasswordRecoveryRepository;
-use App\Game\Repositories\SqlServer97d99iAccountReadRepository;
-use App\Game\Repositories\SqlServer97d99iAccountRegistrationRepository;
-use App\Game\Repositories\SqlServer97d99iCharacterGrandResetRepository;
-use App\Game\Repositories\SqlServer97d99iCharacterMoveRepository;
-use App\Game\Repositories\SqlServer97d99iCharacterPkClearRepository;
-use App\Game\Repositories\SqlServer97d99iCharacterResetRepository;
-use App\Game\Repositories\SqlServer97d99iCharacterStatAllocationRepository;
-use App\Game\Repositories\SqlServer97d99iCharacterStatResetRepository;
-use App\Game\Repositories\SqlServer97d99iCharacterVipRepository;
-use App\Game\Repositories\SqlServer97d99iItemSerialRepository;
-use App\Game\Repositories\SqlServer97d99iItemStorageRepository;
-use App\Game\Repositories\SqlServer97d99iMarketItemEscrowRepository;
-use App\Game\Repositories\SqlServer97d99iModerationRepository;
-use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
-use App\Game\Repositories\SqlServer97d99iZenBankRepository;
 use App\Game\Status\FixtureGameServerStatus;
 use App\Game\Status\TcpGameServerStatus;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\GameServer;
 use App\Modules\ModuleManager;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -55,10 +22,12 @@ use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\View\View as LaravelView;
+use LogicException;
 
 /**
  * Registers version-aware game adapters, module settings and request limiters.
@@ -70,9 +39,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $repositoryClass = config('game.data_source') === 'database'
-            ? SqlServer97d99iRealmReadRepository::class
-            : FixtureRealmReadRepository::class;
+        $profileKey = (string) config('game.profile.key');
+        $profileClass = config('game.version_profiles.'.$profileKey);
+
+        if (! is_string($profileClass) || ! is_subclass_of($profileClass, GameVersionProfile::class)) {
+            throw new LogicException(sprintf(
+                'Unsupported game version profile [%s].',
+                $profileKey,
+            ));
+        }
+
+        $this->app->singleton(GameVersionProfile::class, $profileClass);
+
+        $versionProfile = $this->app->make(GameVersionProfile::class);
+
+        foreach ($versionProfile->repositoryBindings() as $contract => $adapter) {
+            $this->app->bind($contract, $adapter);
+        }
+
+        if (config('game.data_source') !== 'database') {
+            $this->app->bind(RealmReadRepository::class, FixtureRealmReadRepository::class);
+        }
+
         $clockClass = config('game.data_source') === 'database'
             ? SqlServerRealmClock::class
             : SystemRealmClock::class;
@@ -80,26 +68,8 @@ class AppServiceProvider extends ServiceProvider
             ? TcpGameServerStatus::class
             : FixtureGameServerStatus::class;
 
-        $this->app->bind(RealmReadRepository::class, $repositoryClass);
         $this->app->bind(RealmClock::class, $clockClass);
         $this->app->singleton(GameServerStatus::class, $serverStatusClass);
-        $this->app->bind(AccountCredentialRepository::class, SqlServer97d99iAccountCredentialRepository::class);
-        $this->app->bind(AccountPasswordRecoveryRepository::class, SqlServer97d99iAccountPasswordRecoveryRepository::class);
-        $this->app->bind(AccountRegistrationRepository::class, SqlServer97d99iAccountRegistrationRepository::class);
-        $this->app->bind(AccountReadRepository::class, SqlServer97d99iAccountReadRepository::class);
-        $this->app->bind(CharacterResetRepository::class, SqlServer97d99iCharacterResetRepository::class);
-        $this->app->bind(CharacterGrandResetRepository::class, SqlServer97d99iCharacterGrandResetRepository::class);
-        $this->app->bind(CharacterMoveRepository::class, SqlServer97d99iCharacterMoveRepository::class);
-        $this->app->bind(CharacterPkClearRepository::class, SqlServer97d99iCharacterPkClearRepository::class);
-        $this->app->bind(CharacterStatAllocationRepository::class, SqlServer97d99iCharacterStatAllocationRepository::class);
-        $this->app->bind(CharacterStatResetRepository::class, SqlServer97d99iCharacterStatResetRepository::class);
-        $this->app->bind(CharacterVipRepository::class, SqlServer97d99iCharacterVipRepository::class);
-        $this->app->bind(ItemStorageRepository::class, SqlServer97d99iItemStorageRepository::class);
-        $this->app->bind(ItemEscrowRepository::class, SqlServer97d99iMarketItemEscrowRepository::class);
-        $this->app->bind(ItemSerialRepository::class, SqlServer97d99iItemSerialRepository::class);
-        $this->app->bind(MarketItemEscrowRepository::class, SqlServer97d99iMarketItemEscrowRepository::class);
-        $this->app->bind(ModerationRepository::class, SqlServer97d99iModerationRepository::class);
-        $this->app->bind(ZenBankRepository::class, SqlServer97d99iZenBankRepository::class);
         $this->app->bind(GameAccountLookupRepository::class, LegacyGameAccountLookupRepository::class);
         $this->app->singleton(ModuleManager::class);
     }
@@ -120,9 +90,11 @@ class AppServiceProvider extends ServiceProvider
                     return;
                 }
 
-                $websiteServerName = GameServer::query()
-                    ->where('is_current', true)
-                    ->value('name');
+                $websiteServerName = Schema::hasTable('game_servers')
+                    ? GameServer::query()
+                        ->where('is_current', true)
+                        ->value('name')
+                    : null;
 
                 $view->with(
                     'websiteServerName',

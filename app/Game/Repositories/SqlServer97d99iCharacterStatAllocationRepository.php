@@ -4,6 +4,7 @@ namespace App\Game\Repositories;
 
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Data\AccountCharacter;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Reset\ResetProfileSettings;
 use App\Stats\Actions\PreviewCharacterStatAllocation;
 use App\Stats\CharacterStatAllocationResult;
@@ -24,6 +25,7 @@ final readonly class SqlServer97d99iCharacterStatAllocationRepository implements
     public function __construct(
         private DatabaseManager $database,
         private PreviewCharacterStatAllocation $previewCharacterStatAllocation,
+        private GameVersionProfile $versionProfile,
     ) {}
 
     /**
@@ -79,17 +81,20 @@ final readonly class SqlServer97d99iCharacterStatAllocationRepository implements
                 );
             }
 
+            $updates = [
+                'LevelUpPoint' => $preview->remainingPoints,
+            ];
+            $resultingStats = $preview->resultingStats->toArray();
+
+            foreach ($this->versionProfile->statsForClass($character->classCode) as $statDefinition) {
+                $updates[$statDefinition->databaseColumn] = $resultingStats[$statDefinition->key];
+            }
+
             $updatedRows = $connection
                 ->table('Character')
                 ->where('AccountID', $accountId)
                 ->where('Name', $characterName)
-                ->update([
-                    'LevelUpPoint' => $preview->remainingPoints,
-                    'Strength' => $preview->resultingStats->strength,
-                    'Dexterity' => $preview->resultingStats->agility,
-                    'Vitality' => $preview->resultingStats->vitality,
-                    'Energy' => $preview->resultingStats->energy,
-                ]);
+                ->update($updates);
 
             if ($updatedRows !== 1) {
                 throw new CharacterStatAllocationRejected(
@@ -116,20 +121,22 @@ final readonly class SqlServer97d99iCharacterStatAllocationRepository implements
      */
     private function characterColumns(): array
     {
-        return [
+        $columns = [
             'Name',
             'cLevel',
             'LevelUpPoint',
             'Class',
-            'Strength',
-            'Dexterity',
-            'Vitality',
-            'Energy',
             'Money',
             'MapNumber',
             'Resets',
             'GrandResets',
         ];
+
+        foreach ($this->versionProfile->stats() as $statDefinition) {
+            $columns[] = $statDefinition->databaseColumn;
+        }
+
+        return array_values(array_unique($columns));
     }
 
     /**
@@ -137,22 +144,36 @@ final readonly class SqlServer97d99iCharacterStatAllocationRepository implements
      */
     private function mapCharacter(stdClass $row, bool $online): AccountCharacter
     {
+        $classCode = (int) $row->Class;
+        $stats = [];
+
+        foreach ($this->versionProfile->statsForClass($classCode) as $statDefinition) {
+            $databaseColumn = $statDefinition->databaseColumn;
+            $stats[$statDefinition->key] = (int) $row->{$databaseColumn};
+        }
+
+        $additionalStats = array_diff_key(
+            $stats,
+            array_flip(['strength', 'agility', 'vitality', 'energy']),
+        );
+
         return new AccountCharacter(
             name: (string) $row->Name,
             className: '',
-            classCode: (int) $row->Class,
+            classCode: $classCode,
             image: '',
             level: (int) $row->cLevel,
             resets: (int) $row->Resets,
             grandResets: (int) $row->GrandResets,
             zen: (int) $row->Money,
             points: (int) $row->LevelUpPoint,
-            strength: (int) $row->Strength,
-            agility: (int) $row->Dexterity,
-            vitality: (int) $row->Vitality,
-            energy: (int) $row->Energy,
+            strength: $stats['strength'] ?? 0,
+            agility: $stats['agility'] ?? 0,
+            vitality: $stats['vitality'] ?? 0,
+            energy: $stats['energy'] ?? 0,
             map: '',
             online: $online,
+            additionalStats: $additionalStats,
         );
     }
 }

@@ -14,9 +14,7 @@ use App\Game\Data\PublicGuildMember;
 use App\Game\Data\PublicGuildProfile;
 use App\Game\Data\RealmOverview;
 use App\Game\Rankings\RankingBoard;
-use App\Game\Versions\Version97d99i\CharacterClassFilter;
-use App\Game\Versions\Version97d99i\CharacterClassMapper;
-use App\Game\Versions\Version97d99i\CharacterImageMapper;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Version97d99i\GuildMarkDecoder;
 use App\Game\Versions\Version97d99i\MapNameMapper;
 use Illuminate\Database\DatabaseManager;
@@ -32,8 +30,7 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
      */
     public function __construct(
         private readonly DatabaseManager $database,
-        private readonly CharacterClassMapper $classMapper,
-        private readonly CharacterImageMapper $imageMapper,
+        private readonly GameVersionProfile $versionProfile,
         private readonly GuildMarkDecoder $guildMarkDecoder,
         private readonly MapNameMapper $mapNameMapper,
     ) {}
@@ -103,7 +100,7 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
             ->leftJoin('MEMB_STAT as account_status', 'characters.AccountID', '=', 'account_status.memb___id');
 
         if ($query->classFilter !== null) {
-            $builder->where('characters.Class', $query->classFilter->classCode());
+            $builder->where('characters.Class', $query->classFilter->code);
         }
 
         if ($query->search !== '') {
@@ -223,14 +220,14 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
     private function characterRankingEntry(stdClass $row): CharacterRankingEntry
     {
         $classCode = (int) $row->class_code;
-        $classFilter = CharacterClassFilter::fromClassCode($classCode);
+        $classDefinition = $this->versionProfile->classForCode($classCode);
 
         return new CharacterRankingEntry(
             name: (string) $row->name,
             classCode: $classCode,
-            className: $this->classMapper->nameFor($classCode),
-            classAbbreviation: $classFilter?->abbreviation() ?? '??',
-            image: $this->imageMapper->pathFor($classCode),
+            className: $classDefinition?->name ?? sprintf('Unknown class (%d)', $classCode),
+            classAbbreviation: $classDefinition?->abbreviation ?? '??',
+            image: $classDefinition?->image ?? '/images/characters/blade-knight.png',
             level: (int) $row->level,
             resets: (int) $row->resets,
             grandResets: (int) $row->grand_resets,
@@ -285,11 +282,12 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
         }
 
         $classCode = (int) $row->class_code;
+        $classDefinition = $this->versionProfile->classForCode($classCode);
 
         return new PublicCharacterProfile(
             name: (string) $row->name,
-            className: $this->classMapper->nameFor($classCode),
-            image: $this->imageMapper->pathFor($classCode),
+            className: $classDefinition?->name ?? sprintf('Unknown class (%d)', $classCode),
+            image: $classDefinition?->image ?? '/images/characters/blade-knight.png',
             level: (int) $row->level,
             resets: (int) $row->resets,
             grandResets: (int) $row->grand_resets,
@@ -341,9 +339,12 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
         $members = [];
 
         foreach ($rows as $row) {
+            $classCode = (int) $row->class_code;
+            $classDefinition = $this->versionProfile->classForCode($classCode);
+
             $members[] = new PublicGuildMember(
                 name: (string) $row->name,
-                className: $this->classMapper->nameFor((int) $row->class_code),
+                className: $classDefinition?->name ?? sprintf('Unknown class (%d)', $classCode),
                 level: (int) $row->level,
                 resets: (int) $row->resets,
                 grandResets: (int) $row->grand_resets,

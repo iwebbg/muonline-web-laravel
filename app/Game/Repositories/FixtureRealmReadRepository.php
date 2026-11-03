@@ -66,7 +66,7 @@ final class FixtureRealmReadRepository implements RealmReadRepository
             $this->characterEntries(),
             function (CharacterRankingEntry $entry) use ($query): bool {
                 $matchesClass = $query->classFilter === null
-                    || $entry->classCode === $query->classFilter->classCode();
+                    || $entry->classCode === $query->classFilter->code;
                 $matchesSearch = $query->search === ''
                     || str_contains(mb_strtolower($entry->name), mb_strtolower($query->search));
                 $matchesOnline = ! $query->onlineOnly || $entry->online;

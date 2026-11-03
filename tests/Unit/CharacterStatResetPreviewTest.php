@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Game\Data\AccountCharacter;
-use App\Game\Versions\Version97d99i\CharacterBaseStatsMapper;
+use App\Game\Versions\Version97d99i\Version97d99iProfile;
 use App\Reset\ResetProfileSettings;
 use App\StatReset\Actions\PreviewCharacterStatReset;
 use App\StatReset\CharacterStatResetPreview;
@@ -91,7 +91,7 @@ final class CharacterStatResetPreviewTest extends TestCase
     private function preview(?AccountCharacter $character = null): CharacterStatResetPreview
     {
         $action = new PreviewCharacterStatReset(
-            new CharacterBaseStatsMapper,
+            new Version97d99iProfile,
         );
 
         return $action->handle(

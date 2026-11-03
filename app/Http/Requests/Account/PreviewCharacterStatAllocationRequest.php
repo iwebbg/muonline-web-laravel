@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Account;
 
 use App\Auth\GameAccount;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Stats\StatAllocation;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,7 +28,7 @@ final class PreviewCharacterStatAllocationRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'characterName' => [
                 'required',
                 'string',
@@ -35,11 +36,18 @@ final class PreviewCharacterStatAllocationRequest extends FormRequest
                 'max:10',
                 'regex:/\A[A-Za-z0-9_-]+\z/',
             ],
-            'strength' => ['required', 'integer', 'min:0', 'max:32767'],
-            'agility' => ['required', 'integer', 'min:0', 'max:32767'],
-            'vitality' => ['required', 'integer', 'min:0', 'max:32767'],
-            'energy' => ['required', 'integer', 'min:0', 'max:32767'],
         ];
+
+        foreach ($this->versionProfile()->stats() as $statDefinition) {
+            $rules[$statDefinition->key] = [
+                'sometimes',
+                'integer',
+                'min:0',
+                'max:'.$statDefinition->maximum,
+            ];
+        }
+
+        return $rules;
     }
 
     /**
@@ -55,11 +63,23 @@ final class PreviewCharacterStatAllocationRequest extends FormRequest
      */
     public function allocation(): StatAllocation
     {
-        return new StatAllocation(
-            strength: (int) $this->validated('strength'),
-            agility: (int) $this->validated('agility'),
-            vitality: (int) $this->validated('vitality'),
-            energy: (int) $this->validated('energy'),
-        );
+        $values = [];
+
+        foreach ($this->versionProfile()->stats() as $statDefinition) {
+            $values[$statDefinition->key] = (int) $this->validated(
+                $statDefinition->key,
+                0,
+            );
+        }
+
+        return StatAllocation::fromArray($values);
+    }
+
+    /**
+     * Resolves the active version profile for dynamic stat validation.
+     */
+    private function versionProfile(): GameVersionProfile
+    {
+        return app(GameVersionProfile::class);
     }
 }

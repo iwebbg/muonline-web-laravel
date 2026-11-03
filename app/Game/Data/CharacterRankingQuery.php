@@ -3,7 +3,7 @@
 namespace App\Game\Data;
 
 use App\Game\Rankings\RankingBoard;
-use App\Game\Versions\Version97d99i\CharacterClassFilter;
+use App\Game\Versions\CharacterClassDefinition;
 
 /**
  * Carries one validated character leaderboard query into a read repository.
@@ -15,7 +15,7 @@ final readonly class CharacterRankingQuery
      */
     public function __construct(
         public RankingBoard $board,
-        public ?CharacterClassFilter $classFilter,
+        public ?CharacterClassDefinition $classFilter,
         public int $page,
         public int $perPage,
         public string $search,

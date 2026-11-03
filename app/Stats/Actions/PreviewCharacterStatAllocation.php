@@ -3,9 +3,8 @@
 namespace App\Stats\Actions;
 
 use App\Game\Data\AccountCharacter;
-use App\Game\Versions\Version97d99i\CharacterStatLimitMapper;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Reset\ResetProfileSettings;
-use App\Stats\CharacterStats;
 use App\Stats\StatAllocation;
 use App\Stats\StatAllocationBlockReason;
 use App\Stats\StatAllocationPreview;
@@ -20,7 +19,7 @@ final readonly class PreviewCharacterStatAllocation
      * Creates the preview calculator with the active version stat-limit adapter.
      */
     public function __construct(
-        private CharacterStatLimitMapper $statLimitMapper,
+        private GameVersionProfile $versionProfile,
     ) {}
 
     /**
@@ -31,25 +30,28 @@ final readonly class PreviewCharacterStatAllocation
         StatAllocation $allocation,
         ResetProfileSettings $settings,
     ): StatAllocationPreview {
-        $currentStats = new CharacterStats(
-            strength: $character->strength,
-            agility: $character->agility,
-            vitality: $character->vitality,
-            energy: $character->energy,
-        );
+        $currentStats = $character->stats();
         $resultingStats = $currentStats->add($allocation);
         $allocatedPoints = $allocation->total();
         $blockReasons = [];
         $maximumStat = 0;
+        $maximumStats = [];
+        $supportedStatKeys = [];
 
         try {
-            $versionMaximumStat = $this->statLimitMapper->maximumForClass(
-                $character->classCode,
-            );
-            $maximumStat = min(
-                $versionMaximumStat,
-                $settings->maximumStat,
-            );
+            $statDefinitions = $this->versionProfile->statsForClass($character->classCode);
+
+            foreach ($statDefinitions as $statDefinition) {
+                $supportedStatKeys[] = $statDefinition->key;
+                $maximumStats[$statDefinition->key] = min(
+                    $statDefinition->maximum,
+                    $settings->maximumStat,
+                );
+            }
+
+            $maximumStat = $maximumStats === []
+                ? 0
+                : min($maximumStats);
         } catch (InvalidArgumentException) {
             $blockReasons[] = StatAllocationBlockReason::CharacterClassUnsupported;
         }
@@ -58,7 +60,10 @@ final readonly class PreviewCharacterStatAllocation
             $blockReasons[] = StatAllocationBlockReason::CharacterOnline;
         }
 
-        if (! $allocation->hasOnlyNonNegativeAmounts()) {
+        if (
+            ! $allocation->hasOnlyNonNegativeAmounts()
+            || $allocation->allocatesOutside($supportedStatKeys)
+        ) {
             $blockReasons[] = StatAllocationBlockReason::InvalidAllocation;
         }
 
@@ -72,7 +77,7 @@ final readonly class PreviewCharacterStatAllocation
 
         if (
             $maximumStat > 0
-            && $allocation->exceedsMaximum($currentStats, $maximumStat)
+            && $allocation->exceedsMaximum($currentStats, $maximumStats)
         ) {
             $blockReasons[] = StatAllocationBlockReason::StatLimitExceeded;
         }

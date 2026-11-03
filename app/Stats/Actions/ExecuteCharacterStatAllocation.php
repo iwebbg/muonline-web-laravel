@@ -171,11 +171,9 @@ final readonly class ExecuteCharacterStatAllocation
     {
         $stats = $snapshot['stats'];
 
-        return new CharacterStats(
-            strength: (int) $stats['strength'],
-            agility: (int) $stats['agility'],
-            vitality: (int) $stats['vitality'],
-            energy: (int) $stats['energy'],
-        );
+        return CharacterStats::fromArray(array_map(
+            static fn (mixed $value): int => (int) $value,
+            $stats,
+        ));
     }
 }

@@ -35,16 +35,16 @@
         <template x-if="statResetPreview !== null && !statResetPreviewLoading">
             <div>
                 <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    @foreach (['strength' => __('ui.account.strength'), 'agility' => __('ui.account.agility'), 'vitality' => __('ui.account.vitality'), 'energy' => __('ui.account.energy')] as $stat => $label)
+                    <template x-for="statDefinition in selectedCharacter.statDefinitions" :key="statDefinition.key">
                         <div class="outcome-card">
-                            <span>{{ $label }}</span>
+                            <span x-text="statDefinition.label"></span>
                             <strong>
-                                <span x-text="statResetPreview.currentStats.{{ $stat }}.toLocaleString()"></span>
+                                <span x-text="statResetPreview.currentStats[statDefinition.key].toLocaleString()"></span>
                                 →
-                                <span x-text="statResetPreview.resultingStats.{{ $stat }}.toLocaleString()"></span>
+                                <span x-text="statResetPreview.resultingStats[statDefinition.key].toLocaleString()"></span>
                             </strong>
                         </div>
-                    @endforeach
+                    </template>
                 </div>
 
                 <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

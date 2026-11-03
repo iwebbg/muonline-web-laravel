@@ -3,12 +3,11 @@
 namespace App\GrandReset\Actions;
 
 use App\Game\Data\AccountCharacter;
-use App\Game\Versions\Version97d99i\CharacterBaseStatsMapper;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\GrandReset\GrandResetBlockReason;
 use App\GrandReset\GrandResetPreview;
 use App\Reset\InventoryPolicy;
 use App\Reset\ResetProfileSettings;
-use App\Stats\CharacterStats;
 use InvalidArgumentException;
 
 /**
@@ -20,7 +19,7 @@ final readonly class PreviewCharacterGrandReset
      * Creates the preview calculator with the active class-stat adapter.
      */
     public function __construct(
-        private CharacterBaseStatsMapper $baseStatsMapper,
+        private GameVersionProfile $versionProfile,
     ) {}
 
     /**
@@ -36,12 +35,7 @@ final readonly class PreviewCharacterGrandReset
             currentPoints: $character->points,
             grandResetNumber: $resultingGrandResets,
         );
-        $currentStats = new CharacterStats(
-            strength: $character->strength,
-            agility: $character->agility,
-            vitality: $character->vitality,
-            energy: $character->energy,
-        );
+        $currentStats = $character->stats();
         $resultingStats = $currentStats;
         $blockReasons = [];
 
@@ -79,14 +73,8 @@ final readonly class PreviewCharacterGrandReset
 
         if ($settings->grandResetClearStats) {
             try {
-                $baseStats = $this->baseStatsMapper->forClass(
+                $resultingStats = $this->versionProfile->baseStatsForClass(
                     $character->classCode,
-                );
-                $resultingStats = new CharacterStats(
-                    strength: $baseStats->strength,
-                    agility: $baseStats->agility,
-                    vitality: $baseStats->vitality,
-                    energy: $baseStats->energy,
                 );
             } catch (InvalidArgumentException) {
                 $blockReasons[] = GrandResetBlockReason::CharacterClassUnsupported;

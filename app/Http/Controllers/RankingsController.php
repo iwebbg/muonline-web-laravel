@@ -6,7 +6,7 @@ use App\Game\Contracts\RealmReadRepository;
 use App\Game\Data\CharacterRankingPage;
 use App\Game\Data\GuildRankingPage;
 use App\Game\Rankings\RankingBoard;
-use App\Game\Versions\Version97d99i\CharacterClassFilter;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\Requests\RankingDataRequest;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +16,13 @@ use Illuminate\Http\JsonResponse;
  */
 final class RankingsController extends Controller
 {
+    /**
+     * Creates the controller with the active version class catalog.
+     */
+    public function __construct(
+        private readonly GameVersionProfile $versionProfile,
+    ) {}
+
     /**
      * Displays the explorer with its first server-rendered data page.
      */
@@ -154,13 +161,12 @@ final class RankingsController extends Controller
      */
     private function classFilters(): array
     {
-        return array_map(
-            static fn (CharacterClassFilter $classFilter): array => [
-                'value' => $classFilter->value,
-                'label' => $classFilter->abbreviation(),
-                'name' => $classFilter->className(),
-            ],
-            CharacterClassFilter::cases(),
-        );
+        $filters = [];
+
+        foreach ($this->versionProfile->classes() as $classDefinition) {
+            $filters[] = $classDefinition->toFilterArray();
+        }
+
+        return $filters;
     }
 }

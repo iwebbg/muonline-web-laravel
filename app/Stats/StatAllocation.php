@@ -7,25 +7,69 @@ namespace App\Stats;
  */
 final readonly class StatAllocation
 {
+    /** @var array<string, int> */
+    private array $values;
+
+    public int $strength;
+
+    public int $agility;
+
+    public int $vitality;
+
+    public int $energy;
+
     /**
-     * Creates an immutable allocation request.
+     * Creates an immutable allocation while retaining legacy property compatibility.
+     *
+     * @param  array<string, int>  $additional
      */
     public function __construct(
-        public int $strength,
-        public int $agility,
-        public int $vitality,
-        public int $energy,
-    ) {}
+        int $strength,
+        int $agility,
+        int $vitality,
+        int $energy,
+        array $additional = [],
+    ) {
+        $this->strength = $strength;
+        $this->agility = $agility;
+        $this->vitality = $vitality;
+        $this->energy = $energy;
+        $this->values = [
+            'strength' => $strength,
+            'agility' => $agility,
+            'vitality' => $vitality,
+            'energy' => $energy,
+            ...$additional,
+        ];
+    }
+
+    /**
+     * Creates an allocation from any version-defined set of attributes.
+     *
+     * @param  array<string, int>  $values
+     */
+    public static function fromArray(array $values): self
+    {
+        $additional = array_diff_key(
+            $values,
+            array_flip(['strength', 'agility', 'vitality', 'energy']),
+        );
+
+        return new self(
+            strength: $values['strength'] ?? 0,
+            agility: $values['agility'] ?? 0,
+            vitality: $values['vitality'] ?? 0,
+            energy: $values['energy'] ?? 0,
+            additional: $additional,
+        );
+    }
 
     /**
      * Returns the complete number of points consumed by the allocation.
      */
     public function total(): int
     {
-        return $this->strength
-            + $this->agility
-            + $this->vitality
-            + $this->energy;
+        return array_sum($this->values);
     }
 
     /**
@@ -33,37 +77,60 @@ final readonly class StatAllocation
      */
     public function hasOnlyNonNegativeAmounts(): bool
     {
-        return $this->strength >= 0
-            && $this->agility >= 0
-            && $this->vitality >= 0
-            && $this->energy >= 0;
+        foreach ($this->values as $amount) {
+            if ($amount < 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Determines whether positive points target a stat unavailable to the class.
+     *
+     * @param  list<string>  $supportedStatKeys
+     */
+    public function allocatesOutside(array $supportedStatKeys): bool
+    {
+        foreach ($this->values as $statKey => $amount) {
+            if ($amount > 0 && ! in_array($statKey, $supportedStatKeys, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * Determines whether applying the allocation would exceed one stat limit.
+     *
+     * @param  array<string, int>  $maximumStats
      */
     public function exceedsMaximum(
         CharacterStats $currentStats,
-        int $maximumStat,
+        array $maximumStats,
     ): bool {
-        return ($this->strength > 0 && $currentStats->strength + $this->strength > $maximumStat)
-            || ($this->agility > 0 && $currentStats->agility + $this->agility > $maximumStat)
-            || ($this->vitality > 0 && $currentStats->vitality + $this->vitality > $maximumStat)
-            || ($this->energy > 0 && $currentStats->energy + $this->energy > $maximumStat);
+        $currentValues = $currentStats->toArray();
+
+        foreach ($this->values as $statKey => $amount) {
+            $maximum = $maximumStats[$statKey] ?? null;
+
+            if ($amount > 0 && ($maximum === null || ($currentValues[$statKey] ?? 0) + $amount > $maximum)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * Converts the allocation to the stable request and audit shape.
      *
-     * @return array{strength: int, agility: int, vitality: int, energy: int}
+     * @return array<string, int>
      */
     public function toArray(): array
     {
-        return [
-            'strength' => $this->strength,
-            'agility' => $this->agility,
-            'vitality' => $this->vitality,
-            'energy' => $this->energy,
-        ];
+        return $this->values;
     }
 }

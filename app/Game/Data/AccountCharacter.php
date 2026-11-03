@@ -2,6 +2,8 @@
 
 namespace App\Game\Data;
 
+use App\Stats\CharacterStats;
+
 /**
  * Carries one private account character without exposing legacy column names.
  */
@@ -9,6 +11,8 @@ final readonly class AccountCharacter
 {
     /**
      * Creates an immutable character record for the account dashboard.
+     *
+     * @param  array<string, int>  $additionalStats
      */
     public function __construct(
         public string $name,
@@ -26,28 +30,44 @@ final readonly class AccountCharacter
         public int $energy,
         public string $map,
         public bool $online,
+        public array $additionalStats = [],
     ) {}
+
+    /**
+     * Returns every base and version-specific attribute as one typed snapshot.
+     */
+    public function stats(): CharacterStats
+    {
+        return new CharacterStats(
+            strength: $this->strength,
+            agility: $this->agility,
+            vitality: $this->vitality,
+            energy: $this->energy,
+            additional: $this->additionalStats,
+        );
+    }
 
     /**
      * Converts the character to the stable shape consumed by the Alpine panel.
      *
-     * @return array{name: string, class: string, image: string, level: int, resets: int, grandResets: int, zen: int, points: int, strength: int, agility: int, vitality: int, energy: int, map: string, online: bool}
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
+        $stats = $this->stats()->toArray();
+
         return [
             'name' => $this->name,
             'class' => $this->className,
+            'classCode' => $this->classCode,
             'image' => $this->image,
             'level' => $this->level,
             'resets' => $this->resets,
             'grandResets' => $this->grandResets,
             'zen' => $this->zen,
             'points' => $this->points,
-            'strength' => $this->strength,
-            'agility' => $this->agility,
-            'vitality' => $this->vitality,
-            'energy' => $this->energy,
+            'stats' => $stats,
+            ...$stats,
             'map' => $this->map,
             'online' => $this->online,
         ];

@@ -9,6 +9,16 @@ use InvalidArgumentException;
  */
 final class CharacterStatLimitMapper
 {
+    private readonly Version97d99iProfile $profile;
+
+    /**
+     * Creates the compatibility mapper over the canonical 97d+99i profile.
+     */
+    public function __construct(?Version97d99iProfile $profile = null)
+    {
+        $this->profile = $profile ?? new Version97d99iProfile;
+    }
+
     /**
      * Returns the configured maximum for every supported 97d+99i class code.
      *
@@ -16,11 +26,18 @@ final class CharacterStatLimitMapper
      */
     public function maximumForClass(int $classCode): int
     {
-        return match ($classCode) {
-            0, 1, 16, 17, 32, 33, 48 => 32_767,
-            default => throw new InvalidArgumentException(
+        $statDefinitions = $this->profile->statsForClass($classCode);
+        $maximumValues = array_map(
+            static fn ($statDefinition): int => $statDefinition->maximum,
+            $statDefinitions,
+        );
+
+        if ($maximumValues === []) {
+            throw new InvalidArgumentException(
                 sprintf('Unsupported 97d+99i character class code: %d.', $classCode),
-            ),
-        };
+            );
+        }
+
+        return min($maximumValues);
     }
 }

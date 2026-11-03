@@ -1073,6 +1073,22 @@ export function eventSchedule(initialEvents, serverNow) {
 }
 
 /**
+ * Creates a zero-value allocation map for one character's version-defined stats.
+ *
+ * @param {object|null} character The selected account character.
+ * @returns {Record<string, number>}
+ */
+function createEmptyStatAllocations(character) {
+    const allocations = {};
+
+    for (const statDefinition of character?.statDefinitions ?? []) {
+        allocations[statDefinition.key] = 0;
+    }
+
+    return allocations;
+}
+
+/**
  * Creates the interactive character, stat allocation and account tab state.
  *
  * @param {Array<object>} characters Character records available to the account.
@@ -1132,12 +1148,7 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         itemStorageError: null,
         itemStorageRequestId: 0,
         selectedVaultNumber: null,
-        allocations: {
-            strength: 0,
-            agility: 0,
-            vitality: 0,
-            energy: 0,
-        },
+        allocations: createEmptyStatAllocations(characters[0] ?? null),
 
         /**
          * Returns the currently selected character record.
@@ -1170,6 +1181,19 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             }
 
             return allocatedPoints;
+        },
+
+        /**
+         * Applies a server-returned dynamic stat snapshot to the selected character.
+         *
+         * @param {Record<string, number>} stats The authoritative stat values.
+         */
+        applyCharacterStats(stats) {
+            this.selectedCharacter.stats = {...stats};
+
+            for (const [statKey, value] of Object.entries(stats)) {
+                this.selectedCharacter[statKey] = value;
+            }
         },
 
         /**
@@ -1816,10 +1840,7 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                 this.selectedCharacter.resets = result.resultingResets;
                 this.selectedCharacter.zen = result.resultingZen;
                 this.selectedCharacter.points = result.resultingPoints;
-                this.selectedCharacter.strength = result.resultingStats.strength;
-                this.selectedCharacter.agility = result.resultingStats.agility;
-                this.selectedCharacter.vitality = result.resultingStats.vitality;
-                this.selectedCharacter.energy = result.resultingStats.energy;
+                this.applyCharacterStats(result.resultingStats);
                 this.resetConfirmationOpen = false;
                 this.resetSuccessMessage = responsePayload.message
                     ?? this.resetPreviewConfiguration.completed;
@@ -1967,10 +1988,7 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                 this.selectedCharacter.grandResets = result.afterGrandResets;
                 this.selectedCharacter.zen = result.afterZen;
                 this.selectedCharacter.points = result.afterPoints;
-                this.selectedCharacter.strength = result.afterStats.strength;
-                this.selectedCharacter.agility = result.afterStats.agility;
-                this.selectedCharacter.vitality = result.afterStats.vitality;
-                this.selectedCharacter.energy = result.afterStats.energy;
+                this.applyCharacterStats(result.afterStats);
                 this.grandResetConfirmationOpen = false;
                 this.grandResetSuccessMessage = responsePayload.message
                     ?? this.resetPreviewConfiguration.grandResetCompleted;
@@ -2115,10 +2133,7 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
 
                 this.selectedCharacter.zen = result.afterZen;
                 this.selectedCharacter.points = result.afterPoints;
-                this.selectedCharacter.strength = result.afterStats.strength;
-                this.selectedCharacter.agility = result.afterStats.agility;
-                this.selectedCharacter.vitality = result.afterStats.vitality;
-                this.selectedCharacter.energy = result.afterStats.energy;
+                this.applyCharacterStats(result.afterStats);
                 this.statResetConfirmationOpen = false;
                 this.statResetSuccessMessage = responsePayload.message
                     ?? this.resetPreviewConfiguration.statResetCompleted;
@@ -2566,16 +2581,8 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                 const result = responsePayload.result;
 
                 this.selectedCharacter.points = result.afterPoints;
-                this.selectedCharacter.strength = result.afterStats.strength;
-                this.selectedCharacter.agility = result.afterStats.agility;
-                this.selectedCharacter.vitality = result.afterStats.vitality;
-                this.selectedCharacter.energy = result.afterStats.energy;
-                this.allocations = {
-                    strength: 0,
-                    agility: 0,
-                    vitality: 0,
-                    energy: 0,
-                };
+                this.applyCharacterStats(result.afterStats);
+                this.allocations = createEmptyStatAllocations(this.selectedCharacter);
                 this.statPreview = null;
                 this.statConfirmationOpen = false;
                 this.statSuccessMessage = responsePayload.message
@@ -2634,12 +2641,7 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
          * Clears all pending stat allocation values.
          */
         resetAllocations() {
-            this.allocations = {
-                strength: 0,
-                agility: 0,
-                vitality: 0,
-                energy: 0,
-            };
+            this.allocations = createEmptyStatAllocations(this.selectedCharacter);
             this.clearStatReview();
         },
     };

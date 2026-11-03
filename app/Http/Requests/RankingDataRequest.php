@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Game\Data\CharacterRankingQuery;
 use App\Game\Data\GuildRankingQuery;
 use App\Game\Rankings\RankingBoard;
-use App\Game\Versions\Version97d99i\CharacterClassFilter;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -32,7 +32,7 @@ final class RankingDataRequest extends FormRequest
     {
         return [
             'board' => ['sometimes', Rule::enum(RankingBoard::class)],
-            'class' => ['sometimes', 'nullable', Rule::enum(CharacterClassFilter::class)],
+            'class' => ['sometimes', 'nullable', Rule::in($this->classFilterKeys())],
             'page' => ['sometimes', 'integer', 'min:1'],
             'per_page' => ['sometimes', 'integer', 'min:2', 'max:25'],
             'search' => ['sometimes', 'nullable', 'string', 'max:50'],
@@ -54,7 +54,9 @@ final class RankingDataRequest extends FormRequest
      */
     public function characterQuery(): CharacterRankingQuery
     {
-        $classFilter = CharacterClassFilter::tryFrom((string) $this->input('class'));
+        $classFilter = $this->versionProfile()->classForKey(
+            (string) $this->input('class'),
+        );
         $board = $this->board();
 
         if ($board === RankingBoard::Guilds) {
@@ -81,5 +83,29 @@ final class RankingDataRequest extends FormRequest
             perPage: max(2, min($this->integer('per_page', 12), 25)),
             search: trim((string) $this->input('search', '')),
         );
+    }
+
+    /**
+     * Returns every class-filter key accepted by the active game profile.
+     *
+     * @return list<string>
+     */
+    private function classFilterKeys(): array
+    {
+        $keys = [];
+
+        foreach ($this->versionProfile()->classes() as $classDefinition) {
+            $keys[] = $classDefinition->key;
+        }
+
+        return $keys;
+    }
+
+    /**
+     * Resolves the active version profile from the application container.
+     */
+    private function versionProfile(): GameVersionProfile
+    {
+        return app(GameVersionProfile::class);
     }
 }

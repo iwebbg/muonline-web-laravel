@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Auth\GameAccount;
 use App\Economy\WalletCurrency;
 use App\Game\Contracts\AccountReadRepository;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\AccountPanelConfiguration;
 use App\Models\AccountWallet;
 use App\Models\VipEntitlement;
@@ -28,6 +29,7 @@ final class AccountDashboardController extends Controller
         private readonly AccountReadRepository $accountReadRepository,
         private readonly ModuleManager $moduleManager,
         private readonly AccountPanelConfiguration $accountPanelConfiguration,
+        private readonly GameVersionProfile $versionProfile,
     ) {}
 
     /**
@@ -43,7 +45,15 @@ final class AccountDashboardController extends Controller
         $characters = [];
 
         foreach ($characterEntries as $characterEntry) {
-            $characters[] = $characterEntry->toArray();
+            $character = $characterEntry->toArray();
+            $statDefinitions = [];
+
+            foreach ($this->versionProfile->statsForClass($characterEntry->classCode) as $statDefinition) {
+                $statDefinitions[] = $statDefinition->toClientArray(app()->getLocale());
+            }
+
+            $character['statDefinitions'] = $statDefinitions;
+            $characters[] = $character;
         }
 
         $wallet = AccountWallet::query()

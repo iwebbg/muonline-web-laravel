@@ -1,5 +1,7 @@
 <?php
 
+use App\Game\Versions\Version97d99i\Version97d99iProfile;
+
 return [
     'data_source' => env('GAME_DATA_SOURCE', 'fixture'),
 
@@ -55,5 +57,9 @@ return [
         'experience' => '9999x',
         'drop' => '60%',
         'capacity' => 500,
+    ],
+
+    'version_profiles' => [
+        'darksteam_97d99i' => Version97d99iProfile::class,
     ],
 ];

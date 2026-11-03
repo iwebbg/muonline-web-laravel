@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Game\Data\AccountCharacter;
-use App\Game\Versions\Version97d99i\CharacterStatLimitMapper;
+use App\Game\Versions\Version97d99i\Version97d99iProfile;
 use App\Reset\InventoryPolicy;
 use App\Reset\PointsMode;
 use App\Reset\ResetProfileSettings;
@@ -139,7 +139,7 @@ final class StatAllocationPreviewTest extends TestCase
         int $classCode = 17,
     ): StatAllocationPreview {
         $action = new PreviewCharacterStatAllocation(
-            new CharacterStatLimitMapper,
+            new Version97d99iProfile,
         );
 
         return $action->handle(

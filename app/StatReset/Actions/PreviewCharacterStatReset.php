@@ -3,11 +3,10 @@
 namespace App\StatReset\Actions;
 
 use App\Game\Data\AccountCharacter;
-use App\Game\Versions\Version97d99i\CharacterBaseStatsMapper;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Reset\ResetProfileSettings;
 use App\StatReset\CharacterStatResetPreview;
 use App\StatReset\StatResetBlockReason;
-use App\Stats\CharacterStats;
 use InvalidArgumentException;
 
 /**
@@ -19,7 +18,7 @@ final readonly class PreviewCharacterStatReset
      * Creates the preview calculator with its version-specific class mapper.
      */
     public function __construct(
-        private CharacterBaseStatsMapper $baseStatsMapper,
+        private GameVersionProfile $versionProfile,
     ) {}
 
     /**
@@ -29,36 +28,20 @@ final readonly class PreviewCharacterStatReset
         AccountCharacter $character,
         ResetProfileSettings $settings,
     ): CharacterStatResetPreview {
-        $currentStats = new CharacterStats(
-            strength: $character->strength,
-            agility: $character->agility,
-            vitality: $character->vitality,
-            energy: $character->energy,
-        );
+        $currentStats = $character->stats();
         $resultingStats = $currentStats;
         $refundedPoints = 0;
         $blockReasons = [];
 
         try {
-            $baseStats = $this->baseStatsMapper->forClass($character->classCode);
-            $resultingStats = new CharacterStats(
-                strength: $baseStats->strength,
-                agility: $baseStats->agility,
-                vitality: $baseStats->vitality,
-                energy: $baseStats->energy,
-            );
-            $hasInvalidStats = $character->strength < $baseStats->strength
-                || $character->agility < $baseStats->agility
-                || $character->vitality < $baseStats->vitality
-                || $character->energy < $baseStats->energy;
+            $baseStats = $this->versionProfile->baseStatsForClass($character->classCode);
+            $resultingStats = $baseStats;
+            $hasInvalidStats = ! $currentStats->containsAtLeast($baseStats);
 
             if ($hasInvalidStats) {
                 $blockReasons[] = StatResetBlockReason::CharacterStatsInvalid;
             } else {
-                $refundedPoints = ($character->strength - $baseStats->strength)
-                    + ($character->agility - $baseStats->agility)
-                    + ($character->vitality - $baseStats->vitality)
-                    + ($character->energy - $baseStats->energy);
+                $refundedPoints = $currentStats->allocatedAbove($baseStats);
             }
         } catch (InvalidArgumentException) {
             $blockReasons[] = StatResetBlockReason::CharacterClassUnsupported;

@@ -3,12 +3,12 @@
         <article class="panel-card">
             <p class="kicker">{{ __('ui.account.core_attributes') }}</p>
             <div class="mt-6 grid gap-4">
-                @foreach (['strength' => __('ui.account.strength'), 'agility' => __('ui.account.agility'), 'vitality' => __('ui.account.vitality'), 'energy' => __('ui.account.energy')] as $stat => $label)
+                <template x-for="statDefinition in selectedCharacter.statDefinitions" :key="statDefinition.key">
                     <div class="stat-line">
-                        <span>{{ $label }}</span>
-                        <strong x-text="selectedCharacter.{{ $stat }}.toLocaleString()"></strong>
+                        <span x-text="statDefinition.label"></span>
+                        <strong x-text="selectedCharacter.stats[statDefinition.key].toLocaleString()"></strong>
                     </div>
-                @endforeach
+                </template>
             </div>
         </article>
         <article class="panel-card">
