@@ -853,6 +853,27 @@
         align-items: start;
     }
 
+    .vault-storage-layout {
+        display: grid;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .vault-storage-column {
+        position: relative;
+        min-width: 0;
+    }
+
+    .vault-storage-column:hover,
+    .vault-storage-column:focus-within {
+        z-index: 50;
+    }
+
+    .web-vault-column {
+        border-top: 1px solid rgb(255 255 255 / 0.08);
+        padding-top: 2rem;
+    }
+
     .inventory-slot {
         position: relative;
         width: var(--inventory-cell-size);
@@ -1363,6 +1384,16 @@
     .inventory-storage-layout {
         grid-template-columns: max-content max-content;
         gap: clamp(1.75rem, 3vw, 3.5rem);
+    }
+
+    .vault-storage-layout {
+        grid-template-columns: max-content minmax(0, 1fr);
+        gap: clamp(2rem, 3vw, 3.5rem);
+    }
+
+    .web-vault-column {
+        border-top: 0;
+        padding-top: 0;
     }
 }
 

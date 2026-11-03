@@ -39,31 +39,33 @@
         <p class="mt-6 text-sm text-crimson" x-show="itemStorageError" x-text="itemStorageError"></p>
 
         <template x-if="itemStorage !== null && !itemStorageLoading">
-            <div>
-                <div class="mt-7 flex flex-wrap items-center justify-between gap-3">
-                    <p class="kicker">{{ __('ui.account.game_vaults') }}</p>
-                    <div class="segmented-control" x-show="itemStorage.warehouse.vaults.length > 1">
-                        <template x-for="vault in itemStorage.warehouse.vaults" :key="vault.number">
-                            <button
-                                type="button"
-                                :class="selectedVaultNumber === vault.number && 'segmented-control-active'"
-                                @click="selectWarehouseVault(vault.number)"
-                                x-text="vault.active ? resetPreviewConfiguration.mainVaultLabel : `${resetPreviewConfiguration.vaultLabel} ${vault.number}`"
-                            ></button>
-                        </template>
+            <div class="vault-storage-layout mt-7">
+                <section class="vault-storage-column">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <p class="kicker">{{ __('ui.account.game_vaults') }}</p>
+                        <div class="segmented-control" x-show="itemStorage.warehouse.vaults.length > 1">
+                            <template x-for="vault in itemStorage.warehouse.vaults" :key="vault.number">
+                                <button
+                                    type="button"
+                                    :class="selectedVaultNumber === vault.number && 'segmented-control-active'"
+                                    @click="selectWarehouseVault(vault.number)"
+                                    x-text="vault.active ? resetPreviewConfiguration.mainVaultLabel : `${resetPreviewConfiguration.vaultLabel} ${vault.number}`"
+                                ></button>
+                            </template>
+                        </div>
                     </div>
-                </div>
-                <p class="mt-4 text-sm text-steel" x-show="selectedWarehouseVault === null">{{ __('ui.account.no_warehouse') }}</p>
-                <x-item-grid
-                    class="mt-4"
-                    :slots="120"
-                    items="selectedWarehouseVault?.items ?? []"
-                    item-action="openWarehouseItemActions"
-                    x-show="selectedWarehouseVault !== null"
-                />
+                    <p class="mt-4 text-sm text-steel" x-show="selectedWarehouseVault === null">{{ __('ui.account.no_warehouse') }}</p>
+                    <x-item-grid
+                        class="mt-4"
+                        :slots="120"
+                        items="selectedWarehouseVault?.items ?? []"
+                        item-action="openWarehouseItemActions"
+                        x-show="selectedWarehouseVault !== null"
+                    />
+                </section>
 
                 <template x-if="resetPreviewConfiguration.webStorageEnabled">
-                    <div class="mt-8 border-t border-white/8 pt-8">
+                    <section class="vault-storage-column web-vault-column">
                         <div class="flex items-end justify-between gap-4">
                             <div>
                                 <p class="kicker">{{ __('ui.web_storage.kicker') }}</p>
@@ -79,14 +81,13 @@
                                     </template>
                                     <span class="min-w-0 text-left">
                                         <strong class="block truncate" :class="`item-name-${itemNameTone(storedItem.item)}`" x-text="itemTitle(storedItem.item)"></strong>
-                                        <small class="mt-1 block text-steel" x-text="storedItem.item.code"></small>
                                     </span>
                                     <x-item-tooltip item="storedItem.item" />
                                 </button>
                             </template>
                         </div>
                         <p class="mt-4 text-sm text-steel" x-show="resetPreviewConfiguration.webStorageItems.length === 0">{{ __('ui.web_storage.empty') }}</p>
-                    </div>
+                    </section>
                 </template>
             </div>
         </template>
