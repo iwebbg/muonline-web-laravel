@@ -97,6 +97,11 @@ final class AccountDashboardTest extends TestCase
         $response->assertOk();
         $response->assertSee('No characters found');
         $response->assertSee('Account security');
+        $response->assertSee('Account storage');
+        $this->assertMatchesRegularExpression(
+            '/initialSection.{0,80}vaults/',
+            $response->getContent(),
+        );
     }
 
     /**

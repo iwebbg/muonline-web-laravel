@@ -32,9 +32,13 @@
                 <div class="grid content-start gap-4">
                     <p class="text-sm leading-6 text-silver">{{ __('ui.account.item_actions_help') }}</p>
 
-                    <form method="POST" :action="resetPreviewConfiguration.marketListingStoreUrl" class="rounded-2xl border border-white/8 bg-white/[0.025] p-4" x-show="selectedItemLocation === 'warehouse' && resetPreviewConfiguration.marketEnabled">
+                    <p class="rounded-xl border border-amber-300/20 bg-amber-300/8 p-4 text-sm text-amber-100" x-show="selectedItemLocation === 'warehouse' && selectedCharacter === undefined">
+                        {{ __('ui.account.item_actions_character_required') }}
+                    </p>
+
+                    <form method="POST" :action="resetPreviewConfiguration.marketListingStoreUrl" class="rounded-2xl border border-white/8 bg-white/[0.025] p-4" x-show="selectedItemLocation === 'warehouse' && selectedCharacter !== undefined && resetPreviewConfiguration.marketEnabled">
                         @csrf
-                        <input type="hidden" name="character_name" :value="selectedCharacter.name">
+                        <input type="hidden" name="character_name" :value="selectedCharacter?.name ?? ''">
                         <input type="hidden" name="vault" :value="selectedVaultNumber">
                         <input type="hidden" name="slot" :value="selectedActionItem?.slot">
                         <input type="hidden" name="idempotency_key" :value="itemActionIdempotencyKey">
@@ -56,9 +60,9 @@
                         <button type="submit" class="button button-primary mt-4 w-full" :disabled="!resetPreviewConfiguration.writesEnabled">{{ __('ui.account.item_sell_market') }}</button>
                     </form>
 
-                    <form method="POST" :action="resetPreviewConfiguration.webStorageStoreUrl" x-show="selectedItemLocation === 'warehouse' && resetPreviewConfiguration.webStorageEnabled">
+                    <form method="POST" :action="resetPreviewConfiguration.webStorageStoreUrl" x-show="selectedItemLocation === 'warehouse' && selectedCharacter !== undefined && resetPreviewConfiguration.webStorageEnabled">
                         @csrf
-                        <input type="hidden" name="character_name" :value="selectedCharacter.name">
+                        <input type="hidden" name="character_name" :value="selectedCharacter?.name ?? ''">
                         <input type="hidden" name="vault" :value="selectedVaultNumber">
                         <input type="hidden" name="slot" :value="selectedActionItem?.slot">
                         <input type="hidden" name="idempotency_key" :value="itemActionIdempotencyKey">

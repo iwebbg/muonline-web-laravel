@@ -511,6 +511,7 @@ return [
         'item_actions_heading' => 'Choose an item action',
         'item_actions_help' => 'The exact item and all of its options are verified again before it leaves its current storage.',
         'item_actions_close' => 'Close item actions',
+        'item_actions_character_required' => 'Create a character before moving a game-warehouse item into market or web custody.',
         'item_sell_market' => 'Sell on market',
         'item_move_game_vault' => 'Move to game warehouse',
         'item_durability' => 'Durability',

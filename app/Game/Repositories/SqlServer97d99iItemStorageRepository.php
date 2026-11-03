@@ -36,6 +36,23 @@ final readonly class SqlServer97d99iItemStorageRepository implements ItemStorage
     ) {}
 
     /**
+     * Returns account-scoped warehouse data for accounts without characters.
+     */
+    public function forAccount(string $accountId): AccountItemStorage
+    {
+        $emptyCharacterStorage = new CharacterItemStorage(
+            characterName: '',
+            equipment: [],
+            inventory: [],
+        );
+
+        return $this->withWarehouse(
+            accountId: $accountId,
+            characterStorage: $emptyCharacterStorage,
+        );
+    }
+
+    /**
      * Returns character and warehouse items after enforcing account ownership.
      */
     public function forAccountAndCharacter(
@@ -64,6 +81,21 @@ final readonly class SqlServer97d99iItemStorageRepository implements ItemStorage
             equipment: $equipment,
             inventory: $inventory,
         );
+
+        return $this->withWarehouse(
+            accountId: $accountId,
+            characterStorage: $characterStorage,
+        );
+    }
+
+    /**
+     * Combines decoded character storage with its account-owned warehouses.
+     */
+    private function withWarehouse(
+        string $accountId,
+        CharacterItemStorage $characterStorage,
+    ): AccountItemStorage {
+        $connection = $this->database->connection('game');
         $warehouseColumns = $this->warehouseColumns();
         $warehouse = $connection
             ->table('warehouse')

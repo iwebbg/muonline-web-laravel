@@ -69,15 +69,13 @@
             </div>
         @endif
 
-        @if ($characters === [])
-            <article class="panel-card mt-8 text-center">
-                <p class="kicker">{{ __('ui.account.no_characters') }}</p>
-                <h2 class="mt-3 text-2xl font-semibold text-white">{{ __('ui.account.no_characters_heading') }}</h2>
-                <p class="mx-auto mt-3 max-w-xl text-silver">{{ __('ui.account.no_characters_help') }}</p>
-            </article>
-        @else
-            <x-account-character-selector class="mt-8" />
+        <x-account-character-selector class="mt-8" />
 
+        @if ($characters === [])
+            <section class="mt-6 min-w-0">
+                <x-account-vaults-panel :show-empty-character-notice="true" />
+            </section>
+        @else
             <div
                 class="mt-6 grid gap-6"
                 :class="activeSection === 'vaults' ? 'grid-cols-1' : 'xl:grid-cols-[22rem_1fr]'"

@@ -1177,13 +1177,14 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
          * Stores the selected character and account tab in the current URL.
          */
         synchronizeAccountLocation() {
-            if (this.selectedCharacter === undefined) {
-                return;
-            }
-
             const location = new URL(window.location.href);
 
-            location.searchParams.set('character', this.selectedCharacter.name);
+            if (this.selectedCharacter === undefined) {
+                location.searchParams.delete('character');
+            } else {
+                location.searchParams.set('character', this.selectedCharacter.name);
+            }
+
             location.searchParams.set('tab', this.activeSection);
             window.history.replaceState({}, '', location);
         },
@@ -1550,7 +1551,7 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                             'X-CSRF-TOKEN': this.resetPreviewConfiguration.csrfToken,
                         },
                         body: JSON.stringify({
-                            characterName: this.selectedCharacter.name,
+                            characterName: this.selectedCharacter?.name ?? null,
                         }),
                     },
                 );

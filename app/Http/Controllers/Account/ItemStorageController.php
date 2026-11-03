@@ -29,10 +29,13 @@ final class ItemStorageController extends Controller
 
         abort_unless($account instanceof GameAccount, 403);
 
-        $storage = $this->itemStorageRepository->forAccountAndCharacter(
-            $account->username,
-            $request->string('characterName')->toString(),
-        );
+        $characterName = $request->string('characterName')->toString();
+        $storage = $characterName === ''
+            ? $this->itemStorageRepository->forAccount($account->username)
+            : $this->itemStorageRepository->forAccountAndCharacter(
+                $account->username,
+                $characterName,
+            );
 
         abort_if($storage === null, 404);
 

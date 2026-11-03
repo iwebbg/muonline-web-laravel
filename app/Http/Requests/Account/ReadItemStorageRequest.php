@@ -6,7 +6,7 @@ use App\Auth\GameAccount;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Validates an authenticated request for one owned character's item storage.
+ * Validates an authenticated character or account-vault storage request.
  */
 final class ReadItemStorageRequest extends FormRequest
 {
@@ -26,7 +26,7 @@ final class ReadItemStorageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'characterName' => ['required', 'string', 'max:10'],
+            'characterName' => ['nullable', 'string', 'max:10'],
         ];
     }
 }

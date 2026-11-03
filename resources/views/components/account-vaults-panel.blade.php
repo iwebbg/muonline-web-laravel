@@ -1,7 +1,19 @@
+@props([
+    'showEmptyCharacterNotice' => false,
+])
+
 <div {{ $attributes->class(['mt-5']) }} x-show="activeSection === 'vaults'" x-cloak>
     @if (session('marketStatus') || session('webStorageStatus'))
         <div class="mb-5 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">
             {{ session('marketStatus') ?? session('webStorageStatus') }}
+        </div>
+    @endif
+
+    @if ($showEmptyCharacterNotice)
+        <div class="mb-5 rounded-2xl border border-gold/20 bg-gold/5 p-5">
+            <p class="kicker">{{ __('ui.account.no_characters') }}</p>
+            <h2 class="mt-2 text-xl font-semibold text-white">{{ __('ui.account.no_characters_heading') }}</h2>
+            <p class="mt-2 text-sm leading-6 text-silver">{{ __('ui.account.no_characters_help') }}</p>
         </div>
     @endif
     @if ($errors->has('market') || $errors->has('webStorage'))

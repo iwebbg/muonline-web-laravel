@@ -153,9 +153,15 @@ final class AccountDashboardController extends Controller
         ];
         $requestedSection = $request->string('tab')->toString();
         $requestedCharacter = $request->string('character')->toString();
-        $accountPanelConfiguration['initialSection'] = in_array($requestedSection, $allowedSections, true)
+        $initialSection = in_array($requestedSection, $allowedSections, true)
             ? $requestedSection
             : 'overview';
+
+        if ($characterNames === []) {
+            $initialSection = 'vaults';
+        }
+
+        $accountPanelConfiguration['initialSection'] = $initialSection;
         $accountPanelConfiguration['initialCharacter'] = in_array($requestedCharacter, $characterNames, true)
             ? $requestedCharacter
             : ($characterNames[0] ?? null);

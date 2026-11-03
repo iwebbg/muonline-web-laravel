@@ -110,6 +110,35 @@ final class ItemStorageEndpointTest extends TestCase
     }
 
     /**
+     * Confirms a new account can read its warehouse without owning a character.
+     */
+    public function test_it_returns_account_warehouse_without_a_character(): void
+    {
+        $connection = $this->app->make(DatabaseManager::class)->connection('game');
+        $warehouseItem = $this->item('20001200000000000000');
+
+        $connection->table('warehouse')->insert([
+            'AccountID' => 'newowner',
+            'Items' => $this->blob(120, [5 => $warehouseItem]),
+            'Money' => 5_000_000,
+            'MultiVault' => 0,
+            'Items00' => null,
+            'Items01' => null,
+            'Items02' => null,
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('newowner'))
+            ->postItemStorage(null);
+
+        $response->assertOk();
+        $response->assertJsonPath('storage.character.characterName', '');
+        $response->assertJsonPath('storage.character.equipment', []);
+        $response->assertJsonPath('storage.warehouse.zen', 5_000_000);
+        $response->assertJsonPath('storage.warehouse.vaults.0.items.0.slot', 5);
+    }
+
+    /**
      * Confirms guests cannot access private item storage.
      */
     public function test_it_requires_authentication(): void
@@ -138,7 +167,7 @@ final class ItemStorageEndpointTest extends TestCase
     /**
      * Sends an item storage request with a valid web CSRF session.
      */
-    private function postItemStorage(string $characterName): TestResponse
+    private function postItemStorage(?string $characterName): TestResponse
     {
         $csrfToken = 'item-storage-endpoint-test-token';
 
