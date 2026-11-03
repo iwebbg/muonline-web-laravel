@@ -8,6 +8,7 @@ use App\Http\Requests\Account\PurchaseMarketListingRequest;
 use App\Market\Actions\PurchaseMarketListing;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingStatus;
+use App\Market\MarketStorageDestination;
 use App\Models\MarketListing;
 use Illuminate\Http\RedirectResponse;
 
@@ -40,9 +41,11 @@ final class MarketPurchaseController extends Controller
             ]);
         }
 
-        $messageKey = $listing->status === MarketListingStatus::Delivered
-            ? 'ui.market.purchase_delivered'
-            : 'ui.market.purchase_pending';
+        $messageKey = match (true) {
+            $listing->status !== MarketListingStatus::Delivered => 'ui.market.purchase_pending',
+            $listing->storage_destination === MarketStorageDestination::WebVault => 'ui.market.purchase_delivered_web',
+            default => 'ui.market.purchase_delivered',
+        };
 
         return back()->with('marketStatus', __($messageKey));
     }

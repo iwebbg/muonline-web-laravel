@@ -6,6 +6,7 @@ use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use App\Market\MarketListingStatus;
+use App\Market\MarketStorageDestination;
 use App\Models\MarketListing;
 use Throwable;
 
@@ -19,6 +20,7 @@ final readonly class SynchronizeMarketListing
      */
     public function __construct(
         private MarketItemEscrowRepository $escrowRepository,
+        private FallbackMarketListingToWebStorage $fallbackMarketListingToWebStorage,
     ) {}
 
     /**
@@ -58,6 +60,7 @@ final readonly class SynchronizeMarketListing
                 );
                 $listing->forceFill([
                     'status' => MarketListingStatus::Delivered,
+                    'storage_destination' => MarketStorageDestination::GameVault,
                     'escrow_key' => null,
                     'delivered_at' => now(),
                     'last_sync_error' => null,
@@ -72,6 +75,7 @@ final readonly class SynchronizeMarketListing
                 );
                 $listing->forceFill([
                     'status' => MarketListingStatus::Returned,
+                    'storage_destination' => MarketStorageDestination::GameVault,
                     'escrow_key' => null,
                     'returned_at' => now(),
                     'last_sync_error' => null,
@@ -80,6 +84,10 @@ final readonly class SynchronizeMarketListing
                 return true;
             }
         } catch (MarketListingRejected $exception) {
+            if ($this->shouldUseWebStorageFallback($listing, $exception)) {
+                return $this->fallbackToWebStorage($listing);
+            }
+
             $terminalExtractionFailure = $listing->status === MarketListingStatus::Extracting
                 && in_array(
                     $exception->reason,
@@ -113,6 +121,49 @@ final readonly class SynchronizeMarketListing
         ])->save();
 
         return true;
+    }
+
+    /**
+     * Reports whether a terminal warehouse-capacity failure should use web custody.
+     */
+    private function shouldUseWebStorageFallback(
+        MarketListing $listing,
+        MarketListingRejected $exception,
+    ): bool {
+        $isDeliveryTransition = in_array(
+            $listing->status,
+            [MarketListingStatus::DeliveryPending, MarketListingStatus::ReturnPending],
+            true,
+        );
+        $isStorageFailure = in_array(
+            $exception->reason,
+            [MarketListingBlockReason::StorageFull, MarketListingBlockReason::WarehouseNotFound],
+            true,
+        );
+
+        return $isDeliveryTransition && $isStorageFailure;
+    }
+
+    /**
+     * Finalizes one full-warehouse delivery in recoverable web storage.
+     */
+    private function fallbackToWebStorage(MarketListing $listing): bool
+    {
+        try {
+            $resolvedListing = $this->fallbackMarketListingToWebStorage->execute(
+                (int) $listing->getKey(),
+            );
+
+            return in_array(
+                $resolvedListing->status,
+                [MarketListingStatus::Delivered, MarketListingStatus::Returned],
+                true,
+            );
+        } catch (Throwable) {
+            $this->recordFailure($listing, 'web_storage_fallback_failed');
+
+            return false;
+        }
     }
 
     /**

@@ -116,7 +116,12 @@
                                 <tr>
                                     <td class="px-5 py-4 text-white">{{ $listing->item_snapshot['name'] ?? __('ui.market.unknown_item') }}</td>
                                     <td class="px-5 py-4 text-gold">{{ number_format($listing->price_credits) }}</td>
-                                    <td class="px-5 py-4 text-silver">{{ __('ui.market.statuses.'.$listing->status->value) }}</td>
+                                    <td class="px-5 py-4 text-silver">
+                                        <span class="block">{{ __('ui.market.statuses.'.$listing->status->value) }}</span>
+                                        @if ($listing->storage_destination !== null)
+                                            <span class="mt-1 block text-xs text-steel">{{ __('ui.market.destinations.'.$listing->storage_destination->value) }}</span>
+                                        @endif
+                                    </td>
                                     <td class="px-5 py-4 text-right">
                                         @if ($listing->status === \App\Market\MarketListingStatus::Active && $listing->highest_bid_id === null)
                                             <form method="POST" action="{{ route('market.listings.destroy', $listing) }}">
@@ -151,7 +156,12 @@
                                 <tr>
                                     <td class="px-5 py-4 text-white">{{ $listing->item_snapshot['name'] ?? __('ui.market.unknown_item') }}</td>
                                     <td class="px-5 py-4 text-gold">{{ number_format($listing->price_credits) }}</td>
-                                    <td class="px-5 py-4 text-silver">{{ __('ui.market.statuses.'.$listing->status->value) }}</td>
+                                    <td class="px-5 py-4 text-silver">
+                                        <span class="block">{{ __('ui.market.statuses.'.$listing->status->value) }}</span>
+                                        @if ($listing->storage_destination !== null)
+                                            <span class="mt-1 block text-xs text-steel">{{ __('ui.market.destinations.'.$listing->storage_destination->value) }}</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr><td colspan="3" class="px-5 py-10 text-center text-steel">{{ __('ui.market.no_purchases') }}</td></tr>

@@ -13,10 +13,13 @@ use App\Market\MarketEscrowResult;
 use App\Market\MarketListingBlockReason;
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
+use App\Market\MarketStorageDestination;
 use App\Models\AccountWallet;
 use App\Models\AuctionBid;
 use App\Models\MarketListing;
 use App\Models\WalletTransaction;
+use App\Models\WebStorageItem;
+use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -155,6 +158,7 @@ final class AuctionBidTest extends TestCase
         $settled = $this->app->make(SettleExpiredAuction::class)->execute((int) $listing->getKey());
 
         $this->assertSame(MarketListingStatus::Delivered, $settled->status);
+        $this->assertSame(MarketStorageDestination::GameVault, $settled->storage_destination);
         $this->assertSame('bidder005', $settled->buyer_account_id);
         $this->assertSame($bid->hold_wallet_transaction_id, $settled->buyer_wallet_transaction_id);
         $this->assertSame(300, $this->balance('bidder005'));
@@ -179,7 +183,68 @@ final class AuctionBidTest extends TestCase
             ->assertSuccessful();
 
         $this->assertSame(MarketListingStatus::Returned, $listing->refresh()->status);
+        $this->assertSame(MarketStorageDestination::GameVault, $listing->storage_destination);
         $this->assertNotNull($listing->settled_at);
+    }
+
+    /**
+     * Confirms an auction winner receives the exact item in web storage when game storage is full.
+     */
+    public function test_winning_item_falls_back_to_web_storage_when_game_vault_is_full(): void
+    {
+        $listing = $this->auction('seller09');
+        $this->wallet('bidder009', 500);
+        $this->mockAccounts('bidder009', 'seller09');
+        $this->placeBid(
+            bidderAccountId: 'bidder009',
+            listing: $listing,
+            amountCredits: 200,
+            idempotencyKey: '873ff78c-73e3-49c4-99de-096ad417c926',
+        );
+        $listing->update(['expires_at' => now()->subSecond()]);
+        $this->mock(MarketItemEscrowRepository::class)
+            ->shouldReceive('deposit')
+            ->once()
+            ->andThrow(new MarketListingRejected(MarketListingBlockReason::StorageFull));
+
+        $settled = $this->app->make(SettleExpiredAuction::class)->execute(
+            (int) $listing->getKey(),
+        );
+        $storedItem = WebStorageItem::query()->sole();
+
+        $this->assertSame(MarketListingStatus::Delivered, $settled->status);
+        $this->assertSame(MarketStorageDestination::WebVault, $settled->storage_destination);
+        $this->assertSame('bidder009', $storedItem->account_id);
+        $this->assertSame(WebStorageItemStatus::Available, $storedItem->status);
+        $this->assertSame($listing->item_binary, $storedItem->item_binary);
+        $this->assertSame(300, $this->balance('bidder009'));
+        $this->assertSame(200, $this->balance('seller09'));
+    }
+
+    /**
+     * Confirms an auction without bids returns safely to seller web storage when game storage is full.
+     */
+    public function test_unsold_item_falls_back_to_seller_web_storage_when_game_vault_is_full(): void
+    {
+        $listing = $this->auction('seller10');
+        $listing->update(['expires_at' => now()->subSecond()]);
+        $this->mock(MarketItemEscrowRepository::class)
+            ->shouldReceive('deposit')
+            ->once()
+            ->andThrow(new MarketListingRejected(MarketListingBlockReason::StorageFull));
+
+        $this->artisan('market:sync-escrow')
+            ->expectsOutputToContain('1 synced, 0 pending retry')
+            ->assertSuccessful();
+
+        $storedItem = WebStorageItem::query()->sole();
+        $listing->refresh();
+
+        $this->assertSame(MarketListingStatus::Returned, $listing->status);
+        $this->assertSame(MarketStorageDestination::WebVault, $listing->storage_destination);
+        $this->assertSame('seller10', $storedItem->account_id);
+        $this->assertSame(WebStorageItemStatus::Available, $storedItem->status);
+        $this->assertSame($listing->item_binary, $storedItem->item_binary);
     }
 
     /**

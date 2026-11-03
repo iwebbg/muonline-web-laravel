@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\StoreMarketListingRequest;
 use App\Market\Actions\CreateMarketListing;
 use App\Market\Actions\ReturnMarketListing;
+use App\Market\AuctionDuration;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
+use App\Market\MarketStorageDestination;
 use App\Models\MarketListing;
 use App\Modules\ModuleManager;
 use App\Modules\ServerModule;
@@ -51,6 +53,9 @@ final class MarketListingController extends Controller
                 idempotencyKey: $request->string('idempotency_key')->toString(),
                 saleType: $saleType,
                 bidIncrementCredits: $request->integer('bid_increment_credits'),
+                auctionDuration: AuctionDuration::from(
+                    $request->string('auction_duration_hours')->toString(),
+                ),
             );
         } catch (MarketListingRejected $exception) {
             return back()->withErrors([
@@ -88,9 +93,11 @@ final class MarketListingController extends Controller
             ]);
         }
 
-        $messageKey = $listing->status === MarketListingStatus::Returned
-            ? 'ui.market.item_returned'
-            : 'ui.market.return_pending';
+        $messageKey = match (true) {
+            $listing->status !== MarketListingStatus::Returned => 'ui.market.return_pending',
+            $listing->storage_destination === MarketStorageDestination::WebVault => 'ui.market.item_returned_web',
+            default => 'ui.market.item_returned',
+        };
 
         return back()->with('marketStatus', __($messageKey));
     }

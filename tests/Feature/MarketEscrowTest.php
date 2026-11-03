@@ -15,11 +15,16 @@ use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
 use App\Game\Versions\Version97d99i\ItemCodec97d99i;
 use App\Market\Actions\CreateMarketListing;
 use App\Market\Actions\ReturnMarketListing;
+use App\Market\AuctionDuration;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketEscrowResult;
 use App\Market\MarketListingBlockReason;
 use App\Market\MarketListingStatus;
+use App\Market\MarketSaleType;
+use App\Market\MarketStorageDestination;
 use App\Models\MarketListing;
+use App\Models\WebStorageItem;
+use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Query\Grammars\SqlServerGrammar;
@@ -76,6 +81,36 @@ final class MarketEscrowTest extends TestCase
         $this->assertSame($this->itemBinary, $listing->item_binary);
         $this->assertSame(hash('sha256', $this->itemBinary), $listing->item_fingerprint);
         $this->assertSame(500, $listing->price_credits);
+    }
+
+    /**
+     * Confirms the selected auction duration controls the public expiry time.
+     */
+    public function test_auction_uses_the_selected_duration(): void
+    {
+        $this->travelTo(now()->startOfSecond());
+        $this->mockOwnedOfflineCharacter('seller11', 'AuctionChar');
+        $this->mockStorage('seller11', 'AuctionChar', vault: 0, slot: 5);
+        $this->mock(MarketItemEscrowRepository::class)
+            ->shouldReceive('extract')
+            ->once()
+            ->with('seller11', 0, 5, $this->itemBinary)
+            ->andReturn(MarketEscrowResult::Extracted);
+
+        $listing = $this->app->make(CreateMarketListing::class)->execute(
+            accountId: 'seller11',
+            characterName: 'AuctionChar',
+            vault: 0,
+            slot: 5,
+            priceCredits: 500,
+            idempotencyKey: '4dbd7f28-1549-440a-996a-7dc0dfc2b3ea',
+            saleType: MarketSaleType::Auction,
+            bidIncrementCredits: 25,
+            auctionDuration: AuctionDuration::SixHours,
+        );
+
+        $this->assertSame(MarketSaleType::Auction, $listing->sale_type);
+        $this->assertTrue($listing->expires_at->equalTo(now()->addHours(6)));
     }
 
     /**
@@ -224,6 +259,36 @@ final class MarketEscrowTest extends TestCase
 
         $this->assertSame(MarketListingStatus::Returned, $returned->status);
         $this->assertNotNull($returned->returned_at);
+    }
+
+    /**
+     * Confirms seller cancellation falls back to web storage when the game vault is full.
+     */
+    public function test_seller_return_falls_back_to_web_storage_when_game_vault_is_full(): void
+    {
+        $listing = MarketListing::factory()->create([
+            'seller_account_id' => 'seller10',
+            'item_binary' => $this->itemBinary,
+            'item_fingerprint' => hash('sha256', $this->itemBinary),
+            'escrow_key' => hash('sha256', $this->itemBinary),
+        ]);
+        $this->mock(MarketItemEscrowRepository::class)
+            ->shouldReceive('deposit')
+            ->once()
+            ->andThrow(new MarketListingRejected(MarketListingBlockReason::StorageFull));
+
+        $returned = $this->app->make(ReturnMarketListing::class)->execute(
+            accountId: 'seller10',
+            listingId: (int) $listing->getKey(),
+        );
+        $storedItem = WebStorageItem::query()->sole();
+
+        $this->assertSame(MarketListingStatus::Returned, $returned->status);
+        $this->assertSame(MarketStorageDestination::WebVault, $returned->storage_destination);
+        $this->assertNull($returned->escrow_key);
+        $this->assertSame('seller10', $storedItem->account_id);
+        $this->assertSame(WebStorageItemStatus::Available, $storedItem->status);
+        $this->assertSame($this->itemBinary, $storedItem->item_binary);
     }
 
     /**

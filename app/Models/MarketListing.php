@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
+use App\Market\MarketStorageDestination;
 use Database\Factories\MarketListingFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'buyer_wallet_transaction_id',
     'seller_wallet_transaction_id',
     'status',
+    'storage_destination',
     'sync_attempts',
     'last_sync_attempt_at',
     'last_sync_error',
@@ -91,6 +93,7 @@ final class MarketListing extends Model
             'buyer_wallet_transaction_id' => 'integer',
             'seller_wallet_transaction_id' => 'integer',
             'status' => MarketListingStatus::class,
+            'storage_destination' => MarketStorageDestination::class,
             'sync_attempts' => 'integer',
             'last_sync_attempt_at' => 'immutable_datetime',
             'activated_at' => 'immutable_datetime',

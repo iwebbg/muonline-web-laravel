@@ -163,6 +163,33 @@ final class AdminModuleProfileTest extends TestCase
     }
 
     /**
+     * Confirms market delivery cannot be enabled without its lossless web fallback.
+     */
+    public function test_market_requires_web_storage_module_to_be_enabled(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $modules = $this->modulePayload();
+        $modules[ServerModule::WebStorage->value] = false;
+        $csrfToken = 'market-web-storage-dependency-token';
+
+        $response = $this
+            ->from(route('admin.modules.index'))
+            ->withSession(['_token' => $csrfToken])
+            ->actingAs($administrator, 'admin')
+            ->put(route('admin.modules.update'), [
+                '_token' => $csrfToken,
+                'revision' => 0,
+                'modules' => $modules,
+            ]);
+
+        $response
+            ->assertRedirect(route('admin.modules.index'))
+            ->assertSessionHasErrors('modules.market');
+        $this->assertSame(0, ModuleProfile::query()->count());
+        $this->assertSame(0, ModuleProfileRevision::query()->count());
+    }
+
+    /**
      * Builds a complete enabled module payload for administrator requests.
      *
      * @return array<string, bool>

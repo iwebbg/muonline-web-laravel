@@ -3,8 +3,10 @@
 namespace App\Http\Requests\Account;
 
 use App\Auth\GameAccount;
+use App\Market\AuctionDuration;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /**
  * Authorizes and validates one idempotent warehouse market listing request.
@@ -18,6 +20,10 @@ final class StoreMarketListingRequest extends FormRequest
     {
         $this->merge([
             'sale_type' => $this->input('sale_type', 'fixed'),
+            'auction_duration_hours' => $this->input(
+                'auction_duration_hours',
+                AuctionDuration::OneDay->value,
+            ),
         ]);
     }
 
@@ -43,6 +49,11 @@ final class StoreMarketListingRequest extends FormRequest
             'price_credits' => ['required', 'integer', 'between:1,1000000000'],
             'sale_type' => ['required', 'in:fixed,auction'],
             'bid_increment_credits' => ['nullable', 'required_if:sale_type,auction', 'integer', 'between:1,1000000000'],
+            'auction_duration_hours' => [
+                'nullable',
+                'required_if:sale_type,auction',
+                Rule::enum(AuctionDuration::class),
+            ],
             'idempotency_key' => ['required', 'uuid'],
         ];
     }

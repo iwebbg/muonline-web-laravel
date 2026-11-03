@@ -6,6 +6,7 @@ use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Data\ItemSlot;
 use App\Game\Data\WarehouseVault;
+use App\Market\AuctionDuration;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use App\Market\MarketListingStatus;
@@ -40,6 +41,7 @@ final readonly class CreateMarketListing
         string $idempotencyKey,
         MarketSaleType $saleType = MarketSaleType::Fixed,
         int $bidIncrementCredits = 0,
+        AuctionDuration $auctionDuration = AuctionDuration::OneDay,
     ): MarketListing {
         $requestHash = $this->requestHash(
             accountId: $accountId,
@@ -49,6 +51,7 @@ final readonly class CreateMarketListing
             priceCredits: $priceCredits,
             saleType: $saleType,
             bidIncrementCredits: $bidIncrementCredits,
+            auctionDuration: $auctionDuration,
         );
         $existingListing = MarketListing::query()
             ->where('idempotency_key', $idempotencyKey)
@@ -119,9 +122,9 @@ final readonly class CreateMarketListing
                     : null,
                 'status' => MarketListingStatus::Extracting,
                 'sync_attempts' => 0,
-                'expires_at' => now()->addDays(
-                    (int) config('game.market_listing_duration_days', 30),
-                ),
+                'expires_at' => $saleType === MarketSaleType::Auction
+                    ? now()->addHours($auctionDuration->hours())
+                    : now()->addDays((int) config('game.market_listing_duration_days', 30)),
             ]);
         } catch (QueryException $exception) {
             $existingListing = MarketListing::query()
@@ -189,6 +192,7 @@ final readonly class CreateMarketListing
         int $priceCredits,
         MarketSaleType $saleType,
         int $bidIncrementCredits,
+        AuctionDuration $auctionDuration,
     ): string {
         $payload = json_encode([
             'account_id' => $accountId,
@@ -198,6 +202,7 @@ final readonly class CreateMarketListing
             'price_credits' => $priceCredits,
             'sale_type' => $saleType->value,
             'bid_increment_credits' => $bidIncrementCredits,
+            'auction_duration_hours' => $auctionDuration->value,
         ], JSON_THROW_ON_ERROR);
 
         return hash('sha256', $payload);

@@ -12,9 +12,12 @@ use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketEscrowResult;
 use App\Market\MarketListingBlockReason;
 use App\Market\MarketListingStatus;
+use App\Market\MarketStorageDestination;
 use App\Models\AccountWallet;
 use App\Models\MarketListing;
 use App\Models\WalletTransaction;
+use App\Models\WebStorageItem;
+use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use RuntimeException;
 use Tests\TestCase;
@@ -65,6 +68,7 @@ final class MarketPurchaseTest extends TestCase
         );
 
         $this->assertSame(MarketListingStatus::Delivered, $purchased->status);
+        $this->assertSame(MarketStorageDestination::GameVault, $purchased->storage_destination);
         $this->assertSame('buyer001', $purchased->buyer_account_id);
         $this->assertNull($purchased->escrow_key);
         $this->assertNotNull($purchased->delivered_at);
@@ -74,6 +78,44 @@ final class MarketPurchaseTest extends TestCase
             [WalletTransactionType::Purchase, WalletTransactionType::Sale],
             WalletTransaction::query()->pluck('type')->all(),
         );
+    }
+
+    /**
+     * Confirms a full game vault delivers the exact purchased item to web storage.
+     */
+    public function test_full_game_vault_falls_back_to_buyer_web_storage(): void
+    {
+        $listing = MarketListing::factory()->create([
+            'seller_account_id' => 'seller09',
+            'price_credits' => 200,
+        ]);
+        AccountWallet::factory()->create([
+            'account_id' => 'buyer009',
+            'currency' => WalletCurrency::Credits,
+            'balance' => 500,
+        ]);
+        $this->mockExistingAccounts('buyer009', 'seller09');
+        $this->mock(MarketItemEscrowRepository::class)
+            ->shouldReceive('deposit')
+            ->once()
+            ->andThrow(new MarketListingRejected(MarketListingBlockReason::StorageFull));
+
+        $purchased = $this->purchase(
+            buyerAccountId: 'buyer009',
+            listingId: (int) $listing->getKey(),
+            idempotencyKey: '2018d209-eb7c-4ff6-8a8d-f68e874b7c30',
+        );
+        $storedItem = WebStorageItem::query()->sole();
+
+        $this->assertSame(MarketListingStatus::Delivered, $purchased->status);
+        $this->assertSame(MarketStorageDestination::WebVault, $purchased->storage_destination);
+        $this->assertNull($purchased->escrow_key);
+        $this->assertSame('buyer009', $storedItem->account_id);
+        $this->assertSame(WebStorageItemStatus::Available, $storedItem->status);
+        $this->assertSame($listing->item_binary, $storedItem->item_binary);
+        $this->assertSame($listing->item_fingerprint, $storedItem->item_fingerprint);
+        $this->assertSame(300, $this->balance('buyer009'));
+        $this->assertSame(200, $this->balance('seller09'));
     }
 
     /**

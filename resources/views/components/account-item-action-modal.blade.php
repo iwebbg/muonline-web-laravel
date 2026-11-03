@@ -57,6 +57,20 @@
                             <span>{{ __('ui.market.bid_increment') }}</span>
                             <input type="number" name="bid_increment_credits" min="1" max="1000000000" value="10" :required="itemSaleType === 'auction'">
                         </label>
+                        <label class="field-group mt-3" x-show="itemSaleType === 'auction'">
+                            <span>{{ __('ui.market.auction_duration') }}</span>
+                            <select name="auction_duration_hours" :required="itemSaleType === 'auction'">
+                                @foreach (\App\Market\AuctionDuration::cases() as $auctionDuration)
+                                    <option
+                                        value="{{ $auctionDuration->value }}"
+                                        @selected($auctionDuration === \App\Market\AuctionDuration::OneDay)
+                                    >{{ __('ui.market.auction_durations.'.$auctionDuration->translationKey()) }}</option>
+                                @endforeach
+                            </select>
+                        </label>
+                        <p class="mt-3 text-xs leading-5 text-steel" x-show="itemSaleType === 'auction'">
+                            {{ __('ui.market.auction_settlement_help') }}
+                        </p>
                         <button type="submit" class="button button-primary mt-4 w-full" :disabled="!resetPreviewConfiguration.writesEnabled">{{ __('ui.account.item_sell_market') }}</button>
                     </form>
 

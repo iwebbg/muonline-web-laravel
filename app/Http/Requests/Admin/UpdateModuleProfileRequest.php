@@ -62,6 +62,17 @@ final class UpdateModuleProfileRequest extends FormRequest
                     $this->input('modules.'.ServerModule::Auction->value, false),
                     FILTER_VALIDATE_BOOL,
                 );
+                $webStorageEnabled = filter_var(
+                    $this->input('modules.'.ServerModule::WebStorage->value, false),
+                    FILTER_VALIDATE_BOOL,
+                );
+
+                if ($marketEnabled && ! $webStorageEnabled) {
+                    $validator->errors()->add(
+                        'modules.'.ServerModule::Market->value,
+                        __('ui.admin.modules_market_requires_web_storage'),
+                    );
+                }
 
                 if ($auctionEnabled && ! $marketEnabled) {
                     $validator->errors()->add(

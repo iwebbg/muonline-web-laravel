@@ -59,6 +59,7 @@ final class MarketListingFactory extends Factory
             'buyer_wallet_transaction_id' => null,
             'seller_wallet_transaction_id' => null,
             'status' => MarketListingStatus::Active,
+            'storage_destination' => null,
             'sync_attempts' => 1,
             'last_sync_attempt_at' => now(),
             'last_sync_error' => null,
