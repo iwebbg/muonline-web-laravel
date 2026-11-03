@@ -32,7 +32,8 @@
 
     button,
     input,
-    select {
+    select,
+    textarea {
         font: inherit;
     }
 
@@ -44,7 +45,8 @@
     button:focus-visible,
     a:focus-visible,
     input:focus-visible,
-    select:focus-visible {
+    select:focus-visible,
+    textarea:focus-visible {
         outline: 2px solid color-mix(in srgb, var(--color-gold) 80%, white);
         outline-offset: 3px;
     }
@@ -1074,7 +1076,8 @@
     }
 
     .field-group input:not([type='range']),
-    .field-group select {
+    .field-group select,
+    .field-group textarea {
         width: 100%;
         min-height: 2.75rem;
         border: 1px solid rgb(255 255 255 / 0.1);
@@ -1086,8 +1089,14 @@
     }
 
     .field-group input:not([type='range']):focus,
-    .field-group select:focus {
+    .field-group select:focus,
+    .field-group textarea:focus {
         border-color: rgb(242 184 91 / 0.38);
+    }
+
+    .field-group textarea {
+        line-height: 1.6;
+        resize: vertical;
     }
 
     .field-group small {
