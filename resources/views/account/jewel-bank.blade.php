@@ -143,9 +143,9 @@
             </div>
         </section>
 
-        <section class="mt-12">
+        <section id="game-jewels" class="mt-12 scroll-mt-28">
             <p class="kicker">{{ __('ui.jewel_bank.game_jewels') }}</p>
-            <form method="GET" action="{{ route('account.jewel-bank.index') }}" class="panel-card mt-5 grid gap-4 p-5 lg:grid-cols-[1fr_2fr_auto] lg:items-end">
+            <form method="GET" action="{{ route('account.jewel-bank.index') }}#game-jewels" class="panel-card mt-5 grid gap-4 p-5 lg:grid-cols-[1fr_2fr_auto] lg:items-end">
                 <label class="field-group">
                     <span>{{ __('ui.jewel_bank.source') }}</span>
                     <select name="source" x-on:change="$el.form.requestSubmit()">
