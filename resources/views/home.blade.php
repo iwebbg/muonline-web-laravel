@@ -24,7 +24,7 @@
                 <a href="{{ route('rankings') }}" class="button button-ghost button-large">{{ __('ui.home.explore_rankings') }}</a>
             </div>
 
-            <dl class="mt-12 grid max-w-2xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-4">
+            <dl class="mt-12 grid max-w-3xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-5">
                 <div class="metric-cell">
                     <dt>{{ __('ui.home.experience') }}</dt>
                     <dd>{{ $server['experience'] }}</dd>
@@ -36,6 +36,10 @@
                 <div class="metric-cell">
                     <dt>{{ __('ui.home.accounts') }}</dt>
                     <dd>{{ number_format($server['accounts']) }}</dd>
+                </div>
+                <div class="metric-cell">
+                    <dt>{{ __('ui.home.characters') }}</dt>
+                    <dd>{{ number_format($server['characters']) }}</dd>
                 </div>
                 <div class="metric-cell">
                     <dt>{{ __('ui.home.guilds') }}</dt>
@@ -51,9 +55,6 @@
                     <div>
                         <p class="kicker">{{ __('ui.home.live_realm') }}</p>
                         <h2 class="mt-2 font-display text-2xl text-white">{{ $server['name'] }}</h2>
-                        <p class="mt-2 text-xs uppercase tracking-[0.16em] text-steel">
-                            {{ __('ui.home.'.$server['data_source'].'_data') }}
-                        </p>
                     </div>
                     <div @class(['online-badge', 'online-badge-offline' => ! $gameServerOnline])>
                         {{ $gameServerOnline ? __('ui.home.online') : __('ui.home.offline') }}
@@ -63,7 +64,7 @@
                 <div class="mt-10 flex items-end justify-between gap-6">
                     <div>
                         <p class="text-5xl font-semibold tracking-tight text-white">{{ $server['online'] }}</p>
-                        <p class="mt-1 text-sm uppercase tracking-[0.2em] text-steel">{{ __('ui.home.warriors_online') }}</p>
+                        <p class="mt-1 text-sm uppercase tracking-[0.2em] text-steel">{{ __('ui.home.characters_online') }}</p>
                     </div>
                     <p class="text-sm text-steel">{{ __('ui.home.of_capacity', ['capacity' => $server['capacity']]) }}</p>
                 </div>
@@ -73,17 +74,6 @@
                         class="h-full rounded-full bg-gradient-to-r from-crimson to-gold shadow-[0_0_24px_rgba(244,174,74,0.5)]"
                         style="width: {{ round(($server['online'] / $server['capacity']) * 100) }}%"
                     ></div>
-                </div>
-
-                <div class="mt-10 grid grid-cols-2 gap-3">
-                    <div class="glass-stat">
-                        <span>{{ __('ui.home.characters') }}</span>
-                        <strong>{{ number_format($server['characters']) }}</strong>
-                    </div>
-                    <div class="glass-stat">
-                        <span>{{ __('ui.home.version') }}</span>
-                        <strong>{{ $server['version'] }}</strong>
-                    </div>
                 </div>
             </div>
         </div>

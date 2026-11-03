@@ -21,7 +21,13 @@ class InteractiveShellTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Your adventure');
-        $response->assertSee('Fixture data');
+        $response->assertSee('Classic MuOnline');
+        $response->assertSee('Play your favorite MMORPG');
+        $response->assertSee('characters online');
+        $response->assertDontSee('Fixture data');
+        $response->assertDontSee('Live database');
+        $response->assertDontSee('Season zero');
+        $response->assertDontSee('warriors online');
         $response->assertSee('Blood Castle');
         $response->assertSee('eventSchedule(', false);
         $response->assertSee('Server event schedule');
@@ -113,7 +119,9 @@ class InteractiveShellTest extends TestCase
 
         $homeResponse->assertOk();
         $homeResponse->assertSee('Светът');
-        $homeResponse->assertSee('Примерни данни');
+        $homeResponse->assertSee('Класически MuOnline');
+        $homeResponse->assertSee('Играй любимото си MMORPG');
+        $homeResponse->assertSee('герои онлайн');
         $homeResponse->assertSee('Топ играчи');
 
         $adminResponse = $this->get('/admin/login');
