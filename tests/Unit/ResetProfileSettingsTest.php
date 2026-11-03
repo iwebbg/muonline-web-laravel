@@ -68,6 +68,7 @@ final class ResetProfileSettingsTest extends TestCase
         $this->assertSame(5_000_000, $settings->grandResetZenCostFor(5));
         $this->assertSame(1_700, $settings->grandResetPointsAfter(1_200, 5));
         $this->assertSame(20, $settings->resetsAfterGrandReset(120));
+        $this->assertSame(0, $settings->resetsAfterGrandReset(0));
         $this->assertSame(999, $settings->maximumGrandResets);
     }
 

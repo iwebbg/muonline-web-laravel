@@ -17,6 +17,7 @@ final readonly class ResetPreview
         public bool $eligible,
         public array $blockReasons,
         public int $requiredLevel,
+        public int $maximumResets,
         public int $currentLevel,
         public int $resultingLevel,
         public int $currentResets,
@@ -32,7 +33,7 @@ final readonly class ResetPreview
     /**
      * Converts the preview to the stable shape consumed by the account interface.
      *
-     * @return array{characterName: string, eligible: bool, blockReasons: list<string>, requiredLevel: int, currentLevel: int, resultingLevel: int, currentResets: int, resultingResets: int, currentZen: int, zenCost: int, resultingZen: int, resultingPoints: int, clearStats: bool, inventoryPolicy: string}
+     * @return array{characterName: string, eligible: bool, blockReasons: list<string>, requiredLevel: int, maximumResets: int, currentLevel: int, resultingLevel: int, currentResets: int, resultingResets: int, currentZen: int, zenCost: int, resultingZen: int, resultingPoints: int, clearStats: bool, inventoryPolicy: string}
      */
     public function toClientArray(): array
     {
@@ -47,6 +48,7 @@ final readonly class ResetPreview
             'eligible' => $this->eligible,
             'blockReasons' => $reasonCodes,
             'requiredLevel' => $this->requiredLevel,
+            'maximumResets' => $this->maximumResets,
             'currentLevel' => $this->currentLevel,
             'resultingLevel' => $this->resultingLevel,
             'currentResets' => $this->currentResets,

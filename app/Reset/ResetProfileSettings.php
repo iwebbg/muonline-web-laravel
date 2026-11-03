@@ -140,7 +140,7 @@ final readonly class ResetProfileSettings
             return $currentResets;
         }
 
-        return $currentResets - $this->grandResetRequiredResets;
+        return max(0, $currentResets - $this->grandResetRequiredResets);
     }
 
     /**

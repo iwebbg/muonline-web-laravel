@@ -66,10 +66,11 @@
                     </template>
                 </div>
 
-                <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="outcome-card"><span>{{ __('ui.account.points_before') }}</span><strong x-text="statPreview.currentPoints.toLocaleString()"></strong></div>
                     <div class="outcome-card"><span>{{ __('ui.account.allocated_points') }}</span><strong x-text="statPreview.allocatedPoints.toLocaleString()"></strong></div>
                     <div class="outcome-card"><span>{{ __('ui.account.points_after') }}</span><strong x-text="statPreview.remainingPoints.toLocaleString()"></strong></div>
+                    <div class="outcome-card"><span>{{ __('ui.account.maximum_stat') }}</span><strong x-text="statPreview.maximumStat.toLocaleString()"></strong></div>
                 </div>
 
                 <div

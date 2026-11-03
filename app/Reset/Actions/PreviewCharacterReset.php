@@ -48,6 +48,7 @@ final class PreviewCharacterReset
             eligible: $blockReasons === [],
             blockReasons: $blockReasons,
             requiredLevel: $settings->requiredLevel,
+            maximumResets: $settings->maximumResets,
             currentLevel: $character->level,
             resultingLevel: 1,
             currentResets: $character->resets,

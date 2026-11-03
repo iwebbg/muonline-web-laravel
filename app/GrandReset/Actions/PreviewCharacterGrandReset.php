@@ -86,6 +86,7 @@ final readonly class PreviewCharacterGrandReset
             eligible: $blockReasons === [],
             blockReasons: $blockReasons,
             requiredLevel: $settings->grandResetRequiredLevel,
+            maximumGrandResets: $settings->maximumGrandResets,
             currentLevel: $character->level,
             resultingLevel: 1,
             requiredResets: $settings->grandResetRequiredResets,

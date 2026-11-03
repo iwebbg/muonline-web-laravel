@@ -63,6 +63,9 @@ final class GrandResetEndpointTest extends TestCase
         $response
             ->assertOk()
             ->assertJsonPath('preview.eligible', true)
+            ->assertJsonPath('preview.requiredLevel', 350)
+            ->assertJsonPath('preview.requiredResets', 100)
+            ->assertJsonPath('preview.maximumGrandResets', 999)
             ->assertJsonPath('preview.resultingLevel', 1)
             ->assertJsonPath('preview.resultingResets', 20)
             ->assertJsonPath('preview.resultingGrandResets', 5)

@@ -57,6 +57,8 @@ final class ResetPreviewEndpointTest extends TestCase
             ->assertOk()
             ->assertJsonPath('preview.characterName', 'OwnedHero')
             ->assertJsonPath('preview.eligible', true)
+            ->assertJsonPath('preview.requiredLevel', 350)
+            ->assertJsonPath('preview.maximumResets', 999)
             ->assertJsonPath('preview.resultingResets', 5)
             ->assertJsonPath('preview.zenCost', 75_000_000)
             ->assertJsonPath('preview.resultingZen', 125_000_000)

@@ -29,9 +29,10 @@
                     <div class="outcome-card"><span>{{ __('ui.account.pk_time') }}</span><strong><span x-text="pkClearPreview.currentPkTime.toLocaleString()"></span> → <span x-text="pkClearPreview.resultingPkTime"></span></strong></div>
                     <div class="outcome-card"><span>{{ __('ui.account.cost') }}</span><strong><span x-text="pkClearPreview.zenCost.toLocaleString()"></span><small class="outcome-unit">Zen</small></strong></div>
                 </div>
-                <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                <div class="mt-4 grid gap-3 sm:grid-cols-3">
                     <div class="outcome-card"><span>{{ __('ui.account.zen_after_pk_clear') }}</span><strong><span x-text="pkClearPreview.resultingZen.toLocaleString()"></span><small class="outcome-unit">Zen</small></strong></div>
                     <div class="outcome-card"><span>{{ __('ui.account.pk_clear_price_formula') }}</span><strong x-text="pkClearPriceModeLabel"></strong></div>
+                    <div class="outcome-card"><span>{{ __('ui.account.required_level') }}</span><strong x-text="pkClearPreview.requiredLevel.toLocaleString()"></strong></div>
                 </div>
 
                 <div class="mt-6 rounded-2xl border p-4 text-sm leading-6" :class="pkClearPreview.eligible ? 'border-emerald-300/20 bg-emerald-300/7 text-emerald-100' : 'border-amber-300/20 bg-amber-300/7 text-amber-100'">

@@ -58,6 +58,20 @@
                         <span>{{ __('ui.account.reset_points') }}</span>
                         <strong x-text="resetPreview.resultingPoints.toLocaleString()"></strong>
                     </div>
+                    <div class="outcome-card">
+                        <span>{{ __('ui.account.required_level') }}</span>
+                        <strong x-text="resetPreview.requiredLevel.toLocaleString()"></strong>
+                    </div>
+                    <div class="outcome-card">
+                        <span>{{ __('ui.account.maximum_resets') }}</span>
+                        <strong x-text="resetPreview.maximumResets.toLocaleString()"></strong>
+                    </div>
+                    <div class="outcome-card">
+                        <span>{{ __('ui.account.stats_after_action') }}</span>
+                        <strong x-text="resetPreview.clearStats
+                            ? @js(__('ui.account.stats_reset_to_base'))
+                            : @js(__('ui.account.preserved'))"></strong>
+                    </div>
                 </div>
 
                 <div

@@ -70,6 +70,16 @@
                         <span>{{ __('ui.account.grand_reset_required_resets') }}</span>
                         <strong x-text="grandResetPreview.requiredResets.toLocaleString()"></strong>
                     </div>
+                    <div class="outcome-card">
+                        <span>{{ __('ui.account.maximum_grand_resets') }}</span>
+                        <strong x-text="grandResetPreview.maximumGrandResets.toLocaleString()"></strong>
+                    </div>
+                    <div class="outcome-card">
+                        <span>{{ __('ui.account.stats_after_action') }}</span>
+                        <strong x-text="grandResetPreview.clearStats
+                            ? @js(__('ui.account.stats_reset_to_base'))
+                            : @js(__('ui.account.preserved'))"></strong>
+                    </div>
                 </div>
 
                 <div

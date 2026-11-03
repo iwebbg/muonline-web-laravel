@@ -28,6 +28,8 @@ final class ResetPreviewTest extends TestCase
         $this->assertTrue($preview->eligible);
         $this->assertSame([], $preview->blockReasons);
         $this->assertSame(5, $preview->resultingResets);
+        $this->assertSame(350, $preview->requiredLevel);
+        $this->assertSame(999, $preview->maximumResets);
         $this->assertSame(75_000_000, $preview->zenCost);
         $this->assertSame(125_000_000, $preview->resultingZen);
         $this->assertSame(2_500, $preview->resultingPoints);

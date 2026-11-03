@@ -52,6 +52,9 @@
                     <div class="outcome-card"><span>{{ __('ui.account.stat_reset_refunded_points') }}</span><strong class="text-gold">+<span x-text="statResetPreview.refundedPoints.toLocaleString()"></span></strong></div>
                     <div class="outcome-card"><span>{{ __('ui.account.points_after') }}</span><strong x-text="statResetPreview.resultingPoints.toLocaleString()"></strong></div>
                     <div class="outcome-card"><span>{{ __('ui.account.cost') }}</span><strong><span x-text="statResetPreview.zenCost.toLocaleString()"></span><small class="outcome-unit">Zen</small></strong></div>
+                    <div class="outcome-card"><span>{{ __('ui.account.required_level') }}</span><strong x-text="statResetPreview.requiredLevel.toLocaleString()"></strong></div>
+                    <div class="outcome-card"><span>{{ __('ui.account.required_resets') }}</span><strong x-text="statResetPreview.requiredResets.toLocaleString()"></strong></div>
+                    <div class="outcome-card"><span>{{ __('ui.account.zen_after_stat_reset') }}</span><strong><span x-text="statResetPreview.resultingZen.toLocaleString()"></span><small class="outcome-unit">Zen</small></strong></div>
                 </div>
 
                 <div

@@ -29,6 +29,9 @@ final class GrandResetPreviewTest extends TestCase
         $this->assertSame(1, $preview->resultingLevel);
         $this->assertSame(20, $preview->resultingResets);
         $this->assertSame(5, $preview->resultingGrandResets);
+        $this->assertSame(350, $preview->requiredLevel);
+        $this->assertSame(100, $preview->requiredResets);
+        $this->assertSame(999, $preview->maximumGrandResets);
         $this->assertSame(5_000_000, $preview->zenCost);
         $this->assertSame(195_000_000, $preview->resultingZen);
         $this->assertSame(1_700, $preview->resultingPoints);
@@ -56,6 +59,7 @@ final class GrandResetPreviewTest extends TestCase
         $this->assertContains(GrandResetBlockReason::InsufficientResets, $preview->blockReasons);
         $this->assertContains(GrandResetBlockReason::MaximumGrandResetsReached, $preview->blockReasons);
         $this->assertContains(GrandResetBlockReason::InsufficientZen, $preview->blockReasons);
+        $this->assertSame(0, $preview->resultingResets);
     }
 
     /**
