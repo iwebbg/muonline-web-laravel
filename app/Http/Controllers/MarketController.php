@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Auth\GameAccount;
 use App\Http\AccountPanelConfiguration;
+use App\Http\Requests\Market\BrowseMarketRequest;
+use App\Market\MarketItemCategory;
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
 use App\Models\MarketListing;
 use App\Modules\ModuleManager;
 use App\Modules\ServerModule;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -29,9 +30,11 @@ final class MarketController extends Controller
     /**
      * Displays active listings and the current account's market history.
      */
-    public function __invoke(Request $request): View
+    public function __invoke(BrowseMarketRequest $request): View
     {
         $auctionEnabled = $this->moduleManager->enabled(ServerModule::Auction);
+        $searchTerm = $request->searchTerm();
+        $category = $request->category();
         $listingsQuery = MarketListing::query()
             ->where('status', MarketListingStatus::Active)
             ->where(function ($query): void {
@@ -42,9 +45,21 @@ final class MarketController extends Controller
             $listingsQuery->where('sale_type', '!=', MarketSaleType::Auction);
         }
 
+        if ($searchTerm !== null) {
+            $listingsQuery->where(
+                'item_snapshot->name',
+                'like',
+                '%'.$searchTerm.'%',
+            );
+        }
+
+        $category?->applyTo($listingsQuery);
+
         $listings = $listingsQuery
             ->latest('activated_at')
-            ->paginate(24);
+            ->latest('id')
+            ->paginate(24)
+            ->withQueryString();
         $account = $request->user();
         $myListings = collect();
         $myPurchases = collect();
@@ -80,6 +95,10 @@ final class MarketController extends Controller
                 && ! (bool) config('database.connections.game.readonly', true),
             'currentAccountId' => $currentAccountId,
             'auctionEnabled' => $auctionEnabled,
+            'marketCategories' => MarketItemCategory::cases(),
+            'marketSearchTerm' => $searchTerm,
+            'selectedMarketCategory' => $category,
+            'marketServerNow' => now()->toAtomString(),
             'itemOptionLabels' => $this->accountPanelConfiguration->itemOptionLabels(),
         ]);
     }

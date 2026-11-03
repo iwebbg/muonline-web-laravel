@@ -1073,6 +1073,89 @@ export function eventSchedule(initialEvents, serverNow) {
 }
 
 /**
+ * Creates a server-synchronized friendly expiry label for one market auction.
+ *
+ * @param {string} expiresAt ISO timestamp at which the auction closes.
+ * @param {string} serverNow ISO timestamp captured by the application server.
+ * @param {string} locale Active interface locale for relative time formatting.
+ * @param {string} endingNow Localized label shown once the deadline is reached.
+ * @returns {object} Alpine state for the relative auction deadline.
+ */
+export function marketExpiry(expiresAt, serverNow, locale, endingNow) {
+    return {
+        expiryTimestamp: Date.parse(expiresAt),
+        clockOffsetMilliseconds: Date.parse(serverNow) - Date.now(),
+        nowTimestamp: Date.parse(serverNow),
+        locale,
+        endingNow,
+        timerId: null,
+
+        /**
+         * Starts the low-frequency auction deadline refresh.
+         */
+        init() {
+            this.tick();
+            this.timerId = window.setInterval(
+                this.tick.bind(this),
+                30000,
+            );
+        },
+
+        /**
+         * Stops the timer when Alpine removes the listing card.
+         */
+        destroy() {
+            if (this.timerId !== null) {
+                window.clearInterval(this.timerId);
+            }
+        },
+
+        /**
+         * Updates the current timestamp using the original server clock offset.
+         */
+        tick() {
+            this.nowTimestamp = Date.now() + this.clockOffsetMilliseconds;
+        },
+
+        /**
+         * Returns the largest useful localized unit remaining before expiry.
+         *
+         * @returns {string}
+         */
+        get relativeTime() {
+            const remainingSeconds = Math.ceil(
+                (this.expiryTimestamp - this.nowTimestamp) / 1000,
+            );
+
+            if (remainingSeconds <= 0) {
+                return this.endingNow;
+            }
+
+            const formatter = new Intl.RelativeTimeFormat(this.locale, {
+                numeric: 'always',
+                style: 'long',
+            });
+            const units = [
+                ['day', 86400],
+                ['hour', 3600],
+                ['minute', 60],
+                ['second', 1],
+            ];
+
+            for (const [unit, secondsPerUnit] of units) {
+                if (remainingSeconds >= secondsPerUnit) {
+                    const remainingUnits = Math.ceil(remainingSeconds / secondsPerUnit);
+
+                    return formatter.format(remainingUnits, unit);
+                }
+            }
+
+            return this.endingNow;
+        },
+    };
+}
+
+/**
  * Creates a zero-value allocation map for one character's version-defined stats.
  *
  * @param {object|null} character The selected account character.

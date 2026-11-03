@@ -9,6 +9,7 @@ import {
     gameServerManager,
     gameMasterManager,
     itemInspector,
+    marketExpiry,
     moderationPanel,
     rankingBoard,
     rankingExplorer,
@@ -28,6 +29,7 @@ Alpine.data('eventSchedule', eventSchedule);
 Alpine.data('gameServerManager', gameServerManager);
 Alpine.data('gameMasterManager', gameMasterManager);
 Alpine.data('itemInspector', itemInspector);
+Alpine.data('marketExpiry', marketExpiry);
 Alpine.data('moderationPanel', moderationPanel);
 Alpine.data('rankingBoard', rankingBoard);
 Alpine.data('rankingExplorer', rankingExplorer);

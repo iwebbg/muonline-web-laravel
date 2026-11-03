@@ -38,6 +38,36 @@
                 <span class="text-sm text-steel">{{ __('ui.market.listing_count', ['count' => $listings->total()]) }}</span>
             </div>
 
+            <form method="GET" action="{{ route('market.index') }}" class="panel-card mt-5 grid gap-4 p-4 md:grid-cols-[minmax(0,1fr)_18rem_auto] md:items-end" role="search">
+                <label class="field-group">
+                    <span>{{ __('ui.market.search_label') }}</span>
+                    <input
+                        type="search"
+                        name="q"
+                        value="{{ $marketSearchTerm }}"
+                        maxlength="80"
+                        placeholder="{{ __('ui.market.search_placeholder') }}"
+                    >
+                </label>
+                <label class="field-group">
+                    <span>{{ __('ui.market.category_label') }}</span>
+                    <select name="category">
+                        <option value="">{{ __('ui.market.all_categories') }}</option>
+                        @foreach ($marketCategories as $marketCategory)
+                            <option value="{{ $marketCategory->value }}" @selected($selectedMarketCategory === $marketCategory)>
+                                {{ __('ui.market.categories.'.$marketCategory->value) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </label>
+                <div class="flex flex-wrap gap-2">
+                    <button type="submit" class="button button-primary grow md:grow-0">{{ __('ui.market.apply_filters') }}</button>
+                    @if ($marketSearchTerm !== null || $selectedMarketCategory !== null)
+                        <a href="{{ route('market.index') }}" class="button button-ghost grow md:grow-0">{{ __('ui.market.clear_filters') }}</a>
+                    @endif
+                </div>
+            </form>
+
             <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 @forelse ($listings as $listing)
                     @php($item = $listing->item_snapshot)
@@ -55,10 +85,28 @@
                             class="mt-4 text-lg font-semibold"
                             :class="`item-name-${itemNameTone(item)}`"
                             x-text="itemTitle(item)"
-                        ></p>
+                        >{{ $item['name'] ?? __('ui.market.unknown_item') }}</p>
                         <p class="mt-1 text-xs uppercase tracking-[0.14em] text-steel">{{ ucfirst((string) ($item['rarity'] ?? 'normal')) }}</p>
                         @if ($listing->sale_type === \App\Market\MarketSaleType::Auction)
-                            <p class="mt-2 text-xs text-amber-100">{{ __('ui.market.ends_at') }} {{ $listing->expires_at?->format('Y-m-d H:i') }}</p>
+                            <div
+                                class="mt-3 rounded-xl border border-amber-300/15 bg-amber-300/5 px-3 py-2"
+                                x-data="marketExpiry(
+                                    @js($listing->expires_at?->toAtomString()),
+                                    @js($marketServerNow),
+                                    @js(app()->getLocale()),
+                                    @js(__('ui.market.ending_now'))
+                                )"
+                            >
+                                <p class="text-xs text-amber-100">
+                                    <span>{{ __('ui.market.auction_ends') }}</span>
+                                    <strong class="font-semibold" x-text="relativeTime">{{ $listing->expires_at?->diffForHumans() }}</strong>
+                                </p>
+                                <time
+                                    class="mt-1 block text-[0.68rem] uppercase tracking-[0.12em] text-steel"
+                                    datetime="{{ $listing->expires_at?->toAtomString() }}"
+                                    title="{{ __('ui.market.exact_end') }}"
+                                >{{ $listing->expires_at?->translatedFormat('d M Y · H:i') }}</time>
+                            </div>
                         @endif
                         <div class="mt-auto flex items-end justify-between gap-4 pt-5">
                             <div>
@@ -91,7 +139,9 @@
                         @endauth
                     </article>
                 @empty
-                    <div class="panel-card p-10 text-center text-steel sm:col-span-2 xl:col-span-4">{{ __('ui.market.no_listings') }}</div>
+                    <div class="panel-card p-10 text-center text-steel sm:col-span-2 xl:col-span-4">
+                        {{ $marketSearchTerm !== null || $selectedMarketCategory !== null ? __('ui.market.no_matching_listings') : __('ui.market.no_listings') }}
+                    </div>
                 @endforelse
             </div>
 
