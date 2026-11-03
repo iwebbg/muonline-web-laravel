@@ -4,6 +4,22 @@ This roadmap assumes one primary developer working with AI assistance and
 access to a cloned database plus a dedicated test game server. Production is
 not used for exploratory writes.
 
+## Status snapshot
+
+| Phase | Status | Current interpretation |
+| --- | --- | --- |
+| 0 — Foundation | Complete | Laravel 13/PHP 8.5 containers, SQL Server drivers, health checks and safety boundaries are established. |
+| 1 — Design system | Operational, polish ongoing | Public, account and admin shells plus reusable dialogs, forms, cards, tables and item grids are implemented with Tailwind CSS v4. |
+| 2 — 97d+99i read model | Implemented | Real accounts, characters, guilds, rankings, server status, inventory and warehouse reads use the version adapter. |
+| 3 — Authentication | Implemented, manual mail testing ongoing | Player/admin authentication, registration, activation, recovery, security and Game Master permissions are present. |
+| 4 — Character operations | Implemented, real-server validation ongoing | Preview and execute paths exist for resets, stats, PK clear and movement with admin-managed rules. |
+| 5 — Inventory and warehouse | Implemented, UI polish ongoing | Item codec, item catalog, equipment, bags, multi-vault grids, tooltips and guarded exact-item mutations are present. |
+| 6 — Content/economy/community | Broad functional baseline | Content, Credits, VIP, Votes, Zen/Jewel banks, Web Vault, Market and Auction exist; provider integrations and new optional modules remain. |
+| 7 — Production readiness | In progress | Docker/Nginx/TLS, readiness, scheduler, backup and least-privilege tooling exist; final rehearsal and security review remain. |
+
+For implementation details and mandatory continuation patterns, read
+`docs/current-state.md`.
+
 ## Phase 0 — Foundation and reference baseline
 
 - Record approved references and security boundaries.
@@ -97,3 +113,16 @@ against retries and concurrent purchase attempts.
 
 Exit condition: deployment and rollback have been rehearsed and the production
 database is never accessed using `sa` or `db_owner` credentials.
+
+## Immediate continuation backlog
+
+1. Manually verify every character and economy mutation against dedicated test
+   accounts on the live 97d+99i test server.
+2. Close remaining responsive and interaction defects without changing the
+   established Blade/Alpine/Tailwind CSS v4 stack.
+3. Add automated vote-provider callbacks.
+4. Design payment-provider-backed Credits purchases with signed webhooks,
+   idempotency, refunds and immutable audit records.
+5. Specify independently switchable Web Shop, Mystery Box and Web Event modules.
+6. Stress concurrent bids, purchases, storage moves and scheduler retries.
+7. Complete backup/restore, rollback and least-privilege production rehearsals.

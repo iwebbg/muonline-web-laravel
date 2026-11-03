@@ -6,6 +6,7 @@ interactive Blade-based interface and a PHP 8.5 container runtime.
 
 ## Project documentation
 
+- [Current implementation state and thread handoff](docs/current-state.md)
 - [Reference sources](docs/reference-sources.md)
 - [Product and UX direction](docs/product-ux.md)
 - [Delivery roadmap](docs/roadmap.md)
@@ -13,6 +14,11 @@ interactive Blade-based interface and a PHP 8.5 container runtime.
 
 The exported MuOnline schema is currently stored in `script.sql`. It is a
 reference export and is not an application migration.
+
+New development threads should start with `AGENTS.md` and
+`docs/current-state.md`. The latter records the implemented modules,
+architecture boundaries, Tailwind CSS v4 patterns, safe database workflow and
+current priorities so completed decisions are not rediscovered from scratch.
 
 ## 97d+99i compatibility baseline
 
@@ -54,7 +60,9 @@ Web Storage keeps each original item blob and serial in application custody,
 then returns those exact bytes to the first valid warehouse rectangle. Jewel
 Bank is backed by the same physical-item records: its displayed count is never
 a synthetic balance and currently supports Chaos, Bless, Soul, Life and
-Creation jewels from the verified 97d+99i catalog.
+Creation jewels from the verified 97d+99i catalog. Explicit `storage_context`
+values keep generic Web Vault items and Jewel Bank custody separated in player
+screens and mutation endpoints, even though they share the recovery engine.
 
 Administrators and explicitly permitted Game Masters can grant a verified
 97d+99i catalog item to an offline account's active warehouse. The browser

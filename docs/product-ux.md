@@ -27,23 +27,66 @@ server-side validation and transactional safety.
 6. **Responsive by design** — public pages, account tools and administration
    remain usable on mobile, tablet and desktop.
 7. **Progressive enhancement** — core actions remain regular Laravel endpoints;
-   Alpine.js and Livewire enhance them instead of creating a second frontend
-   application and API stack.
+   Alpine.js enhances them instead of creating a second frontend application
+   and API stack.
 8. **Bilingual by design** — every interface surface supports English and
    Bulgarian. English is the default and fallback language, while the visitor's
    explicit selection is preserved in the Laravel session.
 
 ## UI technology
 
-- Blade for page composition and server-rendered first response.
+- Blade for page composition and the server-rendered first response.
+- Tailwind CSS v4 with CSS-first tokens and reusable component classes in
+  `resources/css/app.css`.
 - Alpine.js for local interaction, disclosure, tabs, tooltips and lightweight
   previews.
-- Livewire for server-backed tables, filters, settings forms and operations
-  where real-time server validation adds value.
 - Small framework-independent JavaScript modules for inventory and character
-  visualisation when a grid/canvas interaction is a better fit than Livewire.
+  visualisation when a grid/canvas interaction is a better fit than Alpine.js.
 - Laravel events and queued work for long-running operations; WebSocket/SSE
   support may be added later for genuinely live server state.
+
+The established stack is Blade, Alpine.js and Tailwind CSS v4. Do not introduce
+a second SPA frontend or replace this stack without an explicit product-level
+decision. Livewire is not currently installed; adding it is a dependency and
+architecture decision that requires approval.
+
+## Implemented interface patterns
+
+- The sticky public header, account navigation and administrator navigation use
+  the same dark-fantasy token system and responsive shell.
+- Account-wide modules have dedicated routes such as `/account/credits`,
+  `/account/votes`, `/account/jewel-bank`, `/account/zen-bank` and
+  `/account/security` rather than being appended below character actions.
+- Character selection and active character tabs use URL query state so refresh,
+  redirects and browser history reconstruct the same workspace.
+- Account Vaults combine game warehouses and exact-item Web Vault storage in a
+  responsive desktop split; Jewel Bank remains a separate module and its
+  custody items are not duplicated in Web Vault.
+- Focused changes and item actions use teleported Alpine dialogs with backdrop,
+  Escape handling and a z-index above inventory grids and tooltips.
+- Server-backed selectors may submit a normal GET request. Their form URL uses
+  a stable section anchor and `scroll-mt-28` so a desktop reload returns to the
+  changed controls.
+- Preview cards show current value, resulting value, cost, requirements and
+  block reasons inline. Internal action or transaction names are never used as
+  player copy.
+
+## Tailwind CSS v4 conventions
+
+- Keep CSS-first configuration through `@import 'tailwindcss'`, `@source` and
+  `@theme`; do not create a legacy Tailwind configuration file.
+- Reuse the existing semantic palette: `void`, `panel`, `mist`, `silver`,
+  `steel`, `gold` and `crimson`.
+- Prefer shared classes such as `shell`, `panel-card`, `button`, `field-group`,
+  `segmented-control`, `status-pill` and the item-grid primitives before adding
+  screen-specific CSS.
+- Build mobile-first, then use responsive breakpoints to place related panels
+  side by side on large screens. Do not leave a narrow mobile-width panel in a
+  mostly empty desktop canvas.
+- Use `gap` for sibling spacing, retain visible focus, and keep controls
+  keyboard operable.
+- Item rarity, excellent state and special item colour come from decoded item
+  metadata. Raw item coordinates or codes are not player-facing labels.
 
 ## Main application areas
 
