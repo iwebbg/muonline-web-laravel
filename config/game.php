@@ -44,10 +44,10 @@ return [
 
     'profile' => [
         'key' => env('GAME_SERVER_PROFILE', 'darksteam_97d99i'),
-        'name' => env('GAME_SERVER_NAME', 'MuOnline 97d+99i'),
-        'version' => env('GAME_SERVER_VERSION', '97d + 99i'),
-        'experience' => env('GAME_SERVER_EXPERIENCE', '9999x'),
-        'drop' => env('GAME_SERVER_DROP', '60%'),
-        'capacity' => (int) env('GAME_SERVER_CAPACITY', 500),
+        'name' => 'MuOnline 97d+99i',
+        'version' => '97d + 99i',
+        'experience' => '9999x',
+        'drop' => '60%',
+        'capacity' => 500,
     ],
 ];

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Game\Contracts\GameServerStatus;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Events\EventProfileReader;
 use App\Game\Events\EventSchedule;
+use App\Servers\GameServerDirectory;
 use DateTimeZone;
 use Illuminate\Contracts\View\View;
 
@@ -25,6 +27,8 @@ class PreviewController extends Controller
         private readonly RealmClock $realmClock,
         private readonly EventProfileReader $eventProfileReader,
         private readonly EventSchedule $eventSchedule,
+        private readonly GameServerStatus $gameServerStatus,
+        private readonly GameServerDirectory $gameServerDirectory,
     ) {}
 
     /**
@@ -33,9 +37,12 @@ class PreviewController extends Controller
     public function home(): View
     {
         $rankingLimit = (int) config('game.ranking_limit');
-        $server = $this->realmReadRepository
-            ->overview()
-            ->toArray();
+        $liveOverview = $this->realmReadRepository->overview();
+        $serverDirectory = $this->gameServerDirectory->publicData(
+            liveOverview: $liveOverview,
+            currentServerOnline: $this->gameServerStatus->isOnline(),
+        );
+        $server = $serverDirectory['current'];
         $characterEntries = $this->realmReadRepository->topCharacters($rankingLimit);
         $guildEntries = $this->realmReadRepository->topGuilds($rankingLimit);
         $players = [];
@@ -73,6 +80,7 @@ class PreviewController extends Controller
 
         return view('home', [
             'server' => $server,
+            'serverDirectory' => $serverDirectory['entries'],
             'events' => $events,
             'allEvents' => $allEvents,
             'additionalEventCount' => $additionalEventCount,

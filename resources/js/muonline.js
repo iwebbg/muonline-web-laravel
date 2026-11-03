@@ -348,6 +348,119 @@ export function downloadManager(downloads, createUrl) {
 }
 
 /**
+ * Creates the public server-directory dropdown state.
+ *
+ * @returns {object}
+ */
+export function serverSwitcher() {
+    return {
+        open: false,
+
+        /**
+         * Opens or closes the list of related server websites.
+         */
+        toggle() {
+            this.open = !this.open;
+        },
+
+        /**
+         * Closes the destination list without navigating.
+         */
+        close() {
+            this.open = false;
+        },
+    };
+}
+
+/**
+ * Creates the administrator editor for public server destinations.
+ *
+ * @param {Array<object>} servers The administrator-visible server records.
+ * @param {string} createUrl The route used to create destinations.
+ * @returns {object}
+ */
+export function gameServerManager(servers, createUrl) {
+    /**
+     * Returns a fresh server form without shared mutable state.
+     *
+     * @returns {object}
+     */
+    const emptyForm = () => ({
+        slug: '',
+        name: '',
+        version: '97d + 99i',
+        experience: '9999x',
+        drop: '60%',
+        capacity: 500,
+        online_count: 0,
+        is_online: false,
+        is_current: false,
+        is_visible: true,
+        website_url: '',
+        sort_order: 10,
+    });
+
+    return {
+        servers,
+        editorOpen: false,
+        deleteOpen: false,
+        editing: false,
+        formAction: createUrl,
+        deleteAction: '',
+        form: emptyForm(),
+
+        /**
+         * Opens a blank destination editor.
+         */
+        openCreate() {
+            this.editing = false;
+            this.formAction = createUrl;
+            this.form = emptyForm();
+            this.editorOpen = true;
+            this.$nextTick(() => this.$refs.serverName?.focus());
+        },
+
+        /**
+         * Opens an existing destination in the shared editor.
+         *
+         * @param {object} server The selected server-directory record.
+         */
+        openEdit(server) {
+            this.editing = true;
+            this.formAction = server.update_url;
+            this.form = { ...server };
+            this.editorOpen = true;
+            this.$nextTick(() => this.$refs.serverName?.focus());
+        },
+
+        /**
+         * Closes the destination editor without saving.
+         */
+        closeEditor() {
+            this.editorOpen = false;
+        },
+
+        /**
+         * Opens deletion confirmation for an external destination.
+         *
+         * @param {object} server The external destination selected for deletion.
+         */
+        openDelete(server) {
+            this.form.name = server.name;
+            this.deleteAction = server.delete_url;
+            this.deleteOpen = true;
+        },
+
+        /**
+         * Closes deletion confirmation without changing the directory.
+         */
+        closeDelete() {
+            this.deleteOpen = false;
+        },
+    };
+}
+
+/**
  * Creates the wallet adjustment preview and confirmation state.
  *
  * @param {number} initialBalance The authoritative balance rendered by Laravel.

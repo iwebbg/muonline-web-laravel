@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
-@section('title', $gameServerOnline ? __('ui.home.title_online') : __('ui.home.title_offline'))
+@section('title', $gameServerOnline
+    ? __('ui.home.title_online', ['server' => $server['name']])
+    : __('ui.home.title_offline', ['server' => $server['name']]))
 
 @section('content')
     <section class="shell grid min-h-[42rem] items-center gap-12 py-20 lg:grid-cols-[1.12fr_0.88fr] lg:py-28">
@@ -50,7 +52,56 @@
 
         <div class="relative mx-auto w-full max-w-lg">
             <div class="hero-orbit" aria-hidden="true"></div>
-            <div class="realm-card">
+            <div class="realm-card" x-data="serverSwitcher()" x-on:keydown.escape.window="close()">
+                <div class="relative mb-6">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between gap-4 rounded-2xl border border-white/10 bg-black/25 px-4 py-3 text-left transition hover:border-gold/30"
+                        x-on:click="toggle()"
+                        x-bind:aria-expanded="open"
+                        aria-controls="server-directory-menu"
+                    >
+                        <span class="min-w-0">
+                            <span class="block text-[0.62rem] font-bold uppercase tracking-[0.18em] text-steel">{{ __('ui.home.selected_server') }}</span>
+                            <span class="mt-1 block truncate font-semibold text-white">{{ $server['name'] }}</span>
+                        </span>
+                        <span class="text-gold transition" x-bind:class="open && 'rotate-180'" aria-hidden="true">⌄</span>
+                    </button>
+
+                    <div
+                        id="server-directory-menu"
+                        class="absolute left-0 right-0 top-full z-40 mt-2 overflow-hidden rounded-2xl border border-white/10 bg-[#0d1016]/95 p-2 shadow-2xl backdrop-blur-xl"
+                        x-cloak
+                        x-show="open"
+                        x-transition.origin.top
+                        x-on:click.outside="close()"
+                    >
+                        @foreach ($serverDirectory as $directoryServer)
+                            <a
+                                href="{{ $directoryServer['url'] }}"
+                                @if (! $directoryServer['is_current']) rel="external" @endif
+                                class="group flex items-center justify-between gap-4 rounded-xl px-3 py-3 transition hover:bg-white/[0.06]"
+                            >
+                                <span class="flex min-w-0 items-center gap-3">
+                                    <span @class([
+                                        'size-2.5 shrink-0 rounded-full',
+                                        'bg-emerald-300 shadow-[0_0_12px_rgba(110,231,183,.65)]' => $directoryServer['is_online'],
+                                        'bg-red-400 shadow-[0_0_12px_rgba(248,113,113,.5)]' => ! $directoryServer['is_online'],
+                                    ])></span>
+                                    <span class="min-w-0">
+                                        <strong class="block truncate text-sm text-white group-hover:text-gold">{{ $directoryServer['name'] }}</strong>
+                                        <span class="mt-0.5 block text-xs text-steel">{{ $directoryServer['version'] }} · {{ $directoryServer['experience'] }} · {{ $directoryServer['drop'] }}</span>
+                                    </span>
+                                </span>
+                                <span class="shrink-0 text-right">
+                                    <strong class="block text-sm text-white">{{ number_format($directoryServer['online']) }}</strong>
+                                    <span class="text-[0.58rem] uppercase tracking-widest text-steel">{{ __('ui.home.online_short') }}</span>
+                                </span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="kicker">{{ __('ui.home.live_realm') }}</p>

@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
 use App\Http\Controllers\Admin\EconomyRecoveryController;
 use App\Http\Controllers\Admin\EventScheduleController;
 use App\Http\Controllers\Admin\GameMasterController;
+use App\Http\Controllers\Admin\GameServerController;
 use App\Http\Controllers\Admin\ItemGrantController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModerationController;
@@ -392,6 +393,17 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/event-schedules/{eventScheduleEntry}', [EventScheduleController::class, 'update'])
             ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->name('event-schedules.update');
+        Route::middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
+            ->group(function (): void {
+                Route::get('/game-servers', [GameServerController::class, 'index'])
+                    ->name('game-servers.index');
+                Route::post('/game-servers', [GameServerController::class, 'store'])
+                    ->name('game-servers.store');
+                Route::put('/game-servers/{gameServer}', [GameServerController::class, 'update'])
+                    ->name('game-servers.update');
+                Route::delete('/game-servers/{gameServer}', [GameServerController::class, 'destroy'])
+                    ->name('game-servers.destroy');
+            });
         Route::get('/item-grants', [ItemGrantController::class, 'index'])
             ->middleware('admin.permission:'.AdministratorPermission::GrantItems->value)
             ->name('item-grants.index');

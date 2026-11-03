@@ -4,10 +4,16 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+/**
+ * Seeds safe public defaults without creating privileged identities.
+ */
+final class DatabaseSeeder extends Seeder
 {
     /**
-     * Leaves privileged identities empty so they must be created explicitly.
+     * Seeds public defaults while leaving privileged identities empty.
      */
-    public function run(): void {}
+    public function run(): void
+    {
+        $this->call(GameServerSeeder::class);
+    }
 }

@@ -65,12 +65,18 @@ before/after audit operation. Excellent and ancient grant options remain closed
 until their item-family rules are verified against the reference server.
 
 Player-facing modules are controlled from **Administration → Modules**. Each
-published configuration is scoped to `GAME_SERVER_PROFILE` and
-`GAME_SERVER_VERSION`, uses optimistic revisions and records immutable
+published configuration is scoped to the active compatibility profile and
+game version, uses optimistic revisions and records immutable
 before/after snapshots in the shared administrator audit log. Disabled routes
 return `404` and disappear from player navigation, while existing custody and
 recovery records remain available to administrators. Timed auctions cannot be
 enabled unless the player market is also enabled.
+
+Public server identity and related server websites are controlled from
+**Administration → Game servers**. Exactly one database record is marked as the
+current website; it uses live counters from this installation's game database.
+Other records are external links with manually maintained public status data,
+so one website never writes to or impersonates another server database.
 
 Zen Bank uses an application ledger plus compare-and-set warehouse updates.
 Deposits, withdrawals and retries are idempotent; interrupted transfers remain

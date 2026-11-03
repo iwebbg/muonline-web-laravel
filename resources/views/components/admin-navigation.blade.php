@@ -18,6 +18,9 @@
             <a href="{{ route('admin.event-schedules.index') }}" class="admin-nav-link {{ $active === 'event-schedules' ? 'admin-nav-link-active' : '' }}">
                 <span>◷</span>{{ __('ui.admin.event_schedules_nav') }}
             </a>
+            <a href="{{ route('admin.game-servers.index') }}" class="admin-nav-link {{ $active === 'game-servers' ? 'admin-nav-link-active' : '' }}">
+                <span>◉</span>{{ __('ui.admin.game_servers_nav') }}
+            </a>
         @endif
         @if (
             auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateAccounts)

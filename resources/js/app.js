@@ -6,11 +6,13 @@ import {
     contentManager,
     downloadManager,
     eventSchedule,
+    gameServerManager,
     gameMasterManager,
     moderationPanel,
     rankingBoard,
     rankingExplorer,
     resetSettings,
+    serverSwitcher,
     walletManager,
     vipPurchaseManager,
 } from './muonline';
@@ -22,11 +24,13 @@ Alpine.data('applicationNavigation', applicationNavigation);
 Alpine.data('contentManager', contentManager);
 Alpine.data('downloadManager', downloadManager);
 Alpine.data('eventSchedule', eventSchedule);
+Alpine.data('gameServerManager', gameServerManager);
 Alpine.data('gameMasterManager', gameMasterManager);
 Alpine.data('moderationPanel', moderationPanel);
 Alpine.data('rankingBoard', rankingBoard);
 Alpine.data('rankingExplorer', rankingExplorer);
 Alpine.data('resetSettings', resetSettings);
+Alpine.data('serverSwitcher', serverSwitcher);
 Alpine.data('walletManager', walletManager);
 Alpine.data('vipPurchaseManager', vipPurchaseManager);
 
