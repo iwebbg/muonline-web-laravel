@@ -2,6 +2,8 @@
 
 use App\Admin\Authorization\AdministratorPermission;
 use App\Http\Controllers\Account\AccountCredentialController;
+use App\Http\Controllers\Account\AccountDeletionRequestController;
+use App\Http\Controllers\Account\AccountSecurityController;
 use App\Http\Controllers\Account\AuctionBidController;
 use App\Http\Controllers\Account\CharacterGrandResetController;
 use App\Http\Controllers\Account\CharacterMoveController;
@@ -9,6 +11,7 @@ use App\Http\Controllers\Account\CharacterPkClearController;
 use App\Http\Controllers\Account\CharacterResetController;
 use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
+use App\Http\Controllers\Account\CreditController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
 use App\Http\Controllers\Account\ItemStorageController;
 use App\Http\Controllers\Account\JewelBankController;
@@ -43,6 +46,8 @@ use App\Http\Controllers\Admin\VoteClaimReviewController;
 use App\Http\Controllers\Admin\VoteSiteController;
 use App\Http\Controllers\Admin\WalletController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\GameAccountActivationController;
+use App\Http\Controllers\Auth\GameAccountActivationLinkController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredAccountController;
@@ -143,6 +148,11 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])
     ])
     ->name('password.update');
 
+Route::get('/activate-account/{account}/{token}', GameAccountActivationController::class)
+    ->where('account', '[A-Za-z0-9_-]{4,10}')
+    ->where('token', '[A-Za-z0-9]{64}')
+    ->name('account.activation');
+
 Route::middleware('guest')->group(function (): void {
     Route::get('/register', [RegisteredAccountController::class, 'create'])
         ->middleware('module.enabled:'.ServerModule::Registration->value)
@@ -153,6 +163,11 @@ Route::middleware('guest')->group(function (): void {
             'throttle:registration',
         ])
         ->name('register.store');
+    Route::get('/activate-account', [GameAccountActivationLinkController::class, 'create'])
+        ->name('account.activation.request');
+    Route::post('/activate-account', [GameAccountActivationLinkController::class, 'store'])
+        ->middleware('throttle:account-activation-link')
+        ->name('account.activation.email');
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
@@ -163,21 +178,39 @@ Route::middleware('guest')->group(function (): void {
 Route::middleware('auth')->group(function (): void {
     Route::get('/account', AccountDashboardController::class)
         ->name('account.dashboard');
-    Route::get('/votes', VoteController::class)
+    Route::get('/account/credits', CreditController::class)
+        ->middleware('module.enabled:'.ServerModule::Credits->value)
+        ->name('account.credits.index');
+    Route::get('/account/votes', VoteController::class)
         ->middleware('module.enabled:'.ServerModule::VoteRewards->value)
-        ->name('votes.index');
-    Route::post('/votes/{voteSite}/claims', VoteClaimController::class)
+        ->name('account.votes.index');
+    Route::post('/account/votes/{voteSite}/claims', VoteClaimController::class)
         ->middleware([
             'module.enabled:'.ServerModule::VoteRewards->value,
             'throttle:vote-claim',
         ])
-        ->name('votes.claims.store');
+        ->name('account.votes.claims.store');
+    Route::get('/account/security', AccountSecurityController::class)
+        ->middleware('module.enabled:'.ServerModule::AccountSecurity->value)
+        ->name('account.security.index');
     Route::put('/account/credentials', [AccountCredentialController::class, 'update'])
         ->middleware([
             'module.enabled:'.ServerModule::AccountSecurity->value,
             'throttle:account-credentials',
         ])
         ->name('account.credentials.update');
+    Route::post('/account/deletion-requests', [AccountDeletionRequestController::class, 'store'])
+        ->middleware([
+            'module.enabled:'.ServerModule::AccountSecurity->value,
+            'throttle:account-deletion',
+        ])
+        ->name('account.deletion-requests.store');
+    Route::post('/account/deletion-requests/confirm', [AccountDeletionRequestController::class, 'confirm'])
+        ->middleware([
+            'module.enabled:'.ServerModule::AccountSecurity->value,
+            'throttle:account-deletion',
+        ])
+        ->name('account.deletion-requests.confirm');
     Route::post('/account/reset-preview', ResetPreviewController::class)
         ->middleware('throttle:reset-preview')
         ->name('account.reset-preview');

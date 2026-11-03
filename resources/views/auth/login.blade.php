@@ -95,6 +95,8 @@
                 <p class="mt-3 text-center text-sm text-steel">
                     {{ __('ui.registration.have_no_account') }}
                     <a href="{{ route('register') }}" class="font-semibold text-gold hover:text-white">{{ __('ui.registration.open_form') }}</a>
+                    <span class="mx-2 text-steel">·</span>
+                    <a href="{{ route('account.activation.request') }}" class="font-semibold text-gold hover:text-white">{{ __('ui.activation.resend_link') }}</a>
                 </p>
             @endif
         </section>

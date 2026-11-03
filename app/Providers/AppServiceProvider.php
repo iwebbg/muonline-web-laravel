@@ -122,6 +122,20 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perHour(10)->by($limiterKey);
         });
 
+        RateLimiter::for('account-activation-link', function (Request $request): Limit {
+            $accountId = Str::lower($request->string('account')->toString());
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perHour(5)->by($limiterKey);
+        });
+
+        RateLimiter::for('account-deletion', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perHour(5)->by($limiterKey);
+        });
+
         RateLimiter::for('server-status', function (Request $request): Limit {
             return Limit::perMinute(60)->by('server-status|'.$request->ip());
         });

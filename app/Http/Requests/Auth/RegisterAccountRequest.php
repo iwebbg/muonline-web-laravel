@@ -47,6 +47,11 @@ final class RegisterAccountRequest extends FormRequest
                 'regex:/\A[A-Za-z0-9_-]+\z/',
                 'confirmed',
             ],
+            'recaptcha_token' => [
+                config('services.recaptcha.enabled', false) ? 'required' : 'nullable',
+                'string',
+                'max:4096',
+            ],
         ];
     }
 
@@ -70,6 +75,7 @@ final class RegisterAccountRequest extends FormRequest
             'password.max' => __('ui.registration.password_length'),
             'password.regex' => __('ui.registration.legacy_characters'),
             'password.confirmed' => __('ui.registration.password_confirmation'),
+            'recaptcha_token.required' => __('ui.registration.recaptcha_failed'),
         ];
     }
 
@@ -109,5 +115,13 @@ final class RegisterAccountRequest extends FormRequest
     public function password(): string
     {
         return (string) $this->validated('password');
+    }
+
+    /**
+     * Returns the short-lived reCAPTCHA token supplied for this form submission.
+     */
+    public function recaptchaToken(): string
+    {
+        return (string) $this->validated('recaptcha_token', '');
     }
 }

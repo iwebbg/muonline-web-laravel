@@ -13,6 +13,7 @@ import {
     moderationPanel,
     rankingBoard,
     rankingExplorer,
+    registrationRecaptcha,
     resetSettings,
     serverSwitcher,
     walletManager,
@@ -33,6 +34,7 @@ Alpine.data('marketExpiry', marketExpiry);
 Alpine.data('moderationPanel', moderationPanel);
 Alpine.data('rankingBoard', rankingBoard);
 Alpine.data('rankingExplorer', rankingExplorer);
+Alpine.data('registrationRecaptcha', registrationRecaptcha);
 Alpine.data('resetSettings', resetSettings);
 Alpine.data('serverSwitcher', serverSwitcher);
 Alpine.data('walletManager', walletManager);

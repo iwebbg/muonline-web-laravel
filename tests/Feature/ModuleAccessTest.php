@@ -152,7 +152,9 @@ final class ModuleAccessTest extends TestCase
     public static function authenticatedModuleRoutes(): array
     {
         return [
-            'vote rewards' => [ServerModule::VoteRewards, 'votes.index'],
+            'vote rewards' => [ServerModule::VoteRewards, 'account.votes.index'],
+            'credits' => [ServerModule::Credits, 'account.credits.index'],
+            'account security' => [ServerModule::AccountSecurity, 'account.security.index'],
             'web storage' => [ServerModule::WebStorage, 'account.web-storage.index'],
             'jewel bank' => [ServerModule::JewelBank, 'account.jewel-bank.index'],
             'zen bank' => [ServerModule::ZenBank, 'account.zen-bank.index'],

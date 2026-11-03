@@ -118,6 +118,56 @@ const equipmentSlotLayout = {
 };
 
 /**
+ * Creates the registration form state that requests a fresh reCAPTCHA v3 token
+ * immediately before submitting sensitive account data.
+ *
+ * @param {string} siteKey The public reCAPTCHA v3 site key.
+ * @param {boolean} enabled Whether server-side verification is enabled.
+ * @param {string} errorMessage The localized client-side failure message.
+ * @returns {object}
+ */
+export function registrationRecaptcha(siteKey, enabled, errorMessage) {
+    return {
+        submitting: false,
+        failureMessage: '',
+
+        /**
+         * Submits directly when disabled or attaches one fresh registration token.
+         *
+         * @param {HTMLFormElement} form The registration form being submitted.
+         */
+        async submit(form) {
+            if (!enabled) {
+                form.submit();
+
+                return;
+            }
+
+            this.submitting = true;
+            this.failureMessage = '';
+
+            try {
+                if (!window.grecaptcha || siteKey === '') {
+                    throw new Error('reCAPTCHA is unavailable.');
+                }
+
+                await new Promise((resolve) => window.grecaptcha.ready(resolve));
+
+                const token = await window.grecaptcha.execute(siteKey, {
+                    action: 'register',
+                });
+
+                this.$refs.recaptchaToken.value = token;
+                form.submit();
+            } catch {
+                this.failureMessage = errorMessage;
+                this.submitting = false;
+            }
+        },
+    };
+}
+
+/**
  * Creates the administrator moderation confirmation-dialog state.
  *
  * @returns {{modalOpen: boolean, targetType: string, targetIdentifier: string, action: string, reason: string, idempotencyKey: string, openModeration: Function, closeModeration: Function}}

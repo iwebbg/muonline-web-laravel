@@ -55,7 +55,7 @@ final class AccountCredentialController extends Controller
         $request->session()->regenerate();
 
         return redirect()
-            ->route('account.dashboard')
+            ->route('account.security.index')
             ->with('accountStatus', __('ui.account.credentials_updated'));
     }
 }

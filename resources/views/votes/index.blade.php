@@ -56,7 +56,7 @@
                                     {{ __('ui.votes.available_at', ['time' => $card['availableAt']->format('Y-m-d H:i')]) }}
                                 </span>
                             @else
-                                <form method="POST" action="{{ route('votes.claims.store', $site) }}" target="_blank">
+                                <form method="POST" action="{{ route('account.votes.claims.store', $site) }}" target="_blank">
                                     @csrf
                                     <input type="hidden" name="idempotency_key" value="{{ $card['idempotencyKey'] }}">
                                     <button type="submit" class="button button-primary w-full">

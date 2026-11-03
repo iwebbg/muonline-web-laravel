@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Auth\GameAccount;
 use App\Models\AccountWallet;
 use App\Models\ModuleProfile;
-use App\Models\WalletTransaction;
 use App\Models\WebStorageItem;
 use App\Modules\ServerModule;
 use Illuminate\Database\DatabaseManager;
@@ -80,13 +79,12 @@ final class AccountDashboardTest extends TestCase
         $response->assertSee('character-move', false);
         $response->assertSee('item-storage', false);
         $response->assertSee('x-if="itemStorage !== null', false);
-        $response->assertSee('Account security');
         $response->assertSee('Account tools');
-        $response->assertSee(route('votes.index'), false);
-        $response->assertSee('account/credentials', false);
+        $response->assertSee(route('account.votes.index'), false);
+        $response->assertSee(route('account.security.index'), false);
+        $response->assertSee(route('account.credits.index'), false);
         $response->assertSee('x-teleport="body"', false);
         $response->assertSee('aria-modal="true"', false);
-        $response->assertSee('credentialsOpen: false', false);
     }
 
     /**
@@ -100,44 +98,11 @@ final class AccountDashboardTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('No characters found');
-        $response->assertSee('Account security');
         $response->assertSee('Account storage');
         $this->assertMatchesRegularExpression(
             '/initialSection.{0,80}vaults/',
             $response->getContent(),
         );
-    }
-
-    /**
-     * Confirms credential validation feedback reopens the modal where the form is displayed.
-     */
-    public function test_dashboard_reopens_account_security_modal_after_validation_error(): void
-    {
-        $response = $this
-            ->withSession([
-                '_old_input' => [
-                    'email' => 'invalid-address',
-                ],
-            ])
-            ->actingAs($this->account('owner'))
-            ->get('/account');
-
-        $response->assertOk();
-        $response->assertSee('value="invalid-address"', false);
-        $response->assertSee('credentialsOpen: true', false);
-    }
-
-    /**
-     * Confirms a direct account-panel URL opens the requested account tool.
-     */
-    public function test_dashboard_opens_account_security_modal_from_panel_query(): void
-    {
-        $response = $this
-            ->actingAs($this->account('owner'))
-            ->get('/account?panel=security');
-
-        $response->assertOk();
-        $response->assertSee('credentialsOpen: true', false);
     }
 
     /**
@@ -166,38 +131,22 @@ final class AccountDashboardTest extends TestCase
             ->get('/account');
 
         $response->assertOk();
-        $response->assertDontSee(route('votes.index'), false);
-        $response->assertDontSee('open-account-wallet', false);
+        $response->assertDontSee(route('account.votes.index'), false);
+        $response->assertDontSee(route('account.credits.index'), false);
     }
 
     /**
-     * Confirms players see only their Credits balance and safely escaped ledger history.
+     * Confirms the signed-in summary includes only the owned Credits balance.
      */
-    public function test_dashboard_displays_owned_wallet_and_transaction_history(): void
+    public function test_dashboard_displays_owned_wallet_balance_in_signed_in_summary(): void
     {
-        $wallet = AccountWallet::factory()->create([
+        AccountWallet::factory()->create([
             'account_id' => 'owner',
             'balance' => 125,
         ]);
-        WalletTransaction::factory()->create([
-            'account_wallet_id' => $wallet->getKey(),
-            'account_id' => 'owner',
-            'amount' => 125,
-            'balance_before' => 0,
-            'balance_after' => 125,
-            'reason' => '<script>alert("private-wallet")</script>',
-        ]);
-        $otherWallet = AccountWallet::factory()->create([
+        AccountWallet::factory()->create([
             'account_id' => 'other',
             'balance' => 999,
-        ]);
-        WalletTransaction::factory()->create([
-            'account_wallet_id' => $otherWallet->getKey(),
-            'account_id' => 'other',
-            'amount' => 999,
-            'balance_before' => 0,
-            'balance_after' => 999,
-            'reason' => 'Other account private transaction',
         ]);
 
         $response = $this
@@ -206,11 +155,8 @@ final class AccountDashboardTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('125')
-            ->assertSee('Credits and transaction history')
-            ->assertDontSee('<script>alert("private-wallet")</script>', false)
-            ->assertSee('&lt;script&gt;', false)
-            ->assertDontSee('Other account private transaction');
+            ->assertSee('125 Credits')
+            ->assertDontSee('999 Credits');
     }
 
     /**

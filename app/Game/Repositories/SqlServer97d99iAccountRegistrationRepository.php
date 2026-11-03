@@ -50,7 +50,7 @@ final readonly class SqlServer97d99iAccountRegistrationRepository implements Acc
                         'memb_name' => $username,
                         'sno__numb' => '1111111111111',
                         'mail_addr' => $email,
-                        'bloc_code' => '0',
+                        'bloc_code' => '1',
                         'ctl1_code' => '0',
                         'IsVip' => 0,
                         'VipExpirationTime' => 0,

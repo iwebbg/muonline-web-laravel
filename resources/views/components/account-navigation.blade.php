@@ -1,35 +1,28 @@
 @props([
-    'walletBalance' => null,
     'vipActiveCount' => null,
-    'walletModalAvailable' => false,
     'vipModalAvailable' => false,
-    'securityModalAvailable' => false,
 ])
 
 @inject('moduleManager', 'App\Modules\ModuleManager')
 
 @php
-    $activePanel = request()->query('panel');
     $activeTab = request()->query('tab');
     $dashboardActive = request()->routeIs('account.dashboard')
-        && $activePanel === null
         && $activeTab !== 'vaults';
     $vaultsActive = request()->routeIs('account.web-storage.*')
         || (request()->routeIs('account.dashboard') && $activeTab === 'vaults');
-    $walletActive = request()->routeIs('account.dashboard') && $activePanel === 'wallet';
-    $vipActive = request()->routeIs('account.dashboard') && $activePanel === 'vip';
-    $securityActive = request()->routeIs('account.dashboard') && $activePanel === 'security';
+    $vipActive = request()->routeIs('account.dashboard') && request()->query('panel') === 'vip';
 @endphp
 
 <nav
-    {{ $attributes->class('rounded-2xl border border-white/8 bg-black/25 p-2 backdrop-blur-md') }}
+    {{ $attributes->class('rounded-2xl border border-white/8 bg-black/25 p-3 backdrop-blur-md') }}
     aria-label="{{ __('ui.account.navigation.label') }}"
 >
-    <div class="flex gap-2 overflow-x-auto pb-1">
+    <div class="flex gap-3 overflow-x-auto pb-1">
         <a
             href="{{ route('account.dashboard') }}"
             @class([
-                'group flex min-w-44 flex-1 items-center gap-3 rounded-xl border px-4 py-3 transition',
+                'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 transition',
                 'border-gold/35 bg-gold/10 text-white' => $dashboardActive,
                 'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! $dashboardActive,
             ])
@@ -51,7 +44,7 @@
             <a
                 href="{{ route('account.dashboard', ['tab' => 'vaults']) }}"
                 @class([
-                    'group flex min-w-44 flex-1 items-center gap-3 rounded-xl border px-4 py-3 transition',
+                    'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 transition',
                     'border-gold/35 bg-gold/10 text-white' => $vaultsActive,
                     'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! $vaultsActive,
                 ])
@@ -71,22 +64,15 @@
         @endif
 
         @if ($moduleManager->enabled(\App\Modules\ServerModule::Credits))
-            @if ($walletModalAvailable)
-                <button
-                    type="button"
-                    @class([
-                        'group flex min-w-44 flex-1 items-center gap-3 rounded-xl border px-4 py-3 text-left transition',
-                        'border-gold/35 bg-gold/10 text-white' => $walletActive,
-                        'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! $walletActive,
-                    ])
-                    @click="$dispatch('open-account-wallet')"
-                >
-            @else
-                <a
-                    href="{{ route('account.dashboard', ['panel' => 'wallet']) }}"
-                    class="group flex min-w-44 flex-1 items-center gap-3 rounded-xl border border-transparent px-4 py-3 text-silver transition hover:border-white/10 hover:bg-white/5 hover:text-white"
-                >
-            @endif
+            <a
+                href="{{ route('account.credits.index') }}"
+                @class([
+                    'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 transition',
+                    'border-gold/35 bg-gold/10 text-white' => request()->routeIs('account.credits.*'),
+                    'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! request()->routeIs('account.credits.*'),
+                ])
+                @if (request()->routeIs('account.credits.*')) aria-current="page" @endif
+            >
                 <span class="grid size-10 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25 text-gold" aria-hidden="true">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path d="M4 6.5h14A2.5 2.5 0 0 1 20.5 9v9A2.5 2.5 0 0 1 18 20.5H4A2.5 2.5 0 0 1 1.5 18V5A2.5 2.5 0 0 1 4 2.5h12" />
@@ -95,15 +81,9 @@
                 </span>
                 <span>
                     <strong class="block text-sm">{{ __('ui.account.navigation.credits') }}</strong>
-                    <span class="mt-0.5 block text-xs text-steel">
-                        {{ $walletBalance === null ? __('ui.account.navigation.credits_help') : number_format($walletBalance).' Credits' }}
-                    </span>
+                    <span class="mt-0.5 block text-xs text-steel">{{ __('ui.account.navigation.credits_help') }}</span>
                 </span>
-            @if ($walletModalAvailable)
-                </button>
-            @else
-                </a>
-            @endif
+            </a>
         @endif
 
         @if ($moduleManager->enabled(\App\Modules\ServerModule::Vip))
@@ -111,7 +91,7 @@
                 <button
                     type="button"
                     @class([
-                        'group flex min-w-44 flex-1 items-center gap-3 rounded-xl border px-4 py-3 text-left transition',
+                        'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 text-left transition',
                         'border-gold/35 bg-gold/10 text-white' => $vipActive,
                         'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! $vipActive,
                     ])
@@ -120,7 +100,7 @@
             @else
                 <a
                     href="{{ route('account.dashboard', ['panel' => 'vip']) }}"
-                    class="group flex min-w-44 flex-1 items-center gap-3 rounded-xl border border-transparent px-4 py-3 text-silver transition hover:border-white/10 hover:bg-white/5 hover:text-white"
+                    class="group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border border-transparent px-5 py-4 text-silver transition hover:border-white/10 hover:bg-white/5 hover:text-white"
                 >
             @endif
                     <span class="grid size-10 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25 text-gold" aria-hidden="true">
@@ -143,13 +123,13 @@
 
         @if ($moduleManager->enabled(\App\Modules\ServerModule::VoteRewards))
             <a
-                href="{{ route('votes.index') }}"
+                href="{{ route('account.votes.index') }}"
                 @class([
-                    'group flex min-w-44 flex-1 items-center gap-3 rounded-xl border px-4 py-3 transition',
-                    'border-gold/35 bg-gold/10 text-white' => request()->routeIs('votes.*'),
-                    'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! request()->routeIs('votes.*'),
+                    'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 transition',
+                    'border-gold/35 bg-gold/10 text-white' => request()->routeIs('account.votes.*'),
+                    'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! request()->routeIs('account.votes.*'),
                 ])
-                @if (request()->routeIs('votes.*')) aria-current="page" @endif
+                @if (request()->routeIs('account.votes.*')) aria-current="page" @endif
             >
                 <span class="grid size-10 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25 text-gold" aria-hidden="true">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -168,7 +148,7 @@
             <a
                 href="{{ route('account.jewel-bank.index') }}"
                 @class([
-                    'group flex min-w-44 flex-1 items-center gap-3 rounded-xl border px-4 py-3 transition',
+                    'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 transition',
                     'border-gold/35 bg-gold/10 text-white' => request()->routeIs('account.jewel-bank.*'),
                     'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! request()->routeIs('account.jewel-bank.*'),
                 ])
@@ -191,7 +171,7 @@
             <a
                 href="{{ route('account.zen-bank.index') }}"
                 @class([
-                    'group flex min-w-44 flex-1 items-center gap-3 rounded-xl border px-4 py-3 transition',
+                    'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 transition',
                     'border-gold/35 bg-gold/10 text-white' => request()->routeIs('account.zen-bank.*'),
                     'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! request()->routeIs('account.zen-bank.*'),
                 ])
@@ -211,22 +191,15 @@
         @endif
 
         @if ($moduleManager->enabled(\App\Modules\ServerModule::AccountSecurity))
-            @if ($securityModalAvailable)
-                <button
-                    type="button"
-                    @class([
-                        'group flex min-w-44 flex-1 items-center gap-3 rounded-xl border px-4 py-3 text-left transition',
-                        'border-gold/35 bg-gold/10 text-white' => $securityActive,
-                        'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! $securityActive,
-                    ])
-                    @click="$dispatch('open-account-security')"
-                >
-            @else
-                <a
-                    href="{{ route('account.dashboard', ['panel' => 'security']) }}"
-                    class="group flex min-w-44 flex-1 items-center gap-3 rounded-xl border border-transparent px-4 py-3 text-silver transition hover:border-white/10 hover:bg-white/5 hover:text-white"
-                >
-            @endif
+            <a
+                href="{{ route('account.security.index') }}"
+                @class([
+                    'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 transition',
+                    'border-gold/35 bg-gold/10 text-white' => request()->routeIs('account.security.*'),
+                    'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! request()->routeIs('account.security.*'),
+                ])
+                @if (request()->routeIs('account.security.*')) aria-current="page" @endif
+            >
                 <span class="grid size-10 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25 text-gold" aria-hidden="true">
                     <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                         <path d="M12 3 5.5 5.7v5.5c0 4.1 2.7 7.8 6.5 9.8 3.8-2 6.5-5.7 6.5-9.8V5.7L12 3Z" />
@@ -237,11 +210,7 @@
                     <strong class="block text-sm">{{ __('ui.account.navigation.security') }}</strong>
                     <span class="mt-0.5 block text-xs text-steel">{{ __('ui.account.navigation.security_help') }}</span>
                 </span>
-            @if ($securityModalAvailable)
-                </button>
-            @else
-                </a>
-            @endif
+            </a>
         @endif
     </div>
 </nav>

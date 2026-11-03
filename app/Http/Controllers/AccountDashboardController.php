@@ -69,12 +69,6 @@ final class AccountDashboardController extends Controller
                 ->where('currency', WalletCurrency::Credits)
                 ->first()
             : null;
-        $walletTransactions = $wallet === null
-            ? collect()
-            : $wallet->transactions()
-                ->latest('id')
-                ->limit(20)
-                ->get();
         $vipPlanEntries = $vipEnabled
             ? VipPlan::query()
                 ->available()
@@ -179,7 +173,6 @@ final class AccountDashboardController extends Controller
             'account' => $account,
             'characters' => $characters,
             'walletBalance' => $wallet?->balance ?? 0,
-            'walletTransactions' => $walletTransactions,
             'vipPlans' => $vipPlans,
             'vipEntitlements' => $vipEntitlements,
             'activeVipEntitlementCount' => $activeVipEntitlementCount,

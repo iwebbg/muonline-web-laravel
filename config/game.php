@@ -14,6 +14,8 @@ return [
 
     'password_reset_ttl_minutes' => (int) env('GAME_PASSWORD_RESET_TTL_MINUTES', 60),
 
+    'account_activation_ttl_minutes' => (int) env('GAME_ACCOUNT_ACTIVATION_TTL_MINUTES', 1_440),
+
     'ranking_limit' => (int) env('GAME_RANKING_LIMIT', 10),
 
     'database_connections' => [

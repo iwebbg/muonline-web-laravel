@@ -39,7 +39,7 @@ final class VoteRewardTest extends TestCase
         $response = $this
             ->withSession(['_token' => $csrfToken])
             ->actingAs($this->account('voteuser'))
-            ->post(route('votes.claims.store', $site), [
+            ->post(route('account.votes.claims.store', $site), [
                 '_token' => $csrfToken,
                 'idempotency_key' => 'da69e84e-a687-4d9c-bd3d-7e912ca0d584',
             ]);
@@ -231,7 +231,7 @@ final class VoteRewardTest extends TestCase
 
         $response = $this
             ->actingAs($this->account('visible1'))
-            ->get(route('votes.index'));
+            ->get(route('account.votes.index'));
 
         $response
             ->assertOk()

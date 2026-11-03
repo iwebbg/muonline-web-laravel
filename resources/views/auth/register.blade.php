@@ -25,8 +25,19 @@
                 <h2 class="mt-2 text-2xl font-semibold text-white">{{ __('ui.registration.form_heading') }}</h2>
             </div>
 
-            <form method="POST" action="{{ route('register.store') }}" class="mt-8 grid gap-5">
+            <form
+                method="POST"
+                action="{{ route('register.store') }}"
+                class="mt-8 grid gap-5"
+                x-data="registrationRecaptcha(
+                    @js($recaptchaSiteKey),
+                    @js($recaptchaEnabled),
+                    @js(__('ui.registration.recaptcha_failed'))
+                )"
+                @submit.prevent="submit($el)"
+            >
                 @csrf
+                <input type="hidden" name="recaptcha_token" x-ref="recaptchaToken">
 
                 <label class="field-group">
                     <span>{{ __('ui.registration.username') }}</span>
@@ -96,7 +107,9 @@
                     </div>
                 @endif
 
-                <button type="submit" class="button button-primary button-large mt-2 w-full">
+                <p x-show="failureMessage" x-cloak class="text-sm text-red-200" x-text="failureMessage"></p>
+
+                <button type="submit" class="button button-primary button-large mt-2 w-full" :disabled="submitting">
                     {{ __('ui.registration.submit') }}
                     <span aria-hidden="true">→</span>
                 </button>
@@ -108,4 +121,8 @@
             </p>
         </section>
     </div>
+
+    @if ($recaptchaEnabled && $recaptchaSiteKey !== '')
+        <script src="https://www.google.com/recaptcha/api.js?render={{ urlencode($recaptchaSiteKey) }}" async defer></script>
+    @endif
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Game\Versions\Version97d99i;
 
+use App\Game\Contracts\AccountActivationRepository;
 use App\Game\Contracts\AccountCredentialRepository;
 use App\Game\Contracts\AccountPasswordRecoveryRepository;
 use App\Game\Contracts\AccountReadRepository;
@@ -20,6 +21,7 @@ use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Game\Contracts\ModerationRepository;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Contracts\ZenBankRepository;
+use App\Game\Repositories\SqlServer97d99iAccountActivationRepository;
 use App\Game\Repositories\SqlServer97d99iAccountCredentialRepository;
 use App\Game\Repositories\SqlServer97d99iAccountPasswordRecoveryRepository;
 use App\Game\Repositories\SqlServer97d99iAccountReadRepository;
@@ -178,6 +180,7 @@ final class Version97d99iProfile implements GameVersionProfile
     {
         return [
             RealmReadRepository::class => SqlServer97d99iRealmReadRepository::class,
+            AccountActivationRepository::class => SqlServer97d99iAccountActivationRepository::class,
             AccountCredentialRepository::class => SqlServer97d99iAccountCredentialRepository::class,
             AccountPasswordRecoveryRepository::class => SqlServer97d99iAccountPasswordRecoveryRepository::class,
             AccountRegistrationRepository::class => SqlServer97d99iAccountRegistrationRepository::class,

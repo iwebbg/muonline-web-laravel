@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\AccountRegistration\AccountRegistrationBlockReason;
 use App\AccountRegistration\Actions\RegisterGameAccount;
+use App\AccountRegistration\Actions\SendAccountActivationLink;
 use App\AccountRegistration\Exceptions\AccountRegistrationRejected;
 use App\Game\Contracts\RealmReadRepository;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterAccountRequest;
+use App\Security\RecaptchaV3Verifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -38,6 +40,8 @@ final class RegisteredAccountController extends Controller
 
         return view('auth.register', [
             'realmStatistics' => $realmStatistics,
+            'recaptchaEnabled' => (bool) config('services.recaptcha.enabled', false),
+            'recaptchaSiteKey' => (string) config('services.recaptcha.site_key', ''),
         ]);
     }
 
@@ -49,9 +53,21 @@ final class RegisteredAccountController extends Controller
     public function store(
         RegisterAccountRequest $request,
         RegisterGameAccount $registerGameAccount,
+        SendAccountActivationLink $sendAccountActivationLink,
+        RecaptchaV3Verifier $recaptchaV3Verifier,
     ): RedirectResponse {
+        if (! $recaptchaV3Verifier->verify(
+            token: $request->recaptchaToken(),
+            expectedAction: 'register',
+            ipAddress: $request->ip(),
+        )) {
+            throw ValidationException::withMessages([
+                'recaptcha_token' => __('ui.registration.recaptcha_failed'),
+            ]);
+        }
+
         try {
-            $registerGameAccount->handle(
+            $registration = $registerGameAccount->handle(
                 username: $request->username(),
                 password: $request->password(),
                 email: $request->email(),
@@ -66,8 +82,13 @@ final class RegisteredAccountController extends Controller
             abort($exception->httpStatus, __('ui.registration.unavailable'));
         }
 
+        $sendAccountActivationLink->handle(
+            accountId: $registration->accountId,
+            email: $request->email(),
+        );
+
         return redirect()
             ->route('login')
-            ->with('status', __('ui.registration.completed'));
+            ->with('status', __('ui.registration.activation_sent'));
     }
 }

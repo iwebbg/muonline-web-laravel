@@ -80,7 +80,7 @@ final class AccountCredentialUpdateEndpointTest extends TestCase
         ]);
 
         $response
-            ->assertRedirect('/account')
+            ->assertRedirect('/account/security')
             ->assertSessionHas('accountStatus', 'Your account email and password settings were updated successfully.');
 
         $owner = $this->accountRecord('owner');
@@ -118,7 +118,7 @@ final class AccountCredentialUpdateEndpointTest extends TestCase
             'password_confirmation' => '',
         ]);
 
-        $response->assertRedirect('/account');
+        $response->assertRedirect('/account/security');
 
         $owner = $this->accountRecord('owner');
         $operation = AccountCredentialOperation::query()->sole();
@@ -136,7 +136,7 @@ final class AccountCredentialUpdateEndpointTest extends TestCase
     {
         $this->insertAccount('owner');
         $this->actingAs($this->account('owner'));
-        $this->from('/account');
+        $this->from('/account/security');
 
         $response = $this->putWithCsrf('/account/credentials', [
             'currentPassword' => 'wrong',
@@ -144,7 +144,7 @@ final class AccountCredentialUpdateEndpointTest extends TestCase
         ]);
 
         $response
-            ->assertRedirect('/account')
+            ->assertRedirect('/account/security')
             ->assertSessionHasErrors([
                 'currentPassword' => 'The current password is incorrect.',
             ]);
@@ -165,7 +165,7 @@ final class AccountCredentialUpdateEndpointTest extends TestCase
     {
         $this->insertAccount('owner');
         $this->actingAs($this->account('owner'));
-        $this->from('/account');
+        $this->from('/account/security');
 
         $response = $this->putWithCsrf('/account/credentials', [
             'currentPassword' => 'secret1',
@@ -175,7 +175,7 @@ final class AccountCredentialUpdateEndpointTest extends TestCase
         ]);
 
         $response
-            ->assertRedirect('/account')
+            ->assertRedirect('/account/security')
             ->assertSessionHasErrors([
                 'email' => 'Enter a different email address or a different new password.',
             ]);
@@ -193,7 +193,7 @@ final class AccountCredentialUpdateEndpointTest extends TestCase
     {
         $this->insertAccount('owner');
         $this->actingAs($this->account('owner'));
-        $this->from('/account');
+        $this->from('/account/security');
 
         $response = $this->putWithCsrf('/account/credentials', [
             'currentPassword' => 'secret1',
@@ -203,7 +203,7 @@ final class AccountCredentialUpdateEndpointTest extends TestCase
         ]);
 
         $response
-            ->assertRedirect('/account')
+            ->assertRedirect('/account/security')
             ->assertSessionHasErrors([
                 'email' => 'Enter a valid email address.',
                 'password' => 'The new password must contain between 4 and 10 characters.',

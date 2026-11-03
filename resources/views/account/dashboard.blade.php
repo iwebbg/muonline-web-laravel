@@ -20,18 +20,20 @@
             <div class="flex flex-wrap items-stretch gap-3">
                 <div class="resource-chip">
                     <span>{{ __('ui.account.signed_in_as') }}</span>
-                    <strong>{{ $account->username }}</strong>
+                    <strong>
+                        {{ $account->username }}
+                        @if ($moduleManager->enabled(\App\Modules\ServerModule::Credits))
+                            <span class="text-gold">· {{ number_format($walletBalance) }} {{ __('ui.account.wallet_credits') }}</span>
+                        @endif
+                    </strong>
                 </div>
             </div>
         </div>
 
         <x-account-navigation
             class="mt-6"
-            :wallet-balance="$walletBalance"
             :vip-active-count="$activeVipEntitlementCount"
-            :wallet-modal-available="true"
             :vip-modal-available="true"
-            :security-modal-available="true"
         />
 
         @if ($moduleManager->enabled(\App\Modules\ServerModule::Vip))
@@ -47,21 +49,6 @@
                 :show-trigger="false"
             />
         @endif
-        @if ($moduleManager->enabled(\App\Modules\ServerModule::Credits))
-            <x-account-wallet-modal
-                :balance="$walletBalance"
-                :transactions="$walletTransactions"
-                :show-trigger="false"
-            />
-        @endif
-        @if ($moduleManager->enabled(\App\Modules\ServerModule::AccountSecurity))
-            <x-account-credentials-modal
-                :account="$account"
-                :game-writes-enabled="$gameWritesEnabled"
-                :show-trigger="false"
-            />
-        @endif
-
         @if (session('accountStatus'))
             <div class="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/7 px-5 py-4 text-sm text-emerald-100" role="status">
                 {{ session('accountStatus') }}

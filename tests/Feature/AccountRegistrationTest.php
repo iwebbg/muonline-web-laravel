@@ -3,10 +3,13 @@
 namespace Tests\Feature;
 
 use App\AccountRegistration\AccountRegistrationStatus;
+use App\Mail\GameAccountActivationMail;
 use App\Models\AccountRegistrationOperation;
 use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
@@ -27,6 +30,7 @@ final class AccountRegistrationTest extends TestCase
 
         config()->set('game.writes_enabled', true);
         config()->set('game.account_password_scheme', 'plaintext');
+        Mail::fake();
         config()->set('database.connections.game', [
             'driver' => 'sqlite',
             'database' => ':memory:',
@@ -90,7 +94,7 @@ final class AccountRegistrationTest extends TestCase
 
         $response
             ->assertRedirect('/login')
-            ->assertSessionHas('status', 'Your game account is ready. You can sign in now.');
+            ->assertSessionHas('status', 'Your account was created. Check your email to activate it before signing in.');
 
         $account = $this->gameDatabase()
             ->table('MEMB_INFO')
@@ -104,7 +108,7 @@ final class AccountRegistrationTest extends TestCase
         $this->assertNotNull($account);
         $this->assertSame('secret_1', $account->memb__pwd);
         $this->assertSame('player@example.com', $account->mail_addr);
-        $this->assertSame('0', $account->bloc_code);
+        $this->assertSame('1', $account->bloc_code);
         $this->assertNotNull($billing);
         $this->assertSame($account->memb_guid, $billing->memb_guid);
         $this->assertSame('newhero', $billing->memb_name);
@@ -117,6 +121,9 @@ final class AccountRegistrationTest extends TestCase
         $this->assertTrue($operation->after_snapshot['memb_info_created']);
         $this->assertTrue($operation->after_snapshot['vi_curr_info_created']);
         $this->assertStringNotContainsString('secret_1', $serializedAudit);
+        Mail::assertSent(GameAccountActivationMail::class, function (GameAccountActivationMail $mail): bool {
+            return $mail->hasTo('player@example.com');
+        });
     }
 
     /**
@@ -146,6 +153,60 @@ final class AccountRegistrationTest extends TestCase
         $this->assertSame(0, $this->gameDatabase()->table('MEMB_INFO')->count());
         $this->assertSame(0, $this->gameDatabase()->table('VI_CURR_INFO')->count());
         $this->assertSame(0, AccountRegistrationOperation::query()->count());
+    }
+
+    /**
+     * Confirms a matching reCAPTCHA v3 action and score permit registration.
+     */
+    public function test_recaptcha_v3_accepts_matching_registration_action(): void
+    {
+        config()->set('services.recaptcha.enabled', true);
+        config()->set('services.recaptcha.secret_key', 'test-secret');
+        config()->set('services.recaptcha.hostname', 'localhost');
+        Http::fake([
+            'https://www.google.com/recaptcha/api/siteverify' => Http::response([
+                'success' => true,
+                'score' => 0.9,
+                'action' => 'register',
+                'hostname' => 'localhost',
+            ]),
+        ]);
+
+        $response = $this->postRegistration([
+            'recaptcha_token' => 'fresh-browser-token',
+        ]);
+
+        $response->assertRedirect('/login');
+        $this->assertSame(1, $this->gameDatabase()->table('MEMB_INFO')->count());
+        Http::assertSent(function ($request): bool {
+            return $request['secret'] === 'test-secret'
+                && $request['response'] === 'fresh-browser-token'
+                && $request['remoteip'] === '127.0.0.1';
+        });
+    }
+
+    /**
+     * Confirms a low score cannot create any legacy account rows.
+     */
+    public function test_recaptcha_v3_rejects_low_score_without_writes(): void
+    {
+        config()->set('services.recaptcha.enabled', true);
+        config()->set('services.recaptcha.secret_key', 'test-secret');
+        Http::fake([
+            'https://www.google.com/recaptcha/api/siteverify' => Http::response([
+                'success' => true,
+                'score' => 0.1,
+                'action' => 'register',
+            ]),
+        ]);
+
+        $response = $this->postRegistration([
+            'recaptcha_token' => 'low-score-token',
+        ]);
+
+        $response->assertSessionHasErrors('recaptcha_token');
+        $this->assertSame(0, $this->gameDatabase()->table('MEMB_INFO')->count());
+        $this->assertSame(0, $this->gameDatabase()->table('VI_CURR_INFO')->count());
     }
 
     /**
