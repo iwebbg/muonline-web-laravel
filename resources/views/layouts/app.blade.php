@@ -44,7 +44,6 @@
                     @endauth
                     <a href="{{ route('home') }}#events" class="nav-link">{{ __('ui.navigation.events') }}</a>
                     <a href="{{ route('account.dashboard') }}" class="nav-link {{ request()->routeIs('account.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.account') }}</a>
-                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.admin') }}</a>
                 </nav>
 
                 <div class="hidden items-center gap-3 sm:flex">
@@ -119,7 +118,6 @@
                         <a href="{{ route('register') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.register') }}</a>
                         @endif
                     @endguest
-                    <a href="{{ route('admin.dashboard') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.administration') }}</a>
                     @auth
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

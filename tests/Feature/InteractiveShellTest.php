@@ -29,6 +29,7 @@ class InteractiveShellTest extends TestCase
         $response->assertSee('Sky Event');
         $response->assertDontSee('12:48');
         $response->assertSee('Top players');
+        $response->assertDontSee(route('admin.dashboard'), false);
     }
 
     /**
