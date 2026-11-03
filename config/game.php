@@ -21,6 +21,11 @@ return [
 
     'event_timezone' => env('GAME_EVENT_TIMEZONE', 'Europe/Sofia'),
 
+    'content_timezone' => env(
+        'GAME_CONTENT_TIMEZONE',
+        env('GAME_EVENT_TIMEZONE', 'Europe/Sofia'),
+    ),
+
     'event_profile' => env('GAME_EVENT_PROFILE', 'darksteam_97d99i'),
 
     'event_home_limit' => (int) env('GAME_EVENT_HOME_LIMIT', 3),

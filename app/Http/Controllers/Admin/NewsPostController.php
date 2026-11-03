@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Content\NewsPostStatus;
+use App\Content\PublicationTime;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreNewsPostRequest;
 use App\Http\Requests\Admin\UpdateNewsPostRequest;
@@ -19,6 +20,13 @@ use Illuminate\View\View;
  */
 final class NewsPostController extends Controller
 {
+    /**
+     * Creates the administrator controller with publication timezone conversion.
+     */
+    public function __construct(
+        private readonly PublicationTime $publicationTime,
+    ) {}
+
     /**
      * Displays all active articles for permission-scoped content management.
      */
@@ -131,7 +139,9 @@ final class NewsPostController extends Controller
             'body_en' => $post->body_en,
             'body_bg' => $post->body_bg ?? '',
             'status' => $post->status->value,
-            'published_at' => $post->published_at?->format('Y-m-d\TH:i') ?? '',
+            'published_at' => $post->published_at !== null
+                ? $this->publicationTime->forAdministratorInput($post->published_at)
+                : '',
             'updated_at' => $post->updated_at?->diffForHumans() ?? '',
             'revisions_count' => $post->revisions_count,
             'update_url' => route('admin.news-posts.update', $post),
@@ -158,8 +168,15 @@ final class NewsPostController extends Controller
         }
 
         $suppliedPublishedAt = $attributes['published_at'] ?? null;
-        $attributes['published_at'] = $suppliedPublishedAt
-            ?: ($existingPost?->published_at ?? now());
+
+        if (is_string($suppliedPublishedAt) && $suppliedPublishedAt !== '') {
+            $attributes['published_at'] = $this->publicationTime
+                ->fromAdministratorInput($suppliedPublishedAt);
+
+            return $attributes;
+        }
+
+        $attributes['published_at'] = $existingPost?->published_at ?? now();
 
         return $attributes;
     }

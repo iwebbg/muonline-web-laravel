@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Content\NewsPostStatus;
+use App\Content\PublicationTime;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreDownloadRequest;
 use App\Http\Requests\Admin\UpdateDownloadRequest;
@@ -19,6 +20,13 @@ use Illuminate\View\View;
  */
 final class DownloadController extends Controller
 {
+    /**
+     * Creates the administrator controller with publication timezone conversion.
+     */
+    public function __construct(
+        private readonly PublicationTime $publicationTime,
+    ) {}
+
     /**
      * Displays all active downloads for permission-scoped management.
      */
@@ -133,7 +141,9 @@ final class DownloadController extends Controller
             'checksum_sha256' => $download->checksum_sha256 ?? '',
             'sort_order' => $download->sort_order,
             'status' => $download->status->value,
-            'published_at' => $download->published_at?->format('Y-m-d\TH:i') ?? '',
+            'published_at' => $download->published_at !== null
+                ? $this->publicationTime->forAdministratorInput($download->published_at)
+                : '',
             'updated_at' => $download->updated_at?->diffForHumans() ?? '',
             'revisions_count' => $download->revisions_count,
             'update_url' => route('admin.downloads.update', $download),
@@ -164,8 +174,15 @@ final class DownloadController extends Controller
         }
 
         $suppliedPublishedAt = $attributes['published_at'] ?? null;
-        $attributes['published_at'] = $suppliedPublishedAt
-            ?: ($existingDownload?->published_at ?? now());
+
+        if (is_string($suppliedPublishedAt) && $suppliedPublishedAt !== '') {
+            $attributes['published_at'] = $this->publicationTime
+                ->fromAdministratorInput($suppliedPublishedAt);
+
+            return $attributes;
+        }
+
+        $attributes['published_at'] = $existingDownload?->published_at ?? now();
 
         return $attributes;
     }

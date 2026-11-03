@@ -8,6 +8,7 @@ use App\Content\NewsPostType;
 use App\Models\Administrator;
 use App\Models\NewsPost;
 use App\Models\NewsPostRevision;
+use DateTimeImmutable;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -88,6 +89,41 @@ final class AdminNewsPostTest extends TestCase
         $this->assertNull($post->published_at);
         $this->assertSame(2, NewsPostRevision::query()->count());
         $this->assertSame('Updated realm opening', NewsPostRevision::query()->latest('id')->firstOrFail()->snapshot['title_en']);
+    }
+
+    /**
+     * Confirms browser-local publication times become UTC instants visible at the intended moment.
+     */
+    public function test_local_publication_time_is_converted_to_utc(): void
+    {
+        $this->travelTo(new DateTimeImmutable('2026-11-03T10:10:00+00:00'));
+        config()->set('game.content_timezone', 'Europe/Sofia');
+
+        $administrator = Administrator::factory()->create();
+        $csrfToken = 'admin-news-timezone-token';
+
+        $this
+            ->withSession(['_token' => $csrfToken])
+            ->actingAs($administrator, 'admin')
+            ->post('/admin/content/news', $this->articlePayload([
+                'status' => 'published',
+                'published_at' => '2026-11-03T12:03',
+                '_token' => $csrfToken,
+            ]))
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $post = NewsPost::query()->sole();
+
+        $this->assertSame('2026-11-03 10:03:00', $post->published_at?->format('Y-m-d H:i:s'));
+
+        $this->get('/news')
+            ->assertOk()
+            ->assertSee('Realm opening');
+
+        $this->get('/admin/content/news')
+            ->assertOk()
+            ->assertSee('2026-11-03T12:03');
     }
 
     /**
