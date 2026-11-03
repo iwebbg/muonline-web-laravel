@@ -10,6 +10,7 @@ use App\WebStorage\Actions\StoreWebStorageItem;
 use App\WebStorage\Exceptions\WebStorageRejected;
 use App\WebStorage\ItemStorageLocation;
 use App\WebStorage\WebStorageBlockReason;
+use App\WebStorage\WebStorageContext;
 
 /**
  * Validates a physical jewel before delegating exact-byte web-vault storage.
@@ -54,6 +55,7 @@ final readonly class StoreJewel
                 slot: $slot,
                 idempotencyKey: $idempotencyKey,
                 sourceLocation: $sourceLocation,
+                storageContext: WebStorageContext::JewelBank,
             );
         }
 
@@ -94,6 +96,7 @@ final readonly class StoreJewel
             slot: $slot,
             idempotencyKey: $idempotencyKey,
             sourceLocation: $sourceLocation,
+            storageContext: WebStorageContext::JewelBank,
         );
     }
 }

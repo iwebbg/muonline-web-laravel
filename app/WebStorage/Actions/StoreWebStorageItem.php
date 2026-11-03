@@ -10,6 +10,7 @@ use App\Models\WebStorageItem;
 use App\WebStorage\Exceptions\WebStorageRejected;
 use App\WebStorage\ItemStorageLocation;
 use App\WebStorage\WebStorageBlockReason;
+use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
@@ -38,6 +39,7 @@ final readonly class StoreWebStorageItem
         int $slot,
         string $idempotencyKey,
         ItemStorageLocation $sourceLocation = ItemStorageLocation::Warehouse,
+        WebStorageContext $storageContext = WebStorageContext::WebVault,
     ): WebStorageItem {
         $requestHash = $this->requestHash(
             accountId: $accountId,
@@ -51,7 +53,11 @@ final readonly class StoreWebStorageItem
             ->first();
 
         if ($existingItem instanceof WebStorageItem) {
-            return $this->resolveExisting($existingItem, $requestHash);
+            return $this->resolveExisting(
+                item: $existingItem,
+                requestHash: $requestHash,
+                storageContext: $storageContext,
+            );
         }
 
         if (! (bool) config('game.writes_enabled', false)
@@ -95,6 +101,7 @@ final readonly class StoreWebStorageItem
                 'idempotency_key' => $idempotencyKey,
                 'request_hash' => $requestHash,
                 'account_id' => $accountId,
+                'storage_context' => $storageContext,
                 'source_character_name' => $characterName,
                 'source_location' => $sourceLocation,
                 'source_vault' => $vault,
@@ -112,7 +119,11 @@ final readonly class StoreWebStorageItem
                 ->first();
 
             if ($existingItem instanceof WebStorageItem) {
-                return $this->resolveExisting($existingItem, $requestHash);
+                return $this->resolveExisting(
+                    item: $existingItem,
+                    requestHash: $requestHash,
+                    storageContext: $storageContext,
+                );
             }
 
             if (WebStorageItem::query()->where('escrow_key', $fingerprint)->exists()) {
@@ -168,9 +179,15 @@ final readonly class StoreWebStorageItem
     /**
      * Returns an identical replay or rejects one key reused for another item.
      */
-    private function resolveExisting(WebStorageItem $item, string $requestHash): WebStorageItem
-    {
-        if (! hash_equals($item->request_hash, $requestHash)) {
+    private function resolveExisting(
+        WebStorageItem $item,
+        string $requestHash,
+        WebStorageContext $storageContext,
+    ): WebStorageItem {
+        if (
+            ! hash_equals($item->request_hash, $requestHash)
+            || $item->storage_context !== $storageContext
+        ) {
             throw new WebStorageRejected(WebStorageBlockReason::IdempotencyConflict);
         }
 

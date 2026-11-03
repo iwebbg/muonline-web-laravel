@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\WebStorage\ItemStorageLocation;
+use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Database\Factories\WebStorageItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
     'idempotency_key',
     'request_hash',
     'account_id',
+    'storage_context',
     'source_character_name',
     'source_location',
     'source_vault',
@@ -57,6 +59,7 @@ final class WebStorageItem extends Model
         return [
             'source_vault' => 'integer',
             'source_slot' => 'integer',
+            'storage_context' => WebStorageContext::class,
             'source_location' => ItemStorageLocation::class,
             'withdrawal_location' => ItemStorageLocation::class,
             'item_snapshot' => 'array',

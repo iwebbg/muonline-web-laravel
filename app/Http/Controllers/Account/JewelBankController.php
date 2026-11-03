@@ -13,6 +13,7 @@ use App\Models\WebStorageItem;
 use App\WebStorage\Actions\WithdrawWebStorageItem;
 use App\WebStorage\Exceptions\WebStorageRejected;
 use App\WebStorage\ItemStorageLocation;
+use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -216,7 +217,9 @@ final class JewelBankController extends Controller
     {
         $code = $item->item_snapshot['code'] ?? null;
 
-        return is_string($code) && $this->jewelCatalog->acceptsCode($code);
+        return $item->storage_context === WebStorageContext::JewelBank
+            && is_string($code)
+            && $this->jewelCatalog->acceptsCode($code);
     }
 
     /**
@@ -230,6 +233,7 @@ final class JewelBankController extends Controller
 
         return WebStorageItem::query()
             ->where('account_id', $accountId)
+            ->where('storage_context', WebStorageContext::JewelBank)
             ->where(function (Builder $query) use ($jewelCodes): void {
                 foreach ($jewelCodes as $jewelCode) {
                     $query->orWhere('item_snapshot->code', $jewelCode);

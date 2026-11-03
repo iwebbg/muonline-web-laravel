@@ -9,6 +9,7 @@ use App\Models\WebStorageItem;
 use App\WebStorage\Actions\StoreWebStorageItem;
 use App\WebStorage\Actions\WithdrawWebStorageItem;
 use App\WebStorage\Exceptions\WebStorageRejected;
+use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -73,6 +74,7 @@ final class WebStorageController extends Controller
         $account = $request->user();
 
         abort_unless($account instanceof GameAccount, 403);
+        abort_unless($webStorageItem->storage_context === WebStorageContext::WebVault, 404);
 
         try {
             $item = $withdrawWebStorageItem->execute(

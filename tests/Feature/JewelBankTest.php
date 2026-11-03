@@ -23,6 +23,7 @@ use App\WebStorage\Actions\WithdrawWebStorageItem;
 use App\WebStorage\Exceptions\WebStorageRejected;
 use App\WebStorage\ItemStorageLocation;
 use App\WebStorage\WebStorageBlockReason;
+use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -79,6 +80,7 @@ final class JewelBankTest extends TestCase
         );
 
         $this->assertSame(WebStorageItemStatus::Available, $stored->status);
+        $this->assertSame(WebStorageContext::JewelBank, $stored->storage_context);
         $this->assertSame('14:13', $stored->item_snapshot['code']);
         $this->assertSame($this->jewelBinary, $stored->item_binary);
     }
@@ -308,14 +310,14 @@ final class JewelBankTest extends TestCase
         $firstBinary = $this->jewelBinary;
         $secondBinary = substr_replace($this->jewelBinary, "\x04", 4, 1);
         $thirdBinary = substr_replace($this->jewelBinary, "\x05", 4, 1);
-        $firstItem = WebStorageItem::factory()->create([
+        $firstItem = WebStorageItem::factory()->jewelBank()->create([
             'account_id' => 'owner09',
             'item_binary' => $firstBinary,
             'item_fingerprint' => hash('sha256', $firstBinary),
             'escrow_key' => hash('sha256', $firstBinary),
             'item_snapshot' => $this->item($firstBinary, 2)->toArray(),
         ]);
-        $secondItem = WebStorageItem::factory()->create([
+        $secondItem = WebStorageItem::factory()->jewelBank()->create([
             'account_id' => 'owner09',
             'source_location' => ItemStorageLocation::Inventory,
             'source_character_name' => 'JewelChar',
@@ -324,7 +326,7 @@ final class JewelBankTest extends TestCase
             'escrow_key' => hash('sha256', $secondBinary),
             'item_snapshot' => $this->item($secondBinary, 5)->toArray(),
         ]);
-        $thirdItem = WebStorageItem::factory()->create([
+        $thirdItem = WebStorageItem::factory()->jewelBank()->create([
             'account_id' => 'owner09',
             'item_binary' => $thirdBinary,
             'item_fingerprint' => hash('sha256', $thirdBinary),
@@ -358,7 +360,7 @@ final class JewelBankTest extends TestCase
      */
     public function test_grouped_withdrawal_rejects_an_unowned_character_destination(): void
     {
-        $item = WebStorageItem::factory()->create([
+        $item = WebStorageItem::factory()->jewelBank()->create([
             'account_id' => 'owner11',
             'item_binary' => $this->jewelBinary,
             'item_fingerprint' => hash('sha256', $this->jewelBinary),
@@ -397,7 +399,7 @@ final class JewelBankTest extends TestCase
     public function test_grouped_withdrawal_rejects_quantity_above_available_balance(): void
     {
         $csrfToken = 'jewel-bank-withdrawal-token';
-        WebStorageItem::factory()->count(2)->create([
+        WebStorageItem::factory()->jewelBank()->count(2)->create([
             'account_id' => 'owner10',
             'item_snapshot' => $this->item($this->jewelBinary, 2)->toArray(),
         ]);
@@ -433,21 +435,21 @@ final class JewelBankTest extends TestCase
      */
     public function test_page_displays_physical_available_jewel_count(): void
     {
-        WebStorageItem::factory()->create([
+        WebStorageItem::factory()->jewelBank()->create([
             'account_id' => 'owner03',
             'item_binary' => $this->jewelBinary,
             'item_fingerprint' => hash('sha256', $this->jewelBinary),
             'escrow_key' => hash('sha256', $this->jewelBinary),
             'item_snapshot' => $this->item($this->jewelBinary, 5)->toArray(),
         ]);
-        WebStorageItem::factory()->create([
+        WebStorageItem::factory()->jewelBank()->create([
             'account_id' => 'owner03',
             'status' => WebStorageItemStatus::Withdrawn,
             'escrow_key' => null,
             'item_snapshot' => $this->item($this->jewelBinary, 6)->toArray(),
         ]);
         $inventoryBinary = substr_replace($this->jewelBinary, "\x06", 4, 1);
-        WebStorageItem::factory()->create([
+        WebStorageItem::factory()->jewelBank()->create([
             'account_id' => 'owner03',
             'source_location' => ItemStorageLocation::Inventory,
             'source_character_name' => 'JewelChar',

@@ -14,6 +14,7 @@ use App\Models\VipPurchase;
 use App\Models\WebStorageItem;
 use App\Modules\ModuleManager;
 use App\Modules\ServerModule;
+use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -123,6 +124,7 @@ final class AccountDashboardController extends Controller
         if ($webStorageEnabled && Schema::hasTable('web_storage_items')) {
             $storedItems = WebStorageItem::query()
                 ->where('account_id', $account->username)
+                ->where('storage_context', WebStorageContext::WebVault)
                 ->where('status', WebStorageItemStatus::Available)
                 ->latest('id')
                 ->limit(100)

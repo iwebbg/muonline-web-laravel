@@ -19,6 +19,7 @@ use App\WebStorage\Actions\StoreWebStorageItem;
 use App\WebStorage\Actions\WithdrawWebStorageItem;
 use App\WebStorage\Exceptions\WebStorageRejected;
 use App\WebStorage\WebStorageBlockReason;
+use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use RuntimeException;
@@ -61,6 +62,7 @@ final class WebStorageTest extends TestCase
         $item = $this->storeItem('owner01', 'e505c642-0499-4522-bb8d-b8dd83c54289');
 
         $this->assertSame(WebStorageItemStatus::Available, $item->status);
+        $this->assertSame(WebStorageContext::WebVault, $item->storage_context);
         $this->assertSame($this->itemBinary, $item->item_binary);
         $this->assertSame(hash('sha256', $this->itemBinary), $item->item_fingerprint);
         $this->assertNotNull($item->stored_at);
@@ -184,6 +186,28 @@ final class WebStorageTest extends TestCase
         } catch (WebStorageRejected $exception) {
             $this->assertSame(WebStorageBlockReason::ItemUnavailable, $exception->reason);
         }
+    }
+
+    /**
+     * Confirms the Web Vault endpoint cannot withdraw Jewel Bank custody.
+     */
+    public function test_web_vault_endpoint_hides_jewel_bank_custody(): void
+    {
+        $csrfToken = 'web-vault-boundary-token';
+        $item = WebStorageItem::factory()->jewelBank()->create([
+            'account_id' => 'owner07',
+        ]);
+        $this->mock(ItemEscrowRepository::class)->shouldNotReceive('deposit');
+
+        $response = $this
+            ->withSession(['_token' => $csrfToken])
+            ->actingAs($this->account('owner07'))
+            ->delete(route('account.web-storage.destroy', $item), [
+                '_token' => $csrfToken,
+            ]);
+
+        $response->assertNotFound();
+        $this->assertSame(WebStorageItemStatus::Available, $item->refresh()->status);
     }
 
     /**

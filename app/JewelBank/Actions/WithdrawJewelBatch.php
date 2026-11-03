@@ -8,6 +8,7 @@ use App\WebStorage\Actions\WithdrawWebStorageItem;
 use App\WebStorage\Exceptions\WebStorageRejected;
 use App\WebStorage\ItemStorageLocation;
 use App\WebStorage\WebStorageBlockReason;
+use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
@@ -76,6 +77,7 @@ final readonly class WithdrawJewelBatch
     ): array {
         $matchingItems = WebStorageItem::query()
             ->where('account_id', $accountId)
+            ->where('storage_context', WebStorageContext::JewelBank)
             ->where('status', WebStorageItemStatus::Available->value)
             ->oldest('id')
             ->get()

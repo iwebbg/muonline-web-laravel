@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\WebStorageItem;
+use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -27,6 +28,7 @@ final class WebStorageItemFactory extends Factory
             'idempotency_key' => (string) Str::uuid(),
             'request_hash' => hash('sha256', fake()->uuid()),
             'account_id' => 'storage01',
+            'storage_context' => WebStorageContext::WebVault,
             'source_character_name' => 'StorageChar',
             'source_vault' => 0,
             'source_slot' => 0,
@@ -50,5 +52,15 @@ final class WebStorageItemFactory extends Factory
             'stored_at' => now(),
             'withdrawn_at' => null,
         ];
+    }
+
+    /**
+     * Marks the exact item as physical Jewel Bank custody.
+     */
+    public function jewelBank(): static
+    {
+        return $this->state(fn (): array => [
+            'storage_context' => WebStorageContext::JewelBank,
+        ]);
     }
 }

@@ -8,6 +8,7 @@ use App\Market\MarketListingStatus;
 use App\Market\MarketStorageDestination;
 use App\Models\MarketListing;
 use App\Models\WebStorageItem;
+use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -74,6 +75,7 @@ final readonly class FallbackMarketListingToWebStorage
                     'idempotency_key' => $idempotencyKey,
                     'request_hash' => $requestHash,
                     'account_id' => $accountId,
+                    'storage_context' => WebStorageContext::WebVault,
                     'source_character_name' => $listing->source_character_name,
                     'source_vault' => $listing->source_vault,
                     'source_slot' => $listing->source_slot,

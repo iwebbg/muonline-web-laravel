@@ -189,6 +189,13 @@ final class AccountDashboardTest extends TestCase
                 'name' => 'Hidden Web Item',
             ],
         ]);
+        WebStorageItem::factory()->jewelBank()->create([
+            'account_id' => 'owner',
+            'item_snapshot' => [
+                ...WebStorageItem::factory()->make()->item_snapshot,
+                'name' => 'Hidden Jewel Bank Item',
+            ],
+        ]);
 
         $response = $this
             ->actingAs($this->account('owner'))
@@ -201,7 +208,8 @@ final class AccountDashboardTest extends TestCase
             ->assertSee('marketListingStoreUrl')
             ->assertSee('Main Vault')
             ->assertSee('Account storage')
-            ->assertDontSee('Hidden Web Item');
+            ->assertDontSee('Hidden Web Item')
+            ->assertDontSee('Hidden Jewel Bank Item');
         $this->assertMatchesRegularExpression(
             '/initialSection.{0,80}vaults/',
             $response->getContent(),
