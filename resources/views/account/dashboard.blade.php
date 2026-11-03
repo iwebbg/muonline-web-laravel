@@ -68,7 +68,13 @@
             </div>
         @endif
 
-        <x-account-character-selector class="mt-8" />
+        @if ($characters !== [])
+            <x-account-character-selector
+                class="mt-8"
+                x-show="activeSection !== 'vaults'"
+                x-cloak
+            />
+        @endif
 
         @if ($characters === [])
             <section class="mt-6 min-w-0">

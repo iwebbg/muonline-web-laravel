@@ -1728,13 +1728,6 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         },
 
         /**
-         * Opens account-scoped game and web vault management.
-         */
-        selectAccountVaults() {
-            this.selectSection('vaults');
-        },
-
-        /**
          * Loads ownership-scoped equipment, inventory and warehouse data on demand.
          */
         async loadItemStorage() {
