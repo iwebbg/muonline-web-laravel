@@ -565,7 +565,7 @@ return [
         'points_before' => 'Points before',
         'points_after' => 'Points after',
         'allocated_points' => 'Allocated points',
-        'transactional_operation' => 'Transactional operation',
+        'transactional_operation' => 'Character action',
         'reset_preview' => 'Reset preview',
         'no_changes' => 'No changes yet',
         'preserved' => 'Preserved',

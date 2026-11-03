@@ -1163,14 +1163,10 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         allocations: createEmptyStatAllocations(characters[initialCharacterIndex] ?? null),
 
         /**
-         * Loads item storage immediately when a deep link opens the inventory section.
+         * Restores the URL-selected tab through the same loader used by tab clicks.
          */
         init() {
-            this.synchronizeAccountLocation();
-
-            if (this.activeSection === 'inventory' || this.activeSection === 'vaults') {
-                void this.loadItemStorage();
-            }
+            this.selectSection(this.activeSection);
         },
 
         /**
@@ -1514,15 +1510,17 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             if (section === 'inventory') {
                 void this.loadItemStorage();
             }
+
+            if (section === 'vaults') {
+                void this.loadItemStorage();
+            }
         },
 
         /**
          * Opens account-scoped game and web vault management.
          */
         selectAccountVaults() {
-            this.activeSection = 'vaults';
-            this.synchronizeAccountLocation();
-            void this.loadItemStorage();
+            this.selectSection('vaults');
         },
 
         /**

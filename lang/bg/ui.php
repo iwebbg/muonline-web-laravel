@@ -565,7 +565,7 @@ return [
         'points_before' => 'Точки преди',
         'points_after' => 'Точки след',
         'allocated_points' => 'Разпределени точки',
-        'transactional_operation' => 'Транзакционна операция',
+        'transactional_operation' => 'Действие с героя',
         'reset_preview' => 'Преглед на ресета',
         'no_changes' => 'Все още няма промени',
         'preserved' => 'Запазен',
