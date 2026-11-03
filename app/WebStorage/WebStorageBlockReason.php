@@ -15,5 +15,6 @@ enum WebStorageBlockReason: string
     case ItemChanged = 'item_changed';
     case StorageFull = 'storage_full';
     case ItemUnavailable = 'item_unavailable';
+    case InsufficientQuantity = 'insufficient_quantity';
     case IdempotencyConflict = 'idempotency_conflict';
 }

@@ -7,12 +7,14 @@ use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\StoreJewelRequest;
-use App\JewelBank\Actions\StoreJewel;
+use App\JewelBank\Actions\StoreJewelBatch;
 use App\JewelBank\JewelCatalog;
 use App\Models\WebStorageItem;
 use App\WebStorage\Actions\WithdrawWebStorageItem;
 use App\WebStorage\Exceptions\WebStorageRejected;
+use App\WebStorage\ItemStorageLocation;
 use App\WebStorage\WebStorageItemStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -34,7 +36,7 @@ final class JewelBankController extends Controller
     ) {}
 
     /**
-     * Displays physical jewel counts, entries and eligible warehouse items.
+     * Displays physical jewel counts and items from one selected game storage.
      */
     public function index(Request $request): View
     {
@@ -43,6 +45,9 @@ final class JewelBankController extends Controller
         abort_unless($account instanceof GameAccount, 403);
 
         $characters = $this->accountReadRepository->charactersFor($account->username);
+        $sourceLocation = ItemStorageLocation::tryFrom(
+            $request->string('source')->toString(),
+        ) ?? ItemStorageLocation::Warehouse;
         $requestedCharacter = $request->string('character')->toString();
         $selectedCharacter = null;
 
@@ -53,40 +58,75 @@ final class JewelBankController extends Controller
         }
 
         $selectedCharacter ??= $characters[0]->name ?? null;
-        $warehouseJewels = [];
-
-        if (is_string($selectedCharacter)) {
-            $storage = $this->itemStorageRepository->forAccountAndCharacter(
+        $storage = $sourceLocation === ItemStorageLocation::Inventory
+            && is_string($selectedCharacter)
+            ? $this->itemStorageRepository->forAccountAndCharacter(
                 $account->username,
                 $selectedCharacter,
-            );
+            )
+            : $this->itemStorageRepository->forAccount($account->username);
+        $vaults = $storage?->vaults ?? [];
+        $requestedVault = $request->integer('vault', -1);
+        $selectedVault = null;
 
-            foreach ($storage?->vaults ?? [] as $vault) {
-                foreach ($vault->items as $item) {
-                    if ($this->jewelCatalog->accepts($item)) {
-                        $warehouseJewels[] = [
-                            'vault' => $vault->number,
-                            'item' => $item,
-                            'idempotencyKey' => (string) Str::uuid(),
-                        ];
-                    }
+        foreach ($vaults as $vault) {
+            if ($vault->number === $requestedVault) {
+                $selectedVault = $vault;
+            }
+        }
+
+        if ($selectedVault === null) {
+            foreach ($vaults as $vault) {
+                if ($vault->active) {
+                    $selectedVault = $vault;
+                    break;
                 }
             }
         }
 
-        $storedJewels = WebStorageItem::query()
-            ->where('account_id', $account->username)
+        $selectedVault ??= $vaults[0] ?? null;
+        $eligibleJewelGroups = [];
+        $sourceItems = $sourceLocation === ItemStorageLocation::Inventory
+            ? ($storage?->character->inventory ?? [])
+            : ($selectedVault?->items ?? []);
+
+        foreach ($sourceItems as $item) {
+            if ($this->jewelCatalog->accepts($item)) {
+                $jewelCode = $item->code();
+                $jewelLevel = $item->level ?? 0;
+                $jewelGroupKey = $jewelCode.':'.$jewelLevel;
+
+                if (! array_key_exists($jewelGroupKey, $eligibleJewelGroups)) {
+                    $eligibleJewelGroups[$jewelGroupKey] = [
+                        'item' => $item,
+                        'quantity' => 0,
+                        'idempotencyKey' => (string) Str::uuid(),
+                    ];
+                }
+
+                $eligibleJewelGroups[$jewelGroupKey]['quantity']++;
+            }
+        }
+
+        $availableJewels = $this->jewelItemsQuery($account->username)
+            ->where('status', WebStorageItemStatus::Available->value)
+            ->oldest('id')
+            ->get();
+        $jewelHistory = $this->jewelItemsQuery($account->username)
             ->latest('id')
-            ->get()
-            ->filter(fn (WebStorageItem $item): bool => $this->isJewel($item))
-            ->values();
+            ->paginate(20, ['*'], 'jewel_history')
+            ->withQueryString();
 
         return view('account.jewel-bank', [
             'characters' => $characters,
             'selectedCharacter' => $selectedCharacter,
-            'warehouseJewels' => $warehouseJewels,
-            'storedJewels' => $storedJewels,
-            'jewelCounts' => $this->jewelCounts($storedJewels),
+            'sourceLocation' => $sourceLocation,
+            'vaults' => $vaults,
+            'selectedVault' => $selectedVault,
+            'eligibleJewelGroups' => array_values($eligibleJewelGroups),
+            'storedJewelGroups' => $this->groupStoredJewels($availableJewels),
+            'jewelHistory' => $jewelHistory,
+            'jewelCounts' => $this->jewelCounts($availableJewels),
             'jewelDefinitions' => $this->jewelCatalog->definitions(),
             'gameWritesEnabled' => (bool) config('game.writes_enabled', false)
                 && ! (bool) config('database.connections.game.readonly', true),
@@ -96,19 +136,26 @@ final class JewelBankController extends Controller
     /**
      * Moves one supported physical jewel into recoverable web custody.
      */
-    public function store(StoreJewelRequest $request, StoreJewel $storeJewel): RedirectResponse
-    {
+    public function store(
+        StoreJewelRequest $request,
+        StoreJewelBatch $storeJewelBatch,
+    ): RedirectResponse {
         $account = $request->user();
 
         abort_unless($account instanceof GameAccount, 403);
 
         try {
-            $item = $storeJewel->execute(
+            $storedItems = $storeJewelBatch->execute(
                 accountId: $account->username,
                 characterName: $request->string('character_name')->toString(),
                 vault: $request->integer('vault'),
-                slot: $request->integer('slot'),
-                idempotencyKey: $request->string('idempotency_key')->toString(),
+                sourceLocation: ItemStorageLocation::from(
+                    $request->string('source_location')->toString(),
+                ),
+                jewelCode: $request->string('jewel_code')->toString(),
+                jewelLevel: $request->integer('jewel_level'),
+                quantity: $request->integer('quantity'),
+                batchIdempotencyKey: $request->string('idempotency_key')->toString(),
             );
         } catch (WebStorageRejected $exception) {
             return back()->withErrors([
@@ -116,15 +163,20 @@ final class JewelBankController extends Controller
             ]);
         }
 
-        $messageKey = $item->status === WebStorageItemStatus::Available
+        $allItemsAvailable = collect($storedItems)->every(
+            static fn (WebStorageItem $item): bool => $item->status === WebStorageItemStatus::Available,
+        );
+        $messageKey = $allItemsAvailable
             ? 'ui.jewel_bank.stored'
             : 'ui.jewel_bank.store_pending';
 
-        return back()->with('jewelBankStatus', __($messageKey));
+        return back()->with('jewelBankStatus', __($messageKey, [
+            'quantity' => count($storedItems),
+        ]));
     }
 
     /**
-     * Returns one owned physical jewel to the account warehouse.
+     * Returns one owned physical jewel to the account Main Vault.
      */
     public function destroy(
         Request $request,
@@ -165,6 +217,53 @@ final class JewelBankController extends Controller
         $code = $item->item_snapshot['code'] ?? null;
 
         return is_string($code) && $this->jewelCatalog->acceptsCode($code);
+    }
+
+    /**
+     * Builds an account-scoped query containing only supported Jewel Bank items.
+     *
+     * @return Builder<WebStorageItem>
+     */
+    private function jewelItemsQuery(string $accountId): Builder
+    {
+        $jewelCodes = array_keys($this->jewelCatalog->definitions());
+
+        return WebStorageItem::query()
+            ->where('account_id', $accountId)
+            ->where(function (Builder $query) use ($jewelCodes): void {
+                foreach ($jewelCodes as $jewelCode) {
+                    $query->orWhere('item_snapshot->code', $jewelCode);
+                }
+            });
+    }
+
+    /**
+     * Groups currently available custody records by exact jewel type and level.
+     *
+     * @param  Collection<int, WebStorageItem>  $availableJewels
+     * @return list<array{item: WebStorageItem, quantity: int}>
+     */
+    private function groupStoredJewels(Collection $availableJewels): array
+    {
+        $groups = [];
+
+        foreach ($availableJewels as $item) {
+            $snapshot = $item->item_snapshot;
+            $jewelCode = (string) ($snapshot['code'] ?? '');
+            $jewelLevel = (int) ($snapshot['level'] ?? 0);
+            $groupKey = $jewelCode.':'.$jewelLevel;
+
+            if (! array_key_exists($groupKey, $groups)) {
+                $groups[$groupKey] = [
+                    'item' => $item,
+                    'quantity' => 0,
+                ];
+            }
+
+            $groups[$groupKey]['quantity']++;
+        }
+
+        return array_values($groups);
     }
 
     /**

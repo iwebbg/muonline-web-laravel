@@ -2,23 +2,26 @@
 
 namespace App\WebStorage\Actions;
 
+use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Contracts\ItemEscrowRepository;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use App\Models\WebStorageItem;
+use App\WebStorage\ItemStorageLocation;
 use App\WebStorage\WebStorageItemStatus;
 use Throwable;
 
 /**
- * Projects one recoverable web storage transition into the game warehouse.
+ * Projects one recoverable web storage transition into its exact game storage.
  */
 final readonly class SynchronizeWebStorageItem
 {
     /**
-     * Creates the synchronizer with the exact-byte warehouse writer.
+     * Creates the synchronizer with exact-byte warehouse and inventory writers.
      */
     public function __construct(
         private ItemEscrowRepository $itemEscrowRepository,
+        private CharacterInventoryEscrowRepository $characterInventoryEscrowRepository,
     ) {}
 
     /**
@@ -37,12 +40,21 @@ final readonly class SynchronizeWebStorageItem
 
         try {
             if ($item->status === WebStorageItemStatus::Storing) {
-                $this->itemEscrowRepository->extract(
-                    accountId: $item->account_id,
-                    vault: $item->source_vault,
-                    slot: $item->source_slot,
-                    expectedBinary: $item->item_binary,
-                );
+                if ($item->source_location === ItemStorageLocation::Inventory) {
+                    $this->characterInventoryEscrowRepository->extract(
+                        accountId: $item->account_id,
+                        characterName: $item->source_character_name,
+                        slot: $item->source_slot,
+                        expectedBinary: $item->item_binary,
+                    );
+                } else {
+                    $this->itemEscrowRepository->extract(
+                        accountId: $item->account_id,
+                        vault: $item->source_vault,
+                        slot: $item->source_slot,
+                        expectedBinary: $item->item_binary,
+                    );
+                }
                 $item->forceFill([
                     'status' => WebStorageItemStatus::Available,
                     'stored_at' => now(),
@@ -50,12 +62,25 @@ final readonly class SynchronizeWebStorageItem
                 ]);
             } elseif ($item->status === WebStorageItemStatus::WithdrawalPending) {
                 $snapshot = $item->item_snapshot;
-                $this->itemEscrowRepository->deposit(
-                    accountId: $item->account_id,
-                    itemBinary: $item->item_binary,
-                    width: (int) ($snapshot['width'] ?? 1),
-                    height: (int) ($snapshot['height'] ?? 1),
-                );
+                $destinationLocation = $item->withdrawal_location
+                    ?? ItemStorageLocation::Warehouse;
+
+                if ($destinationLocation === ItemStorageLocation::Inventory) {
+                    $this->characterInventoryEscrowRepository->deposit(
+                        accountId: $item->account_id,
+                        characterName: (string) $item->withdrawal_character_name,
+                        itemBinary: $item->item_binary,
+                        width: (int) ($snapshot['width'] ?? 1),
+                        height: (int) ($snapshot['height'] ?? 1),
+                    );
+                } else {
+                    $this->itemEscrowRepository->deposit(
+                        accountId: $item->account_id,
+                        itemBinary: $item->item_binary,
+                        width: (int) ($snapshot['width'] ?? 1),
+                        height: (int) ($snapshot['height'] ?? 1),
+                    );
+                }
                 $item->forceFill([
                     'status' => WebStorageItemStatus::Withdrawn,
                     'escrow_key' => null,

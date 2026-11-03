@@ -8,6 +8,7 @@ use App\JewelBank\JewelCatalog;
 use App\Models\WebStorageItem;
 use App\WebStorage\Actions\StoreWebStorageItem;
 use App\WebStorage\Exceptions\WebStorageRejected;
+use App\WebStorage\ItemStorageLocation;
 use App\WebStorage\WebStorageBlockReason;
 
 /**
@@ -33,6 +34,7 @@ final readonly class StoreJewel
         int $vault,
         int $slot,
         string $idempotencyKey,
+        ItemStorageLocation $sourceLocation = ItemStorageLocation::Warehouse,
     ): WebStorageItem {
         $existingItem = WebStorageItem::query()
             ->where('idempotency_key', $idempotencyKey)
@@ -51,6 +53,7 @@ final readonly class StoreJewel
                 vault: $vault,
                 slot: $slot,
                 idempotencyKey: $idempotencyKey,
+                sourceLocation: $sourceLocation,
             );
         }
 
@@ -60,14 +63,22 @@ final readonly class StoreJewel
         );
         $selectedItem = null;
 
-        foreach ($storage?->vaults ?? [] as $warehouseVault) {
-            if ($warehouseVault->number !== $vault) {
-                continue;
-            }
-
-            foreach ($warehouseVault->items as $item) {
+        if ($sourceLocation === ItemStorageLocation::Inventory) {
+            foreach ($storage?->character->inventory ?? [] as $item) {
                 if ($item->slot === $slot) {
                     $selectedItem = $item;
+                }
+            }
+        } else {
+            foreach ($storage?->vaults ?? [] as $warehouseVault) {
+                if ($warehouseVault->number !== $vault) {
+                    continue;
+                }
+
+                foreach ($warehouseVault->items as $item) {
+                    if ($item->slot === $slot) {
+                        $selectedItem = $item;
+                    }
                 }
             }
         }
@@ -82,6 +93,7 @@ final readonly class StoreJewel
             vault: $vault,
             slot: $slot,
             idempotencyKey: $idempotencyKey,
+            sourceLocation: $sourceLocation,
         );
     }
 }

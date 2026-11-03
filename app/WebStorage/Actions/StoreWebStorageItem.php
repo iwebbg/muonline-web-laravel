@@ -8,6 +8,7 @@ use App\Game\Data\ItemSlot;
 use App\Game\Data\WarehouseVault;
 use App\Models\WebStorageItem;
 use App\WebStorage\Exceptions\WebStorageRejected;
+use App\WebStorage\ItemStorageLocation;
 use App\WebStorage\WebStorageBlockReason;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Database\QueryException;
@@ -36,8 +37,15 @@ final readonly class StoreWebStorageItem
         int $vault,
         int $slot,
         string $idempotencyKey,
+        ItemStorageLocation $sourceLocation = ItemStorageLocation::Warehouse,
     ): WebStorageItem {
-        $requestHash = $this->requestHash($accountId, $characterName, $vault, $slot);
+        $requestHash = $this->requestHash(
+            accountId: $accountId,
+            characterName: $characterName,
+            vault: $vault,
+            slot: $slot,
+            sourceLocation: $sourceLocation,
+        );
         $existingItem = WebStorageItem::query()
             ->where('idempotency_key', $idempotencyKey)
             ->first();
@@ -62,9 +70,14 @@ final readonly class StoreWebStorageItem
         }
 
         $storage = $this->itemStorageRepository->forAccountAndCharacter($accountId, $characterName);
-        $warehouseItem = $storage === null
-            ? null
-            : $this->warehouseItem($storage->vaults, $vault, $slot);
+        $warehouseItem = match ($sourceLocation) {
+            ItemStorageLocation::Warehouse => $storage === null
+                ? null
+                : $this->warehouseItem($storage->vaults, $vault, $slot),
+            ItemStorageLocation::Inventory => $storage === null
+                ? null
+                : $this->inventoryItem($storage->character->inventory, $slot),
+        };
 
         if (! $warehouseItem instanceof ItemSlot) {
             throw new WebStorageRejected(WebStorageBlockReason::ItemNotFound);
@@ -83,6 +96,7 @@ final readonly class StoreWebStorageItem
                 'request_hash' => $requestHash,
                 'account_id' => $accountId,
                 'source_character_name' => $characterName,
+                'source_location' => $sourceLocation,
                 'source_vault' => $vault,
                 'source_slot' => $slot,
                 'item_binary' => $warehouseItem->binary(),
@@ -136,6 +150,22 @@ final readonly class StoreWebStorageItem
     }
 
     /**
+     * Finds one exact item in the selected character inventory bag.
+     *
+     * @param  list<ItemSlot>  $items
+     */
+    private function inventoryItem(array $items, int $slotNumber): ?ItemSlot
+    {
+        foreach ($items as $item) {
+            if ($item->slot === $slotNumber) {
+                return $item;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Returns an identical replay or rejects one key reused for another item.
      */
     private function resolveExisting(WebStorageItem $item, string $requestHash): WebStorageItem
@@ -155,12 +185,14 @@ final readonly class StoreWebStorageItem
         string $characterName,
         int $vault,
         int $slot,
+        ItemStorageLocation $sourceLocation,
     ): string {
         $payload = json_encode([
             'account_id' => $accountId,
             'character_name' => $characterName,
             'vault' => $vault,
             'slot' => $slot,
+            'source_location' => $sourceLocation->value,
         ], JSON_THROW_ON_ERROR);
 
         return hash('sha256', $payload);

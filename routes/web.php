@@ -15,6 +15,7 @@ use App\Http\Controllers\Account\CreditController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
 use App\Http\Controllers\Account\ItemStorageController;
 use App\Http\Controllers\Account\JewelBankController;
+use App\Http\Controllers\Account\JewelBankWithdrawalController;
 use App\Http\Controllers\Account\MarketListingController;
 use App\Http\Controllers\Account\MarketPurchaseController;
 use App\Http\Controllers\Account\MoveToTownPreviewController;
@@ -280,6 +281,12 @@ Route::middleware('auth')->group(function (): void {
             'throttle:jewel-bank',
         ])
         ->name('account.jewel-bank.store');
+    Route::post('/account/jewel-bank/withdrawals', [JewelBankWithdrawalController::class, 'store'])
+        ->middleware([
+            'module.enabled:'.ServerModule::JewelBank->value,
+            'throttle:jewel-bank',
+        ])
+        ->name('account.jewel-bank.withdrawals.store');
     Route::delete('/account/jewel-bank/{webStorageItem}', [JewelBankController::class, 'destroy'])
         ->middleware([
             'module.enabled:'.ServerModule::JewelBank->value,

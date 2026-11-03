@@ -8,6 +8,7 @@ use App\Game\Contracts\AccountPasswordRecoveryRepository;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\AccountRegistrationRepository;
 use App\Game\Contracts\CharacterGrandResetRepository;
+use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Contracts\CharacterMoveRepository;
 use App\Game\Contracts\CharacterPkClearRepository;
 use App\Game\Contracts\CharacterResetRepository;
@@ -27,6 +28,7 @@ use App\Game\Repositories\SqlServer97d99iAccountPasswordRecoveryRepository;
 use App\Game\Repositories\SqlServer97d99iAccountReadRepository;
 use App\Game\Repositories\SqlServer97d99iAccountRegistrationRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterGrandResetRepository;
+use App\Game\Repositories\SqlServer97d99iCharacterInventoryEscrowRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterMoveRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterPkClearRepository;
 use App\Game\Repositories\SqlServer97d99iCharacterResetRepository;
@@ -192,6 +194,7 @@ final class Version97d99iProfile implements GameVersionProfile
             CharacterStatAllocationRepository::class => SqlServer97d99iCharacterStatAllocationRepository::class,
             CharacterStatResetRepository::class => SqlServer97d99iCharacterStatResetRepository::class,
             CharacterVipRepository::class => SqlServer97d99iCharacterVipRepository::class,
+            CharacterInventoryEscrowRepository::class => SqlServer97d99iCharacterInventoryEscrowRepository::class,
             ItemStorageRepository::class => SqlServer97d99iItemStorageRepository::class,
             ItemEscrowRepository::class => SqlServer97d99iMarketItemEscrowRepository::class,
             ItemSerialRepository::class => SqlServer97d99iItemSerialRepository::class,
