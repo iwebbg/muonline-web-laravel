@@ -4,11 +4,16 @@ namespace App\Game\Repositories;
 
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Data\CharacterRankingEntry;
+use App\Game\Data\CharacterRankingPage;
+use App\Game\Data\CharacterRankingQuery;
 use App\Game\Data\GuildRankingEntry;
+use App\Game\Data\GuildRankingPage;
+use App\Game\Data\GuildRankingQuery;
 use App\Game\Data\PublicCharacterProfile;
 use App\Game\Data\PublicGuildMember;
 use App\Game\Data\PublicGuildProfile;
 use App\Game\Data\RealmOverview;
+use App\Game\Rankings\RankingBoard;
 use App\Game\Versions\Version97d99i\GuildMarkDecoder;
 
 /**
@@ -49,46 +54,113 @@ final class FixtureRealmReadRepository implements RealmReadRepository
      */
     public function topCharacters(int $limit): array
     {
-        $entries = [
+        return array_slice($this->characterEntries(), 0, $this->normalizeLimit($limit));
+    }
+
+    /**
+     * Returns one filtered and paginated fixture character leaderboard.
+     */
+    public function characterRankings(CharacterRankingQuery $query): CharacterRankingPage
+    {
+        $entries = array_values(array_filter(
+            $this->characterEntries(),
+            function (CharacterRankingEntry $entry) use ($query): bool {
+                $matchesClass = $query->classFilter === null
+                    || $entry->classCode === $query->classFilter->classCode();
+                $matchesSearch = $query->search === ''
+                    || str_contains(mb_strtolower($entry->name), mb_strtolower($query->search));
+                $matchesOnline = ! $query->onlineOnly || $entry->online;
+
+                return $matchesClass && $matchesSearch && $matchesOnline;
+            },
+        ));
+
+        usort(
+            $entries,
+            function (CharacterRankingEntry $left, CharacterRankingEntry $right) use ($query): int {
+                if ($query->board === RankingBoard::PlayerKillers) {
+                    return [$right->pkCount, $right->pkLevel, $left->name]
+                        <=> [$left->pkCount, $left->pkLevel, $right->name];
+                }
+
+                return [$right->grandResets, $right->resets, $right->level, $left->name]
+                    <=> [$left->grandResets, $left->resets, $left->level, $right->name];
+            },
+        );
+
+        $total = count($entries);
+        $offset = ($query->page - 1) * $query->perPage;
+
+        return new CharacterRankingPage(
+            entries: array_slice($entries, $offset, $query->perPage),
+            total: $total,
+            page: $query->page,
+            perPage: $query->perPage,
+            lastPage: max(1, (int) ceil($total / $query->perPage)),
+        );
+    }
+
+    /**
+     * Returns every deterministic character used by fixture leaderboards.
+     *
+     * @return list<CharacterRankingEntry>
+     */
+    private function characterEntries(): array
+    {
+        return [
             new CharacterRankingEntry(
                 name: 'KoPeH',
+                classCode: 17,
                 className: 'Blade Knight',
+                classAbbreviation: 'BK',
                 image: '/images/characters/blade-knight.png',
                 level: 400,
                 resets: 20,
                 grandResets: 7,
+                pkCount: 12,
+                pkLevel: 6,
                 online: true,
             ),
             new CharacterRankingEntry(
                 name: 'iwebbg',
+                classCode: 1,
                 className: 'Soul Master',
+                classAbbreviation: 'SM',
                 image: '/images/characters/soul-master.jpg',
                 level: 400,
                 resets: 20,
                 grandResets: 5,
+                pkCount: 8,
+                pkLevel: 5,
                 online: true,
             ),
             new CharacterRankingEntry(
                 name: 'EvilDeviL',
+                classCode: 48,
                 className: 'Magic Gladiator',
+                classAbbreviation: 'MG',
                 image: '/images/characters/magic-gladiator.png',
                 level: 400,
                 resets: 19,
                 grandResets: 5,
+                pkCount: 21,
+                pkLevel: 6,
                 online: false,
             ),
             new CharacterRankingEntry(
                 name: 'Athena',
+                classCode: 33,
                 className: 'Muse Elf',
+                classAbbreviation: 'ME',
                 image: '/images/characters/muse-elf.png',
                 level: 390,
                 resets: 18,
                 grandResets: 4,
+                pkCount: 4,
+                pkLevel: 4,
                 online: true,
             ),
         ];
-
-        return array_slice($entries, 0, $this->normalizeLimit($limit));
     }
 
     /**
@@ -98,7 +170,41 @@ final class FixtureRealmReadRepository implements RealmReadRepository
      */
     public function topGuilds(int $limit): array
     {
-        $entries = [
+        return array_slice($this->guildEntries(), 0, $this->normalizeLimit($limit));
+    }
+
+    /**
+     * Returns one searched and paginated fixture guild leaderboard.
+     */
+    public function guildRankings(GuildRankingQuery $query): GuildRankingPage
+    {
+        $search = mb_strtolower($query->search);
+        $entries = array_values(array_filter(
+            $this->guildEntries(),
+            static fn (GuildRankingEntry $entry): bool => $search === ''
+                || str_contains(mb_strtolower($entry->name), $search)
+                || str_contains(mb_strtolower($entry->master), $search),
+        ));
+        $total = count($entries);
+        $offset = ($query->page - 1) * $query->perPage;
+
+        return new GuildRankingPage(
+            entries: array_slice($entries, $offset, $query->perPage),
+            total: $total,
+            page: $query->page,
+            perPage: $query->perPage,
+            lastPage: max(1, (int) ceil($total / $query->perPage)),
+        );
+    }
+
+    /**
+     * Returns every deterministic guild used by fixture leaderboards.
+     *
+     * @return list<GuildRankingEntry>
+     */
+    private function guildEntries(): array
+    {
+        return [
             new GuildRankingEntry(
                 name: 'Legends',
                 master: 'KoPeH',
@@ -128,8 +234,6 @@ final class FixtureRealmReadRepository implements RealmReadRepository
                 markColors: $this->fixtureMarkColors('1111111116666661161111611661166116666661166116611661166111111111'),
             ),
         ];
-
-        return array_slice($entries, 0, $this->normalizeLimit($limit));
     }
 
     /**

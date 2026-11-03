@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Game\Data\CharacterRankingQuery;
+use App\Game\Rankings\RankingBoard;
 use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
+use App\Game\Versions\Version97d99i\CharacterClassFilter;
 use App\Game\Versions\Version97d99i\CharacterClassMapper;
 use App\Game\Versions\Version97d99i\CharacterImageMapper;
 use App\Game\Versions\Version97d99i\GuildMarkDecoder;
@@ -37,7 +40,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
 
         $connection->statement('CREATE TABLE MEMB_INFO (memb___id TEXT PRIMARY KEY)');
         $connection->statement('CREATE TABLE MEMB_STAT (memb___id TEXT PRIMARY KEY, ConnectStat INTEGER NULL)');
-        $connection->statement('CREATE TABLE Character (AccountID TEXT NOT NULL, Name TEXT PRIMARY KEY, cLevel INTEGER NULL, Class INTEGER NULL, Resets INTEGER NOT NULL, GrandResets INTEGER NOT NULL, MapNumber INTEGER NULL, PkLevel INTEGER NULL, IsVip INTEGER NULL)');
+        $connection->statement('CREATE TABLE Character (AccountID TEXT NOT NULL, Name TEXT PRIMARY KEY, cLevel INTEGER NULL, Class INTEGER NULL, Resets INTEGER NOT NULL, GrandResets INTEGER NOT NULL, MapNumber INTEGER NULL, PkCount INTEGER NULL, PkLevel INTEGER NULL, PkTime INTEGER NULL, IsVip INTEGER NULL)');
         $connection->statement('CREATE TABLE Guild (G_Name TEXT NOT NULL, G_Master TEXT NULL, G_Score INTEGER NULL, G_Count INTEGER NULL, G_Notice TEXT NULL, G_Mark BLOB NULL)');
         $connection->statement('CREATE TABLE GuildMember (Name TEXT NOT NULL, G_Name TEXT NOT NULL, G_Level INTEGER NULL)');
     }
@@ -141,6 +144,48 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
     }
 
     /**
+     * Confirms SQL filtering and PK ordering happen before page slicing.
+     */
+    public function test_repository_filters_and_paginates_competitive_boards_in_sql(): void
+    {
+        $database = $this->app->make(DatabaseManager::class);
+        $connection = $database->connection('game');
+
+        $connection->table('MEMB_STAT')->insert([
+            ['memb___id' => 'knight-one', 'ConnectStat' => 1],
+            ['memb___id' => 'knight-two', 'ConnectStat' => 1],
+            ['memb___id' => 'wizard-one', 'ConnectStat' => 0],
+        ]);
+        $connection->table('Character')->insert([
+            ['AccountID' => 'knight-one', 'Name' => 'Killer', 'cLevel' => 300, 'Class' => 17, 'Resets' => 5, 'GrandResets' => 0, 'PkCount' => 30, 'PkLevel' => 6],
+            ['AccountID' => 'knight-two', 'Name' => 'Hunter', 'cLevel' => 350, 'Class' => 17, 'Resets' => 8, 'GrandResets' => 0, 'PkCount' => 20, 'PkLevel' => 5],
+            ['AccountID' => 'wizard-one', 'Name' => 'Wizard', 'cLevel' => 400, 'Class' => 1, 'Resets' => 20, 'GrandResets' => 2, 'PkCount' => 99, 'PkLevel' => 6],
+        ]);
+
+        $repository = new SqlServer97d99iRealmReadRepository(
+            database: $database,
+            classMapper: new CharacterClassMapper,
+            imageMapper: new CharacterImageMapper,
+            guildMarkDecoder: new GuildMarkDecoder,
+            mapNameMapper: new MapNameMapper,
+        );
+        $page = $repository->characterRankings(new CharacterRankingQuery(
+            board: RankingBoard::PlayerKillers,
+            classFilter: CharacterClassFilter::BladeKnight,
+            page: 2,
+            perPage: 1,
+            search: '',
+            onlineOnly: true,
+        ));
+
+        $this->assertSame(2, $page->total);
+        $this->assertSame(2, $page->lastPage);
+        $this->assertCount(1, $page->entries);
+        $this->assertSame('Hunter', $page->entries[0]->name);
+        $this->assertSame('BK', $page->entries[0]->classAbbreviation);
+    }
+
+    /**
      * Confirms rankings can use a separate read-only database on newer profiles.
      */
     public function test_repository_can_route_rankings_to_named_database_connection(): void
@@ -161,7 +206,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
         $rankingConnection = $database->connection('ranking');
 
         $rankingConnection->statement('CREATE TABLE MEMB_STAT (memb___id TEXT PRIMARY KEY, ConnectStat INTEGER NULL)');
-        $rankingConnection->statement('CREATE TABLE Character (AccountID TEXT NOT NULL, Name TEXT PRIMARY KEY, cLevel INTEGER NULL, Class INTEGER NULL, Resets INTEGER NOT NULL, GrandResets INTEGER NOT NULL, MapNumber INTEGER NULL, PkLevel INTEGER NULL, IsVip INTEGER NULL)');
+        $rankingConnection->statement('CREATE TABLE Character (AccountID TEXT NOT NULL, Name TEXT PRIMARY KEY, cLevel INTEGER NULL, Class INTEGER NULL, Resets INTEGER NOT NULL, GrandResets INTEGER NOT NULL, MapNumber INTEGER NULL, PkCount INTEGER NULL, PkLevel INTEGER NULL, PkTime INTEGER NULL, IsVip INTEGER NULL)');
         $rankingConnection->statement('CREATE TABLE Guild (G_Name TEXT NOT NULL, G_Master TEXT NULL, G_Score INTEGER NULL, G_Count INTEGER NULL, G_Notice TEXT NULL, G_Mark BLOB NULL)');
         $rankingConnection->statement('CREATE TABLE GuildMember (Name TEXT NOT NULL, G_Name TEXT NOT NULL, G_Level INTEGER NULL)');
         $rankingConnection->table('MEMB_STAT')->insert([

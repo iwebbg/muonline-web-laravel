@@ -557,91 +557,227 @@ export function rankingBoard(initialTab = 'players') {
 }
 
 /**
- * Creates client-side search, tabs and incremental disclosure for full rankings.
+ * Creates an asynchronous, URL-synchronized ranking explorer.
  *
- * @param {{players: Array<object>, guilds: Array<object>}} rankings The server-ordered public ranking rows.
+ * @param {object} initialPage The first server-rendered ranking page.
+ * @param {string} dataUrl The endpoint used for filtered ranking pages.
  * @returns {object}
  */
-export function rankingExplorer(rankings) {
+export function rankingExplorer(initialPage, dataUrl) {
     return {
-        activeTab: 'players',
-        search: '',
-        onlineOnly: false,
-        displayLimit: 25,
-        players: rankings.players,
-        guilds: rankings.guilds,
+        board: initialPage.board,
+        classFilter: initialPage.class_filter,
+        search: initialPage.search,
+        onlineOnly: initialPage.online_only,
+        pageData: initialPage,
+        loading: false,
+        failed: false,
+        searchTimer: null,
+        requestController: null,
+        popstateHandler: null,
 
         /**
-         * Selects one ranking category and resets incremental disclosure.
+         * Starts browser-history synchronization for shareable filters.
          *
-         * @param {string} tab The players or guilds category key.
+         * @returns {void}
          */
-        selectTab(tab) {
-            this.activeTab = tab;
-            this.displayLimit = 25;
+        init() {
+            this.popstateHandler = this.restoreFromLocation.bind(this);
+            window.addEventListener('popstate', this.popstateHandler);
         },
 
         /**
-         * Resets the visible-row count after a search or online filter changes.
+         * Releases timers, requests and global event listeners.
+         *
+         * @returns {void}
          */
-        resetDisplayLimit() {
-            this.displayLimit = 25;
+        destroy() {
+            window.clearTimeout(this.searchTimer);
+            this.requestController?.abort();
+
+            if (this.popstateHandler !== null) {
+                window.removeEventListener('popstate', this.popstateHandler);
+            }
         },
 
         /**
-         * Returns players matching the current name, class and online filters.
+         * Selects an independently ordered leaderboard.
          *
-         * @returns {Array<object>}
+         * @param {string} selectedBoard The overall, PK or guild board key.
+         * @returns {Promise<void>}
          */
-        get filteredPlayers() {
-            const query = this.search.trim().toLocaleLowerCase();
+        async selectBoard(selectedBoard) {
+            this.board = selectedBoard;
 
-            return this.players.filter((player) => {
-                const matchesQuery = query === ''
-                    || player.name.toLocaleLowerCase().includes(query)
-                    || player.class.toLocaleLowerCase().includes(query);
-                const matchesOnline = !this.onlineOnly || player.online;
+            if (selectedBoard === 'guilds') {
+                this.classFilter = '';
+                this.onlineOnly = false;
+            }
 
-                return matchesQuery && matchesOnline;
+            await this.loadPage(1);
+        },
+
+        /**
+         * Selects one exact 97d+99i character class.
+         *
+         * @param {string} selectedClass The class filter key or an empty value.
+         * @returns {Promise<void>}
+         */
+        async selectClass(selectedClass) {
+            this.classFilter = selectedClass;
+            await this.loadPage(1);
+        },
+
+        /**
+         * Reloads the first page after the online filter changes.
+         *
+         * @returns {Promise<void>}
+         */
+        async toggleOnline() {
+            await this.loadPage(1);
+        },
+
+        /**
+         * Debounces search requests while the visitor types.
+         *
+         * @returns {void}
+         */
+        scheduleSearch() {
+            window.clearTimeout(this.searchTimer);
+            this.searchTimer = window.setTimeout(
+                () => this.loadPage(1),
+                300,
+            );
+        },
+
+        /**
+         * Requests one exact server-side ranking page and updates the URL.
+         *
+         * @param {number} page The one-based page number to request.
+         * @param {boolean} updateLocation Whether to update browser history.
+         * @returns {Promise<void>}
+         */
+        async loadPage(page, updateLocation = true) {
+            this.requestController?.abort();
+            this.requestController = new AbortController();
+            const activeController = this.requestController;
+            this.loading = true;
+            this.failed = false;
+
+            const parameters = this.queryParameters(page);
+
+            try {
+                const response = await window.fetch(`${dataUrl}?${parameters.toString()}`, {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    signal: activeController.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ranking request failed with ${response.status}.`);
+                }
+
+                this.pageData = await response.json();
+
+                if (updateLocation) {
+                    window.history.pushState({}, '', `${window.location.pathname}?${parameters.toString()}`);
+                }
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    this.failed = true;
+                }
+            } finally {
+                if (this.requestController === activeController) {
+                    this.loading = false;
+                }
+            }
+        },
+
+        /**
+         * Creates the canonical query string for one explorer state.
+         *
+         * @param {number} page The one-based page number.
+         * @returns {URLSearchParams}
+         */
+        queryParameters(page) {
+            const parameters = new URLSearchParams({
+                board: this.board,
+                page: String(page),
+                per_page: String(this.pageData.meta.per_page),
             });
+
+            if (this.board !== 'guilds' && this.classFilter !== '') {
+                parameters.set('class', this.classFilter);
+            }
+
+            if (this.search.trim() !== '') {
+                parameters.set('search', this.search.trim());
+            }
+
+            if (this.board !== 'guilds' && this.onlineOnly) {
+                parameters.set('online', '1');
+            }
+
+            return parameters;
         },
 
         /**
-         * Returns guilds matching the current guild or master search.
+         * Restores explorer controls when browser history changes.
+         *
+         * @returns {Promise<void>}
+         */
+        async restoreFromLocation() {
+            const parameters = new URLSearchParams(window.location.search);
+
+            this.board = parameters.get('board') ?? 'overall';
+            this.classFilter = parameters.get('class') ?? '';
+            this.search = parameters.get('search') ?? '';
+            this.onlineOnly = parameters.get('online') === '1';
+
+            await this.loadPage(Number(parameters.get('page') ?? 1), false);
+        },
+
+        /**
+         * Returns the first three entries only on the first unsearched page.
          *
          * @returns {Array<object>}
          */
-        get filteredGuilds() {
-            const query = this.search.trim().toLocaleLowerCase();
+        get podiumItems() {
+            if (this.pageData.meta.current_page !== 1 || this.search.trim() !== '') {
+                return [];
+            }
 
-            return this.guilds.filter((guild) => query === ''
-                || guild.name.toLocaleLowerCase().includes(query)
-                || guild.master.toLocaleLowerCase().includes(query));
+            return this.pageData.items.slice(0, 3);
         },
 
         /**
-         * Returns only the currently disclosed player rows.
+         * Returns entries not already represented on the podium.
          *
          * @returns {Array<object>}
          */
-        get visiblePlayers() {
-            return this.filteredPlayers.slice(0, this.displayLimit);
+        get listItems() {
+            return this.pageData.items.slice(this.podiumItems.length);
         },
 
         /**
-         * Returns only the currently disclosed guild rows.
+         * Returns a compact window of selectable page numbers.
          *
-         * @returns {Array<object>}
+         * @returns {Array<number>}
          */
-        get visibleGuilds() {
-            return this.filteredGuilds.slice(0, this.displayLimit);
-        },
+        get pageNumbers() {
+            const lastPage = this.pageData.meta.last_page;
+            const currentPage = this.pageData.meta.current_page;
+            const firstPage = Math.max(1, Math.min(currentPage - 2, lastPage - 4));
+            const finalPage = Math.min(lastPage, firstPage + 4);
+            const pages = [];
 
-        /**
-         * Reveals the next ranking page without a network request.
-         */
-        showMore() {
-            this.displayLimit += 25;
+            for (let page = firstPage; page <= finalPage; page += 1) {
+                pages.push(page);
+            }
+
+            return pages;
         },
     };
 }

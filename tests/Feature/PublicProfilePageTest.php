@@ -53,17 +53,22 @@ final class PublicProfilePageTest extends TestCase
     }
 
     /**
-     * Confirms ranking payloads link both result types to their public profiles.
+     * Confirms character and guild ranking payloads link to public profiles.
      */
     public function test_rankings_include_public_profile_links(): void
     {
         $response = $this->get(route('rankings'));
+        $guildResponse = $this->get(route('rankings', ['board' => 'guilds']));
 
         $response
             ->assertOk()
-            ->assertViewHas('rankings', function (array $rankings): bool {
-                return $rankings['players'][0]['profile_url'] === route('characters.show', 'KoPeH')
-                    && $rankings['guilds'][0]['profile_url'] === route('guilds.show', 'Legends');
+            ->assertViewHas('rankingPage', function (array $rankingPage): bool {
+                return $rankingPage['items'][0]['profile_url'] === route('characters.show', 'KoPeH');
+            });
+        $guildResponse
+            ->assertOk()
+            ->assertViewHas('rankingPage', function (array $rankingPage): bool {
+                return $rankingPage['items'][0]['profile_url'] === route('guilds.show', 'Legends');
             });
     }
 

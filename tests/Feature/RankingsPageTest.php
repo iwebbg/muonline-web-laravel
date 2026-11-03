@@ -22,12 +22,14 @@ final class RankingsPageTest extends TestCase
             ->assertSee('rankingExplorer(', false)
             ->assertSee('KoPeH')
             ->assertSee('Blade Knight')
-            ->assertSee('Legends')
-            ->assertSee('guild.mark_colors', false)
+            ->assertSee('Top PK')
+            ->assertSee('Filter by class')
+            ->assertSee('BK')
+            ->assertSee('pageNumbers', false)
             ->assertSee('Online only')
-            ->assertViewHas('rankings', function (array $rankings): bool {
-                return $rankings['players'][0]['image'] === '/images/characters/blade-knight.png'
-                    && count($rankings['guilds'][0]['mark_colors']) === 64;
+            ->assertViewHas('rankingPage', function (array $rankingPage): bool {
+                return $rankingPage['items'][0]['image'] === '/images/characters/blade-knight.png'
+                    && $rankingPage['items'][0]['class_abbreviation'] === 'BK';
             });
     }
 
@@ -56,6 +58,7 @@ final class RankingsPageTest extends TestCase
             ->assertOk()
             ->assertSee('Всяка легенда има своето място.')
             ->assertSee('Само онлайн')
+            ->assertSee('Топ PK')
             ->assertSee('Гилдии');
     }
 }

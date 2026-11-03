@@ -75,6 +75,8 @@ Route::get('/ready', ReadinessController::class)
     ])
     ->name('ready');
 
+Route::get('/rankings/data', [RankingsController::class, 'data'])
+    ->name('rankings.data');
 Route::get('/rankings', RankingsController::class)
     ->name('rankings');
 Route::get('/characters/{characterName}', CharacterProfileController::class)
