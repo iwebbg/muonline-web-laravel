@@ -58,4 +58,14 @@ final class NewsPostFactory extends Factory
             'type' => NewsPostType::Guide,
         ]);
     }
+
+    /**
+     * Places the generated entry in the public standalone page collection.
+     */
+    public function page(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'type' => NewsPostType::Page,
+        ]);
+    }
 }

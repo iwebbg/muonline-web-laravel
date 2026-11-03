@@ -117,6 +117,7 @@
                         <select name="type" x-model="form.type">
                             <option value="news">{{ __('ui.admin.news_type_news') }}</option>
                             <option value="guide">{{ __('ui.admin.news_type_guide') }}</option>
+                            <option value="page">{{ __('ui.admin.news_type_page') }}</option>
                         </select>
                     </label>
 

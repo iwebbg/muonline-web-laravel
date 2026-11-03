@@ -626,11 +626,23 @@ export function gameMasterManager(createUrl) {
 /**
  * Creates the responsive navigation state shared by all application areas.
  *
- * @returns {{mobileMenuOpen: boolean, toggleMobileMenu: Function, closeMobileMenu: Function}}
+ * @returns {object}
  */
 export function applicationNavigation() {
     return {
         mobileMenuOpen: false,
+        cookieNoticeVisible: false,
+
+        /**
+         * Restores whether the visitor has already acknowledged the cookie notice.
+         */
+        init() {
+            try {
+                this.cookieNoticeVisible = window.localStorage.getItem('mu_cookie_notice_v1') !== 'acknowledged';
+            } catch {
+                this.cookieNoticeVisible = true;
+            }
+        },
 
         /**
          * Opens or closes the mobile navigation drawer.
@@ -644,6 +656,19 @@ export function applicationNavigation() {
          */
         closeMobileMenu() {
             this.mobileMenuOpen = false;
+        },
+
+        /**
+         * Stores the informational cookie notice choice in browser-local storage.
+         */
+        acknowledgeCookieNotice() {
+            try {
+                window.localStorage.setItem('mu_cookie_notice_v1', 'acknowledged');
+            } catch {
+                // The notice can still close for this page when storage is unavailable.
+            }
+
+            this.cookieNoticeVisible = false;
         },
     };
 }

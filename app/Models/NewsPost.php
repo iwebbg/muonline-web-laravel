@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Represents one bilingual application-owned news article with English fallback.
+ * Represents one bilingual application-owned content entry with English fallback.
  */
 #[Fillable([
     'slug',

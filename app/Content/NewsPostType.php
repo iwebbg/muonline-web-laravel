@@ -9,4 +9,5 @@ enum NewsPostType: string
 {
     case News = 'news';
     case Guide = 'guide';
+    case Page = 'page';
 }

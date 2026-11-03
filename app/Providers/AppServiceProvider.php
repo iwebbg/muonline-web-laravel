@@ -47,6 +47,7 @@ use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
 use App\Game\Repositories\SqlServer97d99iZenBankRepository;
 use App\Game\Status\FixtureGameServerStatus;
 use App\Game\Status\TcpGameServerStatus;
+use App\Models\GameServer;
 use App\Modules\ModuleManager;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
@@ -114,6 +115,21 @@ class AppServiceProvider extends ServiceProvider
                 $gameServerStatus = $this->app->make(GameServerStatus::class);
 
                 $view->with('gameServerOnline', $gameServerStatus->isOnline());
+
+                if ($view->name() !== 'layouts.app') {
+                    return;
+                }
+
+                $websiteServerName = GameServer::query()
+                    ->where('is_current', true)
+                    ->value('name');
+
+                $view->with(
+                    'websiteServerName',
+                    is_string($websiteServerName) && $websiteServerName !== ''
+                        ? $websiteServerName
+                        : config('app.name'),
+                );
             },
         );
 

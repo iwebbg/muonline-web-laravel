@@ -145,10 +145,41 @@
         </main>
 
         <footer class="relative z-10 mt-20 border-t border-white/8 bg-void/75">
-            <div class="shell flex flex-col gap-4 py-8 text-sm text-steel sm:flex-row sm:items-center sm:justify-between">
-                <p>{{ __('ui.footer.tagline') }}</p>
-                <p>{{ __('ui.footer.prototype') }}</p>
+            <div class="shell flex flex-col gap-5 py-8 text-sm text-steel lg:flex-row lg:items-center lg:justify-between">
+                <p>
+                    &copy; {{ now()->year }} {{ $websiteServerName }}.
+                    {{ __('ui.footer.created_by') }}
+                    <a href="https://interweb.bg" class="font-semibold text-silver transition hover:text-gold" target="_blank" rel="noopener noreferrer">InterWeb Ltd.</a>
+                </p>
+                <nav class="flex flex-wrap gap-x-5 gap-y-2" aria-label="{{ __('ui.footer.legal_navigation') }}">
+                    <a href="{{ route('pages.show', 'cookies') }}" class="transition hover:text-gold">{{ __('ui.footer.cookies') }}</a>
+                    <a href="{{ route('pages.show', 'privacy-policy') }}" class="transition hover:text-gold">{{ __('ui.footer.privacy') }}</a>
+                    <a href="{{ route('pages.show', 'terms-of-use') }}" class="transition hover:text-gold">{{ __('ui.footer.terms') }}</a>
+                </nav>
             </div>
         </footer>
+
+        <aside
+            x-cloak
+            x-show="cookieNoticeVisible"
+            x-transition.opacity
+            class="fixed inset-x-4 bottom-4 z-[80] mx-auto max-w-4xl rounded-2xl border border-gold/25 bg-panel/95 p-5 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-6"
+            role="dialog"
+            aria-live="polite"
+            aria-labelledby="cookie-notice-title"
+        >
+            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h2 id="cookie-notice-title" class="text-base font-semibold text-white">{{ __('ui.cookies.title') }}</h2>
+                    <p class="mt-2 max-w-2xl text-sm leading-6 text-silver">
+                        {{ __('ui.cookies.message') }}
+                        <a href="{{ route('pages.show', 'cookies') }}" class="font-semibold text-gold hover:text-amber-200">{{ __('ui.cookies.learn_more') }}</a>
+                    </p>
+                </div>
+                <button type="button" class="button button-primary shrink-0" x-on:click="acknowledgeCookieNotice">
+                    {{ __('ui.cookies.acknowledge') }}
+                </button>
+            </div>
+        </aside>
     </body>
 </html>

@@ -53,6 +53,7 @@ use App\Http\Controllers\GuildProfileController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\PageController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RankingsController;
 use App\Http\Controllers\ReadinessController;
@@ -109,6 +110,10 @@ Route::get('/guides', [GuideController::class, 'index'])
 Route::get('/guides/{slug}', [GuideController::class, 'show'])
     ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
     ->name('guides.show');
+
+Route::get('/pages/{slug}', PageController::class)
+    ->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')
+    ->name('pages.show');
 
 Route::get('/downloads', DownloadController::class)
     ->name('downloads.index');
