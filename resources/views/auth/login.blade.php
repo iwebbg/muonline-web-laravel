@@ -15,7 +15,7 @@
             </p>
             <div class="mt-8 grid gap-3 sm:grid-cols-3">
                 <div class="outcome-card"><span>{{ __('ui.auth.secure_session') }}</span><strong>{{ __('ui.auth.rotated') }}</strong></div>
-                <div class="outcome-card"><span>{{ __('ui.auth.account_source') }}</span><strong>MEMB_INFO</strong></div>
+                <div class="outcome-card"><span>{{ __('ui.auth.game_identity') }}</span><strong>{{ __('ui.auth.realm_ready') }}</strong></div>
                 <div class="outcome-card"><span>{{ __('ui.auth.private_data') }}</span><strong>{{ __('ui.auth.ownership_scoped') }}</strong></div>
             </div>
         </section>

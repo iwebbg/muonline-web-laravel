@@ -61,7 +61,18 @@ final class AccountRegistrationTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('Create your account');
+            ->assertSee('Create your account')
+            ->assertSeeInOrder([
+                'Accounts',
+                '1,550',
+                'Characters',
+                '1,620',
+                'Guilds',
+                '114',
+            ])
+            ->assertDontSee('MEMB_INFO')
+            ->assertDontSee('VI_CURR_INFO')
+            ->assertDontSee('Legacy character limit');
     }
 
     /**

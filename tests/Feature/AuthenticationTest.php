@@ -48,6 +48,8 @@ final class AuthenticationTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Enter your account');
+        $response->assertSee('Game identity');
+        $response->assertDontSee('MEMB_INFO');
     }
 
     /**

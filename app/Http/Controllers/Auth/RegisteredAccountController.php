@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\AccountRegistration\AccountRegistrationBlockReason;
 use App\AccountRegistration\Actions\RegisterGameAccount;
 use App\AccountRegistration\Exceptions\AccountRegistrationRejected;
+use App\Game\Contracts\RealmReadRepository;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterAccountRequest;
 use Illuminate\Http\RedirectResponse;
@@ -17,11 +18,27 @@ use Illuminate\View\View;
 final class RegisteredAccountController extends Controller
 {
     /**
+     * Creates the controller with the public realm statistics reader.
+     */
+    public function __construct(
+        private readonly RealmReadRepository $realmReadRepository,
+    ) {}
+
+    /**
      * Displays the bilingual registration screen for unauthenticated players.
      */
     public function create(): View
     {
-        return view('auth.register');
+        $overview = $this->realmReadRepository->overview();
+        $realmStatistics = [
+            'accounts' => $overview->accounts,
+            'characters' => $overview->characters,
+            'guilds' => $overview->guilds,
+        ];
+
+        return view('auth.register', [
+            'realmStatistics' => $realmStatistics,
+        ]);
     }
 
     /**

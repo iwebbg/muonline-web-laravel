@@ -13,9 +13,9 @@
                 {{ __('ui.registration.intro') }}
             </p>
             <div class="mt-8 grid gap-3 sm:grid-cols-3">
-                <div class="outcome-card"><span>{{ __('ui.registration.account_limit') }}</span><strong>4–10</strong></div>
-                <div class="outcome-card"><span>{{ __('ui.registration.account_source') }}</span><strong>MEMB_INFO</strong></div>
-                <div class="outcome-card"><span>{{ __('ui.registration.billing_source') }}</span><strong>VI_CURR_INFO</strong></div>
+                <div class="outcome-card"><span>{{ __('ui.registration.accounts') }}</span><strong>{{ number_format($realmStatistics['accounts']) }}</strong></div>
+                <div class="outcome-card"><span>{{ __('ui.registration.characters') }}</span><strong>{{ number_format($realmStatistics['characters']) }}</strong></div>
+                <div class="outcome-card"><span>{{ __('ui.registration.guilds') }}</span><strong>{{ number_format($realmStatistics['guilds']) }}</strong></div>
             </div>
         </section>
 
