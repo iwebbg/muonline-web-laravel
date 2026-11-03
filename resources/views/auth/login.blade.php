@@ -83,7 +83,6 @@
                 </button>
             </form>
 
-            <p class="mt-5 text-center text-xs leading-5 text-steel">{{ __('ui.auth.no_remember') }}</p>
             @if ($moduleManager->enabled(\App\Modules\ServerModule::PasswordRecovery))
                 <p class="mt-3 text-center text-sm text-steel">
                     <a href="{{ route('password.request') }}" class="font-semibold text-gold hover:text-white">{{ __('ui.recovery.forgot_link') }}</a>

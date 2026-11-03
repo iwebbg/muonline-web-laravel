@@ -48,8 +48,13 @@ final class AuthenticationTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Enter your account');
-        $response->assertSee('Game identity');
+        $response->assertSee('Game account');
         $response->assertDontSee('MEMB_INFO');
+        $response->assertDontSee('Laravel');
+        $response->assertDontSee('Return to the realm');
+        $response->assertDontSee('Realm online');
+        $response->assertDontSee('Ready for the realm');
+        $response->assertDontSee('remember-token');
     }
 
     /**

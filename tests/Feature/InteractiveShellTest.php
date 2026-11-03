@@ -19,11 +19,11 @@ class InteractiveShellTest extends TestCase
         $response = $this->get('/');
 
         $response->assertOk();
-        $response->assertSee('The realm is awake');
+        $response->assertSee('Your adventure');
         $response->assertSee('Fixture data');
         $response->assertSee('Blood Castle');
         $response->assertSee('eventSchedule(', false);
-        $response->assertSee('Realm event schedule');
+        $response->assertSee('Server event schedule');
         $response->assertSee('View 5 more');
         $response->assertSee('Sky Event');
         $response->assertDontSee('12:48');
