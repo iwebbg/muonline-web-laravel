@@ -11,19 +11,23 @@
         <p class="mt-6 text-sm text-crimson" x-show="itemStorageError" x-text="itemStorageError"></p>
 
         <template x-if="itemStorage !== null && !itemStorageLoading">
-            <div>
-                <p class="kicker mt-7">{{ __('ui.account.equipment') }}</p>
-                <x-equipment-layout
-                    class="mt-3"
-                    items="itemStorage.character.equipment"
-                />
+            <div class="inventory-storage-layout mt-7">
+                <section>
+                    <p class="kicker">{{ __('ui.account.equipment') }}</p>
+                    <x-equipment-layout
+                        class="mt-3"
+                        items="itemStorage.character.equipment"
+                    />
+                </section>
 
-                <p class="kicker mt-7">{{ __('ui.account.inventory_bag') }}</p>
-                <x-item-grid
-                    class="mt-3"
-                    :slots="64"
-                    items="itemStorage.character.inventory"
-                />
+                <section>
+                    <p class="kicker">{{ __('ui.account.inventory_bag') }}</p>
+                    <x-item-grid
+                        class="mt-3"
+                        :slots="64"
+                        items="itemStorage.character.inventory"
+                    />
+                </section>
             </div>
         </template>
     </article>

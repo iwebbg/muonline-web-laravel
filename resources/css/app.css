@@ -847,6 +847,12 @@
         background: rgb(0 0 0 / 0.23);
     }
 
+    .inventory-storage-layout {
+        display: grid;
+        gap: 1.75rem;
+        align-items: start;
+    }
+
     .inventory-slot {
         position: relative;
         width: var(--inventory-cell-size);
@@ -1350,6 +1356,13 @@
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
+    }
+}
+
+@media (min-width: 75rem) {
+    .inventory-storage-layout {
+        grid-template-columns: max-content max-content;
+        gap: clamp(1.75rem, 3vw, 3.5rem);
     }
 }
 
