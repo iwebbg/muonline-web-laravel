@@ -39,7 +39,7 @@
                     :transactions="$walletTransactions"
                 />
                 @if ($moduleManager->enabled(\App\Modules\ServerModule::WebStorage))
-                <button type="button" class="resource-chip text-left" @click="selectSection('inventory')">
+                <button type="button" class="resource-chip text-left" @click="selectAccountVaults()">
                     <span>{{ __('ui.web_storage.kicker') }}</span>
                     <strong class="text-gold">{{ __('ui.web_storage.open') }}</strong>
                 </button>
@@ -78,14 +78,19 @@
         @else
             <x-account-character-selector class="mt-8" />
 
-            <div class="mt-6 grid gap-6 xl:grid-cols-[22rem_1fr]">
-                <x-account-character-portrait />
+            <div
+                class="mt-6 grid gap-6"
+                :class="activeSection === 'vaults' ? 'grid-cols-1' : 'xl:grid-cols-[22rem_1fr]'"
+            >
+                <x-account-character-portrait x-show="activeSection !== 'vaults'" x-cloak />
 
                 <section class="min-w-0">
-                    <x-account-character-tabs />
+                    <x-account-character-tabs x-show="activeSection !== 'vaults'" x-cloak />
 
                     <x-account-overview-panel />
                     <x-account-inventory-panel />
+
+                    <x-account-vaults-panel />
 
                     <x-account-stats-panel />
 

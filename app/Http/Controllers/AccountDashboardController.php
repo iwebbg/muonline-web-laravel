@@ -46,6 +46,7 @@ final class AccountDashboardController extends Controller
 
         $characterEntries = $this->accountReadRepository->charactersFor($account->username);
         $characters = [];
+        $characterNames = [];
 
         foreach ($characterEntries as $characterEntry) {
             $character = $characterEntry->toArray();
@@ -57,6 +58,7 @@ final class AccountDashboardController extends Controller
 
             $character['statDefinitions'] = $statDefinitions;
             $characters[] = $character;
+            $characterNames[] = $characterEntry->name;
         }
 
         $wallet = AccountWallet::query()
@@ -138,9 +140,25 @@ final class AccountDashboardController extends Controller
             }
         }
 
-        $accountPanelConfiguration['initialSection'] = $request->string('section')->toString() === 'inventory'
-            ? 'inventory'
+        $allowedSections = [
+            'overview',
+            'inventory',
+            'stats',
+            'stat-reset',
+            'pk-clear',
+            'move-to-town',
+            'reset',
+            'grand-reset',
+            'vaults',
+        ];
+        $requestedSection = $request->string('tab')->toString();
+        $requestedCharacter = $request->string('character')->toString();
+        $accountPanelConfiguration['initialSection'] = in_array($requestedSection, $allowedSections, true)
+            ? $requestedSection
             : 'overview';
+        $accountPanelConfiguration['initialCharacter'] = in_array($requestedCharacter, $characterNames, true)
+            ? $requestedCharacter
+            : ($characterNames[0] ?? null);
         $accountPanelConfiguration['webStorageEnabled'] = $webStorageEnabled;
         $accountPanelConfiguration['marketEnabled'] = $marketEnabled;
         $accountPanelConfiguration['auctionEnabled'] = $auctionEnabled;

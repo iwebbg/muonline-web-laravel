@@ -166,6 +166,15 @@ final class AccountDashboardTest extends TestCase
      */
     public function test_dashboard_includes_owned_web_storage_items_and_item_actions(): void
     {
+        $gameConnection = $this->app->make(DatabaseManager::class)->connection('game');
+
+        $gameConnection->table('MEMB_STAT')->insert([
+            'memb___id' => 'owner',
+            'ConnectStat' => 0,
+        ]);
+        $gameConnection->table('Character')->insert(
+            $this->characterRecord('owner', 'OwnedKnight'),
+        );
         $storedItem = WebStorageItem::factory()->create([
             'account_id' => 'owner',
             'item_snapshot' => [
@@ -185,7 +194,7 @@ final class AccountDashboardTest extends TestCase
 
         $response = $this
             ->actingAs($this->account('owner'))
-            ->get('/account?section=inventory');
+            ->get('/account?character=OwnedKnight&tab=vaults');
 
         $response
             ->assertOk()
@@ -193,7 +202,16 @@ final class AccountDashboardTest extends TestCase
             ->assertSee($storedItem->public_id)
             ->assertSee('marketListingStoreUrl')
             ->assertSee('Main Vault')
+            ->assertSee('Account storage')
             ->assertDontSee('Hidden Web Item');
+        $this->assertMatchesRegularExpression(
+            '/initialSection.{0,80}vaults/',
+            $response->getContent(),
+        );
+        $this->assertMatchesRegularExpression(
+            '/initialCharacter.{0,80}OwnedKnight/',
+            $response->getContent(),
+        );
     }
 
     /**

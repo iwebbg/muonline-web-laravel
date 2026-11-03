@@ -209,7 +209,7 @@ final class WebStorageTest extends TestCase
             ->actingAs($this->account('pageowner'))
             ->get(route('account.web-storage.index'));
 
-        $response->assertRedirect(route('account.dashboard', ['section' => 'inventory']));
+        $response->assertRedirect(route('account.dashboard', ['tab' => 'vaults']));
     }
 
     /**

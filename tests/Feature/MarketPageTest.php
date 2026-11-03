@@ -63,7 +63,7 @@ final class MarketPageTest extends TestCase
         $response
             ->assertOk()
             ->assertDontSee('Warehouse to escrow')
-            ->assertSee(route('account.dashboard', ['section' => 'inventory']), false)
+            ->assertSee(route('account.dashboard', ['tab' => 'vaults']), false)
             ->assertSee('Owned Market Item')
             ->assertDontSee('Other Private History');
     }

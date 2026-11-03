@@ -11,7 +11,7 @@
                 <p class="mt-3 max-w-3xl text-silver">{{ __('ui.market.intro') }}</p>
             </div>
             @auth
-                <a href="{{ route('account.dashboard', ['section' => 'inventory']) }}" class="button button-primary">{{ __('ui.market.sell_item') }}</a>
+                <a href="{{ route('account.dashboard', ['tab' => 'vaults']) }}" class="button button-primary">{{ __('ui.market.sell_item') }}</a>
             @else
                 <a href="{{ route('login') }}" class="button button-primary">{{ __('ui.market.sign_in_to_sell') }}</a>
             @endauth

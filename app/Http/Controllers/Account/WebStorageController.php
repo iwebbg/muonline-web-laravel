@@ -27,7 +27,7 @@ final class WebStorageController extends Controller
 
         abort_unless($account instanceof GameAccount, 403);
 
-        return redirect()->route('account.dashboard', ['section' => 'inventory']);
+        return redirect()->route('account.dashboard', ['tab' => 'vaults']);
     }
 
     /**

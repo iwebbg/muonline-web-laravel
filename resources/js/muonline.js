@@ -1096,10 +1096,16 @@ function createEmptyStatAllocations(character) {
  * @returns {object} Alpine state for the account character panel.
  */
 export function accountPanel(characters, resetPreviewConfiguration = null) {
+    const requestedCharacter = resetPreviewConfiguration?.initialCharacter ?? null;
+    const requestedCharacterIndex = characters.findIndex(
+        (character) => character.name === requestedCharacter,
+    );
+    const initialCharacterIndex = Math.max(0, requestedCharacterIndex);
+
     return {
         characters,
         resetPreviewConfiguration,
-        selectedCharacterIndex: 0,
+        selectedCharacterIndex: initialCharacterIndex,
         activeSection: resetPreviewConfiguration?.initialSection ?? 'overview',
         resetPreview: null,
         resetPreviewLoading: false,
@@ -1154,15 +1160,32 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         selectedItemLocation: null,
         itemActionIdempotencyKey: null,
         itemSaleType: 'fixed',
-        allocations: createEmptyStatAllocations(characters[0] ?? null),
+        allocations: createEmptyStatAllocations(characters[initialCharacterIndex] ?? null),
 
         /**
          * Loads item storage immediately when a deep link opens the inventory section.
          */
         init() {
-            if (this.activeSection === 'inventory') {
+            this.synchronizeAccountLocation();
+
+            if (this.activeSection === 'inventory' || this.activeSection === 'vaults') {
                 void this.loadItemStorage();
             }
+        },
+
+        /**
+         * Stores the selected character and account tab in the current URL.
+         */
+        synchronizeAccountLocation() {
+            if (this.selectedCharacter === undefined) {
+                return;
+            }
+
+            const location = new URL(window.location.href);
+
+            location.searchParams.set('character', this.selectedCharacter.name);
+            location.searchParams.set('tab', this.activeSection);
+            window.history.replaceState({}, '', location);
         },
 
         /**
@@ -1399,6 +1422,11 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
          */
         selectCharacter(characterIndex) {
             this.selectedCharacterIndex = characterIndex;
+
+            if (this.activeSection === 'vaults') {
+                this.activeSection = 'overview';
+            }
+
             this.itemStorageRequestId += 1;
             this.itemStorage = null;
             this.itemStorageError = null;
@@ -1426,6 +1454,7 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             this.moveToTownConfirmationOpen = false;
             this.moveToTownSuccessMessage = null;
             this.statSuccessMessage = null;
+            this.synchronizeAccountLocation();
 
             if (this.activeSection === 'reset') {
                 void this.loadResetPreview();
@@ -1459,6 +1488,7 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
          */
         selectSection(section) {
             this.activeSection = section;
+            this.synchronizeAccountLocation();
 
             if (section === 'reset') {
                 void this.loadResetPreview();
@@ -1483,6 +1513,15 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             if (section === 'inventory') {
                 void this.loadItemStorage();
             }
+        },
+
+        /**
+         * Opens account-scoped game and web vault management.
+         */
+        selectAccountVaults() {
+            this.activeSection = 'vaults';
+            this.synchronizeAccountLocation();
+            void this.loadItemStorage();
         },
 
         /**
