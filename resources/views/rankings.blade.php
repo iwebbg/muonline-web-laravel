@@ -126,7 +126,6 @@
                                     <img x-bind:src="entry.image" alt="" class="size-full object-cover object-top transition duration-500 group-hover:scale-[1.025]">
                                     <div class="absolute inset-0 bg-gradient-to-t from-[#0e1117] via-transparent to-transparent"></div>
                                     <span class="absolute left-4 top-4 grid size-12 place-items-center rounded-2xl border border-gold/40 bg-black/70 font-display text-xl text-gold backdrop-blur" x-text="String(entry.rank).padStart(2, '0')"></span>
-                                    <span class="absolute right-4 top-4 rounded-lg border border-white/15 bg-black/60 px-2.5 py-1 text-xs font-bold text-white backdrop-blur" x-text="entry.class_abbreviation"></span>
                                 </div>
                                 <div class="p-5">
                                     <p class="eyebrow" x-text="entry.class"></p>
