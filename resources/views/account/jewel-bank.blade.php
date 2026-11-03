@@ -8,7 +8,9 @@
             :kicker="__('ui.jewel_bank.kicker')"
             :heading="__('ui.jewel_bank.heading')"
             :intro="__('ui.jewel_bank.intro')"
+            :show-back="false"
         />
+        <x-account-navigation class="mt-6" />
         <x-account-operation-feedback
             status-session="jewelBankStatus"
             error-key="jewelBank"

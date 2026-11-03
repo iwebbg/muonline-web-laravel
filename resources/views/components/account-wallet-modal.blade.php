@@ -1,17 +1,21 @@
 @props([
     'balance',
     'transactions',
+    'showTrigger' => true,
 ])
 
 <div
     {{ $attributes->class('contents') }}
-    x-data="{ walletOpen: false }"
+    x-data="{ walletOpen: @js(request()->query('panel') === 'wallet') }"
     x-effect="document.body.style.overflow = walletOpen ? 'hidden' : ''"
+    @open-account-wallet.window="walletOpen = true"
 >
-    <button type="button" class="resource-chip text-left" x-ref="walletTrigger" @click="walletOpen = true">
-        <span>{{ __('ui.account.wallet_credits') }}</span>
-        <strong class="text-gold">{{ number_format($balance) }}</strong>
-    </button>
+    @if ($showTrigger)
+        <button type="button" class="resource-chip text-left" x-ref="walletTrigger" @click="walletOpen = true">
+            <span>{{ __('ui.account.wallet_credits') }}</span>
+            <strong class="text-gold">{{ number_format($balance) }}</strong>
+        </button>
+    @endif
 
     <template x-teleport="body">
         <div
@@ -19,7 +23,7 @@
             x-show="walletOpen"
             x-transition.opacity
             x-cloak
-            @click.self="walletOpen = false; $nextTick(() => $refs.walletTrigger.focus())"
+            @click.self="walletOpen = false; $nextTick(() => $refs.walletTrigger?.focus())"
             @keydown.escape.window="walletOpen = false"
         >
             <section class="panel-card my-auto w-full max-w-4xl shadow-2xl shadow-black/60" role="dialog" aria-modal="true" aria-labelledby="account-wallet-title">
@@ -29,7 +33,7 @@
                         <h2 id="account-wallet-title" class="mt-2 text-2xl font-semibold text-white">{{ __('ui.account.wallet_heading') }}</h2>
                         <p class="mt-2 max-w-2xl text-sm leading-6 text-silver">{{ __('ui.account.wallet_help') }}</p>
                     </div>
-                    <button type="button" class="icon-button shrink-0" aria-label="{{ __('ui.account.wallet_close') }}" @click="walletOpen = false; $nextTick(() => $refs.walletTrigger.focus())">×</button>
+                    <button type="button" class="icon-button shrink-0" aria-label="{{ __('ui.account.wallet_close') }}" @click="walletOpen = false; $nextTick(() => $refs.walletTrigger?.focus())">×</button>
                 </div>
 
                 <div class="mt-6 rounded-2xl border border-gold/20 bg-gold/8 p-5">

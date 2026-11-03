@@ -37,13 +37,8 @@
                     @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
                         <a href="{{ route('market.index') }}" class="nav-link {{ request()->routeIs('market.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.market') }}</a>
                     @endif
-                    @auth
-                        @if ($moduleManager->enabled(\App\Modules\ServerModule::VoteRewards))
-                        <a href="{{ route('votes.index') }}" class="nav-link {{ request()->routeIs('votes.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.votes') }}</a>
-                        @endif
-                    @endauth
                     <a href="{{ route('home') }}#events" class="nav-link">{{ __('ui.navigation.events') }}</a>
-                    <a href="{{ route('account.dashboard') }}" class="nav-link {{ request()->routeIs('account.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.account') }}</a>
+                    <a href="{{ route('account.dashboard') }}" class="nav-link {{ request()->routeIs('account.*', 'votes.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.account') }}</a>
                 </nav>
 
                 <div class="hidden items-center gap-3 sm:flex">
@@ -107,11 +102,6 @@
                     @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
                         <a href="{{ route('market.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.market') }}</a>
                     @endif
-                    @auth
-                        @if ($moduleManager->enabled(\App\Modules\ServerModule::VoteRewards))
-                            <a href="{{ route('votes.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.votes') }}</a>
-                        @endif
-                    @endauth
                     <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.account_panel') }}</a>
                     @guest
                         @if ($moduleManager->enabled(\App\Modules\ServerModule::Registration))

@@ -173,7 +173,10 @@ Route::middleware('auth')->group(function (): void {
         ])
         ->name('votes.claims.store');
     Route::put('/account/credentials', [AccountCredentialController::class, 'update'])
-        ->middleware('throttle:account-credentials')
+        ->middleware([
+            'module.enabled:'.ServerModule::AccountSecurity->value,
+            'throttle:account-credentials',
+        ])
         ->name('account.credentials.update');
     Route::post('/account/reset-preview', ResetPreviewController::class)
         ->middleware('throttle:reset-preview')

@@ -9,6 +9,8 @@ enum ServerModule: string
 {
     case Registration = 'registration';
     case PasswordRecovery = 'password_recovery';
+    case AccountSecurity = 'account_security';
+    case Credits = 'credits';
     case VoteRewards = 'vote_rewards';
     case Vip = 'vip';
     case WebStorage = 'web_storage';

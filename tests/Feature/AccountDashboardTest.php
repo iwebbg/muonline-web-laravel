@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Auth\GameAccount;
 use App\Models\AccountWallet;
+use App\Models\ModuleProfile;
 use App\Models\WalletTransaction;
 use App\Models\WebStorageItem;
+use App\Modules\ServerModule;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -79,6 +81,8 @@ final class AccountDashboardTest extends TestCase
         $response->assertSee('item-storage', false);
         $response->assertSee('x-if="itemStorage !== null', false);
         $response->assertSee('Account security');
+        $response->assertSee('Account tools');
+        $response->assertSee(route('votes.index'), false);
         $response->assertSee('account/credentials', false);
         $response->assertSee('x-teleport="body"', false);
         $response->assertSee('aria-modal="true"', false);
@@ -121,6 +125,49 @@ final class AccountDashboardTest extends TestCase
         $response->assertOk();
         $response->assertSee('value="invalid-address"', false);
         $response->assertSee('credentialsOpen: true', false);
+    }
+
+    /**
+     * Confirms a direct account-panel URL opens the requested account tool.
+     */
+    public function test_dashboard_opens_account_security_modal_from_panel_query(): void
+    {
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account?panel=security');
+
+        $response->assertOk();
+        $response->assertSee('credentialsOpen: true', false);
+    }
+
+    /**
+     * Confirms disabled account modules disappear from the internal account menu.
+     */
+    public function test_dashboard_hides_disabled_modules_from_account_navigation(): void
+    {
+        $modules = [];
+
+        foreach (ServerModule::cases() as $module) {
+            $modules[$module->value] = true;
+        }
+
+        $modules[ServerModule::VoteRewards->value] = false;
+        $modules[ServerModule::Credits->value] = false;
+
+        ModuleProfile::query()->create([
+            'profile_key' => 'darksteam_97d99i',
+            'game_version' => '97d + 99i',
+            'modules' => $modules,
+            'revision' => 1,
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account');
+
+        $response->assertOk();
+        $response->assertDontSee(route('votes.index'), false);
+        $response->assertDontSee('open-account-wallet', false);
     }
 
     /**

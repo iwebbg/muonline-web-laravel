@@ -8,7 +8,10 @@
             :kicker="__('ui.votes.kicker')"
             :heading="__('ui.votes.heading')"
             :intro="__('ui.votes.intro')"
+            :show-back="false"
         />
+
+        <x-account-navigation class="mt-6" />
 
         @if ($errors->has('voteClaim'))
             <div class="mt-6 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">

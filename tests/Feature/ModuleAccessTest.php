@@ -102,6 +102,24 @@ final class ModuleAccessTest extends TestCase
     }
 
     /**
+     * Confirms disabled account security rejects a direct credential mutation.
+     */
+    public function test_disabled_account_security_returns_not_found_for_direct_put(): void
+    {
+        $this->persistModules([ServerModule::AccountSecurity->value => false]);
+        $csrfToken = 'disabled-account-security-token';
+
+        $response = $this
+            ->withSession(['_token' => $csrfToken])
+            ->actingAs($this->account('module04'))
+            ->put(route('account.credentials.update'), [
+                '_token' => $csrfToken,
+            ]);
+
+        $response->assertNotFound();
+    }
+
+    /**
      * Confirms a crafted auction listing cannot bypass the disabled auction module.
      */
     public function test_disabled_auction_rejects_tampered_listing_request(): void

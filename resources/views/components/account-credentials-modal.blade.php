@@ -1,28 +1,32 @@
 @props([
     'account',
     'gameWritesEnabled',
+    'showTrigger' => true,
 ])
 
 <div
     {{ $attributes->class('contents') }}
     x-data="{
-        credentialsOpen: @js(old('email') !== null),
+        credentialsOpen: @js(old('email') !== null || request()->query('panel') === 'security'),
         credentialsVisible: false,
     }"
     x-effect="document.body.style.overflow = credentialsOpen ? 'hidden' : ''"
+    @open-account-security.window="credentialsOpen = true; $nextTick(() => $refs.currentPassword?.focus())"
 >
-    <button
-        type="button"
-        class="button button-ghost"
-        x-ref="credentialsTrigger"
-        @click="credentialsOpen = true; $nextTick(() => $refs.currentPassword.focus())"
-    >
-        <svg class="size-4 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-            <path d="M12 3 5.5 5.7v5.5c0 4.1 2.7 7.8 6.5 9.8 3.8-2 6.5-5.7 6.5-9.8V5.7L12 3Z" />
-            <path d="M9.5 12 11 13.5l3.5-3.5" />
-        </svg>
-        {{ __('ui.account.credentials_manage') }}
-    </button>
+    @if ($showTrigger)
+        <button
+            type="button"
+            class="button button-ghost"
+            x-ref="credentialsTrigger"
+            @click="credentialsOpen = true; $nextTick(() => $refs.currentPassword.focus())"
+        >
+            <svg class="size-4 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M12 3 5.5 5.7v5.5c0 4.1 2.7 7.8 6.5 9.8 3.8-2 6.5-5.7 6.5-9.8V5.7L12 3Z" />
+                <path d="M9.5 12 11 13.5l3.5-3.5" />
+            </svg>
+            {{ __('ui.account.credentials_manage') }}
+        </button>
+    @endif
 
     <template x-teleport="body">
         <div
@@ -30,11 +34,11 @@
             x-show="credentialsOpen"
             x-transition.opacity
             x-cloak
-            @click.self="credentialsOpen = false; $nextTick(() => $refs.credentialsTrigger.focus())"
+            @click.self="credentialsOpen = false; $nextTick(() => $refs.credentialsTrigger?.focus())"
             @keydown.escape.window="
                 if (credentialsOpen) {
                     credentialsOpen = false;
-                    $nextTick(() => $refs.credentialsTrigger.focus());
+                    $nextTick(() => $refs.credentialsTrigger?.focus());
                 }
             "
         >
@@ -58,7 +62,7 @@
                         type="button"
                         class="icon-button shrink-0"
                         aria-label="{{ __('ui.account.credentials_close') }}"
-                        @click="credentialsOpen = false; $nextTick(() => $refs.credentialsTrigger.focus())"
+                        @click="credentialsOpen = false; $nextTick(() => $refs.credentialsTrigger?.focus())"
                     >
                         <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                             <path d="m6 6 12 12M18 6 6 18" />
@@ -150,7 +154,7 @@
                             <button
                                 type="button"
                                 class="button button-ghost"
-                                @click="credentialsOpen = false; $nextTick(() => $refs.credentialsTrigger.focus())"
+                                @click="credentialsOpen = false; $nextTick(() => $refs.credentialsTrigger?.focus())"
                             >
                                 {{ __('ui.account.credentials_cancel') }}
                             </button>

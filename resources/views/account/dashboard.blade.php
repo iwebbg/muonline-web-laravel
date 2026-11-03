@@ -22,46 +22,45 @@
                     <span>{{ __('ui.account.signed_in_as') }}</span>
                     <strong>{{ $account->username }}</strong>
                 </div>
-                @if ($moduleManager->enabled(\App\Modules\ServerModule::Vip))
-                    <x-account-vip-modal
-                        :characters="$characters"
-                        :plans="$vipPlans"
-                        :entitlements="$vipEntitlements"
-                        :active-entitlement-count="$activeVipEntitlementCount"
-                        :purchases="$vipPurchases"
-                        :balance="$walletBalance"
-                        :idempotency-key="$vipIdempotencyKey"
-                        :game-writes-enabled="$gameWritesEnabled"
-                    />
-                @endif
-                <x-account-wallet-modal
-                    :balance="$walletBalance"
-                    :transactions="$walletTransactions"
-                />
-                @if ($moduleManager->enabled(\App\Modules\ServerModule::WebStorage))
-                <button type="button" class="resource-chip text-left" @click="selectAccountVaults()">
-                    <span>{{ __('ui.web_storage.kicker') }}</span>
-                    <strong class="text-gold">{{ __('ui.web_storage.open') }}</strong>
-                </button>
-                @endif
-                @if ($moduleManager->enabled(\App\Modules\ServerModule::JewelBank))
-                <a href="{{ route('account.jewel-bank.index') }}" class="resource-chip text-left">
-                    <span>{{ __('ui.jewel_bank.kicker') }}</span>
-                    <strong class="text-gold">{{ __('ui.jewel_bank.open') }}</strong>
-                </a>
-                @endif
-                @if ($moduleManager->enabled(\App\Modules\ServerModule::ZenBank))
-                <a href="{{ route('account.zen-bank.index') }}" class="resource-chip text-left">
-                    <span>{{ __('ui.zen_bank.kicker') }}</span>
-                    <strong class="text-gold">{{ __('ui.zen_bank.open') }}</strong>
-                </a>
-                @endif
-                <x-account-credentials-modal
-                    :account="$account"
-                    :game-writes-enabled="$gameWritesEnabled"
-                />
             </div>
         </div>
+
+        <x-account-navigation
+            class="mt-6"
+            :wallet-balance="$walletBalance"
+            :vip-active-count="$activeVipEntitlementCount"
+            :wallet-modal-available="true"
+            :vip-modal-available="true"
+            :security-modal-available="true"
+        />
+
+        @if ($moduleManager->enabled(\App\Modules\ServerModule::Vip))
+            <x-account-vip-modal
+                :characters="$characters"
+                :plans="$vipPlans"
+                :entitlements="$vipEntitlements"
+                :active-entitlement-count="$activeVipEntitlementCount"
+                :purchases="$vipPurchases"
+                :balance="$walletBalance"
+                :idempotency-key="$vipIdempotencyKey"
+                :game-writes-enabled="$gameWritesEnabled"
+                :show-trigger="false"
+            />
+        @endif
+        @if ($moduleManager->enabled(\App\Modules\ServerModule::Credits))
+            <x-account-wallet-modal
+                :balance="$walletBalance"
+                :transactions="$walletTransactions"
+                :show-trigger="false"
+            />
+        @endif
+        @if ($moduleManager->enabled(\App\Modules\ServerModule::AccountSecurity))
+            <x-account-credentials-modal
+                :account="$account"
+                :game-writes-enabled="$gameWritesEnabled"
+                :show-trigger="false"
+            />
+        @endif
 
         @if (session('accountStatus'))
             <div class="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/7 px-5 py-4 text-sm text-emerald-100" role="status">

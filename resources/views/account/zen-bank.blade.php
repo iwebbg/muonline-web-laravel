@@ -8,7 +8,9 @@
             :kicker="__('ui.zen_bank.kicker')"
             :heading="__('ui.zen_bank.heading')"
             :intro="__('ui.zen_bank.intro')"
+            :show-back="false"
         />
+        <x-account-navigation class="mt-6" />
         <x-account-operation-feedback
             status-session="zenBankStatus"
             error-key="zenBank"

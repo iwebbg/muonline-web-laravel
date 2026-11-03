@@ -8,7 +8,9 @@
             :kicker="__('ui.web_storage.kicker')"
             :heading="__('ui.web_storage.heading')"
             :intro="__('ui.web_storage.intro')"
+            :show-back="false"
         />
+        <x-account-navigation class="mt-6" />
         <x-account-operation-feedback
             status-session="webStorageStatus"
             error-key="webStorage"

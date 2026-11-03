@@ -7,6 +7,7 @@
     'balance',
     'idempotencyKey',
     'gameWritesEnabled',
+    'showTrigger' => true,
 ])
 
 <div
@@ -15,13 +16,16 @@
         {{ Js::from($plans) }},
         @js((string) old('vip_plan_id', $plans[0]['id'] ?? '')),
         @js((string) old('character_name', $characters[0]['name'] ?? '')),
-        @js($errors->has('vip')),
+        @js($errors->has('vip') || request()->query('panel') === 'vip'),
     )"
+    @open-account-vip.window="vipOpen = true"
 >
-    <button type="button" class="resource-chip text-left" x-ref="vipTrigger" @click="vipOpen = true">
-        <span>{{ __('ui.account.vip') }}</span>
-        <strong class="text-gold">{{ $activeEntitlementCount }}</strong>
-    </button>
+    @if ($showTrigger)
+        <button type="button" class="resource-chip text-left" x-ref="vipTrigger" @click="vipOpen = true">
+            <span>{{ __('ui.account.vip') }}</span>
+            <strong class="text-gold">{{ $activeEntitlementCount }}</strong>
+        </button>
+    @endif
 
     <template x-teleport="body">
         <div

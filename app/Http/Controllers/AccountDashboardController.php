@@ -61,17 +61,20 @@ final class AccountDashboardController extends Controller
             $characterNames[] = $characterEntry->name;
         }
 
-        $wallet = AccountWallet::query()
-            ->where('account_id', $account->username)
-            ->where('currency', WalletCurrency::Credits)
-            ->first();
+        $vipEnabled = $this->moduleManager->enabled(ServerModule::Vip);
+        $creditsEnabled = $this->moduleManager->enabled(ServerModule::Credits);
+        $wallet = $vipEnabled || $creditsEnabled
+            ? AccountWallet::query()
+                ->where('account_id', $account->username)
+                ->where('currency', WalletCurrency::Credits)
+                ->first()
+            : null;
         $walletTransactions = $wallet === null
             ? collect()
             : $wallet->transactions()
                 ->latest('id')
                 ->limit(20)
                 ->get();
-        $vipEnabled = $this->moduleManager->enabled(ServerModule::Vip);
         $vipPlanEntries = $vipEnabled
             ? VipPlan::query()
                 ->available()
