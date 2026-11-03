@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', __('ui.home.title'))
+@section('title', $gameServerOnline ? __('ui.home.title_online') : __('ui.home.title_offline'))
 
 @section('content')
     <section class="shell grid min-h-[42rem] items-center gap-12 py-20 lg:grid-cols-[1.12fr_0.88fr] lg:py-28">
         <div class="max-w-3xl">
             <div class="eyebrow mb-6">
-                <span class="status-dot"></span>
+                <span @class(['status-dot', 'status-dot-server-offline' => ! $gameServerOnline])></span>
                 {{ __('ui.home.season') }} · {{ $server['version'] }}
             </div>
 
@@ -55,7 +55,9 @@
                             {{ __('ui.home.'.$server['data_source'].'_data') }}
                         </p>
                     </div>
-                    <div class="online-badge">{{ __('ui.home.online') }}</div>
+                    <div @class(['online-badge', 'online-badge-offline' => ! $gameServerOnline])>
+                        {{ $gameServerOnline ? __('ui.home.online') : __('ui.home.offline') }}
+                    </div>
                 </div>
 
                 <div class="mt-10 flex items-end justify-between gap-6">

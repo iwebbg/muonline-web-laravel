@@ -34,6 +34,8 @@ final class AdminItemGrantTest extends TestCase
     {
         parent::setUp();
 
+        config()->set('game.writes_enabled', false);
+        config()->set('database.connections.game.readonly', true);
         $this->withServerVariables([
             'REMOTE_ADDR' => '198.51.100.'.self::$ipSuffix,
         ]);

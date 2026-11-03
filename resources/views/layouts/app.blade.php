@@ -49,8 +49,8 @@
 
                 <div class="hidden items-center gap-3 sm:flex">
                     <div class="status-pill">
-                        <span class="status-dot"></span>
-                        <span>{{ __('ui.navigation.server_online') }}</span>
+                        <span @class(['status-dot', 'status-dot-server-offline' => ! $gameServerOnline])></span>
+                        <span>{{ $gameServerOnline ? __('ui.navigation.server_online') : __('ui.navigation.server_offline') }}</span>
                     </div>
                     <div class="language-switcher" role="group" aria-label="{{ __('ui.language.label') }}">
                         @foreach (['en' => 'EN', 'bg' => 'BG'] as $locale => $label)

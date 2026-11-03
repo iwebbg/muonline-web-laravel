@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Game\Contracts\GameServerStatus;
 use App\Game\Contracts\RealmClock;
 use DateTimeImmutable;
 use Tests\TestCase;
@@ -28,6 +29,29 @@ class InteractiveShellTest extends TestCase
         $response->assertSee('Sky Event');
         $response->assertDontSee('12:48');
         $response->assertSee('Top players');
+    }
+
+    /**
+     * Confirms an unavailable game endpoint is displayed as offline everywhere.
+     */
+    public function test_public_server_page_displays_offline_status(): void
+    {
+        $serverStatus = $this->mock(GameServerStatus::class);
+
+        $serverStatus
+            ->shouldReceive('isOnline')
+            ->atLeast()
+            ->once()
+            ->andReturnFalse();
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertSee('Server offline');
+        $response->assertSee('OFFLINE');
+        $response->assertSee('<title>MuOnline 97d+99i · Server offline</title>', false);
+        $response->assertSee('status-dot-server-offline', false);
+        $response->assertSee('online-badge-offline', false);
     }
 
     /**

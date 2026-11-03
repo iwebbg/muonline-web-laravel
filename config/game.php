@@ -30,6 +30,13 @@ return [
         (int) env('GAME_MARKET_LISTING_DURATION_DAYS', 30),
     ),
 
+    'server_status' => [
+        'host' => env('GAME_SERVER_STATUS_HOST', env('GAME_DB_HOST', '127.0.0.1')),
+        'port' => (int) env('GAME_SERVER_STATUS_PORT', 55901),
+        'timeout_seconds' => (float) env('GAME_SERVER_STATUS_TIMEOUT_SECONDS', 0.5),
+        'cache_seconds' => (int) env('GAME_SERVER_STATUS_CACHE_SECONDS', 10),
+    ],
+
     'profile' => [
         'key' => env('GAME_SERVER_PROFILE', 'darksteam_97d99i'),
         'name' => env('GAME_SERVER_NAME', 'MuOnline 97d+99i'),

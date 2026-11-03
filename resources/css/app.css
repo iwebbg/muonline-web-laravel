@@ -263,6 +263,11 @@
         box-shadow: 0 0 0 3px rgb(98 104 117 / 0.1);
     }
 
+    .status-dot-server-offline {
+        background: #ff5f66;
+        box-shadow: 0 0 0 3px rgb(255 95 102 / 0.14), 0 0 12px rgb(255 95 102 / 0.58);
+    }
+
     .text-gradient {
         background: linear-gradient(105deg, #fff 2%, #efc78d 42%, #de6842 86%);
         background-clip: text;
@@ -333,6 +338,12 @@
         font-size: 0.62rem;
         font-weight: 800;
         letter-spacing: 0.16em;
+    }
+
+    .online-badge-offline {
+        border-color: rgb(255 95 102 / 0.34);
+        background: rgb(255 95 102 / 0.1);
+        color: #ff9b9f;
     }
 
     .glass-stat {

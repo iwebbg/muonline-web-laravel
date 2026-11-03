@@ -26,7 +26,10 @@
                     <p class="kicker">{{ __('ui.auth.form_kicker') }}</p>
                     <h2 class="mt-2 text-2xl font-semibold text-white">{{ __('ui.auth.form_heading') }}</h2>
                 </div>
-                <span class="status-pill"><span class="status-dot"></span>{{ __('ui.auth.realm_online') }}</span>
+                <span class="status-pill">
+                    <span @class(['status-dot', 'status-dot-server-offline' => ! $gameServerOnline])></span>
+                    {{ $gameServerOnline ? __('ui.auth.server_online') : __('ui.auth.server_offline') }}
+                </span>
             </div>
 
             <form method="POST" action="{{ route('login.store') }}" class="mt-8 grid gap-5">

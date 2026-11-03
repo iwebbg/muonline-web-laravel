@@ -17,6 +17,7 @@ use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
 use App\Game\Contracts\GameAccountLookupRepository;
+use App\Game\Contracts\GameServerStatus;
 use App\Game\Contracts\ItemEscrowRepository;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ItemStorageRepository;
@@ -44,6 +45,8 @@ use App\Game\Repositories\SqlServer97d99iMarketItemEscrowRepository;
 use App\Game\Repositories\SqlServer97d99iModerationRepository;
 use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
 use App\Game\Repositories\SqlServer97d99iZenBankRepository;
+use App\Game\Status\FixtureGameServerStatus;
+use App\Game\Status\TcpGameServerStatus;
 use App\Modules\ModuleManager;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
@@ -51,8 +54,10 @@ use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\View\View as LaravelView;
 
 /**
  * Registers version-aware game adapters, module settings and request limiters.
@@ -70,9 +75,13 @@ class AppServiceProvider extends ServiceProvider
         $clockClass = config('game.data_source') === 'database'
             ? SqlServerRealmClock::class
             : SystemRealmClock::class;
+        $serverStatusClass = config('game.data_source') === 'database'
+            ? TcpGameServerStatus::class
+            : FixtureGameServerStatus::class;
 
         $this->app->bind(RealmReadRepository::class, $repositoryClass);
         $this->app->bind(RealmClock::class, $clockClass);
+        $this->app->singleton(GameServerStatus::class, $serverStatusClass);
         $this->app->bind(AccountCredentialRepository::class, SqlServer97d99iAccountCredentialRepository::class);
         $this->app->bind(AccountPasswordRecoveryRepository::class, SqlServer97d99iAccountPasswordRecoveryRepository::class);
         $this->app->bind(AccountRegistrationRepository::class, SqlServer97d99iAccountRegistrationRepository::class);
@@ -99,6 +108,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        View::composer(
+            ['layouts.app', 'home', 'auth.login'],
+            function (LaravelView $view): void {
+                $gameServerStatus = $this->app->make(GameServerStatus::class);
+
+                $view->with('gameServerOnline', $gameServerStatus->isOnline());
+            },
+        );
+
         Auth::provider('game_accounts', function (Application $application): GameAccountUserProvider {
             return new GameAccountUserProvider($application->make(DatabaseManager::class));
         });
