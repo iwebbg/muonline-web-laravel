@@ -52,11 +52,11 @@
                     </div>
                     <div class="outcome-card">
                         <span>{{ __('ui.account.cost') }}</span>
-                        <strong><span x-text="grandResetPreview.zenCost.toLocaleString()"></span> Zen</strong>
+                        <strong><span x-text="grandResetPreview.zenCost.toLocaleString()"></span><small class="outcome-unit">Zen</small></strong>
                     </div>
                     <div class="outcome-card">
                         <span>{{ __('ui.account.zen_after_grand_reset') }}</span>
-                        <strong><span x-text="grandResetPreview.resultingZen.toLocaleString()"></span> Zen</strong>
+                        <strong><span x-text="grandResetPreview.resultingZen.toLocaleString()"></span><small class="outcome-unit">Zen</small></strong>
                     </div>
                     <div class="outcome-card">
                         <span>{{ __('ui.account.grand_reset_points') }}</span>

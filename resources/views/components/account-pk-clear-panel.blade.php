@@ -27,10 +27,10 @@
                     <div class="outcome-card"><span>{{ __('ui.account.pk_level') }}</span><strong><span x-text="pkClearPreview.currentPkLevel"></span> → <span x-text="pkClearPreview.resultingPkLevel"></span></strong></div>
                     <div class="outcome-card"><span>{{ __('ui.account.pk_count') }}</span><strong><span x-text="pkClearPreview.currentPkCount"></span> → <span x-text="pkClearPreview.resultingPkCount"></span></strong></div>
                     <div class="outcome-card"><span>{{ __('ui.account.pk_time') }}</span><strong><span x-text="pkClearPreview.currentPkTime.toLocaleString()"></span> → <span x-text="pkClearPreview.resultingPkTime"></span></strong></div>
-                    <div class="outcome-card"><span>{{ __('ui.account.cost') }}</span><strong><span x-text="pkClearPreview.zenCost.toLocaleString()"></span> Zen</strong></div>
+                    <div class="outcome-card"><span>{{ __('ui.account.cost') }}</span><strong><span x-text="pkClearPreview.zenCost.toLocaleString()"></span><small class="outcome-unit">Zen</small></strong></div>
                 </div>
                 <div class="mt-4 grid gap-3 sm:grid-cols-2">
-                    <div class="outcome-card"><span>{{ __('ui.account.zen_after_pk_clear') }}</span><strong x-text="pkClearPreview.resultingZen.toLocaleString()"></strong></div>
+                    <div class="outcome-card"><span>{{ __('ui.account.zen_after_pk_clear') }}</span><strong><span x-text="pkClearPreview.resultingZen.toLocaleString()"></span><small class="outcome-unit">Zen</small></strong></div>
                     <div class="outcome-card"><span>{{ __('ui.account.pk_clear_price_formula') }}</span><strong x-text="pkClearPriceModeLabel"></strong></div>
                 </div>
 

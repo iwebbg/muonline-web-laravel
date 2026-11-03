@@ -23,8 +23,8 @@
                 <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div class="outcome-card"><span>{{ __('ui.account.current_location') }}</span><strong><span x-text="moveToTownPreview.currentMapName"></span> · <span x-text="moveToTownPreview.currentX"></span>, <span x-text="moveToTownPreview.currentY"></span></strong></div>
                     <div class="outcome-card"><span>{{ __('ui.account.destination') }}</span><strong><span x-text="moveToTownPreview.destinationMapName"></span> · <span x-text="moveToTownPreview.destinationX"></span>, <span x-text="moveToTownPreview.destinationY"></span></strong></div>
-                    <div class="outcome-card"><span>{{ __('ui.account.cost') }}</span><strong><span x-text="moveToTownPreview.zenCost.toLocaleString()"></span> Zen</strong></div>
-                    <div class="outcome-card"><span>{{ __('ui.account.zen_after_move') }}</span><strong x-text="moveToTownPreview.resultingZen.toLocaleString()"></strong></div>
+                    <div class="outcome-card"><span>{{ __('ui.account.cost') }}</span><strong><span x-text="moveToTownPreview.zenCost.toLocaleString()"></span><small class="outcome-unit">Zen</small></strong></div>
+                    <div class="outcome-card"><span>{{ __('ui.account.zen_after_move') }}</span><strong><span x-text="moveToTownPreview.resultingZen.toLocaleString()"></span><small class="outcome-unit">Zen</small></strong></div>
                 </div>
 
                 <div class="mt-6 rounded-2xl border p-4 text-sm leading-6" :class="moveToTownPreview.eligible ? 'border-emerald-300/20 bg-emerald-300/7 text-emerald-100' : 'border-amber-300/20 bg-amber-300/7 text-amber-100'">

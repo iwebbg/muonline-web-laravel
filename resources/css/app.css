@@ -1169,12 +1169,12 @@
         padding: 0.9rem;
     }
 
-    .outcome-card span,
-    .outcome-card strong {
+    .outcome-card > span,
+    .outcome-card > strong {
         display: block;
     }
 
-    .outcome-card span {
+    .outcome-card > span {
         color: var(--color-steel);
         font-size: 0.65rem;
         font-weight: 700;
@@ -1182,10 +1182,17 @@
         text-transform: uppercase;
     }
 
-    .outcome-card strong {
+    .outcome-card > strong {
         margin-top: 0.45rem;
         color: white;
         font-size: 0.8rem;
+    }
+
+    .outcome-unit {
+        margin-left: 0.3rem;
+        color: var(--color-steel);
+        font-size: 0.68rem;
+        font-weight: 700;
     }
 
     .admin-nav-link {
