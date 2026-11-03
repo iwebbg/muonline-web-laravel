@@ -1132,6 +1132,21 @@
         transform: translate(-50%, 0);
     }
 
+    .market-item-card:hover .item-tooltip,
+    .market-item-card:focus-within .item-tooltip {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    .market-item-card {
+        position: relative;
+    }
+
+    .market-item-card:hover,
+    .market-item-card:focus-within {
+        z-index: 40;
+    }
+
     .item-action-preview .item-tooltip {
         position: static;
         width: auto;

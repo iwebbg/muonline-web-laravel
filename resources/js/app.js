@@ -8,6 +8,7 @@ import {
     eventSchedule,
     gameServerManager,
     gameMasterManager,
+    itemInspector,
     moderationPanel,
     rankingBoard,
     rankingExplorer,
@@ -26,6 +27,7 @@ Alpine.data('downloadManager', downloadManager);
 Alpine.data('eventSchedule', eventSchedule);
 Alpine.data('gameServerManager', gameServerManager);
 Alpine.data('gameMasterManager', gameMasterManager);
+Alpine.data('itemInspector', itemInspector);
 Alpine.data('moderationPanel', moderationPanel);
 Alpine.data('rankingBoard', rankingBoard);
 Alpine.data('rankingExplorer', rankingExplorer);

@@ -13,17 +13,17 @@
     <span
         class="item-tooltip-line item-tooltip-option"
         x-show="{{ $item }}.hasSkill"
-        x-text="resetPreviewConfiguration.itemOptionLabels.skill"
+        x-text="itemOptionLabels.skill"
     ></span>
     <template x-if="{{ $item }}.hasLuck">
         <span>
             <span
                 class="item-tooltip-line item-tooltip-option"
-                x-text="resetPreviewConfiguration.itemOptionLabels.luckSoul"
+                x-text="itemOptionLabels.luckSoul"
             ></span>
             <span
                 class="item-tooltip-line item-tooltip-option"
-                x-text="resetPreviewConfiguration.itemOptionLabels.luckCritical"
+                x-text="itemOptionLabels.luckCritical"
             ></span>
         </span>
     </template>

@@ -104,7 +104,7 @@ final class AccountPanelConfiguration
      *
      * @return array<string, mixed>
      */
-    private function itemOptionLabels(): array
+    public function itemOptionLabels(): array
     {
         return [
             'durability' => $this->translate('ui.account.item_durability'),

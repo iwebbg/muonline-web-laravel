@@ -1089,6 +1089,133 @@ function createEmptyStatAllocations(character) {
 }
 
 /**
+ * Creates shared decoded-item labels and tooltip formatters for player-facing views.
+ *
+ * @param {object} itemOptionLabels Locale-aware item option labels.
+ * @param {object|null} item The optional item displayed by a standalone inspector.
+ * @returns {object} Alpine state with one optional item and shared presentation methods.
+ */
+export function itemInspector(itemOptionLabels, item = null) {
+    return {
+        itemOptionLabels,
+        item,
+
+        /**
+         * Builds the item title with its level and excellent classification.
+         *
+         * @param {object} inspectedItem A decoded 97d+99i item.
+         * @returns {string}
+         */
+        itemTitle(inspectedItem) {
+            const level = inspectedItem.level > 0 ? ` +${inspectedItem.level}` : '';
+            const prefix = inspectedItem.excellentMask > 0 && inspectedItem.excellentType !== 4
+                ? `${this.itemOptionLabels.excellentPrefix} `
+                : '';
+
+            return `${prefix}${inspectedItem.name}${level}`;
+        },
+
+        /**
+         * Returns the visual name tone for wings and option-bearing items.
+         *
+         * @param {object} inspectedItem A decoded game item.
+         * @returns {string}
+         */
+        itemNameTone(inspectedItem) {
+            if (inspectedItem?.excellentType === 4) {
+                return 'wing';
+            }
+
+            if (inspectedItem?.excellentMask > 0) {
+                return 'excellent';
+            }
+
+            return inspectedItem?.rarity ?? 'normal';
+        },
+
+        /**
+         * Formats the current durability value for an item tooltip.
+         *
+         * @param {object} inspectedItem A decoded 97d+99i item.
+         * @returns {string}
+         */
+        itemDurabilityText(inspectedItem) {
+            return `${this.itemOptionLabels.durability}: ${inspectedItem.durability}`;
+        },
+
+        /**
+         * Formats the version-specific additional option encoded on an item.
+         *
+         * @param {object} inspectedItem A decoded 97d+99i item.
+         * @returns {string|null}
+         */
+        itemAdditionalOption(inspectedItem) {
+            if (inspectedItem.optionLevel <= 0) {
+                return null;
+            }
+
+            if (inspectedItem.optionType === 1) {
+                return `${this.itemOptionLabels.automaticHpRecovery} +${inspectedItem.optionLevel}%`;
+            }
+
+            if (inspectedItem.optionType === 2) {
+                return `${this.itemOptionLabels.additionalDefenseRate} +${inspectedItem.optionLevel * 5}`;
+            }
+
+            const label = inspectedItem.excellentType === 1
+                ? this.itemOptionLabels.additionalDefense
+                : this.itemOptionLabels.additionalDamage;
+
+            return `${label} +${inspectedItem.optionLevel * 4}`;
+        },
+
+        /**
+         * Returns every excellent option enabled by the item's six-bit mask.
+         *
+         * @param {object} inspectedItem A decoded 97d+99i item.
+         * @returns {Array<string>}
+         */
+        itemExcellentOptions(inspectedItem) {
+            if (inspectedItem.excellentMask <= 0) {
+                return [];
+            }
+
+            const optionGroups = this.itemOptionLabels.excellent;
+            let optionGroup = optionGroups.weapon;
+
+            if (inspectedItem.excellentType === 4) {
+                optionGroup = optionGroups.wing;
+            } else if (inspectedItem.excellentType === 1) {
+                optionGroup = optionGroups.armor;
+            }
+
+            const enabledOptions = [];
+
+            for (let optionIndex = 0; optionIndex < 6; optionIndex += 1) {
+                const optionEnabled = (inspectedItem.excellentMask & (1 << optionIndex)) !== 0;
+                const optionLabel = optionGroup[optionIndex] ?? '';
+
+                if (optionEnabled && optionLabel !== '') {
+                    enabledOptions.push(optionLabel);
+                }
+            }
+
+            return enabledOptions;
+        },
+
+        /**
+         * Formats the retained ancient option byte without guessing a set name.
+         *
+         * @param {object} inspectedItem A decoded 97d+99i item.
+         * @returns {string}
+         */
+        itemAncientOption(inspectedItem) {
+            return `${this.itemOptionLabels.ancientOption}: ${inspectedItem.ancientOption}`;
+        },
+    };
+}
+
+/**
  * Creates the interactive character, stat allocation and account tab state.
  *
  * @param {Array<object>} characters Character records available to the account.
@@ -1103,6 +1230,7 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
     const initialCharacterIndex = Math.max(0, requestedCharacterIndex);
 
     return {
+        ...itemInspector(resetPreviewConfiguration?.itemOptionLabels ?? {}),
         characters,
         resetPreviewConfiguration,
         selectedCharacterIndex: initialCharacterIndex,
@@ -1700,126 +1828,6 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                 gridColumn: `${column} / span ${width}`,
                 gridRow: `${row} / span ${height}`,
             };
-        },
-
-        /**
-         * Builds the item title with its level and excellent classification.
-         *
-         * @param {object} item A decoded 97d+99i item.
-         * @returns {string}
-         */
-        itemTitle(item) {
-            const labels = this.resetPreviewConfiguration.itemOptionLabels;
-            const level = item.level > 0 ? ` +${item.level}` : '';
-            const prefix = item.excellentMask > 0 && item.excellentType !== 4
-                ? `${labels.excellentPrefix} `
-                : '';
-
-            return `${prefix}${item.name}${level}`;
-        },
-
-        /**
-         * Returns the visual name tone for wings and option-bearing items.
-         *
-         * @param {object} item A decoded game item.
-         * @returns {string}
-         */
-        itemNameTone(item) {
-            if (item?.excellentType === 4) {
-                return 'wing';
-            }
-
-            if (item?.excellentMask > 0) {
-                return 'excellent';
-            }
-
-            return item?.rarity ?? 'normal';
-        },
-
-        /**
-         * Formats the current durability value for an item tooltip.
-         *
-         * @param {object} item A decoded 97d+99i item.
-         * @returns {string}
-         */
-        itemDurabilityText(item) {
-            const label = this.resetPreviewConfiguration.itemOptionLabels.durability;
-
-            return `${label}: ${item.durability}`;
-        },
-
-        /**
-         * Formats the version-specific additional option encoded on an item.
-         *
-         * @param {object} item A decoded 97d+99i item.
-         * @returns {string|null}
-         */
-        itemAdditionalOption(item) {
-            if (item.optionLevel <= 0) {
-                return null;
-            }
-
-            const labels = this.resetPreviewConfiguration.itemOptionLabels;
-
-            if (item.optionType === 1) {
-                return `${labels.automaticHpRecovery} +${item.optionLevel}%`;
-            }
-
-            if (item.optionType === 2) {
-                return `${labels.additionalDefenseRate} +${item.optionLevel * 5}`;
-            }
-
-            const label = item.excellentType === 1
-                ? labels.additionalDefense
-                : labels.additionalDamage;
-
-            return `${label} +${item.optionLevel * 4}`;
-        },
-
-        /**
-         * Returns every excellent option enabled by the item's six-bit mask.
-         *
-         * @param {object} item A decoded 97d+99i item.
-         * @returns {Array<string>}
-         */
-        itemExcellentOptions(item) {
-            if (item.excellentMask <= 0) {
-                return [];
-            }
-
-            const optionGroups = this.resetPreviewConfiguration.itemOptionLabels.excellent;
-            let optionGroup = optionGroups.weapon;
-
-            if (item.excellentType === 4) {
-                optionGroup = optionGroups.wing;
-            } else if (item.excellentType === 1) {
-                optionGroup = optionGroups.armor;
-            }
-
-            const enabledOptions = [];
-
-            for (let optionIndex = 0; optionIndex < 6; optionIndex += 1) {
-                const optionEnabled = (item.excellentMask & (1 << optionIndex)) !== 0;
-                const optionLabel = optionGroup[optionIndex] ?? '';
-
-                if (optionEnabled && optionLabel !== '') {
-                    enabledOptions.push(optionLabel);
-                }
-            }
-
-            return enabledOptions;
-        },
-
-        /**
-         * Formats the retained ancient option byte without guessing a set name.
-         *
-         * @param {object} item A decoded 97d+99i item.
-         * @returns {string}
-         */
-        itemAncientOption(item) {
-            const label = this.resetPreviewConfiguration.itemOptionLabels.ancientOption;
-
-            return `${label}: ${item.ancientOption}`;
         },
 
         /**

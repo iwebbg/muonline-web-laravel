@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Auth\GameAccount;
+use App\Http\AccountPanelConfiguration;
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
 use App\Models\MarketListing;
@@ -22,6 +23,7 @@ final class MarketController extends Controller
      */
     public function __construct(
         private readonly ModuleManager $moduleManager,
+        private readonly AccountPanelConfiguration $accountPanelConfiguration,
     ) {}
 
     /**
@@ -78,6 +80,7 @@ final class MarketController extends Controller
                 && ! (bool) config('database.connections.game.readonly', true),
             'currentAccountId' => $currentAccountId,
             'auctionEnabled' => $auctionEnabled,
+            'itemOptionLabels' => $this->accountPanelConfiguration->itemOptionLabels(),
         ]);
     }
 }

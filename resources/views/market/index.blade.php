@@ -41,15 +41,22 @@
             <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 @forelse ($listings as $listing)
                     @php($item = $listing->item_snapshot)
-                    @php($itemTone = ($item['excellentType'] ?? 0) === 4 ? 'wing' : (($item['excellentMask'] ?? 0) > 0 ? 'excellent' : ($item['rarity'] ?? 'normal')))
-                    <article class="panel-card flex min-h-64 flex-col p-5">
-                        <div class="grid min-h-28 place-items-center rounded-2xl border border-white/8 bg-black/25 p-4">
+                    <article
+                        class="market-item-card panel-card flex min-h-64 flex-col p-5"
+                        x-data="itemInspector(@js($itemOptionLabels), @js($item))"
+                    >
+                        <div class="relative grid min-h-28 place-items-center rounded-2xl border border-white/8 bg-black/25 p-4">
                             @if (($item['image'] ?? null) !== null)
                                 <img src="{{ $item['image'] }}" alt="{{ $item['name'] ?? __('ui.market.unknown_item') }}" class="max-h-24 max-w-full object-contain" loading="lazy">
                             @endif
+                            <x-item-tooltip item="item" />
                         </div>
-                        <p class="item-name-{{ $itemTone }} mt-4 text-lg font-semibold">{{ $item['name'] ?? __('ui.market.unknown_item') }}{{ ($item['level'] ?? 0) > 0 ? ' +'.$item['level'] : '' }}</p>
-                        <p class="mt-1 text-xs uppercase tracking-[0.14em] text-steel">{{ $item['code'] ?? '' }} · {{ ucfirst((string) ($item['rarity'] ?? 'normal')) }}</p>
+                        <p
+                            class="mt-4 text-lg font-semibold"
+                            :class="`item-name-${itemNameTone(item)}`"
+                            x-text="itemTitle(item)"
+                        ></p>
+                        <p class="mt-1 text-xs uppercase tracking-[0.14em] text-steel">{{ ucfirst((string) ($item['rarity'] ?? 'normal')) }}</p>
                         @if ($listing->sale_type === \App\Market\MarketSaleType::Auction)
                             <p class="mt-2 text-xs text-amber-100">{{ __('ui.market.ends_at') }} {{ $listing->expires_at?->format('Y-m-d H:i') }}</p>
                         @endif
