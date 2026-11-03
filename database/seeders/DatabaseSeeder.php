@@ -16,5 +16,6 @@ final class DatabaseSeeder extends Seeder
     {
         $this->call(GameServerSeeder::class);
         $this->call(ContentPageSeeder::class);
+        $this->call(DemoContentSeeder::class);
     }
 }
