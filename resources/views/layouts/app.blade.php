@@ -73,7 +73,7 @@
                         <a href="{{ route('market.index') }}" class="nav-link {{ request()->routeIs('market.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.market') }}</a>
                     @endif
                     <a href="{{ route('home') }}#events" class="nav-link">{{ __('ui.navigation.events') }}</a>
-                    <a href="{{ route('account.dashboard') }}" class="nav-link {{ request()->routeIs('account.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.account') }}</a>
+                    <a href="{{ route('account.dashboard') }}" class="nav-link {{ request()->routeIs('account.*', 'shop.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.account') }}</a>
                 </nav>
 
                 <div class="hidden items-center gap-3 sm:flex">

@@ -1,6 +1,4 @@
 @extends('layouts.app')
-@inject('moduleManager', 'App\Modules\ModuleManager')
-
 @section('title', $type === \App\Shop\ShopOfferType::Item ? __('ui.shop.items_title') : __('ui.shop.boxes_title'))
 
 @section('content')
@@ -19,18 +17,8 @@
             @endauth
         </header>
 
-        <nav class="mt-7 flex flex-wrap gap-3" aria-label="{{ __('ui.navigation.shop') }}">
-            @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop))
-                <a href="{{ route('shop.items.index') }}" class="button {{ $type === \App\Shop\ShopOfferType::Item ? 'button-primary' : 'button-ghost' }}">{{ __('ui.shop.items_heading') }}</a>
-            @endif
-            @if ($moduleManager->enabled(\App\Modules\ServerModule::MysteryBoxes))
-                <a href="{{ route('shop.mystery-boxes.index') }}" class="button {{ $type === \App\Shop\ShopOfferType::MysteryBox ? 'button-primary' : 'button-ghost' }}">{{ __('ui.shop.boxes_heading') }}</a>
-            @endif
-            @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop))
-                <a href="{{ route('account.item-generator.index') }}" class="button button-ghost">{{ __('ui.shop.generator_heading') }}</a>
-            @endif
-            <a href="{{ route('account.rewards.index') }}" class="button button-ghost">{{ __('ui.rewards.heading') }}</a>
-        </nav>
+        <x-account-navigation class="mt-7" />
+        <x-shop-navigation :active="$type === \App\Shop\ShopOfferType::Item ? 'items' : 'mystery-boxes'" class="mt-6" />
 
         <form method="GET" class="panel-card mt-6 grid gap-4 p-5 sm:grid-cols-[minmax(0,18rem)_auto] sm:items-end">
             <label class="field-group">

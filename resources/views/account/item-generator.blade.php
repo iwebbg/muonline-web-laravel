@@ -1,6 +1,4 @@
 @extends('layouts.app')
-@inject('moduleManager', 'App\Modules\ModuleManager')
-
 @section('title', __('ui.shop.generator_title'))
 
 @section('content')
@@ -19,16 +17,7 @@
 
         <x-account-navigation class="mt-7" />
 
-        <nav class="mt-6 flex flex-wrap gap-3" aria-label="{{ __('ui.navigation.shop') }}">
-            @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop))
-                <a href="{{ route('shop.items.index') }}" class="button button-ghost">{{ __('ui.shop.items_heading') }}</a>
-            @endif
-            @if ($moduleManager->enabled(\App\Modules\ServerModule::MysteryBoxes))
-                <a href="{{ route('shop.mystery-boxes.index') }}" class="button button-ghost">{{ __('ui.shop.boxes_heading') }}</a>
-            @endif
-            <a href="{{ route('account.item-generator.index') }}" class="button button-primary">{{ __('ui.shop.generator_heading') }}</a>
-            <a href="{{ route('account.rewards.index') }}" class="button button-ghost">{{ __('ui.rewards.heading') }}</a>
-        </nav>
+        <x-shop-navigation active="item-generator" class="mt-6" />
 
         @if ($errors->any())
             <div class="mt-5 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">{{ $errors->first() }}</div>

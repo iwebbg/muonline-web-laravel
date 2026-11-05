@@ -12,6 +12,16 @@
     $vaultsActive = request()->routeIs('account.web-storage.*')
         || (request()->routeIs('account.dashboard') && $activeTab === 'vaults');
     $vipActive = request()->routeIs('account.dashboard') && request()->query('panel') === 'vip';
+    $webShopActive = request()->routeIs('shop.*', 'account.item-generator.*', 'account.rewards.*');
+    $webShopRoute = null;
+
+    if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop)) {
+        $webShopRoute = route('shop.items.index');
+    } elseif ($moduleManager->enabled(\App\Modules\ServerModule::MysteryBoxes)) {
+        $webShopRoute = route('shop.mystery-boxes.index');
+    } elseif ($moduleManager->enabled(\App\Modules\ServerModule::Rewards)) {
+        $webShopRoute = route('account.rewards.index');
+    }
 @endphp
 
 <nav
@@ -86,15 +96,15 @@
             </a>
         @endif
 
-        @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop) || $moduleManager->enabled(\App\Modules\ServerModule::MysteryBoxes))
+        @if ($webShopRoute !== null)
             <a
-                href="{{ $moduleManager->enabled(\App\Modules\ServerModule::WebShop) ? route('account.item-generator.index') : route('shop.mystery-boxes.index') }}"
+                href="{{ $webShopRoute }}"
                 @class([
                     'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 transition',
-                    'border-gold/35 bg-gold/10 text-white' => request()->routeIs('shop.*', 'account.item-generator.*'),
-                    'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! request()->routeIs('shop.*', 'account.item-generator.*'),
+                    'border-gold/35 bg-gold/10 text-white' => $webShopActive,
+                    'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! $webShopActive,
                 ])
-                @if (request()->routeIs('shop.*', 'account.item-generator.*')) aria-current="page" @endif
+                @if ($webShopActive) aria-current="page" @endif
             >
                 <span class="grid size-10 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25 text-gold" aria-hidden="true">◇</span>
                 <span>
@@ -158,24 +168,6 @@
                 <span>
                     <strong class="block text-sm">{{ __('ui.account.navigation.vote') }}</strong>
                     <span class="mt-0.5 block text-xs text-steel">{{ __('ui.account.navigation.vote_help') }}</span>
-                </span>
-            </a>
-        @endif
-
-        @if ($moduleManager->enabled(\App\Modules\ServerModule::Rewards))
-            <a
-                href="{{ route('account.rewards.index') }}"
-                @class([
-                    'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 transition',
-                    'border-gold/35 bg-gold/10 text-white' => request()->routeIs('account.rewards.*'),
-                    'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! request()->routeIs('account.rewards.*'),
-                ])
-                @if (request()->routeIs('account.rewards.*')) aria-current="page" @endif
-            >
-                <span class="grid size-10 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25 text-gold" aria-hidden="true">✦</span>
-                <span>
-                    <strong class="block text-sm">{{ __('ui.account.navigation.rewards') }}</strong>
-                    <span class="mt-0.5 block text-xs text-steel">{{ __('ui.account.navigation.rewards_help') }}</span>
                 </span>
             </a>
         @endif

@@ -6,6 +6,7 @@
     <div class="shell py-10 lg:py-14">
         <x-account-feature-header :kicker="__('ui.rewards.heading')" :heading="__('ui.rewards.heading')" :intro="__('ui.rewards.intro')" :show-back="false" />
         <x-account-navigation class="mt-6" />
+        <x-shop-navigation active="rewards" class="mt-6" />
 
         @if (session('status'))
             <div class="mt-6 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">{{ session('status') }}</div>

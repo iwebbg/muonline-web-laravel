@@ -45,7 +45,29 @@ final class ModuleAccessTest extends TestCase
             ->assertDontSee(route('shop.mystery-boxes.index'), false);
         $accountResponse
             ->assertOk()
-            ->assertSee(route('account.item-generator.index'), false);
+            ->assertSee(route('shop.items.index'), false);
+    }
+
+    /**
+     * Confirms shop catalogs use account navigation and omit selectors for disabled modules.
+     */
+    public function test_shop_catalog_hides_disabled_account_shop_selectors(): void
+    {
+        $this->persistModules([
+            ServerModule::MysteryBoxes->value => false,
+            ServerModule::Rewards->value => false,
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('module06'))
+            ->get(route('shop.items.index'));
+
+        $response
+            ->assertOk()
+            ->assertSee(route('account.credits.index'), false)
+            ->assertSee(route('account.item-generator.index'), false)
+            ->assertDontSee(route('shop.mystery-boxes.index'), false)
+            ->assertDontSee(route('account.rewards.index'), false);
     }
 
     /**
