@@ -40,11 +40,6 @@
                     @empty <div class="panel-card p-10 text-center text-steel">{{ __('ui.admin.credit_packages_empty') }}</div> @endforelse
                 </section>
 
-                <section class="panel-card overflow-x-auto p-0">
-                    <div class="flex items-end justify-between gap-4 p-5"><div><p class="kicker">{{ __('ui.admin.credit_payment_history') }}</p></div><form method="GET"><select name="status" onchange="this.form.submit()"><option value="">{{ __('ui.admin.credit_all_statuses') }}</option>@foreach (\App\Payments\CreditPaymentStatus::cases() as $status)<option value="{{ $status->value }}" @selected($selectedStatus === $status->value)>{{ ucfirst($status->value) }}</option>@endforeach</select></form></div>
-                    <table class="min-w-full text-left text-sm"><thead class="border-y border-white/8 text-xs uppercase tracking-[0.14em] text-steel"><tr><th class="px-5 py-4">{{ __('ui.admin.wallet_account_id') }}</th><th class="px-5 py-4">{{ __('ui.admin.credit_provider') }}</th><th class="px-5 py-4">{{ __('ui.admin.credit_amount') }}</th><th class="px-5 py-4">{{ __('ui.admin.credit_price') }}</th><th class="px-5 py-4">{{ __('ui.admin.credit_status') }}</th><th class="px-5 py-4">{{ __('ui.admin.wallet_time') }}</th></tr></thead><tbody class="divide-y divide-white/6">@forelse ($payments as $payment)<tr><td class="px-5 py-4 text-white">{{ $payment->account_id }}</td><td class="px-5 py-4 text-silver">{{ ucfirst($payment->provider->value) }}</td><td class="px-5 py-4 text-gold">{{ number_format($payment->credits) }}</td><td class="px-5 py-4 text-silver">{{ number_format($payment->amount_minor / 100, 2) }} {{ $payment->currency }}</td><td class="px-5 py-4 text-silver">{{ ucfirst($payment->status->value) }}</td><td class="px-5 py-4 text-steel">{{ $payment->created_at?->format('Y-m-d H:i') }}</td></tr>@empty<tr><td colspan="6" class="px-5 py-10 text-center text-steel">{{ __('ui.admin.credit_payments_empty') }}</td></tr>@endforelse</tbody></table>
-                    @if ($payments->hasPages())<div class="p-5">{{ $payments->links() }}</div>@endif
-                </section>
             </div>
         </div>
     </div>

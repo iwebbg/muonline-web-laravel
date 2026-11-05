@@ -38,6 +38,7 @@ use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\CharacterRuleProfileController;
 use App\Http\Controllers\Admin\CreditPackageController;
+use App\Http\Controllers\Admin\CreditPaymentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
 use App\Http\Controllers\Admin\EconomyRecoveryController;
@@ -445,6 +446,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                     ->name('credit-packages.update');
                 Route::delete('/economy/credit-packages/{creditPackage}', [CreditPackageController::class, 'destroy'])
                     ->name('credit-packages.destroy');
+                Route::get('/economy/credit-purchases', CreditPaymentController::class)
+                    ->name('credit-payments.index');
                 Route::get('/economy/votes', [VoteSiteController::class, 'index'])
                     ->name('vote-sites.index');
                 Route::get('/economy/votes/history', [AdminVoteClaimController::class, 'index'])
