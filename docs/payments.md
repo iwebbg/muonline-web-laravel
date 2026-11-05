@@ -43,6 +43,45 @@ containers so Compose reads the new environment values:
 ./docker/compose up --detach --force-recreate
 ```
 
+## Creating webhook signing secrets
+
+Stripe and Revolut use a webhook signing secret that is separate from the API
+secret key. MuOnline Web can create the provider endpoint and print the value
+that belongs in `.env`:
+
+```bash
+./docker/compose exec -T app php artisan payments:webhook:register stripe
+./docker/compose exec -T app php artisan payments:webhook:register revolut
+```
+
+For an installation without Docker, run the same Artisan command directly:
+
+```bash
+php artisan payments:webhook:register stripe
+php artisan payments:webhook:register revolut
+```
+
+The command uses `APP_URL` to build the provider-specific public HTTPS URL. An
+explicit address can be supplied when the public reverse-proxy origin differs:
+
+```bash
+php artisan payments:webhook:register stripe \
+  --url=https://mu.example.com/payments/webhooks/stripe
+```
+
+Before running it, configure the selected provider API secret and mode, then
+clear cached configuration. The command prints either
+`STRIPE_WEBHOOK_SECRET=whsec_...` or
+`REVOLUT_WEBHOOK_SECRET=wsk_...`. Copy that complete line into the root `.env`,
+clear cached configuration again, and only then set the provider's
+`*_ENABLED=true` value.
+
+The secret is deliberately not written to `.env` automatically and must never
+be copied into source control, shell scripts, screenshots or deployment logs.
+Each command execution creates a new provider endpoint. Do not rerun it merely
+to inspect an existing registration; remove obsolete endpoints in the provider
+account after a deliberate rotation.
+
 ## Stripe
 
 MuOnline Web uses server-created Stripe Checkout Sessions. It needs a server
@@ -51,22 +90,34 @@ it does not need a publishable key.
 
 1. Open the Stripe Dashboard and select a Sandbox while testing.
 2. Open **Developers → API keys** and copy the sandbox secret key beginning
-   with `sk_test_`.
-3. Open **Workbench → Webhooks**, create an event destination for **Your
-   account**, and select the **Snapshot** payload format.
-4. Register this endpoint:
+   with `sk_test_` into `.env`, leaving Stripe disabled initially:
+
+   ```dotenv
+   STRIPE_ENABLED=false
+   STRIPE_SECRET_KEY=sk_test_replace_me
+   STRIPE_WEBHOOK_SECRET=
+   ```
+
+3. Clear cached configuration and run the registration command:
+
+   ```bash
+   ./docker/compose exec -T app php artisan optimize:clear
+   ./docker/compose exec -T app php artisan payments:webhook:register stripe
+   ```
+
+   It registers this endpoint:
 
    ```text
    https://mu.example.com/payments/webhooks/stripe
    ```
 
-5. Subscribe the endpoint to these events:
+   with the events consumed by the application:
 
    - `checkout.session.completed`
    - `charge.refunded`
 
-6. Reveal the endpoint signing secret beginning with `whsec_`.
-7. Configure the root `.env` and enable Stripe:
+4. Copy the printed `STRIPE_WEBHOOK_SECRET=whsec_...` line into `.env`, enable
+   Stripe, and clear cached configuration again:
 
    ```dotenv
    STRIPE_ENABLED=true
@@ -84,7 +135,7 @@ live webhook endpoint, replace the key with its `sk_live_` value and replace
 live webhook secrets are different.
 
 For local-only webhook testing, Stripe CLI can forward snapshot events and
-prints a temporary signing secret:
+prints a temporary listener signing secret:
 
 ```bash
 stripe listen \
@@ -93,6 +144,10 @@ stripe listen \
 ```
 
 Use the printed `whsec_...` value while that listener is running.
+`stripe listen` is a development transport, not a production webhook
+registration. Do not add Stripe CLI as a permanent application container or
+service. On a public VPS, Stripe calls the registered HTTPS endpoint directly;
+the registration command above creates the permanent endpoint and secret.
 
 ## PayPal
 
@@ -152,18 +207,32 @@ webhook. No Revolut public key is required by this hosted flow.
 1. Create a dedicated Revolut Business Sandbox account and open its Merchant
    account.
 2. From the Merchant overview, open **Merchant API**, generate a Sandbox Secret
-   API key, and copy it.
-3. Create a Merchant API webhook with this URL and event:
+   API key, and copy it into `.env`, leaving Revolut disabled initially:
+
+   ```dotenv
+   REVOLUT_ENABLED=false
+   REVOLUT_MODE=sandbox
+   REVOLUT_SECRET_KEY=replace_with_sandbox_secret_api_key
+   REVOLUT_WEBHOOK_SECRET=
+   REVOLUT_API_VERSION=2026-08-17
+   ```
+
+3. Clear cached configuration and create the Merchant API webhook:
+
+   ```bash
+   ./docker/compose exec -T app php artisan optimize:clear
+   ./docker/compose exec -T app php artisan payments:webhook:register revolut
+   ```
+
+   The command registers this URL and event:
 
    ```text
    URL: https://mu.example.com/payments/webhooks/revolut
    Event: ORDER_COMPLETED
    ```
 
-4. Copy the webhook's `signing_secret` returned when the webhook is created or
-   retrieved. It normally begins with `wsk_` and is different from the Secret
-   API key.
-5. Configure the root `.env`:
+4. Copy the printed `REVOLUT_WEBHOOK_SECRET=wsk_...` line into `.env`, enable
+   Revolut, and clear cached configuration again:
 
    ```dotenv
    REVOLUT_ENABLED=true
@@ -172,6 +241,11 @@ webhook. No Revolut public key is required by this hosted flow.
    REVOLUT_WEBHOOK_SECRET=wsk_replace_me
    REVOLUT_API_VERSION=2026-08-17
    ```
+
+The Revolut Business API Keys screen displays the Secret and Public API keys,
+not this webhook signing secret. The signing secret is returned by the Merchant
+API when the webhook is created. MuOnline Web does not need the public key for
+its hosted checkout flow.
 
 `REVOLUT_API_VERSION` is the Merchant API contract version used by the current
 integration. Do not change it merely to the newest published version; upgrade
