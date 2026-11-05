@@ -1,116 +1,62 @@
-# Reference sources
+# Reference sources and compatibility baseline
 
-This document records the approved sources that may be consulted while
-building MuOnline Web. They are references, not dependencies, unless a later
-decision explicitly promotes an asset or algorithm into this repository.
+This document records the sources used to understand the current game version
+and runtime. References provide compatibility information; they are not bundled
+dependencies and do not imply affiliation.
 
-## Database schema
+## DarksTeam MuServer 97d+99i
 
-### Current 97d+99i export
+The first MuOnline Web profile is developed and tested against
+[DarksTeam MuServer 97d+99i Beta 43.3][darksteam-reference]. It is currently the
+only supported game profile.
 
-- Path: `/home/zdev/Documents/GitHub/muonline-web-laravel/script.sql`
-- Purpose: authoritative reference for the current MuOnline SQL Server schema.
-- Contains: 23 tables, one view, stored procedures, indexes and defaults.
-- Important tables: `MEMB_INFO`, `MEMB_STAT`, `AccountCharacter`, `Character`,
-  `warehouse`, `Guild`, `GuildMember`, `MEMB_CREDITS`.
-- Notes: UTF-16 schema-only export; it contains no table data. It must not be
-  executed automatically as a Laravel migration.
+The DarksTeam files provide the reference layout for:
 
-Game-owned tables are treated as an external legacy contract. Application
-migrations must not alter them. New application tables use an explicit
-`muweb_` namespace/prefix or a dedicated SQL Server schema.
+- MuOnline SQL Server tables, procedures and legacy column names;
+- 97d+99i character classes and progression;
+- ten-byte item records, warehouse storage and serial generation;
+- `DTData/EventManager.dat`, `DTData/Events.ini` and
+  `Data/commonserver.cfg` event behavior;
+- Happy Hour, Party Bonus, Sky Event, Lucky Jewels and Lucky Mixes schedules.
 
-## Previous Laravel prototype
+MuOnline Web never edits or deploys those server files. Server configuration is
+translated into reviewed application profiles and administrator-managed
+overrides. Credentials or secrets found in legacy files must be considered
+unsafe examples and must never be copied into an installation.
 
-- Root: `/home/zdev/Documents/GitHub/muonline-web`
-- Laravel application: `/home/zdev/Documents/GitHub/muonline-web/php-core`
-- Purpose: visual direction, 97d+99i item decoding research, item images,
-  character class assets, inventory and warehouse experiments.
-- Useful code locations:
-  - `app/Repositories/Helpers/Version97d99i.php`
-  - `app/Repositories/CharacterRepository.php`
-  - `app/Repositories/WarehouseRepository.php`
-  - `resources/views/default`
-  - `public/assets/items/97d_99i`
-  - `database/seeders/sql/items_97d_99i.sql`
-- Caveats: prototype-only code, hard-coded test accounts, incomplete routes and
-  models, and a large Codebase theme asset set. Reuse of commercial theme code
-  or assets requires a valid licence.
+## Schema reference in this repository
 
-The prototype's visual language may inspire the new design, but controllers,
-authentication, database writes and version switching must be reimplemented.
+The root `script.sql` file is a schema-only export used to document the current
+97d+99i database contract. It includes the game tables, view, stored procedures,
+indexes and defaults needed during adapter development.
 
-## DTWeb functional reference
+It contains no application migration and must never be executed automatically.
+Laravel migrations own only the web application's database objects. Game tables
+remain an external legacy contract accessed through version-specific adapters.
 
-- Root: `/home/zdev/Downloads/DTWeb 2.0 Update v1.3`
-- Purpose: catalogue legacy features and recover business rules for 97d+99i.
-- Useful code locations:
-  - `configs/config.php` — reset, grand reset, stats, PK and economy settings.
-  - `inc/modules_funcs.php` — legacy operation rules.
-  - `mod/user` — account and character modules.
-  - `mod/rankings` — ranking variants.
-  - `mod/admin` — administration feature catalogue.
-  - `install/sql` — legacy feature tables.
-- Features represented: reset, grand reset, add/reset stats, PK clear, character
-  changes, inventory, warehouse, web storage, banks, credits, VIP, votes,
-  market, auction, rankings, news, downloads and administration.
-- Security rule: DTWeb is never deployed, included or copied as executable
-  application code. It uses deprecated `mssql_*` calls and unsafe raw queries.
-  Only verified business rules and independently reviewed static assets may be
-  translated into the new implementation.
+## Legacy functional research
 
-## DarksTeam MuServer 97d99i reference
+Development also used historical MuOnline web applications to understand
+common workflows such as resets, banks, VIP, votes, markets and administration.
+Those projects are research references only. Their executable code, deprecated
+database calls, credentials and commercial themes are not included or deployed.
 
-- Root: `/home/zdev/Downloads/DarksTeam MuServer 97d99i/MuServer`
-- Purpose: runtime compatibility baseline for the initial 97d+99i profile.
-- Event sources: `DTData/EventManager.dat`, `DTData/Events.ini` and
-  `Data/commonserver.cfg`.
-- Custom scheduled events: Happy Hour, Party Bonus, Sky Event, Lucky Jewels and
-  Lucky Mixes.
-- Integration rule: server files are read as reference material only. The web
-  application uses its own typed configuration and never edits or deploys the
-  MuServer files.
-- Secret rule: values found in legacy configuration files are considered
-  compromised examples and must never be copied into application configuration.
+Business rules are implemented independently and are accepted only after they
+are verified against the active version profile, database schema and dedicated
+test server.
 
-## Container references
+## Official platform documentation
 
-### Laravel/PHP container patterns
+- [Laravel release and support policy](https://laravel.com/framework/docs/releases)
+- [PHP supported versions](https://www.php.net/supported-versions.php)
+- [Microsoft PHP SQL Server driver release notes](https://learn.microsoft.com/en-us/sql/connect/php/release-notes-php-sql-driver)
+- [Microsoft PHP SQL Server support matrix](https://learn.microsoft.com/en-us/sql/connect/php/microsoft-php-drivers-for-sql-server-support-matrix)
+- [Docker documentation](https://docs.docker.com/)
+- [Let's Encrypt documentation](https://letsencrypt.org/docs/)
 
-- Root: `/home/zdev/Documents/GitHub/Apps/service-workspace-lite-app`
-- Useful paths:
-  - `php-api-v2/docker/php/app`
-  - `docker/docker-compose.local.yaml`
-  - `docker/docker-compose.prod.yaml`
-- Purpose: PHP-FPM, queue worker, scheduler, healthcheck and local/production
-  Compose patterns.
-- Required adaptation: replace PostgreSQL-specific packages with Microsoft
-  ODBC Driver 18 and Microsoft `sqlsrv`/`pdo_sqlsrv` drivers supporting PHP 8.5.
-- Production rule: do not copy automatic migration-on-container-start behaviour
-  for the game database.
+The current application targets Laravel 13, PHP 8.5, Microsoft ODBC Driver 18
+and Microsoft PHP SQL Server drivers 5.13 or newer. Confirm the installed
+versions in `composer.lock`, `package-lock.json` and the Dockerfiles rather than
+assuming the latest release.
 
-### Nginx and TLS patterns
-
-- Root: `/home/zdev/Documents/GitHub/Apps/saas-app`
-- Useful paths:
-  - `nginx/saas/prod`
-  - `docker/docker-compose.saas.yaml`
-  - `scripts/container-rollout.sh`
-- Purpose: Nginx reverse proxy, Certbot certificate creation/renewal,
-  healthchecks and controlled container rollout.
-- Required adaptation: Laravel front controller/FastCGI routing, private admin
-  tooling, safe renewal reload and MuOnline-specific deployment paths.
-
-## Official platform references
-
-- Laravel release and support policy: https://laravel.com/framework/docs/releases
-- PHP supported versions: https://www.php.net/supported-versions.php
-- PHP downloads: https://www.php.net/downloads.php
-- Microsoft PHP SQL Server driver release notes:
-  https://learn.microsoft.com/en-us/sql/connect/php/release-notes-php-sql-driver
-- Microsoft PHP SQL Server support matrix:
-  https://learn.microsoft.com/en-us/sql/connect/php/microsoft-php-drivers-for-sql-server-support-matrix
-
-The project targets Laravel 13, PHP 8.5, Microsoft PHP SQL Server driver 5.13+
-and ODBC Driver 18. Patch releases are updated continuously through the normal
-dependency maintenance process.
+[darksteam-reference]: https://darksteam.net/threads/darksteam-muserver-97d-99i-beta-43-3.6440/

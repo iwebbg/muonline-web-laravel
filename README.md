@@ -1,216 +1,113 @@
 # MuOnline Web
 
-Modern, version-aware MuOnline server web application, starting with
-97d+99i. The application is built as a Laravel 13 monolith with an
-interactive Blade-based interface and a PHP 8.5 container runtime.
+MuOnline Web is a free, open-source website, account panel and administration
+suite for MuOnline servers. It combines a modern player experience with strict
+boundaries around the legacy game database, exact-item custody and auditable
+administrative operations.
 
-## Project documentation
+The project is built with Laravel, Blade, Alpine.js and Tailwind CSS. It is
+designed as a version-aware platform: game-specific schemas, character classes,
+item formats and rules belong to compatibility profiles instead of being spread
+through controllers and templates.
 
-- [Current implementation state and thread handoff](docs/current-state.md)
-- [Reference sources](docs/reference-sources.md)
-- [Product and UX direction](docs/product-ux.md)
-- [Delivery roadmap](docs/roadmap.md)
-- [Coding standards](docs/coding-standards.md)
+## Compatibility
 
-The exported MuOnline schema is currently stored in `script.sql`. It is a
-reference export and is not an application migration.
+The architecture is prepared for multiple MuOnline versions, but **the only
+currently implemented and tested profile is 97d+99i**.
 
-New development threads should start with `AGENTS.md` and
-`docs/current-state.md`. The latter records the implemented modules,
-architecture boundaries, Tailwind CSS v4 patterns, safe database workflow and
-current priorities so completed decisions are not rediscovered from scratch.
+That profile was developed against the DarksTeam 97d+99i server files published
+in [DarksTeam MuServer 97d+99i Beta 43.3][darksteam-reference]. The reference
+defines the current database, item and event compatibility baseline. MuOnline
+Web is not affiliated with DarksTeam and does not bundle, modify or redistribute
+their server files.
 
-## 97d+99i compatibility baseline
+Adding another version requires a new profile and adapters for its schema,
+classes, maps, items and supported operations. Until that work is implemented
+and verified, other MuOnline versions must be treated as unsupported.
 
-The initial 97d+99i profile is developed and tested against the **DarksTeam
-MuServer 97d99i** server-file layout. This is a compatibility reference, not an
-affiliation or a bundled server dependency. Game-owned files are never modified
-or deployed by this application.
+## Highlights
 
-The event profile follows `DTData/EventManager.dat`, `DTData/Events.ini` and
-`Data/commonserver.cfg`, including the DarksTeam custom Happy Hour, Party Bonus,
-Sky Event, Lucky Jewels and Lucky Mixes events. Web display schedules remain
-explicitly configurable in `config/game_events.php` because server owners often
-change event hours and intervals without changing the executable files.
+- Responsive bilingual public website, account panel and administration.
+- Rankings, character and guild profiles, events, news, guides and downloads.
+- Character resets, grand resets, stats, PK clear and move-to-town with previews.
+- Multi-vault inventory, Web Vault and physical-item Jewel Bank.
+- Credits, VIP, vote rewards, Zen Bank, Market and timed Auctions.
+- Items Shop, version-aware Item Generator and configurable Mystery Boxes.
+- Mystery Boxes can release one hidden random item or every configured item.
+- Separate administrator identities, granular Game Master permissions and audit
+  history.
+- Independent module switches, safe recovery workflows and exact-item escrow.
 
-The active profile is selected with `GAME_EVENT_PROFILE`; the home page limit
-uses `GAME_EVENT_HOME_LIMIT`. Each event may use either explicit `times` with an
-optional ISO weekday list (`days_of_week`), or `interval_minutes` with an
-`interval_anchor`. Adding another event requires only a new profile entry. The
-schedule calculator, nearest-event ordering, live timer and expanded list do
-not require event-specific controller or JavaScript changes.
+See the [complete feature catalogue](docs/features.md) for the full Public,
+Account, Administration and Operations breakdown.
 
-Administrators with the settings capability can publish bilingual event
-overrides from **Administration → Event schedules**. Overrides are scoped to
-the active event profile and game version, merge by stable event key and keep
-immutable before/after revisions. The reviewed PHP profile remains the safe
-fallback until an override is published; MuServer files are never edited.
+## Why Docker is recommended
 
-Player-market listings keep the original 10-byte item in recoverable escrow.
-`GAME_MARKET_LISTING_DURATION_DAYS` controls their lifetime (30 days by
-default); the scheduler automatically removes expired listings and retries the
-exact item return until the seller's active warehouse can accept it.
+Docker is the supported runtime because it keeps the application and its native
+dependencies isolated from the host. The provided stack includes the compatible
+PHP runtime, Microsoft ODBC and SQL Server drivers, Nginx and Redis, so local and
+production environments follow the same tested layout.
 
-Timed auctions use the same lossless escrow. Each leading bid is held in the
-application Credits ledger; a higher bid atomically releases the previous hold.
-At expiry the scheduler credits the seller and delivers the original item to
-the winner, or returns it to the seller when no valid bid exists.
+The production stack also provides dedicated queue and Laravel scheduler
+services, automatic Let's Encrypt certificate creation and renewal, health
+checks and persistent application storage. This reduces configuration drift and
+avoids installing the web runtime directly on the game server host. Containers
+improve isolation and repeatability, but they do not replace backups,
+least-privilege database credentials or normal server hardening.
 
-Web Storage keeps each original item blob and serial in application custody,
-then returns those exact bytes to the first valid warehouse rectangle. Jewel
-Bank is backed by the same physical-item records: its displayed count is never
-a synthetic balance and currently supports Chaos, Bless, Soul, Life and
-Creation jewels from the verified 97d+99i catalog. Explicit `storage_context`
-values keep generic Web Vault items and Jewel Bank custody separated in player
-screens and mutation endpoints, even though they share the recovery engine.
-
-Administrators and explicitly permitted Game Masters can grant a verified
-97d+99i catalog item to an offline account's active warehouse. The browser
-never submits raw item bytes: Laravel builds the legacy 10-byte record, obtains
-its unique serial from DarksTeam's `dbo.WZ_GetItemSerial`, places it through the
-same rectangle-safe warehouse boundary used by escrow and stores an idempotent
-before/after audit operation. Excellent and ancient grant options remain closed
-until their item-family rules are verified against the reference server.
-
-Player-facing modules are controlled from **Administration → Modules**. Each
-published configuration is scoped to the active compatibility profile and
-game version, uses optimistic revisions and records immutable
-before/after snapshots in the shared administrator audit log. Disabled routes
-return `404` and disappear from player navigation, while existing custody and
-recovery records remain available to administrators. Timed auctions cannot be
-enabled unless the player market is also enabled.
-
-Public server identity and related server websites are controlled from
-**Administration → Game servers**. Exactly one database record is marked as the
-current website; it uses live counters from this installation's game database.
-Other records are external links whose optional status and player count are
-read from the related website's public `/server/status` endpoint and cached for
-ten minutes. One website never writes to or impersonates another server
-database.
-
-Zen Bank uses an application ledger plus compare-and-set warehouse updates.
-Deposits, withdrawals and retries are idempotent; interrupted transfers remain
-recoverable, while an unexpected game balance produces an audited conflict
-instead of silently overwriting Zen. VIP, market escrow, Web Storage and Zen
-Bank recovery commands run every minute in both local and production scheduler
-containers.
-
-## Local development
-
-The supported runtime is provided by Docker and uses PHP 8.5, Microsoft ODBC
-Driver 18, Microsoft SQL Server PHP drivers 5.13+, Nginx and Redis.
+## Quick start
 
 ```bash
+cp .env.example .env
 cp docker/.env.example docker/.env
-
+npm ci
+npm run build
 ./docker/compose up --detach --build
 ```
 
-The application is then available at `http://localhost`. Nginx owns local
-port 80 and forwards PHP requests to the Laravel PHP-FPM container. The first
-milestone uses fixture data and does not require MuOnline database credentials.
-The local scheduler service runs the same pending-operation recovery jobs used
-in production.
-
-## Production deployment
-
-Production uses immutable PHP and Nginx images, queue and scheduler workers,
-Redis persistence, HTTPS redirection and automatic Let's Encrypt renewal.
+Then generate the application key and migrate the application-owned database:
 
 ```bash
-cp docker/.env.example docker/.env
+./docker/compose exec -T app php artisan key:generate
+./docker/compose exec -T app php artisan migrate --force --no-interaction
 ```
 
-Set the two Docker-specific values:
+The local site is available at `http://localhost` and uses fixture game data by
+default. Read the [installation and deployment guide](docs/installation.md)
+before connecting a real MuOnline database or enabling writes.
 
-```dotenv
-DOCKER_ENV=production
-APP_DOMAIN=mu.example.com
-```
+## Documentation
 
-Build the immutable images and apply application-owned migrations explicitly:
+- [Installation and deployment](docs/installation.md)
+- [Complete feature catalogue](docs/features.md)
+- [Current implementation state](docs/current-state.md)
+- [Product and UX direction](docs/product-ux.md)
+- [Delivery roadmap](docs/roadmap.md)
+- [Reference sources and compatibility baseline](docs/reference-sources.md)
+- [Coding standards](docs/coding-standards.md)
+- [Contributor and agent instructions](AGENTS.md)
 
-```bash
-./docker/compose build
-./docker/compose run --rm app php artisan game:doctor
-./docker/compose run --rm app php artisan migrate --force --no-interaction
-```
+The exported `script.sql` file is a schema reference for 97d+99i. It is not a
+Laravel migration and must never be executed automatically against a game
+database.
 
-`game:doctor` is read-only and must pass before deployment. It verifies the
-required 97d+99i tables and columns, closed write switches, and rejects SQL
-Server identities that are members of `sysadmin` or `db_owner`. It also checks
-the exact adapter object grants and rejects inherited server, database, DDL,
-delete and unrelated mutation permissions.
+## License
 
-Then start the same services used for local development:
+MuOnline Web was created by **InterWeb Ltd.** and is released free of charge
+under the [MIT License](LICENSE). You may use, modify and redistribute it under
+the terms of that license.
 
-```bash
-./docker/compose up --detach
-```
+MuOnline and any related names, game data or assets remain the property of their
+respective owners. Third-party server files and commercial assets are not
+included in this repository.
 
-Laravel, application database and MuOnline SQL Server settings remain in the
-root `.env` file for both environments. Before the first production start,
-configure a valid Laravel application key and the real game database credentials
-there. Public DNS must point to the host and inbound ports 80 and 443 must be
-reachable so Certbot can complete the initial HTTP challenge. The certificate
-email is derived as `webmaster@APP_DOMAIN`. Renewal runs twice daily and reloads
-Nginx only after a successful renewal.
+## Support the project
 
-Keep `GAME_DB_READONLY=true` and `GAME_WRITES_ENABLED=false` during initial
-deployment and smoke testing. Enable writes only after the least-privilege SQL
-account, backup and rollback procedure have been verified. Email delivery can
-remain `MAIL_MAILER=log` until provider credentials are configured and tested.
+If MuOnline Web is useful to your server or community, you can support ongoing
+development through:
 
-Use `/up` as the process liveness endpoint and `/ready` as the deployment
-readiness endpoint. `/ready` verifies the application database, cache and the
-read-only game connection, but returns only `ok` or `unavailable`; dependency
-names, connection details and exceptions remain private. The administration
-header uses the same probe instead of displaying a hard-coded health badge.
+- [Buy Me a Coffee](https://buymeacoffee.com/interweb.bg)
+- [Ko-fi](https://ko-fi.com/interwebltd)
+- [PayPal](https://paypal.me/interwebltd)
 
-For the first 97d+99i deployment, copy and review
-`docker/sql/create-game-web-login.sql`, replace its SQLCMD variables and run it
-from an existing database-administrator session. The template grants only the
-tables and `WZ_GetItemSerial` procedure used by the adapter; it grants no
-`DELETE`, DDL, `db_owner` or `sysadmin` membership. Put the resulting login in
-`GAME_DB_USERNAME` / `GAME_DB_PASSWORD`, keep both write switches closed and
-rerun `game:doctor` before any staged write test.
-
-## Backup and restore rehearsal
-
-The application database and the MuOnline database have separate ownership and
-must be backed up independently. Laravel never attempts to back up or restore
-the game database with its restricted SQL identity.
-
-Create a consistent, integrity-checked snapshot of the application-owned
-SQLite database before migrations or a deployment:
-
-```bash
-./docker/compose exec -T app php artisan app:backup --name=pre-deploy.sqlite
-mkdir -p backups
-./docker/compose cp app:/var/www/html/storage/app/private/backups/pre-deploy.sqlite backups/pre-deploy.sqlite
-```
-
-The command refuses directory traversal, unsupported application database
-drivers and existing filenames. Keep the copied snapshot off-host; a file left
-only inside the Docker volume is not a disaster-recovery backup.
-
-Use a SQL Server administrator outside this application to create a native
-`COPY_ONLY` backup of `MuOnline` with checksums. Run `RESTORE VERIFYONLY` and a
-full restore to a separate rehearsal database on the test SQL Server. The web
-login must continue to fail `BACKUP DATABASE` and restore permissions in
-`game:doctor`.
-
-For an application-database restore rehearsal, use a disposable deployment:
-
-1. Keep `GAME_DB_READONLY=true` and `GAME_WRITES_ENABLED=false`.
-2. Stop the disposable app, queue and scheduler containers.
-3. Preserve its current SQLite file, then place the copied snapshot at the
-   configured `DB_DATABASE` path inside `app-storage`.
-4. Start the app and run `php artisan migrate:status`, `php artisan about` and
-   `php artisan game:doctor`.
-5. Smoke-test public, account and administrator authentication before any write
-   switch is considered.
-
-Never rehearse a restore over the only production copy. Record the source Git
-commit, backup checksums, migration status, test results and rollback decision
-for each production release.
+[darksteam-reference]: https://darksteam.net/threads/darksteam-muserver-97d-99i-beta-43-3.6440/

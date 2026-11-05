@@ -14,7 +14,7 @@ not used for exploratory writes.
 | 3 — Authentication | Implemented, manual mail testing ongoing | Player/admin authentication, registration, activation, recovery, security and Game Master permissions are present. |
 | 4 — Character operations | Implemented, real-server validation ongoing | Preview and execute paths exist for resets, stats, PK clear and movement with admin-managed rules. |
 | 5 — Inventory and warehouse | Implemented, UI polish ongoing | Item codec, item catalog, equipment, bags, multi-vault grids, tooltips and guarded exact-item mutations are present. |
-| 6 — Content/economy/community | Broad functional baseline | Content, Credits, VIP, Votes, Zen/Jewel banks, Web Vault, Market and Auction exist; provider integrations and new optional modules remain. |
+| 6 — Content/economy/community | Broad functional baseline | Content, Credits, VIP, Votes, Zen/Jewel banks, Web Vault, Market, Auction, Items Shop, Item Generator, Mystery Boxes and Rewards exist; payment-provider integrations remain. |
 | 7 — Production readiness | In progress | Docker/Nginx/TLS, readiness, scheduler, backup and least-privilege tooling exist; final rehearsal and security review remain. |
 
 For implementation details and mandatory continuation patterns, read
@@ -92,6 +92,8 @@ byte-for-byte stable when no change is requested.
 - Wallet ledger, credits, Zen bank, Jewel bank and VIP.
 - Vote rewards and web storage.
 - Market, followed by auction as a separate high-risk milestone.
+- Items Shop, version-aware Item Generator, Mystery Boxes and durable Rewards
+  inventory.
 - Add a separate Game Master role with granular permissions instead of sharing
   unrestricted administrator access.
 - Add audited moderation tools for account and character bans, blocks and
@@ -121,8 +123,10 @@ database is never accessed using `sa` or `db_owner` credentials.
 2. Close remaining responsive and interaction defects without changing the
    established Blade/Alpine/Tailwind CSS v4 stack.
 3. Add automated vote-provider callbacks.
-4. Design payment-provider-backed Credits purchases with signed webhooks,
-   idempotency, refunds and immutable audit records.
-5. Specify independently switchable Web Shop, Mystery Box and Web Event modules.
-6. Stress concurrent bids, purchases, storage moves and scheduler retries.
+4. Implement payment-provider-backed Credits purchases for PayPal, Revolut and
+   Stripe with signed webhooks, idempotency, refunds and immutable audit records.
+5. Design the remaining optional Web Event capabilities around the established
+   version and module boundaries.
+6. Stress concurrent bids, shop purchases, reward openings, storage moves and
+   scheduler retries.
 7. Complete backup/restore, rollback and least-privilege production rehearsals.

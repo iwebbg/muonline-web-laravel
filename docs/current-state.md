@@ -104,8 +104,8 @@ data remain intact. New modules should follow the same manager, middleware,
 navigation and configuration pattern.
 
 Current switches cover registration, password recovery, account security,
-Credits, vote rewards, VIP, Web Storage, Jewel Bank, Zen Bank, Market and
-Auction.
+Credits, vote rewards, VIP, Web Storage, Jewel Bank, Zen Bank, Market, Auction,
+Web Shop, Mystery Boxes and Rewards.
 
 ### Exact-item custody
 
@@ -183,6 +183,12 @@ space leaves the item protected for scheduler retry.
 - Exact-item Web Vault.
 - Fixed-price Market and timed Auction with escrow, held bids, settlement,
   seller payout and Web Vault fallback when game storage is full.
+- Items Shop offers, a version-aware Item Generator and configurable Mystery
+  Boxes purchased with Credits.
+- Mystery Boxes release either one weighted random item or every configured
+  item, and clearly show that policy without exposing their contents.
+- Account Rewards preserve immutable purchase/grant snapshots and independent
+  delivery retry state for every released item.
 
 ### Administration and operations
 
@@ -191,6 +197,7 @@ space leaves the item protected for scheduler retry.
 - Module configuration, reset rules, server directory and event schedules.
 - Bilingual News/Guide content and Downloads management.
 - Wallet, VIP, vote, market, moderation and item-grant tools.
+- Web Shop offer and Mystery Box pool management with direct account grants.
 - Shared immutable audit log and economy recovery screens.
 - Readiness/liveness endpoints, application backup command, least-privilege SQL
   template, scheduler/queue services and production Nginx/TLS configuration.
@@ -251,13 +258,12 @@ components under `resources/views/components`, and Alpine modules under
 2. Finish UI polish and responsive review after functional defects are closed.
 3. Add real vote-provider callbacks; the current workflow supports controlled
    administrator verification.
-4. Add Credits purchase providers only after payment idempotency, webhooks,
-   refunds and audit requirements are designed.
-5. Design optional Web Shop, Mystery Boxes and Web Events as independently
-   switchable modules. Mystery rewards must use the same exact-item delivery and
-   Web Vault fallback boundaries.
-6. Run concurrency and failure-recovery tests for Market, Auction, Jewel Bank,
-   Web Vault and Zen Bank before production.
+4. Add signed, idempotent PayPal, Revolut and Stripe integrations for purchasing
+   Credits without weakening the existing wallet ledger.
+5. Design the remaining optional Web Event capabilities around the established
+   version and module boundaries.
+6. Run concurrency and failure-recovery tests for Market, Auction, Web Shop,
+   Rewards, Jewel Bank, Web Vault and Zen Bank before production.
 7. Complete the production security review, backup/restore rehearsal and
    least-privilege deployment checklist.
 
