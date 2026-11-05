@@ -72,9 +72,6 @@
                     @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
                         <a href="{{ route('market.index') }}" class="nav-link {{ request()->routeIs('market.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.market') }}</a>
                     @endif
-                    @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop) || $moduleManager->enabled(\App\Modules\ServerModule::MysteryBoxes))
-                        <a href="{{ $moduleManager->enabled(\App\Modules\ServerModule::WebShop) ? route('shop.items.index') : route('shop.mystery-boxes.index') }}" class="nav-link {{ request()->routeIs('shop.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.shop') }}</a>
-                    @endif
                     <a href="{{ route('home') }}#events" class="nav-link">{{ __('ui.navigation.events') }}</a>
                     <a href="{{ route('account.dashboard') }}" class="nav-link {{ request()->routeIs('account.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.account') }}</a>
                 </nav>
@@ -139,9 +136,6 @@
                     <a href="{{ route('downloads.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.downloads') }}</a>
                     @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
                         <a href="{{ route('market.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.market') }}</a>
-                    @endif
-                    @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop) || $moduleManager->enabled(\App\Modules\ServerModule::MysteryBoxes))
-                        <a href="{{ $moduleManager->enabled(\App\Modules\ServerModule::WebShop) ? route('shop.items.index') : route('shop.mystery-boxes.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.shop') }}</a>
                     @endif
                     <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.account_panel') }}</a>
                     @guest

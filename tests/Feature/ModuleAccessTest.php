@@ -29,6 +29,26 @@ final class ModuleAccessTest extends TestCase
     }
 
     /**
+     * Confirms the Web Shop stays inside the account area while Market remains in primary navigation.
+     */
+    public function test_web_shop_is_only_linked_from_account_navigation(): void
+    {
+        $homeResponse = $this->get(route('home'));
+        $accountResponse = $this
+            ->actingAs($this->account('module05'))
+            ->get(route('account.dashboard'));
+
+        $homeResponse
+            ->assertOk()
+            ->assertSee(route('market.index'), false)
+            ->assertDontSee(route('shop.items.index'), false)
+            ->assertDontSee(route('shop.mystery-boxes.index'), false);
+        $accountResponse
+            ->assertOk()
+            ->assertSee(route('account.item-generator.index'), false);
+    }
+
+    /**
      * Confirms a disabled public module returns 404 and leaves no navigation link.
      */
     public function test_disabled_market_is_hidden_and_returns_not_found(): void
