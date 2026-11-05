@@ -74,12 +74,15 @@ Then generate the application key and migrate the application-owned database:
 ```
 
 The local site is available at `http://localhost` and uses fixture game data by
-default. Read the [installation and deployment guide](docs/installation.md)
-before connecting a real MuOnline database or enabling writes.
+default. Read the [Docker installation guide](docs/installation.md) before
+connecting a real MuOnline database or enabling writes. Windows/XAMPP and LAMP
+operators can instead follow the
+[manual Apache installation guide](docs/installation-apache.md).
 
 ## Documentation
 
-- [Installation and deployment](docs/installation.md)
+- [Installation with Docker](docs/installation.md)
+- [Manual Apache installation (XAMPP, LAMP and similar stacks)](docs/installation-apache.md)
 - [Credits payments configuration](docs/payments.md)
 - [Complete feature catalogue](docs/features.md)
 - [Current implementation state](docs/current-state.md)

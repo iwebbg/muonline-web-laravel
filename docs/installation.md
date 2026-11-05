@@ -1,8 +1,13 @@
-# Installation and deployment
+# Installation with Docker
 
 Docker is the supported way to run MuOnline Web. It provides the exact PHP,
 Microsoft SQL Server drivers, Nginx and Redis versions expected by the
 application and keeps them isolated from packages installed on the host.
+
+For an installation without containers, see the
+[manual Apache guide for XAMPP, LAMP and similar stacks](installation-apache.md).
+The manual route requires the operator to supply PHP 8.5, background services,
+TLS and the matching Microsoft SQL Server drivers.
 
 The local stack runs the application, Nginx, Redis and the Laravel scheduler.
 The production stack additionally runs a queue worker, builds immutable images,

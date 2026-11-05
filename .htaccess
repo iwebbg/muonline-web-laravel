@@ -1,0 +1,15 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Keep every request inside Laravel's public web root when an Apache host
+    # cannot set DocumentRoot directly (for example, a basic XAMPP subfolder).
+    RewriteRule ^public(?:/|$) - [L]
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    # Failing closed prevents .env and application source exposure.
+    Require all denied
+</IfModule>
