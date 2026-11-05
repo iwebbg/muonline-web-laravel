@@ -93,17 +93,19 @@ final readonly class PurchaseCharacterVip
             ): VipPurchase {
                 $purchaseStartsAt = now();
 
-                VipEntitlement::query()->insertOrIgnore([
-                    'account_id' => $accountId,
-                    'character_name' => $characterName,
-                    'vip_plan_id' => $plan->getKey(),
-                    'starts_at' => $purchaseStartsAt,
-                    'expires_at' => $purchaseStartsAt,
-                    'sync_status' => VipSyncStatus::Pending->value,
-                    'sync_attempts' => 0,
-                    'created_at' => $purchaseStartsAt,
-                    'updated_at' => $purchaseStartsAt,
-                ]);
+                VipEntitlement::query()->firstOrCreate(
+                    [
+                        'account_id' => $accountId,
+                        'character_name' => $characterName,
+                    ],
+                    [
+                        'vip_plan_id' => $plan->getKey(),
+                        'starts_at' => $purchaseStartsAt,
+                        'expires_at' => $purchaseStartsAt,
+                        'sync_status' => VipSyncStatus::Pending->value,
+                        'sync_attempts' => 0,
+                    ],
+                );
 
                 $entitlement = VipEntitlement::query()
                     ->where('account_id', $accountId)

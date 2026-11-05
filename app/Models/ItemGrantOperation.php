@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Database\Casts\SqlServerBinary;
 use App\Game\Operations\CharacterOperationStatus;
 use Database\Factories\ItemGrantOperationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -44,6 +45,7 @@ final class ItemGrantOperation extends Model
     {
         return [
             'serial' => 'integer',
+            'item_binary' => SqlServerBinary::class,
             'status' => CharacterOperationStatus::class,
             'context_snapshot' => 'array',
             'before_snapshot' => 'array',

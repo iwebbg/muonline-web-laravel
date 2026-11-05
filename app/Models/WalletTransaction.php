@@ -50,12 +50,14 @@ final class WalletTransaction extends Model
     protected function casts(): array
     {
         return [
+            'account_wallet_id' => 'integer',
             'currency' => WalletCurrency::class,
             'type' => WalletTransactionType::class,
             'amount' => 'integer',
             'balance_before' => 'integer',
             'balance_after' => 'integer',
             'metadata' => 'array',
+            'performed_by_administrator_id' => 'integer',
         ];
     }
 }

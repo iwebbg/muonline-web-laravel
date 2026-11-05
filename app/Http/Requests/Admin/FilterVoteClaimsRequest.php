@@ -84,7 +84,7 @@ final class FilterVoteClaimsRequest extends FormRequest
     }
 
     /**
-     * Returns the inclusive upper boundary in the application timezone.
+     * Returns the exclusive start of the day after the selected upper boundary.
      */
     public function dateTo(): ?CarbonImmutable
     {
@@ -94,6 +94,8 @@ final class FilterVoteClaimsRequest extends FormRequest
             return null;
         }
 
-        return CarbonImmutable::parse($date, config('app.timezone'))->endOfDay();
+        return CarbonImmutable::parse($date, config('app.timezone'))
+            ->addDay()
+            ->startOfDay();
     }
 }

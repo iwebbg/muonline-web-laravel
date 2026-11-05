@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,10 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('credit_payments', function (Blueprint $table): void {
+        $usesSqlServer = Schema::getConnection()->getDriverName() === 'sqlsrv';
+
+        Schema::create('credit_payments', function (Blueprint $table) use ($usesSqlServer): void {
             $table->id();
             $table->uuid('public_id')->unique();
-            $table->uuid('idempotency_key')->unique();
+            $table->string('idempotency_key', 64)->unique();
             $table->string('account_id', 10)->index();
             $table->foreignId('credit_package_id')->nullable()->constrained()->nullOnDelete();
             $table->json('package_snapshot');
@@ -33,9 +36,19 @@ return new class extends Migration
             $table->timestamp('refunded_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['provider', 'provider_order_id']);
+            if (! $usesSqlServer) {
+                $table->unique(['provider', 'provider_order_id']);
+            }
             $table->index(['account_id', 'created_at']);
         });
+
+        if ($usesSqlServer) {
+            DB::statement(
+                'CREATE UNIQUE INDEX credit_payments_provider_provider_order_id_unique '
+                .'ON credit_payments (provider, provider_order_id) '
+                .'WHERE provider_order_id IS NOT NULL',
+            );
+        }
     }
 
     /**

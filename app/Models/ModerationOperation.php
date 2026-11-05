@@ -37,6 +37,7 @@ final class ModerationOperation extends Model
     protected function casts(): array
     {
         return [
+            'administrator_id' => 'integer',
             'target_type' => ModerationTargetType::class,
             'action' => ModerationAction::class,
             'status' => CharacterOperationStatus::class,

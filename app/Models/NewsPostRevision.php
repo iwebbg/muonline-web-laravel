@@ -19,6 +19,8 @@ final class NewsPostRevision extends Model
     protected function casts(): array
     {
         return [
+            'news_post_id' => 'integer',
+            'administrator_id' => 'integer',
             'snapshot' => 'array',
         ];
     }

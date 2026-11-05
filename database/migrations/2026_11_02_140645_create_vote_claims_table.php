@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('vote_claims', function (Blueprint $table) {
             $table->id();
             $table->uuid('public_id')->unique();
-            $table->uuid('idempotency_key')->unique();
+            $table->string('idempotency_key', 64)->unique();
             $table->foreignId('vote_site_id')
                 ->constrained('vote_sites')
                 ->noActionOnDelete();

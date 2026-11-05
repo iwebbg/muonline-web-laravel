@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Database\Casts\LowercaseUuid;
+use App\Database\Casts\SqlServerBinary;
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
 use App\Market\MarketStorageDestination;
@@ -81,8 +83,10 @@ final class MarketListing extends Model
     protected function casts(): array
     {
         return [
+            'public_id' => LowercaseUuid::class,
             'source_vault' => 'integer',
             'source_slot' => 'integer',
+            'item_binary' => SqlServerBinary::class,
             'item_snapshot' => 'array',
             'price_credits' => 'integer',
             'sale_type' => MarketSaleType::class,

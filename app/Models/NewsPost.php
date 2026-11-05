@@ -101,6 +101,8 @@ final class NewsPost extends Model
         return [
             'status' => NewsPostStatus::class,
             'type' => NewsPostType::class,
+            'created_by_administrator_id' => 'integer',
+            'updated_by_administrator_id' => 'integer',
             'published_at' => 'immutable_datetime',
             'deleted_at' => 'immutable_datetime',
         ];

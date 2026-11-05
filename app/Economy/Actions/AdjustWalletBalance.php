@@ -99,13 +99,13 @@ final readonly class AdjustWalletBalance
                 $idempotencyKey,
                 $requestHash,
             ): WalletTransaction {
-                AccountWallet::query()->insertOrIgnore([
-                    'account_id' => $accountId,
-                    'currency' => $currency->value,
-                    'balance' => 0,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                AccountWallet::query()->firstOrCreate(
+                    [
+                        'account_id' => $accountId,
+                        'currency' => $currency->value,
+                    ],
+                    ['balance' => 0],
+                );
 
                 $wallet = AccountWallet::query()
                     ->where('account_id', $accountId)

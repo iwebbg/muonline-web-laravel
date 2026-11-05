@@ -25,6 +25,8 @@ final class AdministratorIdentityRevision extends Model
     protected function casts(): array
     {
         return [
+            'target_administrator_id' => 'integer',
+            'changed_by_administrator_id' => 'integer',
             'before_snapshot' => 'array',
             'after_snapshot' => 'array',
         ];

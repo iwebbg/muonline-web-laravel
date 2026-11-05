@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('wallet_transactions', function (Blueprint $table): void {
             $table->id();
-            $table->uuid('idempotency_key')->unique();
+            $table->string('idempotency_key', 64)->unique();
             $table->char('request_hash', 64);
             $table->foreignId('account_wallet_id')
                 ->constrained('account_wallets')

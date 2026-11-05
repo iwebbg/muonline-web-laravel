@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,10 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('web_storage_items', function (Blueprint $table) {
+        $usesSqlServer = Schema::getConnection()->getDriverName() === 'sqlsrv';
+
+        Schema::create('web_storage_items', function (Blueprint $table) use ($usesSqlServer): void {
             $table->id();
             $table->uuid('public_id')->unique();
-            $table->uuid('idempotency_key')->unique();
+            $table->string('idempotency_key', 64)->unique();
             $table->char('request_hash', 64);
             $table->string('account_id', 10)->index();
             $table->string('source_character_name', 10);
@@ -22,7 +25,11 @@ return new class extends Migration
             $table->unsignedSmallInteger('source_slot');
             $table->binary('item_binary');
             $table->char('item_fingerprint', 64)->index();
-            $table->char('escrow_key', 64)->nullable()->unique();
+            $escrowKey = $table->char('escrow_key', 64)->nullable();
+
+            if (! $usesSqlServer) {
+                $escrowKey->unique();
+            }
             $table->json('item_snapshot');
             $table->string('status', 24)->index();
             $table->unsignedInteger('sync_attempts')->default(0);
@@ -34,6 +41,13 @@ return new class extends Migration
 
             $table->index(['account_id', 'status']);
         });
+
+        if ($usesSqlServer) {
+            DB::statement(
+                'CREATE UNIQUE INDEX web_storage_items_escrow_key_unique '
+                .'ON web_storage_items (escrow_key) WHERE escrow_key IS NOT NULL',
+            );
+        }
     }
 
     /**

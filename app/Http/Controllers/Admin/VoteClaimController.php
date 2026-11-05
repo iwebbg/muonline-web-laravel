@@ -48,7 +48,7 @@ final class VoteClaimController extends Controller
         }
 
         if ($dateTo !== null) {
-            $claimsQuery->where('initiated_at', '<=', $dateTo);
+            $claimsQuery->where('initiated_at', '<', $dateTo);
         }
 
         $claims = $claimsQuery

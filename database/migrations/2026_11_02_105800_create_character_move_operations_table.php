@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('character_move_operations', function (Blueprint $table): void {
             $table->id();
-            $table->uuid('idempotency_key')->unique();
+            $table->string('idempotency_key', 64)->unique();
             $table->string('account_id', 10)->index();
             $table->string('character_name', 50);
             $table->string('status', 32)->index();

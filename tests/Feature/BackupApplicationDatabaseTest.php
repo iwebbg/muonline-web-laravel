@@ -15,6 +15,24 @@ use Tests\TestCase;
 final class BackupApplicationDatabaseTest extends TestCase
 {
     /**
+     * Gives the SQLite-only backup command an isolated in-memory source.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config()->set('database.default', 'backup_testing');
+        config()->set('database.connections.backup_testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+            'foreign_key_constraints' => true,
+        ]);
+
+        $this->app->make(DatabaseManager::class)->purge('backup_testing');
+    }
+
+    /**
      * Confirms the command creates a readable snapshot containing committed application data.
      */
     public function test_command_creates_consistent_private_sqlite_snapshot(): void

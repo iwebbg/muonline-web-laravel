@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Database\Casts\LowercaseUuid;
 use App\Payments\CreditPaymentStatus;
 use App\Payments\PaymentProvider;
 use Database\Factories\CreditPaymentFactory;
@@ -38,6 +39,7 @@ final class CreditPayment extends Model
     protected function casts(): array
     {
         return [
+            'public_id' => LowercaseUuid::class,
             'package_snapshot' => 'array',
             'provider_payload' => 'array',
             'provider' => PaymentProvider::class,

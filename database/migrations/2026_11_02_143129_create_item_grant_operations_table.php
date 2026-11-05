@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('item_grant_operations', function (Blueprint $table): void {
             $table->id();
-            $table->uuid('idempotency_key')->unique();
+            $table->string('idempotency_key', 64)->unique();
             $table->string('request_hash', 64);
             $table->foreignId('administrator_id')
                 ->nullable()

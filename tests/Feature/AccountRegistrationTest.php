@@ -30,6 +30,7 @@ final class AccountRegistrationTest extends TestCase
 
         config()->set('game.writes_enabled', true);
         config()->set('game.account_password_scheme', 'plaintext');
+        config()->set('services.recaptcha.enabled', false);
         Mail::fake();
         config()->set('database.connections.game', [
             'driver' => 'sqlite',

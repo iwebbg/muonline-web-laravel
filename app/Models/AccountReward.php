@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Database\Casts\LowercaseUuid;
+use App\Database\Casts\SqlServerBinary;
 use App\Shop\AccountRewardStatus;
 use App\Shop\MysteryBoxRewardMode;
 use App\Shop\RewardDeliveryDestination;
@@ -57,6 +59,7 @@ final class AccountReward extends Model
     protected function casts(): array
     {
         return [
+            'public_id' => LowercaseUuid::class,
             'source' => RewardSource::class,
             'status' => AccountRewardStatus::class,
             'reward_type' => ShopOfferType::class,
@@ -65,6 +68,7 @@ final class AccountReward extends Model
             'reward_pool_snapshot' => 'array',
             'selected_item_snapshot' => 'array',
             'item_serial' => 'integer',
+            'item_binary' => SqlServerBinary::class,
             'delivery_destination' => RewardDeliveryDestination::class,
             'delivery_attempts' => 'integer',
             'last_delivery_attempt_at' => 'immutable_datetime',

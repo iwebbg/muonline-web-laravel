@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Database\Casts\LowercaseUuid;
 use App\VoteRewards\VoteClaimStatus;
 use Database\Factories\VoteClaimFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -82,6 +83,7 @@ final class VoteClaim extends Model
     protected function casts(): array
     {
         return [
+            'public_id' => LowercaseUuid::class,
             'reward_credits' => 'integer',
             'reward_zen' => 'integer',
             'status' => VoteClaimStatus::class,

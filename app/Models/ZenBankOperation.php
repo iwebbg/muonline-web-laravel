@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Database\Casts\LowercaseUuid;
 use App\ZenBank\ZenBankOperationStatus;
 use App\ZenBank\ZenBankOperationType;
 use Database\Factories\ZenBankOperationFactory;
@@ -63,6 +64,7 @@ final class ZenBankOperation extends Model
     protected function casts(): array
     {
         return [
+            'public_id' => LowercaseUuid::class,
             'type' => ZenBankOperationType::class,
             'amount' => 'integer',
             'before_game_zen' => 'integer',

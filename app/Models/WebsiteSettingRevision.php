@@ -34,9 +34,11 @@ final class WebsiteSettingRevision extends Model
     protected function casts(): array
     {
         return [
+            'website_setting_id' => 'integer',
             'revision' => 'integer',
             'before_snapshot' => 'array',
             'after_snapshot' => 'array',
+            'changed_by_administrator_id' => 'integer',
         ];
     }
 }

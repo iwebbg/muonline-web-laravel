@@ -28,9 +28,11 @@ final class EventScheduleEntryRevision extends Model
     protected function casts(): array
     {
         return [
+            'event_schedule_entry_id' => 'integer',
             'revision' => 'integer',
             'before_snapshot' => 'array',
             'after_snapshot' => 'array',
+            'changed_by_administrator_id' => 'integer',
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Database\Casts\LowercaseUuid;
 use App\Shop\MysteryBoxRewardMode;
 use App\Shop\ShopClassScope;
 use App\Shop\ShopOfferStatus;
@@ -84,6 +85,7 @@ final class ShopOffer extends Model
     protected function casts(): array
     {
         return [
+            'public_id' => LowercaseUuid::class,
             'type' => ShopOfferType::class,
             'mystery_box_reward_mode' => MysteryBoxRewardMode::class,
             'class_scope' => ShopClassScope::class,

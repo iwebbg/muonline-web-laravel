@@ -26,9 +26,11 @@ final class ResetProfileRevision extends Model
     protected function casts(): array
     {
         return [
+            'reset_profile_id' => 'integer',
             'revision' => 'integer',
             'before_snapshot' => 'array',
             'after_snapshot' => 'array',
+            'changed_by_administrator_id' => 'integer',
         ];
     }
 }

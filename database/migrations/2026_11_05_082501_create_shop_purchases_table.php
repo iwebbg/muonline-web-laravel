@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('shop_purchases', function (Blueprint $table) {
             $table->id();
             $table->uuid('public_id')->unique();
-            $table->uuid('idempotency_key')->unique();
+            $table->string('idempotency_key', 64)->unique();
             $table->char('request_hash', 64);
             $table->string('account_id', 10)->index();
             $table->foreignId('shop_offer_id')->nullable()->constrained()->nullOnDelete();

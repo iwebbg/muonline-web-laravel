@@ -89,8 +89,8 @@ final class MarketEscrowTest extends TestCase
     public function test_auction_uses_the_selected_duration(): void
     {
         $this->travelTo(now()->startOfSecond());
-        $this->mockOwnedOfflineCharacter('seller11', 'AuctionChar');
-        $this->mockStorage('seller11', 'AuctionChar', vault: 0, slot: 5);
+        $this->mockOwnedOfflineCharacter('seller11', 'AuctionChr');
+        $this->mockStorage('seller11', 'AuctionChr', vault: 0, slot: 5);
         $this->mock(MarketItemEscrowRepository::class)
             ->shouldReceive('extract')
             ->once()
@@ -99,7 +99,7 @@ final class MarketEscrowTest extends TestCase
 
         $listing = $this->app->make(CreateMarketListing::class)->execute(
             accountId: 'seller11',
-            characterName: 'AuctionChar',
+            characterName: 'AuctionChr',
             vault: 0,
             slot: 5,
             priceCredits: 500,

@@ -27,6 +27,7 @@ final class ModuleProfile extends Model
         return [
             'modules' => 'array',
             'revision' => 'integer',
+            'updated_by_administrator_id' => 'integer',
         ];
     }
 }

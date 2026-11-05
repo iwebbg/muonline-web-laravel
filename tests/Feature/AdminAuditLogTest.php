@@ -66,13 +66,14 @@ final class AdminAuditLogTest extends TestCase
      */
     public function test_administrator_can_inspect_escaped_audit_events(): void
     {
-        $dangerousAccountId = '<script>alert(1)</script>';
+        $dangerousFailureCode = '<script>alert(1)</script>';
         $administrator = Administrator::factory()->create();
 
         CharacterResetOperation::factory()->create([
-            'account_id' => $dangerousAccountId,
+            'account_id' => 'auditxss',
             'character_name' => 'AuditHero',
-            'status' => CharacterOperationStatus::Completed,
+            'status' => CharacterOperationStatus::Failed,
+            'failure_code' => $dangerousFailureCode,
             'before_snapshot' => [
                 'level' => 400,
             ],
@@ -90,8 +91,8 @@ final class AdminAuditLogTest extends TestCase
         $response->assertSee('Immutable audit trail');
         $response->assertSee('Character reset');
         $response->assertSee('AuditHero');
-        $response->assertSeeText($dangerousAccountId);
-        $response->assertDontSee($dangerousAccountId, false);
+        $response->assertSeeText($dangerousFailureCode);
+        $response->assertDontSee($dangerousFailureCode, false);
         $response->assertSee('400');
     }
 
@@ -130,13 +131,13 @@ final class AdminAuditLogTest extends TestCase
     {
         $administrator = Administrator::factory()->create();
         CharacterResetOperation::factory()->create([
-            'account_id' => 'inside-range',
+            'account_id' => 'inside01',
             'status' => CharacterOperationStatus::Completed,
             'created_at' => '2026-11-02 12:00:00',
             'updated_at' => '2026-11-02 12:00:00',
         ]);
         CharacterResetOperation::factory()->create([
-            'account_id' => 'outside-range',
+            'account_id' => 'outside01',
             'status' => CharacterOperationStatus::Completed,
             'created_at' => '2026-10-31 23:59:59',
             'updated_at' => '2026-10-31 23:59:59',
@@ -148,8 +149,8 @@ final class AdminAuditLogTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('inside-range')
-            ->assertDontSee('outside-range');
+            ->assertSee('inside01')
+            ->assertDontSee('outside01');
     }
 
     /**
@@ -162,7 +163,7 @@ final class AdminAuditLogTest extends TestCase
         for ($eventNumber = 1; $eventNumber <= 21; $eventNumber++) {
             $accountSuffix = str_pad((string) $eventNumber, 2, '0', STR_PAD_LEFT);
             CharacterResetOperation::factory()->create([
-                'account_id' => 'audit-account-'.$accountSuffix,
+                'account_id' => 'audit000'.$accountSuffix,
                 'status' => CharacterOperationStatus::Completed,
                 'created_at' => '2026-11-02 12:'.str_pad((string) $eventNumber, 2, '0', STR_PAD_LEFT).':00',
                 'updated_at' => '2026-11-02 12:'.str_pad((string) $eventNumber, 2, '0', STR_PAD_LEFT).':00',
@@ -178,14 +179,14 @@ final class AdminAuditLogTest extends TestCase
 
         $firstPage
             ->assertOk()
-            ->assertSee('audit-account-21')
-            ->assertDontSee('audit-account-01')
+            ->assertSee('audit00021')
+            ->assertDontSee('audit00001')
             ->assertSee('date_from=2026-11-01', false)
             ->assertSee('page=2', false);
         $secondPage
             ->assertOk()
-            ->assertSee('audit-account-01')
-            ->assertDontSee('audit-account-21');
+            ->assertSee('audit00001')
+            ->assertDontSee('audit00021');
     }
 
     /**
@@ -294,7 +295,7 @@ final class AdminAuditLogTest extends TestCase
         $administrator = Administrator::factory()->create();
         EconomyRecoveryAction::factory()->create([
             'administrator_id' => $administrator->getKey(),
-            'account_id' => 'recoveryowner',
+            'account_id' => 'recoverown',
             'before_status' => 'pending',
             'after_status' => 'completed',
         ]);
@@ -306,7 +307,7 @@ final class AdminAuditLogTest extends TestCase
         $response
             ->assertOk()
             ->assertSee('Economy recovery')
-            ->assertSee('recoveryowner')
+            ->assertSee('recoverown')
             ->assertSee('retry_sync')
             ->assertSee('completed');
     }

@@ -19,6 +19,8 @@ final class DownloadRevision extends Model
     protected function casts(): array
     {
         return [
+            'download_id' => 'integer',
+            'administrator_id' => 'integer',
             'snapshot' => 'array',
         ];
     }

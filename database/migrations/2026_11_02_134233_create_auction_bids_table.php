@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('market_listing_id')->constrained()->noActionOnDelete();
             $table->string('bidder_account_id', 10)->index();
             $table->unsignedBigInteger('amount_credits');
-            $table->uuid('idempotency_key')->unique();
+            $table->string('idempotency_key', 64)->unique();
             $table->char('request_hash', 64);
             $table->unsignedBigInteger('hold_wallet_transaction_id');
             $table->unsignedBigInteger('release_wallet_transaction_id')->nullable();

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('vip_purchases', function (Blueprint $table): void {
             $table->id();
-            $table->uuid('idempotency_key')->unique();
+            $table->string('idempotency_key', 64)->unique();
             $table->char('request_hash', 64);
             $table->foreignId('vip_entitlement_id')
                 ->constrained('vip_entitlements')

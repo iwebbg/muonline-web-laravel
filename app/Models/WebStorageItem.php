@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Database\Casts\LowercaseUuid;
+use App\Database\Casts\SqlServerBinary;
 use App\WebStorage\ItemStorageLocation;
 use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
@@ -57,8 +59,10 @@ final class WebStorageItem extends Model
     protected function casts(): array
     {
         return [
+            'public_id' => LowercaseUuid::class,
             'source_vault' => 'integer',
             'source_slot' => 'integer',
+            'item_binary' => SqlServerBinary::class,
             'storage_context' => WebStorageContext::class,
             'source_location' => ItemStorageLocation::class,
             'withdrawal_location' => ItemStorageLocation::class,

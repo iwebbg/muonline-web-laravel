@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('moderation_operations', function (Blueprint $table): void {
             $table->id();
-            $table->uuid('idempotency_key')->unique();
+            $table->string('idempotency_key', 64)->unique();
             $table->foreignId('administrator_id')
                 ->nullable()
                 ->constrained('administrators')

@@ -29,7 +29,7 @@ final class WebStorageItemFactory extends Factory
             'request_hash' => hash('sha256', fake()->uuid()),
             'account_id' => 'storage01',
             'storage_context' => WebStorageContext::WebVault,
-            'source_character_name' => 'StorageChar',
+            'source_character_name' => 'StoreChar',
             'source_vault' => 0,
             'source_slot' => 0,
             'item_binary' => $binary,

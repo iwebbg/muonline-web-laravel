@@ -18,7 +18,7 @@ final class AccountZenBalanceFactory extends Factory
     public function definition(): array
     {
         return [
-            'account_id' => fake()->unique()->userName(),
+            'account_id' => fake()->unique()->regexify('[A-Za-z0-9]{10}'),
             'balance' => 0,
         ];
     }

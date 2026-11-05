@@ -51,8 +51,8 @@ final class WebStorageTest extends TestCase
      */
     public function test_item_is_extracted_and_becomes_available(): void
     {
-        $this->mockOwnedOfflineCharacter('owner01', 'StorageChar');
-        $this->mockStorage('owner01', 'StorageChar', 0, 5);
+        $this->mockOwnedOfflineCharacter('owner01', 'StoreChar');
+        $this->mockStorage('owner01', 'StoreChar', 0, 5);
         $this->mock(ItemEscrowRepository::class)
             ->shouldReceive('extract')
             ->once()
@@ -73,8 +73,8 @@ final class WebStorageTest extends TestCase
      */
     public function test_identical_store_replay_returns_original_record(): void
     {
-        $this->mockOwnedOfflineCharacter('owner02', 'StorageChar');
-        $this->mockStorage('owner02', 'StorageChar', 0, 5);
+        $this->mockOwnedOfflineCharacter('owner02', 'StoreChar');
+        $this->mockStorage('owner02', 'StoreChar', 0, 5);
         $this->mock(ItemEscrowRepository::class)
             ->shouldReceive('extract')
             ->once()
@@ -93,8 +93,8 @@ final class WebStorageTest extends TestCase
      */
     public function test_idempotency_key_cannot_be_reused_for_another_request(): void
     {
-        $this->mockOwnedOfflineCharacter('owner03', 'StorageChar');
-        $this->mockStorage('owner03', 'StorageChar', 0, 5);
+        $this->mockOwnedOfflineCharacter('owner03', 'StoreChar');
+        $this->mockStorage('owner03', 'StoreChar', 0, 5);
         $this->mock(ItemEscrowRepository::class)
             ->shouldReceive('extract')
             ->once()
@@ -105,7 +105,7 @@ final class WebStorageTest extends TestCase
         try {
             $this->app->make(StoreWebStorageItem::class)->execute(
                 accountId: 'owner03',
-                characterName: 'StorageChar',
+                characterName: 'StoreChar',
                 vault: 0,
                 slot: 6,
                 idempotencyKey: $key,
@@ -121,8 +121,8 @@ final class WebStorageTest extends TestCase
      */
     public function test_interrupted_extraction_is_retried_by_scheduler(): void
     {
-        $this->mockOwnedOfflineCharacter('owner04', 'StorageChar');
-        $this->mockStorage('owner04', 'StorageChar', 0, 5);
+        $this->mockOwnedOfflineCharacter('owner04', 'StoreChar');
+        $this->mockStorage('owner04', 'StoreChar', 0, 5);
         $escrow = $this->mock(ItemEscrowRepository::class);
         $escrow->shouldReceive('extract')
             ->once()
@@ -243,7 +243,7 @@ final class WebStorageTest extends TestCase
     {
         return $this->app->make(StoreWebStorageItem::class)->execute(
             accountId: $accountId,
-            characterName: 'StorageChar',
+            characterName: 'StoreChar',
             vault: 0,
             slot: 5,
             idempotencyKey: $idempotencyKey,

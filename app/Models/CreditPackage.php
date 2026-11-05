@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Database\Casts\LowercaseUuid;
 use App\Payments\CreditPackageStatus;
 use Database\Factories\CreditPackageFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -36,6 +37,7 @@ final class CreditPackage extends Model
     protected function casts(): array
     {
         return [
+            'public_id' => LowercaseUuid::class,
             'credits' => 'integer',
             'price_minor' => 'integer',
             'status' => CreditPackageStatus::class,

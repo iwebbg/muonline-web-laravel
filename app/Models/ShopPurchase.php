@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Database\Casts\LowercaseUuid;
 use Database\Factories\ShopPurchaseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -53,6 +54,10 @@ final class ShopPurchase extends Model
      */
     protected function casts(): array
     {
-        return ['offer_snapshot' => 'array', 'price_credits' => 'integer'];
+        return [
+            'public_id' => LowercaseUuid::class,
+            'offer_snapshot' => 'array',
+            'price_credits' => 'integer',
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,7 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('account_rewards', function (Blueprint $table) {
+        $usesSqlServer = Schema::getConnection()->getDriverName() === 'sqlsrv';
+
+        Schema::create('account_rewards', function (Blueprint $table) use ($usesSqlServer): void {
             $table->id();
             $table->uuid('public_id')->unique();
             $table->string('account_id', 10)->index();
@@ -42,8 +45,18 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['account_id', 'status', 'created_at']);
-            $table->unique(['source', 'source_reference']);
+            if (! $usesSqlServer) {
+                $table->unique(['source', 'source_reference']);
+            }
         });
+
+        if ($usesSqlServer) {
+            DB::statement(
+                'CREATE UNIQUE INDEX account_rewards_source_source_reference_unique '
+                .'ON account_rewards (source, source_reference) '
+                .'WHERE source_reference IS NOT NULL',
+            );
+        }
     }
 
     /**

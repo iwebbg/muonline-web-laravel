@@ -157,12 +157,10 @@ final readonly class AwardVoteClaim
             return [null, null];
         }
 
-        AccountZenBalance::query()->insertOrIgnore([
-            'account_id' => $voteClaim->account_id,
-            'balance' => 0,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        AccountZenBalance::query()->firstOrCreate(
+            ['account_id' => $voteClaim->account_id],
+            ['balance' => 0],
+        );
 
         $zenBalance = AccountZenBalance::query()
             ->where('account_id', $voteClaim->account_id)
