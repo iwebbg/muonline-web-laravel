@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Auth\GameAccount;
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
+use App\Models\AuctionBid;
 use App\Models\MarketListing;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -150,6 +152,149 @@ final class MarketPageTest extends TestCase
             ->assertSee('Auction ends')
             ->assertSee('05 Nov 2026 · 12:00')
             ->assertSee('marketExpiry(', false);
+    }
+
+    /**
+     * Confirms an account can distinguish its leading and outbid auction offers.
+     */
+    public function test_authenticated_market_page_summarizes_current_auction_bids(): void
+    {
+        $outbidListing = MarketListing::factory()->create([
+            'sale_type' => MarketSaleType::Auction,
+            'minimum_bid_credits' => 100,
+            'bid_increment_credits' => 25,
+            'expires_at' => now()->addDay(),
+            'item_snapshot' => ['name' => 'Outbid Market Wings'],
+        ]);
+        AuctionBid::factory()->for($outbidListing, 'listing')->create([
+            'bidder_account_id' => 'bid-owner',
+            'amount_credits' => 125,
+            'outbid_at' => now(),
+        ]);
+        $winningBid = AuctionBid::factory()->for($outbidListing, 'listing')->create([
+            'bidder_account_id' => 'other-user',
+            'amount_credits' => 175,
+        ]);
+        $outbidListing->update([
+            'highest_bid_credits' => 175,
+            'highest_bidder_account_id' => 'other-user',
+            'highest_bid_id' => $winningBid->getKey(),
+        ]);
+
+        $leadingListing = MarketListing::factory()->create([
+            'sale_type' => MarketSaleType::Auction,
+            'minimum_bid_credits' => 100,
+            'bid_increment_credits' => 25,
+            'expires_at' => now()->addDays(2),
+            'item_snapshot' => ['name' => 'Leading Market Armor'],
+        ]);
+        $leadingBid = AuctionBid::factory()->for($leadingListing, 'listing')->create([
+            'bidder_account_id' => 'bid-owner',
+            'amount_credits' => 225,
+        ]);
+        $leadingListing->update([
+            'highest_bid_credits' => 225,
+            'highest_bidder_account_id' => 'bid-owner',
+            'highest_bid_id' => $leadingBid->getKey(),
+        ]);
+
+        $unrelatedListing = MarketListing::factory()->create([
+            'sale_type' => MarketSaleType::Auction,
+            'minimum_bid_credits' => 100,
+            'bid_increment_credits' => 25,
+            'expires_at' => now()->addDays(3),
+            'item_snapshot' => ['name' => 'Unrelated Private Bid'],
+        ]);
+        $unrelatedBid = AuctionBid::factory()->for($unrelatedListing, 'listing')->create([
+            'bidder_account_id' => 'outsider',
+            'amount_credits' => 150,
+        ]);
+        $unrelatedListing->update([
+            'highest_bid_credits' => 150,
+            'highest_bidder_account_id' => 'outsider',
+            'highest_bid_id' => $unrelatedBid->getKey(),
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('bid-owner'))
+            ->get(route('market.index'));
+
+        $response
+            ->assertOk()
+            ->assertSee('Your current bids')
+            ->assertSee('Outbid Market Wings')
+            ->assertSee('You have been outbid')
+            ->assertSee('Your latest bid')
+            ->assertSee('125 Credits')
+            ->assertSee('175 Credits')
+            ->assertSee('Leading Market Armor')
+            ->assertSee('You are leading')
+            ->assertSee('225 Credits')
+            ->assertSee(route('market.listings.bids.store', $outbidListing), false)
+            ->assertViewHas('currentBids', function (mixed $currentBids): bool {
+                return $currentBids instanceof LengthAwarePaginator
+                    && ! $currentBids->contains(function (MarketListing $listing): bool {
+                        return ($listing->item_snapshot['name'] ?? null) === 'Unrelated Private Bid';
+                    });
+            });
+    }
+
+    /**
+     * Confirms current account auction participation has an independent paginator.
+     */
+    public function test_current_auction_bids_are_paginated_independently(): void
+    {
+        $listings = MarketListing::factory()->count(9)->create([
+            'sale_type' => MarketSaleType::Auction,
+            'minimum_bid_credits' => 100,
+            'bid_increment_credits' => 25,
+            'expires_at' => now()->addDay(),
+        ]);
+
+        foreach ($listings as $listing) {
+            $bid = AuctionBid::factory()->for($listing, 'listing')->create([
+                'bidder_account_id' => 'bid-owner',
+                'amount_credits' => 125,
+            ]);
+            $listing->update([
+                'highest_bid_credits' => 125,
+                'highest_bidder_account_id' => 'bid-owner',
+                'highest_bid_id' => $bid->getKey(),
+            ]);
+        }
+
+        $response = $this
+            ->actingAs($this->account('bid-owner'))
+            ->get(route('market.index'));
+
+        $response
+            ->assertOk()
+            ->assertViewHas('currentBids', function (mixed $currentBids): bool {
+                return $currentBids instanceof LengthAwarePaginator
+                    && $currentBids->total() === 9
+                    && $currentBids->count() === 8
+                    && $currentBids->getPageName() === 'bids_page';
+            })
+            ->assertSee('?bids_page=2#your-current-bids', false);
+    }
+
+    /**
+     * Confirms the public listing grid remains bounded and links back to its section.
+     */
+    public function test_active_market_listings_are_paginated(): void
+    {
+        MarketListing::factory()->count(25)->create();
+
+        $response = $this->get(route('market.index'));
+
+        $response
+            ->assertOk()
+            ->assertViewHas('listings', function (mixed $listings): bool {
+                return $listings instanceof LengthAwarePaginator
+                    && $listings->total() === 25
+                    && $listings->count() === 24;
+            })
+            ->assertSee('?page=2#active-listings', false);
     }
 
     /**

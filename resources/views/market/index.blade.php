@@ -29,7 +29,91 @@
             </div>
         @endif
 
-        <section class="mt-8">
+        @auth
+            @if ($auctionEnabled)
+                <section id="your-current-bids" class="mt-8 scroll-mt-24">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <p class="kicker">{{ __('ui.market.your_current_bids') }}</p>
+                            <p class="mt-2 max-w-2xl text-sm text-silver">{{ __('ui.market.current_bids_intro') }}</p>
+                        </div>
+                        <span class="text-sm text-steel">{{ __('ui.market.current_bids_count', ['count' => $currentBids->total()]) }}</span>
+                    </div>
+
+                    <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                        @forelse ($currentBids as $listing)
+                            @php($item = $listing->item_snapshot)
+                            @php($isLeading = $listing->highest_bidder_account_id === $currentAccountId)
+                            @php($nextBid = ($listing->highest_bid_credits ?? ($listing->minimum_bid_credits - $listing->bid_increment_credits)) + $listing->bid_increment_credits)
+                            <article
+                                class="panel-card grid gap-5 p-5 sm:grid-cols-[8rem_minmax(0,1fr)]"
+                                x-data="itemInspector(@js($itemOptionLabels), @js($item))"
+                            >
+                                <div class="relative grid min-h-32 place-items-center rounded-2xl border border-white/8 bg-black/25 p-4">
+                                    @if (($item['image'] ?? null) !== null)
+                                        <img src="{{ $item['image'] }}" alt="{{ $item['name'] ?? __('ui.market.unknown_item') }}" class="max-h-24 max-w-full object-contain" loading="lazy">
+                                    @endif
+                                    <x-item-tooltip item="item" />
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="flex flex-wrap items-start justify-between gap-3">
+                                        <div>
+                                            <p
+                                                class="text-lg font-semibold"
+                                                :class="`item-name-${itemNameTone(item)}`"
+                                                x-text="itemTitle(item)"
+                                            >{{ $item['name'] ?? __('ui.market.unknown_item') }}</p>
+                                            <time class="mt-1 block text-xs text-steel" datetime="{{ $listing->expires_at?->toAtomString() }}">
+                                                {{ __('ui.market.auction_ends') }} {{ $listing->expires_at?->diffForHumans() }}
+                                            </time>
+                                        </div>
+                                        <span @class([
+                                            'rounded-full border px-3 py-1 text-xs font-semibold',
+                                            'border-emerald-300/30 bg-emerald-300/10 text-emerald-100' => $isLeading,
+                                            'border-amber-300/30 bg-amber-300/10 text-amber-100' => ! $isLeading,
+                                        ])>
+                                            {{ $isLeading ? __('ui.market.bid_status_leading') : __('ui.market.bid_status_outbid') }}
+                                        </span>
+                                    </div>
+
+                                    <div class="mt-4 grid grid-cols-2 gap-3">
+                                        <div class="rounded-xl border border-white/8 bg-black/20 p-3">
+                                            <p class="text-[0.68rem] uppercase tracking-[0.14em] text-steel">{{ __('ui.market.current_bid') }}</p>
+                                            <p class="mt-1 font-semibold text-gold">{{ number_format($listing->highest_bid_credits) }} Credits</p>
+                                        </div>
+                                        <div class="rounded-xl border border-white/8 bg-black/20 p-3">
+                                            <p class="text-[0.68rem] uppercase tracking-[0.14em] text-steel">{{ __('ui.market.your_last_bid') }}</p>
+                                            <p class="mt-1 font-semibold text-white">{{ number_format($listing->current_account_last_bid_credits) }} Credits</p>
+                                        </div>
+                                    </div>
+
+                                    @if ($isLeading)
+                                        <p class="mt-4 text-sm text-emerald-100">{{ __('ui.market.bid_leading_help') }}</p>
+                                    @else
+                                        <form method="POST" action="{{ route('market.listings.bids.store', $listing) }}" class="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                                            @csrf
+                                            <input type="hidden" name="idempotency_key" value="{{ $currentBidIdempotencyKeys[$listing->getKey()] }}">
+                                            <input type="number" name="amount_credits" min="{{ $nextBid }}" value="{{ $nextBid }}" required>
+                                            <button type="submit" class="button button-primary" @disabled(! $gameWritesEnabled)>{{ __('ui.market.bid_again') }}</button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </article>
+                        @empty
+                            <div class="panel-card p-8 text-center text-steel lg:col-span-2">
+                                {{ __('ui.market.no_current_bids') }}
+                            </div>
+                        @endforelse
+                    </div>
+
+                    @if ($currentBids->hasPages())
+                        <div class="mt-6">{{ $currentBids->links() }}</div>
+                    @endif
+                </section>
+            @endif
+        @endauth
+
+        <section id="active-listings" class="mt-12 scroll-mt-24">
             <div class="flex items-end justify-between gap-4">
                 <div>
                     <p class="kicker">{{ __('ui.market.live_market') }}</p>
