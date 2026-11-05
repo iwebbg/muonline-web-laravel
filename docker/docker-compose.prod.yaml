@@ -108,6 +108,7 @@ services:
             - application
 
     redis:
+        container_name: ${REDIS_CONTAINER_NAME:-muonline-web-redis}
         image: redis:8-alpine
         restart: unless-stopped
         command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
