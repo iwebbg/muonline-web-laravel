@@ -78,6 +78,9 @@ The application database and MuOnline database have separate ownership:
   scheduler can retry them.
 - `GAME_DB_READONLY=true` and `GAME_WRITES_ENABLED=false` are the safe defaults.
   Both switches must permit writes before any game mutation runs.
+- A fully operational live account panel therefore uses
+  `GAME_DB_READONLY=false` and `GAME_WRITES_ENABLED=true` only after the
+  read-only `game:doctor` commissioning check and disposable-account tests pass.
 
 ## Architecture patterns
 

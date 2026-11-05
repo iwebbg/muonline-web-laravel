@@ -124,6 +124,8 @@ profile and adapters.
 
 - Separate application and game database connections.
 - Safe defaults: `GAME_DB_READONLY=true` and `GAME_WRITES_ENABLED=false`.
+- Documented operational transition to `GAME_DB_READONLY=false` and
+  `GAME_WRITES_ENABLED=true` after the read-only commissioning checks pass.
 - Transactional and idempotent game mutations with ownership and offline-state
   checks repeated at the write boundary.
 - Exact preservation of legacy item bytes while an item is in escrow or web

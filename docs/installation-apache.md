@@ -118,6 +118,51 @@ GAME_WRITES_ENABLED=false
 Keep fixture data and both write switches closed until the live SQL Server
 connection passes `php artisan game:doctor`.
 
+### Connecting live data and enabling writes
+
+Configure the `GAME_DB_*` credentials for a dedicated restricted SQL Server
+login, then switch from fixtures to the real database while keeping the two
+write gates closed:
+
+```dotenv
+GAME_DATA_SOURCE=database
+GAME_DB_READONLY=true
+GAME_WRITES_ENABLED=false
+```
+
+Clear cached configuration and run the compatibility and permission check:
+
+```bash
+php artisan optimize:clear
+php artisan game:doctor
+```
+
+First verify accounts, characters, rankings and warehouses in read-only mode.
+Test every mutation against a cloned database and disposable game accounts and
+confirm that both the application and MuOnline backups can be restored. Then
+activate the operational configuration:
+
+```dotenv
+GAME_DATA_SOURCE=database
+GAME_DB_READONLY=false
+GAME_WRITES_ENABLED=true
+```
+
+Apply it to Apache and background workers:
+
+```bash
+php artisan optimize:clear
+```
+
+Restart Apache, the queue worker and the scheduler or their service wrappers.
+Both switches must permit writes; otherwise registration, password changes,
+character actions, moderation, item delivery and other game mutations remain
+blocked. The rankings connection remains independently read-only.
+
+`game:doctor` deliberately accepts only the safe commissioning values. Run it
+before enabling writes, or close both write gates temporarily when repeating a
+schema and SQL-permission audit.
+
 ### Recommended Apache VirtualHost
 
 The secure configuration points Apache directly at the `public` directory. In

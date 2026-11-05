@@ -98,8 +98,8 @@ GAME_WRITES_ENABLED=false
 ```
 
 To test real read-only data, configure the `GAME_DB_*` values in the root
-`.env`, change `GAME_DATA_SOURCE` to the configured live source and keep writes
-disabled. Run the compatibility and privilege check:
+`.env`, set `GAME_DATA_SOURCE=database` and keep writes disabled. Run the
+compatibility and privilege check:
 
 ```bash
 ./docker/compose exec -T app php artisan game:doctor
@@ -122,6 +122,41 @@ Only enable writes after all of the following are true:
 4. Read-only pages display the expected accounts, characters, warehouses and
    items.
 5. Every enabled mutation has been tested with disposable accounts.
+
+### Enabling live game writes
+
+The safe defaults are a commissioning mode, not the final configuration for a
+fully functional website. While either switch remains closed, MuOnline Web can
+read live records but rejects game-account registration, password changes,
+character actions, moderation, item delivery, market settlement and other
+mutations with a service-unavailable result.
+
+After `game:doctor` passes and the checklist above is complete, configure the
+operational values:
+
+```dotenv
+GAME_DATA_SOURCE=database
+GAME_DB_READONLY=false
+GAME_WRITES_ENABLED=true
+```
+
+`GAME_DB_READONLY` is the connection safety switch and
+`GAME_WRITES_ENABLED` is the application-wide mutation switch. Both must permit
+writes. The separate rankings connection remains read-only regardless of these
+values.
+
+Apply the changed environment to every long-running container:
+
+```bash
+./docker/compose exec -T app php artisan optimize:clear
+./docker/compose up --detach --force-recreate
+```
+
+Do not run `game:doctor` as a readiness check after opening writes. Its startup
+diagnostic deliberately expects the commissioning values
+`GAME_DB_READONLY=true` and `GAME_WRITES_ENABLED=false`; run it before changing
+the switches, and close them temporarily whenever the SQL permissions or game
+schema must be re-audited.
 
 ## Credits payment providers
 
@@ -174,6 +209,12 @@ GAME_DB_READONLY=true
 GAME_WRITES_ENABLED=false
 ```
 
+These are intentionally safe commissioning values for the first deployment.
+They allow schema, permission and read-model verification but do not provide a
+fully operational account panel. Complete the production checks below, then
+follow [Enabling live game writes](#enabling-live-game-writes) to activate
+mutations.
+
 Generate a 32-byte secret in a safe environment if an application key is not
 already available. Prefix the generated Base64 value with `base64:` when
 placing it in `APP_KEY`, and do not commit it:
@@ -191,6 +232,12 @@ application-owned migrations:
 ./docker/compose run --rm app php artisan migrate --force --no-interaction
 ./docker/compose up --detach
 ```
+
+Before accepting players, verify the read-only pages and backups, enable live
+game writes as documented above, recreate the services, and complete the
+disposable-account mutation tests. Leaving the commissioning values unchanged
+is supported for a deliberately read-only website, but account registration
+and all features that deliver changes to the game database remain unavailable.
 
 The production Nginx container requests the first certificate and redirects
 traffic to HTTPS. Certificate renewal runs twice daily and reloads Nginx only
