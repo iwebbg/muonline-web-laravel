@@ -51,9 +51,28 @@ for compose_file in "${compose_files[@]}"; do
     )
 done
 
-exec docker compose \
-    --project-directory "$docker_directory" \
-    --env-file "$application_environment_file" \
-    --env-file "$docker_environment_file" \
-    "${compose_file_arguments[@]}" \
+compose_command=(
+    docker compose
+    --project-directory "$docker_directory"
+    --env-file "$application_environment_file"
+    --env-file "$docker_environment_file"
+    "${compose_file_arguments[@]}"
     "$@"
+)
+
+# Diagnostic output belongs on stderr so machine-readable Compose stdout stays clean.
+{
+    printf '\n[MuOnline Web Compose]\n'
+    printf 'Environment: %s\n' "$docker_environment"
+    printf 'Compose files:\n'
+
+    for compose_file in "${compose_files[@]}"; do
+        printf '  - %s\n' "$compose_file"
+    done
+
+    printf 'Executing:'
+    printf ' %q' "${compose_command[@]}"
+    printf '\n\n'
+} >&2
+
+exec "${compose_command[@]}"
