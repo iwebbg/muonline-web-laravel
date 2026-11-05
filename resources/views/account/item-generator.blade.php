@@ -66,8 +66,8 @@
                 <input type="hidden" name="excellent_mask" x-bind:value="excellentMask">
                 <input type="hidden" name="ancient_option" value="0">
 
-                <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
-                    <div class="grid gap-5 sm:grid-cols-2">
+                <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
+                    <div class="grid content-start gap-5 sm:grid-cols-2">
                         <div class="relative sm:col-span-2" x-on:click.outside="closeItemSuggestions()">
                             <label class="field-group">
                                 <span>{{ __('ui.shop.generator_search') }}</span>
@@ -155,7 +155,7 @@
                         </fieldset>
                     </div>
 
-                    <aside class="rounded-2xl border border-white/8 bg-black/20 p-5 text-center">
+                    <aside class="self-start rounded-2xl border border-white/8 bg-black/20 p-5 text-center">
                         <p class="kicker">{{ __('ui.admin.item_grant_preview') }}</p>
                         <template x-if="selectedItem">
                             <div class="mt-5">
