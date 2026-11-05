@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\FilterCreditPackagesRequest;
 use App\Http\Requests\Admin\StoreCreditPackageRequest;
 use App\Http\Requests\Admin\UpdateCreditPackageRequest;
 use App\Models\CreditPackage;
 use App\Payments\CreditPackageStatus;
 use App\Payments\PaymentGatewayManager;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -15,13 +17,43 @@ use Illuminate\View\View;
 /** Manages fixed-value Credits packages. */
 final class CreditPackageController extends Controller
 {
-    /** Displays package creation and editing controls. */
-    public function index(PaymentGatewayManager $gateways): View
-    {
+    /** Displays searchable package controls with bounded pagination. */
+    public function index(
+        FilterCreditPackagesRequest $request,
+        PaymentGatewayManager $gateways,
+    ): View {
+        $search = $request->search();
+        $status = $request->status();
+        $packagesQuery = CreditPackage::query();
+
+        if ($search !== '') {
+            $searchPattern = '%'.$search.'%';
+
+            $packagesQuery->where(function (Builder $query) use ($searchPattern): void {
+                $query
+                    ->whereLike('title_en', $searchPattern)
+                    ->orWhereLike('title_bg', $searchPattern);
+            });
+        }
+
+        if ($status !== null) {
+            $packagesQuery->where('status', $status);
+        }
+
+        $packages = $packagesQuery
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->paginate(20)
+            ->withQueryString();
+
         return view('admin.credit-packages', [
-            'packages' => CreditPackage::query()->orderBy('sort_order')->orderBy('id')->get(),
+            'packages' => $packages,
             'statuses' => CreditPackageStatus::cases(),
             'enabledProviders' => $gateways->enabledProviders(),
+            'packageFilters' => [
+                'search' => $search,
+                'status' => $status?->value ?? '',
+            ],
         ]);
     }
 

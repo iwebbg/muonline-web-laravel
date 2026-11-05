@@ -794,6 +794,63 @@ export function gameServerManager(servers, createUrl) {
 }
 
 /**
+ * Creates the shared Credits package create and edit dialog state.
+ *
+ * @param {object} configuration Package routes and version-safe form defaults.
+ * @returns {object}
+ */
+export function creditPackageManager(configuration) {
+    /**
+     * Returns a fresh package form without sharing mutable values.
+     *
+     * @returns {object}
+     */
+    const emptyForm = () => ({
+        title_en: '',
+        title_bg: '',
+        credits: 500,
+        price: '5.00',
+        currency: configuration.defaultCurrency,
+        status: 'draft',
+        sort_order: 0,
+    });
+
+    return {
+        editorOpen: false,
+        editing: false,
+        formAction: configuration.createUrl,
+        form: emptyForm(),
+
+        /** Opens a blank Credits package editor. */
+        openCreate() {
+            this.editing = false;
+            this.formAction = configuration.createUrl;
+            this.form = emptyForm();
+            this.editorOpen = true;
+            this.$nextTick(() => this.$refs.packageTitle?.focus());
+        },
+
+        /**
+         * Opens an existing Credits package in the shared editor.
+         *
+         * @param {object} creditPackage The selected package and its update route.
+         */
+        openEdit(creditPackage) {
+            this.editing = true;
+            this.formAction = creditPackage.update_url;
+            this.form = { ...creditPackage };
+            this.editorOpen = true;
+            this.$nextTick(() => this.$refs.packageTitle?.focus());
+        },
+
+        /** Closes the Credits package editor without persisting changes. */
+        closeEditor() {
+            this.editorOpen = false;
+        },
+    };
+}
+
+/**
  * Creates the searchable account selector and full item-option preview for grants.
  *
  * @param {object} configuration Server-rendered routes, item metadata and initial form values.

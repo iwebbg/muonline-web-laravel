@@ -20,14 +20,14 @@
                     </div>
                 @endif
 
-                <section class="panel-card overflow-hidden">
-                    <div class="border-b border-white/8 p-5 sm:p-6">
+                <div class="grid content-start gap-6">
+                    <section class="panel-card p-5 sm:p-6">
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                            <p class="kicker">{{ __('ui.admin.credit_payment_history') }}</p>
+                            <p class="kicker">{{ __('ui.admin.credit_purchase_filters') }}</p>
                             <span class="text-sm text-steel">{{ __('ui.admin.credit_purchase_count', ['count' => $payments->total()]) }}</span>
                         </div>
 
-                        <form method="GET" action="{{ route('admin.credit-payments.index') }}" class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(16rem,1fr)_11rem_11rem_10rem_10rem_auto]">
+                        <form method="GET" action="{{ route('admin.credit-payments.index') }}" class="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[minmax(14rem,1fr)_10rem_10rem_10rem_10rem_auto]">
                             <label class="field-group">
                                 <span>{{ __('ui.admin.credit_purchase_search') }}</span>
                                 <input type="search" name="search" value="{{ $paymentFilters['search'] }}" maxlength="120" placeholder="{{ __('ui.admin.credit_purchase_search_placeholder') }}">
@@ -62,15 +62,20 @@
                                 <span>{{ __('ui.admin.date_to') }}</span>
                                 <input type="date" name="date_to" value="{{ $paymentFilters['dateTo'] }}">
                             </label>
-                            <div class="flex items-end gap-2">
+                            <div class="flex items-end gap-2 md:col-span-2 xl:col-span-1">
                                 <button type="submit" class="button button-primary">{{ __('ui.admin.credit_purchase_filter') }}</button>
                                 <a href="{{ route('admin.credit-payments.index') }}" class="button button-ghost">{{ __('ui.admin.credit_purchase_clear') }}</a>
                             </div>
                         </form>
-                    </div>
+                    </section>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-left text-sm">
+                    <section class="panel-card overflow-hidden">
+                        <div class="border-b border-white/8 p-5 sm:p-6">
+                            <p class="kicker">{{ __('ui.admin.credit_payment_history') }}</p>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-left text-sm">
                             <thead class="text-xs uppercase tracking-[0.14em] text-steel">
                                 <tr>
                                     <th class="px-5 py-4">{{ __('ui.admin.wallet_account_id') }}</th>
@@ -114,13 +119,14 @@
                                     </tr>
                                 @endforelse
                             </tbody>
-                        </table>
-                    </div>
+                            </table>
+                        </div>
 
-                    @if ($payments->hasPages())
-                        <div class="border-t border-white/8 p-5">{{ $payments->links() }}</div>
-                    @endif
-                </section>
+                        @if ($payments->hasPages())
+                            <div class="border-t border-white/8 p-5">{{ $payments->links() }}</div>
+                        @endif
+                    </section>
+                </div>
             </main>
         </div>
     </div>

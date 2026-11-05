@@ -6,6 +6,7 @@ use App\Admin\Authorization\AdministratorPermission;
 use App\Models\Administrator;
 use App\Models\CreditPackage;
 use App\Payments\CreditPackageStatus;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -36,5 +37,49 @@ final class AdminCreditPackageTest extends TestCase
         $administrator = Administrator::factory()->gameMaster([AdministratorPermission::ModerateAccounts])->create();
 
         $this->actingAs($administrator, 'admin')->get(route('admin.credit-packages.index'))->assertForbidden();
+    }
+
+    /** Confirms package search, status filtering and pagination share the compact catalog screen. */
+    public function test_package_catalog_is_filterable_paginated_and_uses_the_shared_editor(): void
+    {
+        $administrator = Administrator::factory()
+            ->gameMaster([AdministratorPermission::ManageEconomy])
+            ->create();
+        CreditPackage::factory()->count(21)->create([
+            'title_en' => 'Featured Credits',
+            'status' => CreditPackageStatus::Published,
+        ]);
+        CreditPackage::factory()->create([
+            'title_en' => 'Hidden Credits',
+            'status' => CreditPackageStatus::Draft,
+        ]);
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get(route('admin.credit-packages.index', [
+                'search' => 'Featured',
+                'status' => CreditPackageStatus::Published->value,
+            ]));
+
+        $response
+            ->assertOk()
+            ->assertSee('Featured Credits')
+            ->assertDontSee('Hidden Credits')
+            ->assertSee('Create package')
+            ->assertSee('Edit package')
+            ->assertSee('x-teleport="body"', false)
+            ->assertViewHas('packages', function (mixed $packages): bool {
+                if (! $packages instanceof LengthAwarePaginator) {
+                    return false;
+                }
+
+                $secondPageUrl = $packages->url(2);
+
+                return $packages->count() === 20
+                    && $packages->total() === 21
+                    && $packages->lastPage() === 2
+                    && str_contains($secondPageUrl, 'search=Featured')
+                    && str_contains($secondPageUrl, 'status=published');
+            });
     }
 }
