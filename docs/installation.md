@@ -116,6 +116,10 @@ application client ID, secret and the registered webhook ID. Revolut requires
 the Merchant API secret key and the webhook signing secret. Never place these
 values in the database or commit them to source control.
 
+See the dedicated [Credits payments configuration guide](payments.md) for the
+required provider dashboard steps, webhook events, complete `.env` reference,
+sandbox testing and production checklist.
+
 ## Production deployment
 
 Production requires a public domain whose DNS points to the Docker host. Ports

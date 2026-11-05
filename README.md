@@ -80,6 +80,7 @@ before connecting a real MuOnline database or enabling writes.
 ## Documentation
 
 - [Installation and deployment](docs/installation.md)
+- [Credits payments configuration](docs/payments.md)
 - [Complete feature catalogue](docs/features.md)
 - [Current implementation state](docs/current-state.md)
 - [Product and UX direction](docs/product-ux.md)

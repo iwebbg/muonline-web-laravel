@@ -14,7 +14,7 @@ not used for exploratory writes.
 | 3 — Authentication | Implemented, manual mail testing ongoing | Player/admin authentication, registration, activation, recovery, security and Game Master permissions are present. |
 | 4 — Character operations | Implemented, real-server validation ongoing | Preview and execute paths exist for resets, stats, PK clear and movement with admin-managed rules. |
 | 5 — Inventory and warehouse | Implemented, UI polish ongoing | Item codec, item catalog, equipment, bags, multi-vault grids, tooltips and guarded exact-item mutations are present. |
-| 6 — Content/economy/community | Broad functional baseline | Content, Credits, VIP, Votes, Zen/Jewel banks, Web Vault, Market, Auction, Items Shop, Item Generator, Mystery Boxes and Rewards exist; payment-provider integrations remain. |
+| 6 — Content/economy/community | Broad functional baseline | Content, Credits packages with Stripe, PayPal and Revolut Pay, VIP, Votes, Zen/Jewel banks, Web Vault, Market, Auction, Items Shop, Item Generator, Mystery Boxes and Rewards exist. |
 | 7 — Production readiness | In progress | Docker/Nginx/TLS, readiness, scheduler, backup and least-privilege tooling exist; final rehearsal and security review remain. |
 
 For implementation details and mandatory continuation patterns, read
