@@ -46,7 +46,7 @@
                             @php($isLeading = $listing->highest_bidder_account_id === $currentAccountId)
                             @php($nextBid = ($listing->highest_bid_credits ?? ($listing->minimum_bid_credits - $listing->bid_increment_credits)) + $listing->bid_increment_credits)
                             <article
-                                class="panel-card grid gap-5 p-5 sm:grid-cols-[8rem_minmax(0,1fr)]"
+                                class="market-item-card panel-card grid gap-5 p-5 sm:grid-cols-[8rem_minmax(0,1fr)]"
                                 x-data="itemInspector(@js($itemOptionLabels), @js($item))"
                             >
                                 <div class="relative grid min-h-32 place-items-center rounded-2xl border border-white/8 bg-black/25 p-4">
