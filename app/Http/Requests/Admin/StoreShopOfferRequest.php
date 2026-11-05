@@ -7,6 +7,7 @@ use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
 use App\Game\Versions\Version97d99i\ItemGrantRules97d99i;
 use App\Models\Administrator;
+use App\Shop\MysteryBoxRewardMode;
 use App\Shop\ShopClassScope;
 use App\Shop\ShopOfferStatus;
 use App\Shop\ShopOfferType;
@@ -40,6 +41,7 @@ class StoreShopOfferRequest extends FormRequest
     {
         return [
             'type' => ['required', Rule::enum(ShopOfferType::class)],
+            'mystery_box_reward_mode' => ['required', Rule::enum(MysteryBoxRewardMode::class)],
             'class_scope' => ['required', Rule::enum(ShopClassScope::class)],
             'title_en' => ['required', 'string', 'max:120'],
             'title_bg' => ['required', 'string', 'max:120'],
@@ -113,6 +115,9 @@ class StoreShopOfferRequest extends FormRequest
     public function offerData(): array
     {
         $data = $this->safe()->except(['items']);
+        $data['mystery_box_reward_mode'] = $data['type'] === ShopOfferType::MysteryBox->value
+            ? $data['mystery_box_reward_mode']
+            : MysteryBoxRewardMode::OneRandom->value;
         $data['published_at'] = $data['status'] === ShopOfferStatus::Published->value ? now() : null;
 
         return $data;

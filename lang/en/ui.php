@@ -551,6 +551,10 @@ return [
         'buy' => 'Purchase',
         'sign_in' => 'Sign in to purchase',
         'mystery_contents' => 'Contents are hidden until opened.',
+        'mystery_reward_modes' => [
+            'one_random' => 'You receive 1 random item from this box',
+            'all_items' => 'You receive all items from this box',
+        ],
         'empty' => 'No published offers match this filter.',
         'purchase_completed' => 'Purchase completed. Your reward is now in Rewards.',
         'purchase_errors' => [
@@ -1447,6 +1451,9 @@ return [
         'shop_offer_empty' => 'No offers match these filters.',
         'shop_offer_type' => 'Offer type',
         'shop_offer_types' => ['item' => 'Item', 'mystery_box' => 'Mystery Box'],
+        'shop_offer_reward_mode' => 'Reward on opening',
+        'shop_offer_reward_modes' => ['one_random' => 'One random item', 'all_items' => 'All configured items'],
+        'shop_offer_reward_mode_help' => 'Players see how many items they will receive, while the contents remain hidden.',
         'shop_offer_class_scope' => 'Class category',
         'shop_offer_title_en' => 'English title',
         'shop_offer_title_bg' => 'Bulgarian title',

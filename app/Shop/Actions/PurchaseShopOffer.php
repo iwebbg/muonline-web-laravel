@@ -12,6 +12,7 @@ use App\Models\ShopOffer;
 use App\Models\ShopPurchase;
 use App\Shop\AccountRewardStatus;
 use App\Shop\Exceptions\ShopPurchaseRejected;
+use App\Shop\MysteryBoxRewardMode;
 use App\Shop\RewardSource;
 use App\Shop\ShopOfferStatus;
 use App\Shop\ShopOfferType;
@@ -93,6 +94,7 @@ final readonly class PurchaseShopOffer
                 $offerSnapshot = [
                     'public_id' => $lockedOffer->public_id,
                     'type' => $lockedOffer->type->value,
+                    'mystery_box_reward_mode' => $lockedOffer->mystery_box_reward_mode->value,
                     'class_scope' => $lockedOffer->class_scope->value,
                     'title_en' => $lockedOffer->title_en,
                     'title_bg' => $lockedOffer->title_bg,
@@ -122,6 +124,9 @@ final readonly class PurchaseShopOffer
                     'source_reference' => $purchase->public_id,
                     'status' => $isMysteryBox ? AccountRewardStatus::Sealed : AccountRewardStatus::Ready,
                     'reward_type' => $lockedOffer->type,
+                    'mystery_box_reward_mode' => $isMysteryBox
+                        ? $lockedOffer->mystery_box_reward_mode
+                        : MysteryBoxRewardMode::OneRandom,
                     'class_scope' => $lockedOffer->class_scope,
                     'title_en' => $lockedOffer->title_en,
                     'title_bg' => $lockedOffer->title_bg,

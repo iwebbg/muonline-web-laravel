@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Admin\Authorization\AdministratorPermission;
 use App\Models\Administrator;
 use App\Models\ShopOffer;
+use App\Shop\MysteryBoxRewardMode;
 use App\Shop\ShopClassScope;
 use App\Shop\ShopOfferStatus;
 use App\Shop\ShopOfferType;
@@ -100,6 +101,7 @@ final class AdminShopOfferTest extends TestCase
                 '_token' => $csrfToken,
                 ...$this->validOfferPayload(),
                 'type' => ShopOfferType::MysteryBox->value,
+                'mystery_box_reward_mode' => MysteryBoxRewardMode::AllItems->value,
                 'items' => [
                     $this->itemPayload('0:0', 3),
                     $this->itemPayload('0:1', 1),
@@ -108,6 +110,7 @@ final class AdminShopOfferTest extends TestCase
 
         $offer = ShopOffer::query()->firstOrFail();
         $response->assertRedirect(route('admin.shop-offers.edit', $offer));
+        $this->assertSame(MysteryBoxRewardMode::AllItems, $offer->mystery_box_reward_mode);
         $this->assertSame(2, $offer->items()->count());
         $this->assertDatabaseHas('shop_offer_items', [
             'shop_offer_id' => $offer->getKey(),
@@ -126,6 +129,7 @@ final class AdminShopOfferTest extends TestCase
     {
         return [
             'class_scope' => ShopClassScope::All->value,
+            'mystery_box_reward_mode' => MysteryBoxRewardMode::OneRandom->value,
             'title_en' => 'Warrior Mystery Box',
             'title_bg' => 'Мистериозна кутия',
             'description_en' => 'A hidden weighted reward.',

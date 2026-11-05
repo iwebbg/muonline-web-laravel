@@ -18,6 +18,7 @@ use App\Models\WebStorageItem;
 use App\Shop\AccountRewardStatus;
 use App\Shop\Actions\PurchaseShopOffer;
 use App\Shop\Exceptions\ShopPurchaseRejected;
+use App\Shop\MysteryBoxRewardMode;
 use App\Shop\RewardDeliveryDestination;
 use App\Shop\ShopPurchaseBlockReason;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -112,6 +113,25 @@ final class ShopPurchaseTest extends TestCase
             'item_fingerprint' => $reward->item_fingerprint,
         ]);
         $this->assertSame(1, WebStorageItem::query()->count());
+    }
+
+    /**
+     * Confirms the box release mode is immutable after the Credits purchase.
+     */
+    public function test_mystery_box_purchase_snapshots_the_all_items_reward_mode(): void
+    {
+        $offer = ShopOffer::factory()->allItems()->create(['price_credits' => 100]);
+        ShopOfferItem::factory()->count(2)->for($offer, 'offer')->create();
+        $this->wallet('buyer04', 500);
+        $this->mockAccountExists();
+
+        $reward = app(PurchaseShopOffer::class)->execute('buyer04', $offer, 'purchase-request-04');
+        $offer->update(['mystery_box_reward_mode' => MysteryBoxRewardMode::OneRandom]);
+        $purchase = ShopPurchase::query()->firstOrFail();
+
+        $this->assertSame(MysteryBoxRewardMode::AllItems, $reward->mystery_box_reward_mode);
+        $this->assertSame(MysteryBoxRewardMode::AllItems->value, $purchase->offer_snapshot['mystery_box_reward_mode']);
+        $this->assertSame(MysteryBoxRewardMode::OneRandom, $offer->refresh()->mystery_box_reward_mode);
     }
 
     /**

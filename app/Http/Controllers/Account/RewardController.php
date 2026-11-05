@@ -53,7 +53,7 @@ final class RewardController extends Controller
             abort(404);
         }
 
-        $message = $reward->status === AccountRewardStatus::Claimed
+        $message = $reward->status === AccountRewardStatus::Claimed && $reward->last_delivery_error === null
             ? __('ui.rewards.opened_and_delivered')
             : __('ui.rewards.opened_delivery_pending');
 

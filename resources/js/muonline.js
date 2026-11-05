@@ -264,6 +264,7 @@ export function shopOfferEditor(configuration) {
         itemOptionLabels: configuration.itemOptionLabels,
         ui: configuration.ui,
         offerType: configuration.initialOfferType,
+        rewardMode: configuration.initialRewardMode,
         items: initialItems,
 
         /**

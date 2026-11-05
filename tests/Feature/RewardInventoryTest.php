@@ -6,6 +6,7 @@ use App\Models\AccountReward;
 use App\Shop\AccountRewardStatus;
 use App\Shop\Actions\OpenAccountReward;
 use App\Shop\Exceptions\RewardOpenRejected;
+use App\Shop\MysteryBoxRewardMode;
 use App\Shop\RewardOpenBlockReason;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
@@ -52,5 +53,62 @@ final class RewardInventoryTest extends TestCase
 
         $this->assertSame(AccountRewardStatus::Sealed, $reward->refresh()->status);
         $this->assertNull($reward->selected_item_snapshot);
+    }
+
+    /**
+     * Confirms an all-items box releases each immutable pool entry exactly once.
+     */
+    public function test_all_items_mystery_box_releases_every_item_without_duplicates(): void
+    {
+        config()->set('game.writes_enabled', false);
+        $reward = AccountReward::factory()->create([
+            'account_id' => 'owner03',
+            'mystery_box_reward_mode' => MysteryBoxRewardMode::AllItems,
+            'reward_pool_snapshot' => [
+                $this->rewardItem('0:0', 'Kris'),
+                $this->rewardItem('0:1', 'Short Sword'),
+            ],
+        ]);
+        $action = app(OpenAccountReward::class);
+
+        $opened = $action->execute('owner03', $reward);
+        $action->execute('owner03', $reward);
+        $releasedRewards = AccountReward::query()
+            ->where('account_id', 'owner03')
+            ->where('reward_type', 'item')
+            ->orderBy('id')
+            ->get();
+
+        $this->assertSame(AccountRewardStatus::Claimed, $opened->status);
+        $this->assertSame('bundle_delivery_pending', $opened->last_delivery_error);
+        $this->assertCount(2, $releasedRewards);
+        $this->assertSame('Kris', $releasedRewards[0]->selected_item_snapshot['item_name']);
+        $this->assertSame('Short Sword', $releasedRewards[1]->selected_item_snapshot['item_name']);
+        $this->assertSame(AccountRewardStatus::Ready, $releasedRewards[0]->status);
+        $this->assertSame(AccountRewardStatus::Ready, $releasedRewards[1]->status);
+        $this->assertSame(3, AccountReward::query()->where('account_id', 'owner03')->count());
+    }
+
+    /**
+     * Returns one exact item snapshot used by a sealed reward pool.
+     *
+     * @return array<string, int|string|bool>
+     */
+    private function rewardItem(string $itemCode, string $itemName): array
+    {
+        return [
+            'item_code' => $itemCode,
+            'item_name' => $itemName,
+            'item_width' => 1,
+            'item_height' => 2,
+            'level' => 0,
+            'durability' => 255,
+            'option_level' => 0,
+            'has_skill' => false,
+            'has_luck' => false,
+            'excellent_mask' => 0,
+            'ancient_option' => 0,
+            'weight' => 1,
+        ];
     }
 }

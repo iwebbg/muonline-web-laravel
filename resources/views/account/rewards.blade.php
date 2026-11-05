@@ -27,6 +27,9 @@
                             </div>
                             <h2 class="mt-4 text-xl font-semibold text-white">{{ $reward->localizedTitle(app()->getLocale()) }}</h2>
                             <p class="mt-2 text-sm text-gold">{{ is_array($item) ? ($item['item_name'] ?? __('ui.rewards.hidden_item')) : __('ui.rewards.hidden_item') }}</p>
+                            @if ($reward->reward_type === \App\Shop\ShopOfferType::MysteryBox)
+                                <p class="mt-2 text-xs font-semibold text-sky-100">{{ __('ui.shop.mystery_reward_modes.'.$reward->mystery_box_reward_mode->value) }}</p>
+                            @endif
                         </div>
                         @if (is_array($item) && ($item['item_image'] ?? null))
                             <img src="{{ asset($item['item_image']) }}" alt="" class="size-16 object-contain">

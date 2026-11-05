@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Shop\MysteryBoxRewardMode;
 use App\Shop\ShopClassScope;
 use App\Shop\ShopOfferStatus;
 use App\Shop\ShopOfferType;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Defines one administrator-curated item or mystery-box offer.
  */
-#[Fillable(['public_id', 'type', 'class_scope', 'title_en', 'title_bg', 'description_en', 'description_bg', 'price_credits', 'status', 'sort_order', 'published_at', 'available_from', 'available_until'])]
+#[Fillable(['public_id', 'type', 'mystery_box_reward_mode', 'class_scope', 'title_en', 'title_bg', 'description_en', 'description_bg', 'price_credits', 'status', 'sort_order', 'published_at', 'available_from', 'available_until'])]
 final class ShopOffer extends Model
 {
     /** @use HasFactory<ShopOfferFactory> */
@@ -84,6 +85,7 @@ final class ShopOffer extends Model
     {
         return [
             'type' => ShopOfferType::class,
+            'mystery_box_reward_mode' => MysteryBoxRewardMode::class,
             'class_scope' => ShopClassScope::class,
             'status' => ShopOfferStatus::class,
             'price_credits' => 'integer',

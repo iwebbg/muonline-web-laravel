@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Shop\AccountRewardStatus;
+use App\Shop\MysteryBoxRewardMode;
 use App\Shop\RewardDeliveryDestination;
 use App\Shop\RewardSource;
 use App\Shop\ShopClassScope;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Represents one reward owned by an account regardless of how it was earned.
  */
-#[Fillable(['public_id', 'account_id', 'shop_purchase_id', 'shop_offer_id', 'source', 'source_reference', 'granted_by_administrator_id', 'source_reason', 'status', 'reward_type', 'class_scope', 'title_en', 'title_bg', 'description_en', 'description_bg', 'reward_pool_snapshot', 'selected_item_snapshot', 'item_serial', 'item_binary', 'item_fingerprint', 'delivery_destination', 'delivery_attempts', 'last_delivery_attempt_at', 'last_delivery_error', 'opened_at', 'claimed_at'])]
+#[Fillable(['public_id', 'account_id', 'shop_purchase_id', 'shop_offer_id', 'source', 'source_reference', 'granted_by_administrator_id', 'source_reason', 'status', 'reward_type', 'mystery_box_reward_mode', 'class_scope', 'title_en', 'title_bg', 'description_en', 'description_bg', 'reward_pool_snapshot', 'selected_item_snapshot', 'item_serial', 'item_binary', 'item_fingerprint', 'delivery_destination', 'delivery_attempts', 'last_delivery_attempt_at', 'last_delivery_error', 'opened_at', 'claimed_at'])]
 final class AccountReward extends Model
 {
     /** @use HasFactory<AccountRewardFactory> */
@@ -59,6 +60,7 @@ final class AccountReward extends Model
             'source' => RewardSource::class,
             'status' => AccountRewardStatus::class,
             'reward_type' => ShopOfferType::class,
+            'mystery_box_reward_mode' => MysteryBoxRewardMode::class,
             'class_scope' => ShopClassScope::class,
             'reward_pool_snapshot' => 'array',
             'selected_item_snapshot' => 'array',

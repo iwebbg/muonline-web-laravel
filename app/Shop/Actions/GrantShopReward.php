@@ -8,6 +8,7 @@ use App\Models\Administrator;
 use App\Models\ShopOffer;
 use App\Shop\AccountRewardStatus;
 use App\Shop\Exceptions\RewardGrantRejected;
+use App\Shop\MysteryBoxRewardMode;
 use App\Shop\RewardSource;
 use App\Shop\ShopOfferType;
 use Illuminate\Support\Facades\DB;
@@ -71,6 +72,9 @@ final readonly class GrantShopReward
             'source_reason' => $reason,
             'status' => $isMysteryBox ? AccountRewardStatus::Sealed : AccountRewardStatus::Ready,
             'reward_type' => $offer->type,
+            'mystery_box_reward_mode' => $isMysteryBox
+                ? $offer->mystery_box_reward_mode
+                : MysteryBoxRewardMode::OneRandom,
             'class_scope' => $offer->class_scope,
             'title_en' => $offer->title_en,
             'title_bg' => $offer->title_bg,

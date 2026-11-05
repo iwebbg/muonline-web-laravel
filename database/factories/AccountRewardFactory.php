@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\AccountReward;
 use App\Shop\AccountRewardStatus;
+use App\Shop\MysteryBoxRewardMode;
 use App\Shop\RewardSource;
 use App\Shop\ShopClassScope;
 use App\Shop\ShopOfferType;
@@ -31,6 +32,7 @@ class AccountRewardFactory extends Factory
             'source_reference' => null,
             'status' => AccountRewardStatus::Sealed,
             'reward_type' => ShopOfferType::MysteryBox,
+            'mystery_box_reward_mode' => MysteryBoxRewardMode::OneRandom,
             'class_scope' => ShopClassScope::All,
             'title_en' => 'Mystery reward',
             'title_bg' => 'Мистериозна награда',

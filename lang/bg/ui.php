@@ -551,6 +551,10 @@ return [
         'buy' => 'Купи',
         'sign_in' => 'Влез за покупка',
         'mystery_contents' => 'Съдържанието е скрито до отварянето.',
+        'mystery_reward_modes' => [
+            'one_random' => 'Получаваш 1 случаен предмет от кутията',
+            'all_items' => 'Получаваш всички предмети от кутията',
+        ],
         'empty' => 'Няма публикувани оферти за този филтър.',
         'purchase_completed' => 'Покупката е завършена. Наградата е добавена в Rewards.',
         'purchase_errors' => [
@@ -1447,6 +1451,9 @@ return [
         'shop_offer_empty' => 'Няма оферти за тези филтри.',
         'shop_offer_type' => 'Тип на офертата',
         'shop_offer_types' => ['item' => 'Предмет', 'mystery_box' => 'Mystery Box'],
+        'shop_offer_reward_mode' => 'Награда при отваряне',
+        'shop_offer_reward_modes' => ['one_random' => 'Един случаен предмет', 'all_items' => 'Всички настроени предмети'],
+        'shop_offer_reward_mode_help' => 'Играчите виждат колко предмета ще получат, без да се разкрива съдържанието.',
         'shop_offer_class_scope' => 'Категория по клас',
         'shop_offer_title_en' => 'Английско заглавие',
         'shop_offer_title_bg' => 'Българско заглавие',

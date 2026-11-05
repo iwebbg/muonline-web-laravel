@@ -33,6 +33,7 @@
                     x-data="shopOfferEditor(@js([
                         'initialItems' => $initialItems,
                         'initialOfferType' => old('type', $offer?->type->value ?? 'item'),
+                        'initialRewardMode' => old('mystery_box_reward_mode', $offer?->mystery_box_reward_mode->value ?? 'one_random'),
                         'items' => $definitionsByCode,
                         'itemLevels' => $itemLevels,
                         'optionLevels' => $optionLevels,
@@ -45,8 +46,17 @@
                 >
                     @csrf
                     @if ($offer) @method('PUT') @endif
-                    <div class="grid gap-5 md:grid-cols-3">
+                    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
                         <label class="field-group"><span>{{ __('ui.admin.shop_offer_type') }}</span><select name="type" x-model="offerType">@foreach ($types as $type)<option value="{{ $type->value }}" @selected(old('type', $offer?->type->value ?? 'item') === $type->value)>{{ __('ui.admin.shop_offer_types.'.$type->value) }}</option>@endforeach</select></label>
+                        <label class="field-group" x-show="offerType === 'mystery_box'" x-cloak>
+                            <span>{{ __('ui.admin.shop_offer_reward_mode') }}</span>
+                            <select name="mystery_box_reward_mode" x-model="rewardMode">
+                                @foreach ($mysteryBoxRewardModes as $rewardMode)
+                                    <option value="{{ $rewardMode->value }}" @selected(old('mystery_box_reward_mode', $offer?->mystery_box_reward_mode->value ?? 'one_random') === $rewardMode->value)>{{ __('ui.admin.shop_offer_reward_modes.'.$rewardMode->value) }}</option>
+                                @endforeach
+                            </select>
+                            <small>{{ __('ui.admin.shop_offer_reward_mode_help') }}</small>
+                        </label>
                         <label class="field-group"><span>{{ __('ui.admin.shop_offer_class_scope') }}</span><select name="class_scope">@foreach ($classScopes as $scope)<option value="{{ $scope->value }}" @selected(old('class_scope', $offer?->class_scope->value ?? 'all') === $scope->value)>{{ __('ui.shop.class_scopes.'.$scope->value) }}</option>@endforeach</select></label>
                         <label class="field-group"><span>{{ __('ui.admin.shop_offer_status') }}</span><select name="status">@foreach ($statuses as $status)<option value="{{ $status->value }}" @selected(old('status', $offer?->status->value ?? 'draft') === $status->value)>{{ __('ui.admin.shop_offer_statuses.'.$status->value) }}</option>@endforeach</select></label>
                     </div>
@@ -135,10 +145,10 @@
                                             </template>
                                         </select>
                                     </label>
-                                    <template x-if="offerType === 'mystery_box'">
+                                    <template x-if="offerType === 'mystery_box' && rewardMode === 'one_random'">
                                         <label class="field-group"><span>{{ __('ui.admin.shop_offer_weight') }}</span><input type="number" x-bind:name="`items[${index}][weight]`" x-model.number="item.weight" min="1" required></label>
                                     </template>
-                                    <template x-if="offerType !== 'mystery_box'">
+                                    <template x-if="offerType !== 'mystery_box' || rewardMode === 'all_items'">
                                         <input type="hidden" x-bind:name="`items[${index}][weight]`" value="1">
                                     </template>
                                     <div class="flex flex-wrap items-end gap-5 pb-2">

@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreShopOfferRequest;
 use App\Http\Requests\Admin\UpdateShopOfferRequest;
 use App\Models\ShopOffer;
+use App\Shop\MysteryBoxRewardMode;
 use App\Shop\ShopOfferStatus;
 use App\Shop\ShopOfferType;
 use Illuminate\Http\RedirectResponse;
@@ -166,6 +167,7 @@ final class ShopOfferController extends Controller
             'offer' => $offer,
             'definitionsByCode' => array_column($definitions, null, 'code'),
             'types' => ShopOfferType::cases(),
+            'mysteryBoxRewardModes' => MysteryBoxRewardMode::cases(),
             'classScopes' => app(GameVersionProfile::class)->shopClassScopes(),
             'statuses' => ShopOfferStatus::cases(),
             'itemLevels' => $rules->itemLevels(),
