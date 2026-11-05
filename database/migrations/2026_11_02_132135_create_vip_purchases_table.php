@@ -17,14 +17,14 @@ return new class extends Migration
             $table->char('request_hash', 64);
             $table->foreignId('vip_entitlement_id')
                 ->constrained('vip_entitlements')
-                ->restrictOnDelete();
+                ->noActionOnDelete();
             $table->foreignId('vip_plan_id')
                 ->constrained('vip_plans')
-                ->restrictOnDelete();
+                ->noActionOnDelete();
             $table->foreignId('wallet_transaction_id')
                 ->unique()
                 ->constrained('wallet_transactions')
-                ->restrictOnDelete();
+                ->noActionOnDelete();
             $table->string('account_id', 10);
             $table->string('character_name', 10);
             $table->string('plan_name', 120);

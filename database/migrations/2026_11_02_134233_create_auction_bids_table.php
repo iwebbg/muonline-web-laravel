@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('auction_bids', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('market_listing_id')->constrained()->restrictOnDelete();
+            $table->foreignId('market_listing_id')->constrained()->noActionOnDelete();
             $table->string('bidder_account_id', 10)->index();
             $table->unsignedBigInteger('amount_credits');
             $table->uuid('idempotency_key')->unique();

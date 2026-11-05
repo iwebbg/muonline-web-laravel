@@ -25,11 +25,11 @@ return new class extends Migration
             $table->foreignId('created_by_administrator_id')
                 ->nullable()
                 ->constrained('administrators')
-                ->nullOnDelete();
+                ->noActionOnDelete();
             $table->foreignId('updated_by_administrator_id')
                 ->nullable()
                 ->constrained('administrators')
-                ->nullOnDelete();
+                ->noActionOnDelete();
             $table->timestamps();
             $table->softDeletes();
         });

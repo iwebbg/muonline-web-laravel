@@ -17,7 +17,7 @@ return new class extends Migration
             $table->char('request_hash', 64);
             $table->foreignId('account_wallet_id')
                 ->constrained('account_wallets')
-                ->restrictOnDelete();
+                ->noActionOnDelete();
             $table->string('account_id', 10)->index();
             $table->string('currency', 32)->index();
             $table->string('type', 32)->index();

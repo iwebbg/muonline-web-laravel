@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('idempotency_key')->unique();
             $table->foreignId('vote_site_id')
                 ->constrained('vote_sites')
-                ->restrictOnDelete();
+                ->noActionOnDelete();
             $table->string('account_id', 10);
             $table->char('ip_hash', 64);
             $table->unsignedBigInteger('reward_credits');
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->foreignId('wallet_transaction_id')
                 ->nullable()
                 ->constrained('wallet_transactions')
-                ->restrictOnDelete();
+                ->noActionOnDelete();
             $table->unsignedBigInteger('zen_balance_before')->nullable();
             $table->unsignedBigInteger('zen_balance_after')->nullable();
             $table->foreignId('reviewed_by_administrator_id')

@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('provider_order_id', 191)->nullable();
             $table->string('provider_transaction_id', 191)->nullable();
             $table->json('provider_payload')->nullable();
-            $table->foreignId('wallet_transaction_id')->nullable()->constrained('wallet_transactions')->restrictOnDelete();
+            $table->foreignId('wallet_transaction_id')->nullable()->constrained('wallet_transactions')->noActionOnDelete();
             $table->timestamp('paid_at')->nullable();
             $table->timestamp('credited_at')->nullable();
             $table->timestamp('failed_at')->nullable();

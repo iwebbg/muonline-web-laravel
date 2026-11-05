@@ -16,11 +16,11 @@ return new class extends Migration
             $table->foreignId('target_administrator_id')
                 ->nullable()
                 ->constrained('administrators')
-                ->nullOnDelete();
+                ->noActionOnDelete();
             $table->foreignId('changed_by_administrator_id')
                 ->nullable()
                 ->constrained('administrators')
-                ->nullOnDelete();
+                ->noActionOnDelete();
             $table->string('action', 32)->index();
             $table->json('before_snapshot')->nullable();
             $table->json('after_snapshot');

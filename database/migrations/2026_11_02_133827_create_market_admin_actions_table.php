@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('market_admin_actions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('market_listing_id')->constrained()->restrictOnDelete();
+            $table->foreignId('market_listing_id')->constrained()->noActionOnDelete();
             $table->foreignId('administrator_id')->nullable()->constrained()->nullOnDelete();
             $table->string('action', 32);
             $table->string('before_status', 24);
