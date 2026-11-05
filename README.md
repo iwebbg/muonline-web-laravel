@@ -31,7 +31,8 @@ and verified, other MuOnline versions must be treated as unsupported.
 - Rankings, character and guild profiles, events, news, guides and downloads.
 - Character resets, grand resets, stats, PK clear and move-to-town with previews.
 - Multi-vault inventory, Web Vault and physical-item Jewel Bank.
-- Credits, VIP, vote rewards, Zen Bank, Market and timed Auctions.
+- Credits packages with Stripe, PayPal and Revolut Pay, VIP, vote rewards,
+  Zen Bank, Market and timed Auctions.
 - Items Shop, version-aware Item Generator and configurable Mystery Boxes.
 - Mystery Boxes can release one hidden random item or every configured item.
 - Separate administrator identities, granular Game Master permissions and audit

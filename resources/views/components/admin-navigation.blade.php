@@ -78,6 +78,9 @@
                     <a href="{{ route('admin.wallet.index') }}" class="admin-nav-link {{ $active === 'economy' ? 'admin-nav-link-active' : '' }}">
                         <span>¤</span>{{ __('ui.admin.wallet_nav') }}
                     </a>
+                    <a href="{{ route('admin.credit-packages.index') }}" class="admin-nav-link {{ $active === 'credit-packages' ? 'admin-nav-link-active' : '' }}">
+                        <span>＋</span>{{ __('ui.admin.credit_packages_nav') }}
+                    </a>
                     <a href="{{ route('admin.vip-plans.index') }}" class="admin-nav-link {{ $active === 'vip-plans' ? 'admin-nav-link-active' : '' }}">
                         <span>◆</span>{{ __('ui.admin.vip_plans_nav') }}
                     </a>

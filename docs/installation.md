@@ -95,6 +95,27 @@ Only enable writes after all of the following are true:
    items.
 5. Every enabled mutation has been tested with disposable accounts.
 
+## Credits payment providers
+
+Credits packages are managed from **Admin → Economy → Credits packages**. A
+provider appears to players only when it is explicitly enabled and all of its
+required secrets are present. Keep sandbox mode enabled until checkout,
+webhook, replay and refund scenarios pass end to end.
+
+Configure the relevant `.env` values from `.env.example`. Register these public
+webhook URLs with the providers:
+
+```text
+https://mu.example.com/payments/webhooks/stripe
+https://mu.example.com/payments/webhooks/paypal
+https://mu.example.com/payments/webhooks/revolut
+```
+
+Stripe requires its secret key and endpoint signing secret. PayPal requires an
+application client ID, secret and the registered webhook ID. Revolut requires
+the Merchant API secret key and the webhook signing secret. Never place these
+values in the database or commit them to source control.
+
 ## Production deployment
 
 Production requires a public domain whose DNS points to the Docker host. Ports

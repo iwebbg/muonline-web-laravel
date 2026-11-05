@@ -258,8 +258,8 @@ components under `resources/views/components`, and Alpine modules under
 2. Finish UI polish and responsive review after functional defects are closed.
 3. Add real vote-provider callbacks; the current workflow supports controlled
    administrator verification.
-4. Add signed, idempotent PayPal, Revolut and Stripe integrations for purchasing
-   Credits without weakening the existing wallet ledger.
+4. Certify the implemented signed and idempotent PayPal, Revolut Pay and Stripe
+   Credits integrations against each provider's sandbox and live checklist.
 5. Design the remaining optional Web Event capabilities around the established
    version and module boundaries.
 6. Run concurrency and failure-recovery tests for Market, Auction, Web Shop,

@@ -135,12 +135,19 @@ profile and adapters.
 - Liveness and dependency-aware readiness endpoints.
 - Production Nginx, HTTPS redirection and automatic Let's Encrypt renewal.
 
-## Not included yet
+## Credits payments
 
-Payment-provider integrations for buying Credits through PayPal, Revolut and
-Stripe are planned but are not part of the current implementation. Additional
-MuOnline versions also require dedicated compatibility work before they can be
-declared supported.
+- Administrator-configured fixed Credits packages with immutable purchase
+  snapshots.
+- Hosted Stripe Checkout, PayPal Orders v2 and Revolut Pay checkout flows.
+- Sandbox and live provider modes configured only through environment secrets.
+- Signed webhooks, provider-side amount/currency reconciliation and idempotent
+  wallet settlement.
+- Account and administrator payment history. Refund events are recorded and
+  flagged without silently creating a negative Credits balance.
+
+Additional MuOnline versions require dedicated compatibility work before they
+can be declared supported.
 
 For implementation details and remaining work, see the
 [current state](current-state.md) and [roadmap](roadmap.md).

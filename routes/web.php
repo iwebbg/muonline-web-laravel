@@ -12,6 +12,8 @@ use App\Http\Controllers\Account\CharacterResetController;
 use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\CreditController;
+use App\Http\Controllers\Account\CreditPaymentReturnController;
+use App\Http\Controllers\Account\CreditPurchaseController;
 use App\Http\Controllers\Account\GeneratedItemPurchaseController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
 use App\Http\Controllers\Account\ItemGeneratorController;
@@ -35,6 +37,7 @@ use App\Http\Controllers\AccountDashboardController;
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\CharacterRuleProfileController;
+use App\Http\Controllers\Admin\CreditPackageController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
 use App\Http\Controllers\Admin\EconomyRecoveryController;
@@ -69,6 +72,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RankingsController;
 use App\Http\Controllers\ReadinessController;
@@ -103,6 +107,11 @@ Route::get('/server/status', ServerStatusController::class)
     ])
     ->middleware('throttle:server-status')
     ->name('server.status');
+
+Route::post('/payments/webhooks/{provider}', PaymentWebhookController::class)
+    ->withoutMiddleware(PreventRequestForgery::class)
+    ->whereIn('provider', ['stripe', 'paypal', 'revolut'])
+    ->name('payments.webhooks');
 
 Route::get('/rankings/data', [RankingsController::class, 'data'])
     ->name('rankings.data');
@@ -191,6 +200,12 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/account/credits', CreditController::class)
         ->middleware('module.enabled:'.ServerModule::Credits->value)
         ->name('account.credits.index');
+    Route::post('/account/credits/packages/{creditPackage}/purchase', CreditPurchaseController::class)
+        ->middleware(['module.enabled:'.ServerModule::Credits->value, 'throttle:credit-purchase'])
+        ->name('account.credit-packages.purchase');
+    Route::get('/account/credits/payments/{creditPayment}/return', CreditPaymentReturnController::class)
+        ->middleware(['module.enabled:'.ServerModule::Credits->value, 'throttle:credit-purchase'])
+        ->name('account.credit-payments.return');
     Route::get('/account/rewards', [RewardController::class, 'index'])
         ->middleware('module.enabled:'.ServerModule::Rewards->value)
         ->name('account.rewards.index');
@@ -422,6 +437,14 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                     ->name('vip-plans.update');
                 Route::delete('/economy/vip-plans/{vipPlan}', [VipPlanController::class, 'destroy'])
                     ->name('vip-plans.destroy');
+                Route::get('/economy/credit-packages', [CreditPackageController::class, 'index'])
+                    ->name('credit-packages.index');
+                Route::post('/economy/credit-packages', [CreditPackageController::class, 'store'])
+                    ->name('credit-packages.store');
+                Route::put('/economy/credit-packages/{creditPackage}', [CreditPackageController::class, 'update'])
+                    ->name('credit-packages.update');
+                Route::delete('/economy/credit-packages/{creditPackage}', [CreditPackageController::class, 'destroy'])
+                    ->name('credit-packages.destroy');
                 Route::get('/economy/votes', [VoteSiteController::class, 'index'])
                     ->name('vote-sites.index');
                 Route::get('/economy/votes/history', [AdminVoteClaimController::class, 'index'])

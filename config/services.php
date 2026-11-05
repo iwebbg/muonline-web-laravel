@@ -45,4 +45,28 @@ return [
         'timeout_seconds' => max(1, (int) env('RECAPTCHA_TIMEOUT_SECONDS', 5)),
     ],
 
+    'payments' => [
+        'currency' => strtoupper(env('PAYMENTS_CURRENCY', 'EUR')),
+        'stripe' => [
+            'enabled' => filter_var(env('STRIPE_ENABLED', false), FILTER_VALIDATE_BOOL),
+            'secret' => env('STRIPE_SECRET_KEY'),
+            'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+            'base_url' => env('STRIPE_BASE_URL', 'https://api.stripe.com'),
+        ],
+        'paypal' => [
+            'enabled' => filter_var(env('PAYPAL_ENABLED', false), FILTER_VALIDATE_BOOL),
+            'client_id' => env('PAYPAL_CLIENT_ID'),
+            'secret' => env('PAYPAL_SECRET'),
+            'webhook_id' => env('PAYPAL_WEBHOOK_ID'),
+            'base_url' => env('PAYPAL_MODE', 'sandbox') === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com',
+        ],
+        'revolut' => [
+            'enabled' => filter_var(env('REVOLUT_ENABLED', false), FILTER_VALIDATE_BOOL),
+            'secret' => env('REVOLUT_SECRET_KEY'),
+            'webhook_secret' => env('REVOLUT_WEBHOOK_SECRET'),
+            'api_version' => env('REVOLUT_API_VERSION', '2026-08-17'),
+            'base_url' => env('REVOLUT_MODE', 'sandbox') === 'live' ? 'https://merchant.revolut.com' : 'https://sandbox-merchant.revolut.com',
+        ],
+    ],
+
 ];

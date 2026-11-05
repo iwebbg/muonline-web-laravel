@@ -123,8 +123,8 @@ database is never accessed using `sa` or `db_owner` credentials.
 2. Close remaining responsive and interaction defects without changing the
    established Blade/Alpine/Tailwind CSS v4 stack.
 3. Add automated vote-provider callbacks.
-4. Implement payment-provider-backed Credits purchases for PayPal, Revolut and
-   Stripe with signed webhooks, idempotency, refunds and immutable audit records.
+4. Complete sandbox and live end-to-end certification for the implemented
+   PayPal, Revolut Pay and Stripe Credits purchase integrations.
 5. Design the remaining optional Web Event capabilities around the established
    version and module boundaries.
 6. Stress concurrent bids, shop purchases, reward openings, storage moves and
