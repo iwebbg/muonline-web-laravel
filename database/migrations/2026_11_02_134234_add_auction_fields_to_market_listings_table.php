@@ -30,6 +30,11 @@ return new class extends Migration
     {
         Schema::table('market_listings', function (Blueprint $table) {
             $table->dropConstrainedForeignId('highest_bid_id');
+            $table->dropIndex(['sale_type']);
+            $table->dropIndex(['highest_bidder_account_id']);
+        });
+
+        Schema::table('market_listings', function (Blueprint $table) {
             $table->dropColumn([
                 'sale_type',
                 'minimum_bid_credits',

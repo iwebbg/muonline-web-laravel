@@ -22,6 +22,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('news_posts', function (Blueprint $table): void {
+            $table->dropIndex(['type']);
+        });
+
+        Schema::table('news_posts', function (Blueprint $table): void {
             $table->dropColumn('type');
         });
     }

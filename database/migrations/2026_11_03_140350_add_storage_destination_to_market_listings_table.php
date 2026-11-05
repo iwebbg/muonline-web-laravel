@@ -23,6 +23,9 @@ return new class extends Migration
     {
         Schema::table('market_listings', function (Blueprint $table): void {
             $table->dropIndex(['storage_destination']);
+        });
+
+        Schema::table('market_listings', function (Blueprint $table): void {
             $table->dropColumn('storage_destination');
         });
     }

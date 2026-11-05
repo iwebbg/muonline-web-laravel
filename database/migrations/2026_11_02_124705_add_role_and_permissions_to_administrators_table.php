@@ -29,6 +29,9 @@ return new class extends Migration
     {
         Schema::table('administrators', function (Blueprint $table) {
             $table->dropIndex(['role']);
+        });
+
+        Schema::table('administrators', function (Blueprint $table) {
             $table->dropColumn([
                 'role',
                 'permissions',
