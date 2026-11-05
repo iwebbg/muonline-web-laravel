@@ -54,7 +54,7 @@
                     @endif
                     @if ($type === \App\Shop\ShopOfferType::MysteryBox)
                         <p class="mt-3 text-sm text-gold">{{ __('ui.shop.mystery_contents') }}</p>
-                        <p class="mt-3 inline-flex w-fit items-center rounded-full border border-sky-300/25 bg-sky-300/8 px-3 py-1.5 text-xs font-semibold text-sky-100">
+                        <p class="mt-3 mb-4 inline-flex w-fit items-center rounded-full border border-sky-300/25 bg-sky-300/8 px-3 py-1.5 text-xs font-semibold text-sky-100">
                             {{ __('ui.shop.mystery_reward_modes.'.$offer->mystery_box_reward_mode->value) }}
                         </p>
                     @elseif ($item)
