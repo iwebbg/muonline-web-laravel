@@ -197,6 +197,48 @@ traffic to HTTPS. Certificate renewal runs twice daily and reloads Nginx only
 after a successful renewal. The queue and scheduler containers start with the
 same immutable application image.
 
+### Deployment behind an existing VPS reverse proxy
+
+When the host already owns ports 80/443 and terminates TLS, use the external
+Compose mode instead of the standalone production Nginx topology. Configure
+`docker/.env` with the shared Docker network and a stable container name:
+
+```dotenv
+DOCKER_ENV=external
+APP_DOMAIN=mu.example.com
+NGINX_CONTAINER_NAME=muonline-web-nginx
+EXTERNAL_DOCKER_NETWORK=server1_net
+```
+
+The external mode uses the production application, queue, scheduler and Redis
+services, but replaces the TLS-enabled Nginx image with an HTTP-only internal
+image. It publishes no host ports, exposes port 80 only to Docker networks and
+joins the configured external network with the stable alias
+`muonline-nginx`. The VPS reverse proxy should forward HTTPS requests to:
+
+```nginx
+proxy_pass http://muonline-nginx:80;
+proxy_set_header Host $host;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto https;
+proxy_set_header X-Forwarded-Host $host;
+proxy_set_header X-Forwarded-Port 443;
+```
+
+Create the external network once if the VPS reverse-proxy stack has not already
+created it. Do not recreate an existing shared network:
+
+```bash
+docker network inspect server1_net >/dev/null 2>&1 \
+    || docker network create server1_net
+```
+
+Deploy with the same commands used for production. Docker Compose will combine
+`docker-compose.prod.yaml` with `docker-compose.external.yaml` automatically.
+The public certificate and renewal process remain exclusively in the VPS
+reverse-proxy stack.
+
 Use `/up` for process liveness and `/ready` for deployment readiness. The
 readiness endpoint checks the application database, cache and read-only game
 connection without exposing connection details.

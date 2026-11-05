@@ -1,0 +1,33 @@
+# External reverse-proxy override.
+#
+# Combine this file with docker-compose.prod.yaml through ./docker/compose by
+# setting DOCKER_ENV=external. TLS and public ports remain owned by the VPS
+# reverse proxy; this stack exposes Nginx only inside the shared Docker network.
+services:
+    nginx:
+        container_name: ${NGINX_CONTAINER_NAME:-muonline-web-nginx}
+        build:
+            context: ..
+            dockerfile: docker/nginx/external/Dockerfile
+        ports: !reset []
+        expose:
+            - "80"
+        volumes: !override
+            - app-storage:/var/www/html/storage:ro
+        environment: !reset {}
+        healthcheck:
+            test: ["CMD-SHELL", "wget --quiet --spider http://127.0.0.1/health || exit 1"]
+            start_period: 10s
+            interval: 30s
+            timeout: 5s
+            retries: 5
+        networks:
+            application: {}
+            external-proxy:
+                aliases:
+                    - muonline-nginx
+
+networks:
+    external-proxy:
+        name: ${EXTERNAL_DOCKER_NETWORK:-server1_net}
+        external: true

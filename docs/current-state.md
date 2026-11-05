@@ -39,8 +39,10 @@ show framework, database-table or internal transaction terminology to players.
 - Redis backs cache, locks and scheduler coordination.
 - Microsoft ODBC Driver 18 and `sqlsrv`/`pdo_sqlsrv` connect to MuOnline SQL
   Server.
-- `./docker/compose` selects the local or production Nginx topology from the
-  two values in `docker/.env`: `DOCKER_ENV` and `APP_DOMAIN`.
+- `./docker/compose` selects the local, standalone production or external
+  reverse-proxy topology through `DOCKER_ENV`. `APP_DOMAIN` supplies the public
+  hostname, while external mode also accepts `EXTERNAL_DOCKER_NETWORK` and a
+  stable `NGINX_CONTAINER_NAME`.
 - Laravel and game settings stay in the root `.env`; do not create additional
   environment files for each service.
 

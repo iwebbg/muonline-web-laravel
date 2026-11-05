@@ -18,23 +18,42 @@ if [ ! -f "$application_environment_file" ]; then
 fi
 
 docker_environment="$(sed -n 's/^DOCKER_ENV=//p' "$docker_environment_file" | tail -n 1)"
+compose_files=()
 
 case "$docker_environment" in
     local)
-        compose_file="$docker_directory/docker-compose.local.yaml"
+        compose_files+=(
+            "$docker_directory/docker-compose.local.yaml"
+        )
         ;;
     prod|production)
-        compose_file="$docker_directory/docker-compose.prod.yaml"
+        compose_files+=(
+            "$docker_directory/docker-compose.prod.yaml"
+        )
+        ;;
+    external)
+        compose_files+=(
+            "$docker_directory/docker-compose.prod.yaml"
+            "$docker_directory/docker-compose.external.yaml"
+        )
         ;;
     *)
-        echo "DOCKER_ENV must be local or production." >&2
+        echo "DOCKER_ENV must be local, production or external." >&2
         exit 1
         ;;
 esac
+
+compose_file_arguments=()
+
+for compose_file in "${compose_files[@]}"; do
+    compose_file_arguments+=(
+        --file "$compose_file"
+    )
+done
 
 exec docker compose \
     --project-directory "$docker_directory" \
     --env-file "$application_environment_file" \
     --env-file "$docker_environment_file" \
-    --file "$compose_file" \
+    "${compose_file_arguments[@]}" \
     "$@"

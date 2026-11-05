@@ -79,6 +79,7 @@ services:
             - application
 
     nginx:
+        container_name: ${NGINX_CONTAINER_NAME:-muonline-web-nginx}
         build:
             context: ..
             dockerfile: docker/nginx/prod/Dockerfile
