@@ -19,8 +19,8 @@ creates and renews Let's Encrypt certificates and persists application storage.
 - Git.
 - Node.js 24 and npm for local frontend builds. Production images build the
   frontend inside Docker.
-- A supported SQL Server reachable from the containers when using live game
-  data.
+- A supported SQL Server reachable from the containers for the isolated
+  `MuOnline_Web` application database and, when enabled, live game data.
 - A dedicated MuOnline test server before enabling any write operation.
 
 ## Local installation
@@ -33,8 +33,10 @@ cp .env.example .env
 cp docker/.env.example docker/.env
 ```
 
-The default configuration uses fixture game data, SQLite for application-owned
-records and safe game-write switches. Build the frontend and start the stack:
+Edit the root `.env` and replace the SQL Server host, runtime password and
+temporary administrator-password placeholders. The default configuration uses
+fixture game data, stores application-owned records in `MuOnline_Web`, and
+keeps the game-write switches closed. Build the frontend and start the stack:
 
 ```bash
 npm ci
@@ -42,11 +44,11 @@ npm run build
 ./docker/compose up --detach --build
 ```
 
-Generate the Laravel application key and create the application tables:
+The first start creates, migrates and seeds `MuOnline_Web` automatically.
+Generate the Laravel application key:
 
 ```bash
 ./docker/compose exec -T app php artisan key:generate
-./docker/compose exec -T app php artisan migrate --force --no-interaction
 ```
 
 Open `http://localhost`. The local Nginx container owns host port 80 and proxies

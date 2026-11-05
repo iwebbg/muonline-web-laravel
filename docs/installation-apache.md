@@ -80,15 +80,16 @@ Set-Location C:\xampp\htdocs
 git clone https://github.com/iwebbg/muonline-web-laravel.git
 Set-Location muonline-web-laravel
 Copy-Item .env.example .env
-New-Item database\database.sqlite -ItemType File -Force
 composer install --no-interaction --prefer-dist
 npm ci
 npm run build
 php artisan key:generate
-php artisan migrate --force --no-interaction
 php artisan storage:link
-php artisan admin:create
 ```
+
+Before running migrations, choose either the fixture-only SQLite configuration
+below or provision `MuOnline_Web` with the following SQL Server section.
+After the selected database is ready, run `php artisan admin:create`.
 
 If `storage:link` cannot create a symbolic link, enable Windows Developer Mode
 or run that one command from an elevated terminal. Uploaded website assets are
@@ -113,6 +114,15 @@ QUEUE_CONNECTION=sync
 GAME_DATA_SOURCE=fixture
 GAME_DB_READONLY=true
 GAME_WRITES_ENABLED=false
+```
+
+Create the local SQLite file and application tables:
+
+```powershell
+New-Item database\database.sqlite -ItemType File -Force
+php artisan migrate --force --no-interaction
+php artisan db:seed --force --no-interaction
+php artisan admin:create
 ```
 
 Keep fixture data and both write switches closed until the live SQL Server
@@ -146,6 +156,7 @@ Apache has no container entrypoint, so run the guarded installer once:
 php artisan app:database:install --no-interaction
 php artisan migrate --force --no-interaction
 php artisan db:seed --force --no-interaction
+php artisan admin:create
 ~~~
 
 After success, set **APP_DB_BOOTSTRAP=false** and clear both

@@ -61,16 +61,17 @@ least-privilege database credentials or normal server hardening.
 ```bash
 cp .env.example .env
 cp docker/.env.example docker/.env
+# Edit .env and replace the SQL Server host and password placeholders.
 npm ci
 npm run build
 ./docker/compose up --detach --build
 ```
 
-Then generate the application key and migrate the application-owned database:
+The first container start creates and migrates **MuOnline_Web** automatically.
+Then generate the application key:
 
 ```bash
 ./docker/compose exec -T app php artisan key:generate
-./docker/compose exec -T app php artisan migrate --force --no-interaction
 ```
 
 The local site is available at `http://localhost` and uses fixture game data by
