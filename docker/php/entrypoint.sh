@@ -52,7 +52,19 @@ if [ "${DB_CONNECTION:-}" = "sqlite" ]; then
     fi
 fi
 
-if [ "$container_role" = "app" ] && [ "${AUTO_MIGRATE:-false}" = "true" ]; then
+if [ "$container_role" = "app" ] && [ "${APP_DB_BOOTSTRAP:-false}" = "true" ]; then
+    if [ "${DB_CONNECTION:-}" != "sqlsrv" ]; then
+        echo "APP_DB_BOOTSTRAP requires DB_CONNECTION=sqlsrv." >&2
+        exit 1
+    fi
+
+    php artisan app:database:install --no-interaction
+    php artisan migrate --force --no-interaction
+
+    if [ "${APP_DB_SEED:-true}" = "true" ]; then
+        php artisan db:seed --force --no-interaction
+    fi
+elif [ "$container_role" = "app" ] && [ "${AUTO_MIGRATE:-false}" = "true" ]; then
     php artisan migrate --force --no-interaction
 fi
 

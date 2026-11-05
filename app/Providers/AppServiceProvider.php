@@ -14,6 +14,8 @@ use App\Game\Repositories\LegacyGameAccountLookupRepository;
 use App\Game\Status\FixtureGameServerStatus;
 use App\Game\Status\TcpGameServerStatus;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Installation\Contracts\ApplicationDatabaseInstaller;
+use App\Installation\SqlServerApplicationDatabaseInstaller;
 use App\Modules\ModuleManager;
 use App\Website\WebsiteSettings;
 use App\Website\WebsiteSettingsManager;
@@ -75,6 +77,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GameAccountLookupRepository::class, LegacyGameAccountLookupRepository::class);
         $this->app->singleton(ModuleManager::class);
         $this->app->singleton(WebsiteSettingsManager::class);
+        $this->app->bind(ApplicationDatabaseInstaller::class, SqlServerApplicationDatabaseInstaller::class);
     }
 
     /**

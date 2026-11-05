@@ -17,8 +17,8 @@ applying security updates and preserving writable-directory permissions.
 - Composer 2.
 - Git.
 - Node.js 24 and npm to build the frontend assets.
-- SQLite for application-owned data, or another configured application
-  database supported by Laravel.
+- SQL Server for the isolated **MuOnline_Web** application database in live
+  installations. SQLite remains available for fixture-only evaluation.
 - Microsoft ODBC Driver 18 and Microsoft Drivers 5.13 for PHP for SQL Server
   when connecting to a live MuOnline database.
 
@@ -44,9 +44,9 @@ Enable these extensions for the Apache PHP runtime and for command-line PHP:
   `session`, `tokenizer` and `xml`.
 - Used by the supplied runtime and recommended for this project: `bcmath`,
   `intl`, `xmlreader`, `xmlwriter` and `zip`.
-- Default application database: `pdo_sqlite` and `sqlite3`.
-- Live MuOnline database: `sqlsrv` and `pdo_sqlsrv` plus Microsoft ODBC Driver
-  18.
+- Fixture-only SQLite database: `pdo_sqlite` and `sqlite3`.
+- Live **MuOnline_Web** and **MuOnline** databases: `sqlsrv` and
+  `pdo_sqlsrv` plus Microsoft ODBC Driver 18.
 - Optional Redis services: `redis` when `SESSION_DRIVER`, `CACHE_STORE` or
   `QUEUE_CONNECTION` uses Redis.
 
@@ -117,6 +117,42 @@ GAME_WRITES_ENABLED=false
 
 Keep fixture data and both write switches closed until the live SQL Server
 connection passes `php artisan game:doctor`.
+
+### Provisioning MuOnline_Web on SQL Server
+
+A live manual installation should use the same SQL Server instance for two
+isolated databases: **MuOnline** for game-owned records and **MuOnline_Web** for
+Laravel-owned records. Configure **.env** before running migrations:
+
+~~~dotenv
+DB_CONNECTION=sqlsrv
+DB_HOST=192.168.0.105
+DB_PORT=1433
+DB_DATABASE=MuOnline_Web
+DB_USERNAME=muonline_web_app
+DB_PASSWORD=replace-with-a-long-random-runtime-password
+DB_ENCRYPT=true
+DB_TRUST_SERVER_CERTIFICATE=true
+
+APP_DB_BOOTSTRAP=true
+APP_DB_SEED=true
+APP_DB_ADMIN_USERNAME=sa
+APP_DB_ADMIN_PASSWORD=replace-with-the-current-sa-password
+~~~
+
+Apache has no container entrypoint, so run the guarded installer once:
+
+~~~bash
+php artisan app:database:install --no-interaction
+php artisan migrate --force --no-interaction
+php artisan db:seed --force --no-interaction
+~~~
+
+After success, set **APP_DB_BOOTSTRAP=false** and clear both
+**APP_DB_ADMIN_\*** values. Run **php artisan optimize:clear**, then restart
+Apache and every queue or scheduler process. Normal requests use only
+**muonline_web_app**. The SQLCMD fallback is
+**docker/sql/create-application-database-97d+99i.sql**.
 
 ### Connecting live data and enabling writes
 
@@ -234,27 +270,25 @@ npm ci
 npm run build
 php artisan key:generate
 php artisan storage:link
-sudo install -d -o www-data -g www-data -m 750 /var/lib/muonline-web
-sudo -u www-data touch /var/lib/muonline-web/database.sqlite
 ```
 
-Set the application database to the writable file outside the source checkout:
-
-```dotenv
-DB_CONNECTION=sqlite
-DB_DATABASE=/var/lib/muonline-web/database.sqlite
-```
-
-Give the Apache user write permission only where Laravel needs it, then finish
-the application-owned database and administrator setup as that user:
+Configure the isolated SQL Server application database and its temporary
+bootstrap credentials as shown in
+[Provisioning MuOnline_Web on SQL Server](#provisioning-muonline_web-on-sql-server).
+Then give the Apache user write permission only where Laravel needs it:
 
 ```bash
 sudo chown -R www-data:www-data storage bootstrap/cache
 sudo find storage bootstrap/cache -type d -exec chmod 775 {} \;
 sudo find storage bootstrap/cache -type f -exec chmod 664 {} \;
+sudo -u www-data php artisan app:database:install --no-interaction
 sudo -u www-data php artisan migrate --force --no-interaction
+sudo -u www-data php artisan db:seed --force --no-interaction
 sudo -u www-data php artisan admin:create
 ```
+
+Remove the temporary administrator credentials and clear cached configuration
+before accepting requests.
 
 Use an Apache site equivalent to the Windows VirtualHost, with
 `DocumentRoot /var/www/muonline-web-laravel/public`, enable `rewrite`, enable the
@@ -278,6 +312,8 @@ php artisan game:doctor
 Use the least-privilege SQL login template in
 `docker/sql/create-game-web-login.sql`. Never connect the website with
 `sysadmin`, `db_owner` or the SQL Server service account.
+The game login is separate from the application login created for
+**MuOnline_Web**.
 
 ## Scheduler and queues
 
@@ -316,8 +352,8 @@ Before exposing a manual installation to the Internet:
 1. Set `APP_ENV=production`, `APP_DEBUG=false` and the final HTTPS `APP_URL`.
 2. Use a public directory VirtualHost, a valid TLS certificate and secure
    database credentials.
-3. Make only `storage`, `bootstrap/cache` and the SQLite file writable by the
-   Apache user; application source and `.env` must not be writable or public.
+3. Make only `storage` and `bootstrap/cache` writable by the Apache
+   user; application source and `.env` must not be writable or public.
 4. Configure the scheduler, queue worker, backups and log rotation.
 5. Run `php artisan game:doctor`, then `php artisan optimize`.
 6. Register payment webhooks only after the HTTPS URL is stable.
@@ -332,9 +368,10 @@ Before exposing a manual installation to the Internet:
   allow the supplied `public/.htaccess`, or `mod_rewrite` is disabled.
 - **Vite manifest is missing:** run `npm ci` and `npm run build` from the project
   root.
-- **`could not find driver`:** enable `pdo_sqlite` for the application database
-  or `sqlsrv`/`pdo_sqlsrv` for the game database in the `php.ini` used by the
-  failing Apache or CLI process.
+- **`could not find driver`:** enable `pdo_sqlite` for a fixture-only
+  SQLite installation or `sqlsrv`/`pdo_sqlsrv` for live **MuOnline_Web**
+  and **MuOnline** connections in the `php.ini` used by the failing Apache or
+  CLI process.
 - **SQL Server driver fails to load:** match PHP 8.5, architecture and TS/NTS,
   install ODBC Driver 18 and restart Apache.
 - **Laravel cannot write cache, sessions or logs:** repair permissions on

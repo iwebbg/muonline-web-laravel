@@ -64,9 +64,14 @@ vendor/bin/pint --dirty --format agent
 
 ## Database ownership and write safety
 
-The application database and MuOnline database have separate ownership:
+The application database and MuOnline database have separate ownership. A live
+deployment normally hosts both on one SQL Server instance as **MuOnline_Web**
+and **MuOnline**, with distinct restricted logins:
 
 - Laravel migrations modify only application-owned tables.
+- A one-time **APP_DB_BOOTSTRAP=true** container start may use temporary
+  administrator credentials to create **MuOnline_Web** and its runtime login.
+  Those credentials are removed immediately after provisioning.
 - The exported `script.sql` and live MuOnline schema are external legacy
   contracts and are never migrated by Laravel.
 - Version adapters under `app/Game/Versions` and repositories under

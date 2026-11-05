@@ -4,7 +4,12 @@ x-app-environment: &app-environment
     APP_ENV: production
     APP_DEBUG: "false"
     APP_URL: https://${APP_DOMAIN:?Set APP_DOMAIN in docker/.env}
-    DB_DATABASE: ${DB_DATABASE:-/var/www/html/storage/app/database.sqlite}
+    DB_CONNECTION: sqlsrv
+    DB_HOST: ${DB_HOST:?Set DB_HOST in the root .env}
+    DB_PORT: ${DB_PORT:-1433}
+    DB_DATABASE: ${DB_DATABASE:-MuOnline_Web}
+    DB_USERNAME: ${DB_USERNAME:?Set DB_USERNAME in the root .env}
+    DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in the root .env}
     SESSION_SECURE_COOKIE: "true"
     SESSION_HTTP_ONLY: "true"
     SESSION_SAME_SITE: lax
@@ -50,6 +55,9 @@ services:
         environment:
             <<: *app-environment
             CONTAINER_ROLE: queue
+            APP_DB_BOOTSTRAP: "false"
+            APP_DB_ADMIN_USERNAME: ""
+            APP_DB_ADMIN_PASSWORD: ""
         volumes:
             - app-storage:/var/www/html/storage
         depends_on:
@@ -70,6 +78,9 @@ services:
         environment:
             <<: *app-environment
             CONTAINER_ROLE: scheduler
+            APP_DB_BOOTSTRAP: "false"
+            APP_DB_ADMIN_USERNAME: ""
+            APP_DB_ADMIN_PASSWORD: ""
         volumes:
             - app-storage:/var/www/html/storage
         depends_on:

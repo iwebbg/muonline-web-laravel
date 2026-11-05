@@ -79,6 +79,11 @@ connecting a real MuOnline database or enabling writes. Windows/XAMPP and LAMP
 operators can instead follow the
 [manual Apache installation guide](docs/installation-apache.md).
 
+Live and production installations keep Laravel data in an isolated
+**MuOnline_Web** database on the SQL Server instance. Docker can provision that
+database, its restricted login, migrations and safe seed data automatically on
+first start; the installation guide documents the temporary credential flow.
+
 ## Documentation
 
 - [Installation with Docker](docs/installation.md)

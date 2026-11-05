@@ -63,6 +63,64 @@ Useful local commands:
 ./docker/compose down
 ```
 
+### Automatic SQL Server application database first start
+
+SQLite remains convenient for a fixture-only evaluation. A live or production
+installation should keep Laravel-owned tables in **MuOnline_Web** on the same
+SQL Server instance as **MuOnline**, while using a separate database and login.
+
+Configure the root **.env** before the first container start:
+
+~~~dotenv
+DB_CONNECTION=sqlsrv
+DB_HOST=192.168.0.105
+DB_PORT=1433
+DB_DATABASE=MuOnline_Web
+DB_USERNAME=muonline_web_app
+DB_PASSWORD=replace-with-a-long-random-runtime-password
+DB_ENCRYPT=true
+DB_TRUST_SERVER_CERTIFICATE=true
+AUTO_MIGRATE=true
+
+APP_DB_BOOTSTRAP=true
+APP_DB_SEED=true
+APP_DB_ADMIN_USERNAME=sa
+APP_DB_ADMIN_PASSWORD=replace-with-the-current-sa-password
+~~~
+
+**APP_DB_ADMIN_\*** is a temporary provisioning connection. On the first
+**./docker/compose up --detach --build**, the application container
+automatically:
+
+1. Creates **MuOnline_Web** when it does not exist.
+2. Creates the restricted **muonline_web_app** SQL login and database user.
+3. Grants data access and only the schema permissions Laravel migrations need
+   inside **MuOnline_Web**.
+4. Runs application migrations and the idempotent public seeders.
+
+The container fails closed if any step fails. The **sa** login is never used as
+Laravel's normal connection and receives no application request.
+
+After the app log reports that **MuOnline_Web** is ready, immediately change:
+
+~~~dotenv
+APP_DB_BOOTSTRAP=false
+APP_DB_ADMIN_USERNAME=
+APP_DB_ADMIN_PASSWORD=
+~~~
+
+Then recreate the services so the administrator secret is removed from every
+container environment:
+
+~~~bash
+./docker/compose up --detach --force-recreate
+~~~
+
+Keep **DB_USERNAME**, **DB_PASSWORD** and **AUTO_MIGRATE=true**; future starts
+then use only the restricted runtime login. The fallback SQLCMD template is
+**docker/sql/create-application-database-97d+99i.sql** for environments where
+automatic bootstrap is intentionally disabled.
+
 ## Creating the first administrator
 
 Website administrators are application-owned identities and are separate from
@@ -205,6 +263,22 @@ APP_DEBUG=false
 APP_URL=https://mu.example.com
 APP_KEY=base64:replace-with-a-generated-key
 MAIL_MAILER=log
+
+DB_CONNECTION=sqlsrv
+DB_HOST=192.168.0.105
+DB_PORT=1433
+DB_DATABASE=MuOnline_Web
+DB_USERNAME=muonline_web_app
+DB_PASSWORD=replace-with-a-long-random-runtime-password
+DB_ENCRYPT=true
+DB_TRUST_SERVER_CERTIFICATE=false
+AUTO_MIGRATE=true
+
+APP_DB_BOOTSTRAP=true
+APP_DB_SEED=true
+APP_DB_ADMIN_USERNAME=sa
+APP_DB_ADMIN_PASSWORD=replace-with-the-current-sa-password
+
 GAME_DB_READONLY=true
 GAME_WRITES_ENABLED=false
 ```
@@ -223,21 +297,21 @@ placing it in `APP_KEY`, and do not commit it:
 openssl rand -base64 32
 ```
 
-Build the immutable images, verify the game connection and apply only the
-application-owned migrations:
+Build and start the immutable images. The first app container start provisions
+and migrates **MuOnline_Web** before PHP-FPM becomes available:
 
 ```bash
-./docker/compose build
-./docker/compose run --rm app php artisan game:doctor
-./docker/compose run --rm app php artisan migrate --force --no-interaction
-./docker/compose up --detach
+./docker/compose up --detach --build
+./docker/compose logs --follow app
 ```
 
-Before accepting players, verify the read-only pages and backups, enable live
-game writes as documented above, recreate the services, and complete the
-disposable-account mutation tests. Leaving the commissioning values unchanged
-is supported for a deliberately read-only website, but account registration
-and all features that deliver changes to the game database remain unavailable.
+After the successful first start, clear both **APP_DB_ADMIN_\*** values, set
+**APP_DB_BOOTSTRAP=false**, and recreate the services as described in
+[Automatic SQL Server application database first start](#automatic-sql-server-application-database-first-start).
+Run **game:doctor** while game writes remain closed. Before accepting players,
+verify the read-only pages and backups, enable live game writes as documented
+above, recreate the services, and complete the disposable-account mutation
+tests.
 
 The production Nginx container requests the first certificate and redirects
 traffic to HTTPS. Certificate renewal runs twice daily and reloads Nginx only
@@ -306,32 +380,24 @@ Check them after every deployment:
 
 ## Backup and restore rehearsal
 
-The application database and MuOnline database have different owners and must
-be backed up independently. The restricted web login must not receive SQL Server
+The **MuOnline_Web** application database and **MuOnline** game database have
+different owners and must be backed up independently, even when they share one
+SQL Server instance. The restricted web logins must not receive SQL Server
 backup or restore permissions.
 
-Create and copy an integrity-checked application database backup:
-
-```bash
-./docker/compose exec -T app php artisan app:backup --name=pre-deploy.sqlite
-mkdir -p backups
-./docker/compose cp app:/var/www/html/storage/app/private/backups/pre-deploy.sqlite backups/pre-deploy.sqlite
-```
-
-Store the copied backup off-host. A file that exists only in a Docker volume is
-not a disaster-recovery backup.
-
-Use a SQL Server administrator outside MuOnline Web to create a native
-`COPY_ONLY` game database backup with checksums. Run `RESTORE VERIFYONLY`, then
-perform a full restore into a separate rehearsal database.
+Use a SQL Server administrator outside MuOnline Web to create separate native
+**COPY_ONLY** backups of **MuOnline_Web** and **MuOnline** with checksums. Store
+both files off-host, run **RESTORE VERIFYONLY**, then restore both into separate
+rehearsal databases. The **app:backup** command remains available only for
+fixture/development installations that deliberately use SQLite.
 
 For an application restore rehearsal:
 
 1. Use a disposable deployment with both game-write switches closed.
 2. Stop its app, queue and scheduler containers.
-3. Preserve the current SQLite file and place the copied snapshot at the
-   configured `DB_DATABASE` path in the application storage volume.
-4. Start the stack and run `migrate:status`, `about` and `game:doctor`.
+3. Restore the **MuOnline_Web** and **MuOnline** backups under rehearsal
+   database names and point the disposable deployment at them.
+4. Start the stack and run **migrate:status**, **about** and **game:doctor**.
 5. Smoke-test public, account and administrator authentication.
 
 Never rehearse a restore over the only production copy. Record the Git commit,

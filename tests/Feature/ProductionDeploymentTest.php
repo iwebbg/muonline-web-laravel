@@ -10,18 +10,18 @@ use Tests\TestCase;
 class ProductionDeploymentTest extends TestCase
 {
     /**
-     * Confirms that persistent SQLite data cannot hide migrations shipped in a new image.
+     * Confirms that production uses an isolated SQL Server database instead of container SQLite.
      */
-    public function test_production_database_persists_inside_storage_without_hiding_migrations(): void
+    public function test_production_uses_the_isolated_sql_server_application_database(): void
     {
         $compose = $this->productionCompose();
 
-        $this->assertStringContainsString(
-            'DB_DATABASE: ${DB_DATABASE:-/var/www/html/storage/app/database.sqlite}',
-            $compose,
-        );
+        $this->assertStringContainsString('DB_CONNECTION: sqlsrv', $compose);
+        $this->assertStringContainsString('DB_DATABASE: ${DB_DATABASE:-MuOnline_Web}', $compose);
+        $this->assertStringContainsString('DB_HOST: ${DB_HOST:?', $compose);
+        $this->assertStringContainsString('DB_USERNAME: ${DB_USERNAME:?', $compose);
         $this->assertStringContainsString('- app-storage:/var/www/html/storage', $compose);
-        $this->assertStringNotContainsString('app-database:/var/www/html/database', $compose);
+        $this->assertStringNotContainsString('database.sqlite', $compose);
     }
 
     /**
@@ -34,6 +34,21 @@ class ProductionDeploymentTest extends TestCase
         $this->assertStringContainsString('SESSION_SECURE_COOKIE: "true"', $compose);
         $this->assertStringContainsString('SESSION_HTTP_ONLY: "true"', $compose);
         $this->assertStringContainsString('https://127.0.0.1/up', $compose);
+    }
+
+    /**
+     * Confirms that temporary database administrator secrets reach only the bootstrap app.
+     */
+    public function test_background_services_cannot_receive_database_bootstrap_credentials(): void
+    {
+        $productionCompose = $this->productionCompose();
+        $localCompose = file_get_contents(base_path('docker/docker-compose.local.yaml'));
+
+        $this->assertIsString($localCompose);
+        $this->assertSame(2, substr_count($productionCompose, 'APP_DB_ADMIN_PASSWORD: ""'));
+        $this->assertSame(1, substr_count($localCompose, 'APP_DB_ADMIN_PASSWORD: ""'));
+        $this->assertSame(2, substr_count($productionCompose, 'APP_DB_BOOTSTRAP: "false"'));
+        $this->assertSame(1, substr_count($localCompose, 'APP_DB_BOOTSTRAP: "false"'));
     }
 
     /**
