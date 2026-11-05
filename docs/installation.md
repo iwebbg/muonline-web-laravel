@@ -58,6 +58,29 @@ Useful local commands:
 ./docker/compose down
 ```
 
+## Creating the first administrator
+
+Website administrators are application-owned identities and are separate from
+MuOnline game accounts. After the application migrations have completed,
+create the first full administrator interactively inside the application
+container:
+
+```bash
+./docker/compose exec app php artisan admin:create
+```
+
+The command asks for the administrator name, email address, password and
+password confirmation. The password is hidden while it is entered and must be
+at least 12 characters long with uppercase and lowercase letters, a number and
+a symbol. The email address must not already belong to another website
+administrator.
+
+Open `http://localhost/admin/login` and sign in with the new administrator
+email and password. On production, use the same command against the running
+production `app` container and open `https://mu.example.com/admin/login` with
+your configured domain. Do not create administrator records manually in the
+database and do not reuse a game-account password.
+
 ## Connecting a MuOnline database
 
 Keep fixture mode and both game-write switches closed until the website works
