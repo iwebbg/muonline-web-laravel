@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
 use App\Game\Versions\Version97d99i\ItemGrantRules97d99i;
 use App\Models\Administrator;
@@ -73,6 +74,11 @@ class StoreShopOfferRequest extends FormRequest
             function (Validator $validator): void {
                 $items = $this->input('items', []);
                 $type = ShopOfferType::tryFrom($this->string('type')->toString());
+                $allowedScopes = array_column(app(GameVersionProfile::class)->shopClassScopes(), 'value');
+
+                if (! in_array($this->string('class_scope')->toString(), $allowedScopes, true)) {
+                    $validator->errors()->add('class_scope', __('validation.in', ['attribute' => 'class scope']));
+                }
 
                 if ($type === ShopOfferType::Item && is_array($items) && count($items) !== 1) {
                     $validator->errors()->add('items', __('ui.admin.shop_item_requires_one_reward'));

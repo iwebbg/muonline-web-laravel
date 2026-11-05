@@ -26,9 +26,10 @@
             @if ($moduleManager->enabled(\App\Modules\ServerModule::MysteryBoxes))
                 <a href="{{ route('shop.mystery-boxes.index') }}" class="button {{ $type === \App\Shop\ShopOfferType::MysteryBox ? 'button-primary' : 'button-ghost' }}">{{ __('ui.shop.boxes_heading') }}</a>
             @endif
-            @auth
-                <a href="{{ route('account.rewards.index') }}" class="button button-ghost">{{ __('ui.rewards.heading') }}</a>
-            @endauth
+            @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop))
+                <a href="{{ route('account.item-generator.index') }}" class="button button-ghost">{{ __('ui.shop.generator_heading') }}</a>
+            @endif
+            <a href="{{ route('account.rewards.index') }}" class="button button-ghost">{{ __('ui.rewards.heading') }}</a>
         </nav>
 
         <form method="GET" class="panel-card mt-6 grid gap-4 p-5 sm:grid-cols-[minmax(0,18rem)_auto] sm:items-end">
@@ -36,7 +37,7 @@
                 <span>{{ __('ui.shop.all_classes') }}</span>
                 <select name="class">
                     @foreach ($classScopes as $scope)
-                        <option value="{{ $scope->value }}" @selected($selectedClassScope === $scope)>{{ __('ui.shop.class_scopes.'.$scope->value) }}</option>
+                        <option value="{{ $scope->value }}" @selected($selectedClassScope->value === $scope->value)>{{ __('ui.shop.class_scopes.'.$scope->value) }}</option>
                     @endforeach
                 </select>
             </label>
@@ -70,15 +71,11 @@
                     @endif
                     <div class="mt-auto flex items-end justify-between gap-4 border-t border-white/8 pt-5">
                         <div><span class="block text-xs uppercase tracking-[0.14em] text-steel">{{ __('ui.shop.price') }}</span><strong class="mt-1 block text-xl text-white">{{ number_format($offer->price_credits) }} Credits</strong></div>
-                        @auth
-                            <form method="POST" action="{{ $type === \App\Shop\ShopOfferType::Item ? route('shop.items.purchase', $offer) : route('shop.mystery-boxes.purchase', $offer) }}">
-                                @csrf
-                                <input type="hidden" name="idempotency_key" value="{{ $purchaseKeys[$offer->public_id] }}">
-                                <button type="submit" class="button button-primary">{{ __('ui.shop.buy') }}</button>
-                            </form>
-                        @else
-                            <a href="{{ route('login') }}" class="button button-ghost">{{ __('ui.shop.sign_in') }}</a>
-                        @endauth
+                        <form method="POST" action="{{ $type === \App\Shop\ShopOfferType::Item ? route('shop.items.purchase', $offer) : route('shop.mystery-boxes.purchase', $offer) }}">
+                            @csrf
+                            <input type="hidden" name="idempotency_key" value="{{ $purchaseKeys[$offer->public_id] }}">
+                            <button type="submit" class="button button-primary">{{ __('ui.shop.buy') }}</button>
+                        </form>
                     </div>
                 </article>
             @empty

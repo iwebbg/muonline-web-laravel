@@ -6,6 +6,7 @@ use App\Game\Data\AccountCharacter;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\ShopClassScopeDefinition;
 use App\Reset\ResetProfileSettings;
 use App\StatReset\Actions\PreviewCharacterStatReset;
 use App\Stats\Actions\PreviewCharacterStatAllocation;
@@ -133,6 +134,16 @@ final class GameVersionProfileExtensibilityTest extends TestCase
             public function classForKey(string $classKey): ?CharacterClassDefinition
             {
                 return $classKey === 'le' ? $this->classes()[0] : null;
+            }
+
+            /**
+             * Returns the version-owned shop class filter.
+             *
+             * @return list<ShopClassScopeDefinition>
+             */
+            public function shopClassScopes(): array
+            {
+                return [new ShopClassScopeDefinition('dl_le', 'DL / LE')];
             }
 
             /**

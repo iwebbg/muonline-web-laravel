@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Auth\GameAccount;
 use App\Economy\WalletCurrency;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\AccountWallet;
 use App\Models\ShopOffer;
 use App\Shop\ShopClassScope;
@@ -13,7 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
- * Displays one public shop catalog without revealing mystery-box contents.
+ * Displays one authenticated account shop catalog without revealing box contents.
  */
 final class ShopController extends Controller
 {
@@ -38,7 +39,14 @@ final class ShopController extends Controller
      */
     private function catalog(Request $request, ShopOfferType $type): View
     {
+        $versionProfile = app(GameVersionProfile::class);
+        $classScopes = $versionProfile->shopClassScopes();
+        $allowedClassScopes = array_column($classScopes, 'value');
         $classScope = ShopClassScope::tryFrom($request->string('class')->toString());
+
+        if (! $classScope instanceof ShopClassScope || ! in_array($classScope->value, $allowedClassScopes, true)) {
+            $classScope = ShopClassScope::All;
+        }
         $offersQuery = ShopOffer::query()
             ->available()
             ->where('type', $type)
@@ -71,8 +79,8 @@ final class ShopController extends Controller
         return view('shop.index', [
             'type' => $type,
             'offers' => $offers,
-            'classScopes' => ShopClassScope::cases(),
-            'selectedClassScope' => $classScope ?? ShopClassScope::All,
+            'classScopes' => $classScopes,
+            'selectedClassScope' => $classScope,
             'balance' => (int) $balance,
             'purchaseKeys' => $purchaseKeys,
         ]);

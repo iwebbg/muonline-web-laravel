@@ -575,6 +575,7 @@ export function itemGrantManager(configuration) {
         itemLevels: configuration.itemLevels,
         optionLevels: configuration.optionLevels,
         itemOptionLabels: configuration.itemOptionLabels,
+        priceModifiers: configuration.priceModifiers ?? {},
         ui: configuration.ui,
         confirmationOpen: false,
         accountId: configuration.initialAccountId,
@@ -627,6 +628,17 @@ export function itemGrantManager(configuration) {
          */
         get selectedItem() {
             return this.items[this.itemCode] ?? null;
+        },
+
+        /**
+         * Returns item levels allowed by the selected version-owned pricing record.
+         *
+         * @returns {Array<number>}
+         */
+        get availableItemLevels() {
+            const maximum = this.selectedItem?.maxLevel ?? Math.max(...this.itemLevels);
+
+            return this.itemLevels.filter((itemLevel) => itemLevel <= maximum);
         },
 
         /**
@@ -746,7 +758,11 @@ export function itemGrantManager(configuration) {
          * @returns {Array<{value: number, label: string}>}
          */
         get additionalOptionChoices() {
-            return this.optionLevels.map((optionLevel) => {
+            const maximum = this.selectedItem?.maxOption ?? Math.max(...this.optionLevels);
+
+            return this.optionLevels
+                .filter((optionLevel) => optionLevel <= maximum)
+                .map((optionLevel) => {
                 if (optionLevel === 0) {
                     return {
                         value: optionLevel,
@@ -768,7 +784,25 @@ export function itemGrantManager(configuration) {
                     value: optionLevel,
                     label: `+${optionLevel * multiplier}${suffix}`,
                 };
-            });
+                });
+        },
+
+        /**
+         * Calculates the preview price from version-owned item pricing inputs.
+         *
+         * @returns {number}
+         */
+        get calculatedPrice() {
+            if (this.selectedItem?.basePrice === undefined) {
+                return 0;
+            }
+
+            return Number(this.selectedItem.basePrice)
+                + (this.level * Number(this.priceModifiers.level ?? 0))
+                + (this.optionLevel * Number(this.priceModifiers.additionalOption ?? 0))
+                + (this.hasSkill ? Number(this.priceModifiers.skill ?? 0) : 0)
+                + (this.hasLuck ? Number(this.priceModifiers.luck ?? 0) : 0)
+                + (this.excellentOptionBits.length * Number(this.priceModifiers.excellentOption ?? 0));
         },
 
         /**
@@ -834,10 +868,14 @@ export function itemGrantManager(configuration) {
         selectItem(item) {
             this.itemCode = item.code;
             this.itemSearch = item.name;
+            this.level = Math.min(this.level, item.maxLevel ?? this.level);
+            this.optionLevel = Math.min(this.optionLevel, item.maxOption ?? this.optionLevel);
+            this.hasSkill = item.allowsSkill === false ? false : this.hasSkill;
+            this.hasLuck = item.allowsLuck === false ? false : this.hasLuck;
             const allowedBits = new Set(this.excellentOptions.map((option) => option.bit));
             this.excellentOptionBits = this.excellentOptionBits.filter(
                 (bit) => allowedBits.has(Number(bit)),
-            );
+            ).slice(0, item.maxExcellent ?? excellentBits.length);
             this.itemSuggestionsOpen = false;
             this.activeItemSuggestionIndex = -1;
             this.$refs.itemSearch.setCustomValidity('');

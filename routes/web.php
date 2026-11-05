@@ -12,7 +12,9 @@ use App\Http\Controllers\Account\CharacterResetController;
 use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\CreditController;
+use App\Http\Controllers\Account\GeneratedItemPurchaseController;
 use App\Http\Controllers\Account\GrandResetPreviewController;
+use App\Http\Controllers\Account\ItemGeneratorController;
 use App\Http\Controllers\Account\ItemStorageController;
 use App\Http\Controllers\Account\JewelBankController;
 use App\Http\Controllers\Account\JewelBankWithdrawalController;
@@ -135,13 +137,6 @@ Route::get('/downloads', DownloadController::class)
 Route::get('/market', MarketController::class)
     ->middleware('module.enabled:'.ServerModule::Market->value)
     ->name('market.index');
-Route::get('/shop/items', [ShopController::class, 'items'])
-    ->middleware('module.enabled:'.ServerModule::WebShop->value)
-    ->name('shop.items.index');
-Route::get('/shop/mystery-boxes', [ShopController::class, 'mysteryBoxes'])
-    ->middleware('module.enabled:'.ServerModule::MysteryBoxes->value)
-    ->name('shop.mystery-boxes.index');
-
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
     ->middleware('module.enabled:'.ServerModule::PasswordRecovery->value)
     ->name('password.request');
@@ -212,14 +207,30 @@ Route::middleware('auth')->group(function (): void {
             'throttle:shop-reward',
         ])
         ->name('account.rewards.deliver');
-    Route::post('/shop/items/{shopOffer}/purchase', ShopPurchaseController::class)
+    Route::get('/account/shop/items', [ShopController::class, 'items'])
+        ->middleware('module.enabled:'.ServerModule::WebShop->value)
+        ->name('shop.items.index');
+    Route::get('/account/shop/mystery-boxes', [ShopController::class, 'mysteryBoxes'])
+        ->middleware('module.enabled:'.ServerModule::MysteryBoxes->value)
+        ->name('shop.mystery-boxes.index');
+    Route::get('/account/shop/item-generator', ItemGeneratorController::class)
+        ->middleware('module.enabled:'.ServerModule::WebShop->value)
+        ->name('account.item-generator.index');
+    Route::post('/account/shop/item-generator', GeneratedItemPurchaseController::class)
+        ->middleware([
+            'module.enabled:'.ServerModule::WebShop->value,
+            'module.enabled:'.ServerModule::Rewards->value,
+            'throttle:shop-purchase',
+        ])
+        ->name('account.item-generator.purchase');
+    Route::post('/account/shop/items/{shopOffer}/purchase', ShopPurchaseController::class)
         ->middleware([
             'module.enabled:'.ServerModule::WebShop->value,
             'module.enabled:'.ServerModule::Rewards->value,
             'throttle:shop-purchase',
         ])
         ->name('shop.items.purchase');
-    Route::post('/shop/mystery-boxes/{shopOffer}/purchase', ShopPurchaseController::class)
+    Route::post('/account/shop/mystery-boxes/{shopOffer}/purchase', ShopPurchaseController::class)
         ->middleware([
             'module.enabled:'.ServerModule::MysteryBoxes->value,
             'module.enabled:'.ServerModule::Rewards->value,

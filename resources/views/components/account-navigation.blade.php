@@ -86,6 +86,24 @@
             </a>
         @endif
 
+        @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop) || $moduleManager->enabled(\App\Modules\ServerModule::MysteryBoxes))
+            <a
+                href="{{ $moduleManager->enabled(\App\Modules\ServerModule::WebShop) ? route('account.item-generator.index') : route('shop.mystery-boxes.index') }}"
+                @class([
+                    'group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border px-5 py-4 transition',
+                    'border-gold/35 bg-gold/10 text-white' => request()->routeIs('shop.*', 'account.item-generator.*'),
+                    'border-transparent text-silver hover:border-white/10 hover:bg-white/5 hover:text-white' => ! request()->routeIs('shop.*', 'account.item-generator.*'),
+                ])
+                @if (request()->routeIs('shop.*', 'account.item-generator.*')) aria-current="page" @endif
+            >
+                <span class="grid size-10 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25 text-gold" aria-hidden="true">◇</span>
+                <span>
+                    <strong class="block text-sm">{{ __('ui.account.navigation.web_shop') }}</strong>
+                    <span class="mt-0.5 block text-xs text-steel">{{ __('ui.account.navigation.web_shop_help') }}</span>
+                </span>
+            </a>
+        @endif
+
         @if ($moduleManager->enabled(\App\Modules\ServerModule::Vip))
             @if ($vipModalAvailable)
                 <button

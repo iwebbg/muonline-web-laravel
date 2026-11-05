@@ -4,6 +4,7 @@ namespace App\Game\Versions\Contracts;
 
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
+use App\Game\Versions\ShopClassScopeDefinition;
 use App\Stats\CharacterStats;
 
 /**
@@ -32,6 +33,13 @@ interface GameVersionProfile
      * Resolves one public class-filter key or returns null when unsupported.
      */
     public function classForKey(string $classKey): ?CharacterClassDefinition;
+
+    /**
+     * Returns the character-family filters supported by this game version.
+     *
+     * @return list<ShopClassScopeDefinition>
+     */
+    public function shopClassScopes(): array;
 
     /**
      * Returns every attribute known by this version.

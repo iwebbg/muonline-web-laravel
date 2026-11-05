@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
 use App\Game\Versions\Version97d99i\ItemGrantRules97d99i;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreShopOfferRequest;
 use App\Http\Requests\Admin\UpdateShopOfferRequest;
 use App\Models\ShopOffer;
-use App\Shop\ShopClassScope;
 use App\Shop\ShopOfferStatus;
 use App\Shop\ShopOfferType;
 use Illuminate\Http\RedirectResponse;
@@ -148,7 +148,7 @@ final class ShopOfferController extends Controller
                 'image' => $definition->image,
             ], $catalog->allDefinitions()),
             'types' => ShopOfferType::cases(),
-            'classScopes' => ShopClassScope::cases(),
+            'classScopes' => app(GameVersionProfile::class)->shopClassScopes(),
             'statuses' => ShopOfferStatus::cases(),
             'itemLevels' => $rules->itemLevels(),
             'optionLevels' => $rules->optionLevels(),

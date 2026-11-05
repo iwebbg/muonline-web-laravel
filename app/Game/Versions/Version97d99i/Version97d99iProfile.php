@@ -44,6 +44,7 @@ use App\Game\Repositories\SqlServer97d99iZenBankRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\ShopClassScopeDefinition;
 use App\Stats\CharacterStats;
 use InvalidArgumentException;
 
@@ -104,6 +105,22 @@ final class Version97d99iProfile implements GameVersionProfile
         }
 
         return null;
+    }
+
+    /**
+     * Returns all four playable 97d+99i class families used by shop filters.
+     *
+     * @return list<ShopClassScopeDefinition>
+     */
+    public function shopClassScopes(): array
+    {
+        return [
+            new ShopClassScopeDefinition('all', 'All'),
+            new ShopClassScopeDefinition('dw_sm', 'DW / SM'),
+            new ShopClassScopeDefinition('dk_bk', 'DK / BK'),
+            new ShopClassScopeDefinition('elf_me', 'Elf / ME'),
+            new ShopClassScopeDefinition('mg', 'Magic Gladiator (MG)'),
+        ];
     }
 
     /**
