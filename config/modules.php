@@ -13,5 +13,8 @@ return [
         'zen_bank' => true,
         'market' => true,
         'auction' => true,
+        'web_shop' => true,
+        'mystery_boxes' => true,
+        'rewards' => true,
     ],
 ];

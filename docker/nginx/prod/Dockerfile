@@ -30,7 +30,9 @@ COPY docker/nginx/prod/certbot-renew.sh /usr/local/bin/muonline-certbot-renew
 COPY public /var/www/html/public
 COPY --from=frontend-build /application/public/build /var/www/html/public/build
 
-RUN chmod +x \
+RUN rm -f /var/www/html/public/storage \
+    && ln -s ../storage/app/public /var/www/html/public/storage \
+    && chmod +x \
         /usr/local/bin/muonline-nginx-startup \
         /usr/local/bin/muonline-certbot-renew \
     && printf '%s\n' \

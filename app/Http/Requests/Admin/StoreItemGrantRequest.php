@@ -3,10 +3,10 @@
 namespace App\Http\Requests\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
+use App\Game\Versions\Version97d99i\ItemGrantRules97d99i;
 use App\Models\Administrator;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 /**
  * Authorizes and validates one catalog-backed administrator item grant.
@@ -41,13 +41,13 @@ final class StoreItemGrantRequest extends FormRequest
             'item_code' => ['required', 'string', 'regex:/\A(?:[0-9]|1[0-5]):(?:[0-9]|[12][0-9]|3[01])\z/'],
             'group' => ['required', 'integer', 'between:0,15'],
             'index' => ['required', 'integer', 'between:0,31'],
-            'level' => ['required', 'integer', 'between:0,15'],
+            'level' => ['required', 'integer', 'between:0,'.ItemGrantRules97d99i::MAX_ITEM_LEVEL],
             'durability' => ['required', 'integer', 'between:0,255'],
-            'option_level' => ['required', 'integer', 'between:0,7'],
+            'option_level' => ['required', 'integer', 'between:0,'.ItemGrantRules97d99i::MAX_OPTION_LEVEL],
             'has_skill' => ['nullable', 'boolean'],
             'has_luck' => ['nullable', 'boolean'],
-            'excellent_mask' => ['required', 'integer', Rule::in([0])],
-            'ancient_option' => ['required', 'integer', Rule::in([0])],
+            'excellent_mask' => ['required', 'integer', 'between:0,63'],
+            'ancient_option' => ['required', 'integer', 'in:0'],
             'reason' => ['required', 'string', 'between:5,500'],
             'idempotency_key' => ['required', 'uuid'],
         ];

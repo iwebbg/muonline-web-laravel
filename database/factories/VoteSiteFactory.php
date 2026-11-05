@@ -30,6 +30,7 @@ class VoteSiteFactory extends Factory
             'cooldown_hours' => 12,
             'reward_credits' => 10,
             'reward_zen' => 1_000_000,
+            'auto_reward_on_click' => false,
             'enabled' => true,
             'sort_order' => 0,
         ];

@@ -79,7 +79,7 @@ final readonly class ItemCodec97d99i
             throw new InvalidArgumentException('The item group or index is outside the 97d+99i format.');
         }
 
-        if ($level < 0 || $level > 15 || $durability < 0 || $durability > 255) {
+        if ($level < 0 || $level > ItemGrantRules97d99i::MAX_ITEM_LEVEL || $durability < 0 || $durability > 255) {
             throw new InvalidArgumentException('The item level or durability is outside the 97d+99i format.');
         }
 

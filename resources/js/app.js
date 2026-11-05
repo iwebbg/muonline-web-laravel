@@ -9,13 +9,14 @@ import {
     gameServerManager,
     gameMasterManager,
     itemInspector,
+    itemGrantManager,
     marketExpiry,
     moderationPanel,
     rankingBoard,
     rankingExplorer,
     registrationRecaptcha,
-    resetSettings,
     serverSwitcher,
+    shopOfferEditor,
     walletManager,
     vipPurchaseManager,
 } from './muonline';
@@ -30,13 +31,14 @@ Alpine.data('eventSchedule', eventSchedule);
 Alpine.data('gameServerManager', gameServerManager);
 Alpine.data('gameMasterManager', gameMasterManager);
 Alpine.data('itemInspector', itemInspector);
+Alpine.data('itemGrantManager', itemGrantManager);
 Alpine.data('marketExpiry', marketExpiry);
 Alpine.data('moderationPanel', moderationPanel);
 Alpine.data('rankingBoard', rankingBoard);
 Alpine.data('rankingExplorer', rankingExplorer);
 Alpine.data('registrationRecaptcha', registrationRecaptcha);
-Alpine.data('resetSettings', resetSettings);
 Alpine.data('serverSwitcher', serverSwitcher);
+Alpine.data('shopOfferEditor', shopOfferEditor);
 Alpine.data('walletManager', walletManager);
 Alpine.data('vipPurchaseManager', vipPurchaseManager);
 

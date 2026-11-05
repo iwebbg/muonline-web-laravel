@@ -26,7 +26,13 @@
             <x-admin-navigation active="audit-log" />
 
             <main class="grid min-w-0 content-start gap-6">
-                <form method="GET" action="{{ route('admin.audit-log') }}" class="panel-card grid gap-4 md:grid-cols-[minmax(0,1fr)_13rem_11rem_auto] md:items-end">
+                @if ($errors->any())
+                    <div class="rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">
+                        {{ $errors->first() }}
+                    </div>
+                @endif
+
+                <form method="GET" action="{{ route('admin.audit-log') }}" class="panel-card grid gap-4 md:grid-cols-2 xl:grid-cols-[minmax(15rem,1fr)_12rem_10rem_10rem_10rem_auto] xl:items-end">
                     <label class="field-group">
                         <span>{{ __('ui.admin.audit_search') }}</span>
                         <input
@@ -59,7 +65,18 @@
                             @endforeach
                         </select>
                     </label>
-                    <button type="submit" class="button button-primary">{{ __('ui.admin.audit_filter') }}</button>
+                    <label class="field-group">
+                        <span>{{ __('ui.admin.date_from') }}</span>
+                        <input type="date" name="date_from" value="{{ $dateFrom }}">
+                    </label>
+                    <label class="field-group">
+                        <span>{{ __('ui.admin.date_to') }}</span>
+                        <input type="date" name="date_to" value="{{ $dateTo }}">
+                    </label>
+                    <div class="flex items-end gap-2">
+                        <button type="submit" class="button button-primary">{{ __('ui.admin.audit_filter') }}</button>
+                        <a href="{{ route('admin.audit-log') }}" class="button button-ghost">{{ __('ui.admin.audit_clear') }}</a>
+                    </div>
                 </form>
 
                 <section class="grid gap-4" aria-label="{{ __('ui.admin.audit_results') }}">
@@ -122,6 +139,12 @@
                         </article>
                     @endforelse
                 </section>
+
+                @if ($auditEntries->hasPages())
+                    <div class="panel-card p-4 sm:p-5">
+                        {{ $auditEntries->links() }}
+                    </div>
+                @endif
             </main>
         </div>
     </div>

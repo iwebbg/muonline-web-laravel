@@ -67,8 +67,9 @@
             </main>
         </div>
 
-        <div x-cloak x-show="editorOpen" class="fixed inset-0 z-[90] overflow-y-auto bg-black/80 p-4 backdrop-blur-sm sm:p-8" x-on:click.self="closeEditor()" role="dialog" aria-modal="true" aria-labelledby="server-editor-title">
-            <section class="panel-card mx-auto w-full max-w-4xl p-5 sm:p-8">
+        <template x-teleport="body">
+            <div x-cloak x-show="editorOpen" class="fixed inset-0 z-[120] overflow-y-auto bg-black/80 p-4 backdrop-blur-sm sm:p-8" x-on:click.self="closeEditor()" role="dialog" aria-modal="true" aria-labelledby="server-editor-title">
+                <section class="panel-card mx-auto w-full max-w-4xl p-5 sm:p-8">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="kicker">{{ __('ui.admin.game_servers_nav') }}</p>
@@ -117,11 +118,13 @@
                         <button type="submit" class="button button-primary">{{ __('ui.admin.server_save') }}</button>
                     </div>
                 </form>
-            </section>
-        </div>
+                </section>
+            </div>
+        </template>
 
-        <div x-cloak x-show="deleteOpen" class="fixed inset-0 z-[100] grid place-items-center bg-black/80 p-4 backdrop-blur-sm" x-on:click.self="closeDelete()" role="dialog" aria-modal="true">
-            <section class="panel-card w-full max-w-lg p-6 sm:p-8">
+        <template x-teleport="body">
+            <div x-cloak x-show="deleteOpen" class="fixed inset-0 z-[120] grid place-items-center bg-black/80 p-4 backdrop-blur-sm" x-on:click.self="closeDelete()" role="dialog" aria-modal="true">
+                <section class="panel-card w-full max-w-lg p-6 sm:p-8">
                 <p class="kicker">{{ __('ui.admin.news_delete') }}</p>
                 <h2 class="mt-3 text-2xl font-semibold text-white" x-text="form.name"></h2>
                 <p class="mt-3 text-sm text-silver">{{ __('ui.admin.server_delete_help') }}</p>
@@ -131,7 +134,8 @@
                     <button type="button" class="button button-ghost" x-on:click="closeDelete()">{{ __('ui.admin.news_cancel') }}</button>
                     <button type="submit" class="button button-primary">{{ __('ui.admin.server_delete_confirm') }}</button>
                 </form>
-            </section>
-        </div>
+                </section>
+            </div>
+        </template>
     </div>
 @endsection

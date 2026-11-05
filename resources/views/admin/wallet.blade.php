@@ -101,8 +101,9 @@
                             </div>
                         </form>
 
-                        <div x-cloak x-show="confirmationOpen" class="fixed inset-0 z-[100] grid place-items-center bg-black/80 p-4 backdrop-blur-sm" x-on:click.self="closeConfirmation()" role="dialog" aria-modal="true">
-                            <section class="panel-card w-full max-w-lg p-6 sm:p-8">
+                        <template x-teleport="body">
+                            <div x-cloak x-show="confirmationOpen" class="fixed inset-0 z-[120] grid place-items-center bg-black/80 p-4 backdrop-blur-sm" x-on:click.self="closeConfirmation()" role="dialog" aria-modal="true">
+                                <section class="panel-card w-full max-w-lg p-6 sm:p-8">
                                 <p class="kicker">{{ __('ui.admin.wallet_confirm') }}</p>
                                 <h3 class="mt-3 text-2xl font-semibold text-white">{{ $accountId }}</h3>
                                 <p class="mt-4 text-silver">{{ __('ui.admin.wallet_confirm_help') }}</p>
@@ -114,8 +115,9 @@
                                     <button type="button" class="button button-ghost" x-on:click="closeConfirmation()">{{ __('ui.admin.news_cancel') }}</button>
                                     <button type="button" class="button button-primary" x-on:click="submitAdjustment()">{{ __('ui.admin.wallet_apply') }}</button>
                                 </div>
-                            </section>
-                        </div>
+                                </section>
+                            </div>
+                        </template>
                     </section>
 
                     <section class="panel-card overflow-hidden">

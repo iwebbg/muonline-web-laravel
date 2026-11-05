@@ -166,7 +166,6 @@ export function registrationRecaptcha(siteKey, enabled, errorMessage) {
         },
     };
 }
-
 /**
  * Creates the administrator moderation confirmation-dialog state.
  *
@@ -203,6 +202,55 @@ export function moderationPanel() {
          */
         closeModeration() {
             this.modalOpen = false;
+        },
+    };
+}
+
+/**
+ * Creates repeatable item rows for an administrator Web Shop offer.
+ *
+ * @param {Array<object>} initialItems Existing or validation-returned item options.
+ * @returns {object}
+ */
+export function shopOfferEditor(initialItems) {
+    /**
+     * Returns one complete safe item row for the offer form.
+     *
+     * @returns {object}
+     */
+    const emptyItem = () => ({
+        item_code: '',
+        level: 0,
+        durability: 255,
+        option_level: 0,
+        has_skill: false,
+        has_luck: false,
+        excellent_mask: 0,
+        ancient_option: 0,
+        weight: 1,
+    });
+
+    return {
+        items: initialItems.length > 0 ? initialItems : [emptyItem()],
+
+        /**
+         * Adds another independently editable weighted reward item.
+         */
+        addItem() {
+            this.items.push(emptyItem());
+        },
+
+        /**
+         * Removes an item while retaining at least one valid form row.
+         *
+         * @param {number} index Index of the item row selected for removal.
+         */
+        removeItem(index) {
+            if (this.items.length === 1) {
+                return;
+            }
+
+            this.items.splice(index, 1);
         },
     };
 }
@@ -506,6 +554,466 @@ export function gameServerManager(servers, createUrl) {
          */
         closeDelete() {
             this.deleteOpen = false;
+        },
+    };
+}
+
+/**
+ * Creates the searchable account selector and full item-option preview for grants.
+ *
+ * @param {object} configuration Server-rendered routes, item metadata and initial form values.
+ * @returns {object}
+ */
+export function itemGrantManager(configuration) {
+    const excellentBits = [1, 2, 4, 8, 16, 32];
+    const initialExcellentMask = Number(configuration.initialExcellentMask) || 0;
+    const initialItem = configuration.items[configuration.initialItemCode] ?? null;
+
+    return {
+        searchUrl: configuration.searchUrl,
+        items: configuration.items,
+        itemLevels: configuration.itemLevels,
+        optionLevels: configuration.optionLevels,
+        itemOptionLabels: configuration.itemOptionLabels,
+        ui: configuration.ui,
+        confirmationOpen: false,
+        accountId: configuration.initialAccountId,
+        selectedAccount: null,
+        suggestions: [],
+        suggestionsOpen: false,
+        searchLoading: false,
+        searchFailed: false,
+        activeSuggestionIndex: -1,
+        searchTimer: null,
+        searchRequest: null,
+        itemCode: configuration.initialItemCode,
+        itemSearch: initialItem?.name ?? '',
+        itemSuggestionsOpen: false,
+        activeItemSuggestionIndex: -1,
+        level: Number(configuration.initialLevel) || 0,
+        durability: Number(configuration.initialDurability) || 0,
+        optionLevel: Number(configuration.initialOptionLevel) || 0,
+        hasSkill: Boolean(configuration.initialHasSkill),
+        hasLuck: Boolean(configuration.initialHasLuck),
+        excellentOptionBits: excellentBits.filter(
+            (bit) => (initialExcellentMask & bit) !== 0,
+        ),
+
+        /**
+         * Loads an exact initial account after a completed grant redirect.
+         *
+         * @returns {void}
+         */
+        init() {
+            if (this.accountId.trim().length >= 2) {
+                this.scheduleAccountSearch(0);
+            }
+        },
+
+        /**
+         * Releases pending account searches when the component leaves the page.
+         *
+         * @returns {void}
+         */
+        destroy() {
+            window.clearTimeout(this.searchTimer);
+            this.searchRequest?.abort();
+        },
+
+        /**
+         * Returns the catalog definition selected by the administrator.
+         *
+         * @returns {object|null}
+         */
+        get selectedItem() {
+            return this.items[this.itemCode] ?? null;
+        },
+
+        /**
+         * Returns up to twelve catalog items matching the current visible name query.
+         *
+         * @returns {Array<object>}
+         */
+        get itemSuggestions() {
+            const query = this.itemSearch.trim().toLocaleLowerCase();
+
+            if (query === '') {
+                return Object.values(this.items).slice(0, 12);
+            }
+
+            return Object.values(this.items)
+                .filter((item) => item.name.toLocaleLowerCase().includes(query))
+                .slice(0, 12);
+        },
+
+        /**
+         * Returns the six-bit excellent mask submitted to the server.
+         *
+         * @returns {number}
+         */
+        get excellentMask() {
+            const allowedBits = new Set(this.excellentOptions.map((option) => option.bit));
+
+            return this.excellentOptionBits
+                .filter((bit) => allowedBits.has(Number(bit)))
+                .reduce(
+                    (mask, bit) => mask | Number(bit),
+                    0,
+                );
+        },
+
+        /**
+         * Returns excellent choices appropriate for the selected item family.
+         *
+         * @returns {Array<object>}
+         */
+        get excellentOptions() {
+            let labels = this.itemOptionLabels.excellent.weapon;
+
+            if (this.selectedItem?.excellentType === 4) {
+                labels = this.itemOptionLabels.excellent.wing;
+            } else if (this.selectedItem?.excellentType === 1) {
+                labels = this.itemOptionLabels.excellent.armor;
+            }
+
+            return labels
+                .map((label, index) => ({
+                    bit: 1 << index,
+                    label,
+                }))
+                .filter((option) => option.label !== '');
+        },
+
+        /**
+         * Returns labels for the excellent bits currently enabled.
+         *
+         * @returns {Array<string>}
+         */
+        get selectedExcellentOptions() {
+            return this.excellentOptions
+                .filter((option) => this.excellentOptionBits.some(
+                    (bit) => Number(bit) === option.bit,
+                ))
+                .map((option) => option.label);
+        },
+
+        /**
+         * Builds the selected item's title with level and excellent state.
+         *
+         * @returns {string}
+         */
+        get itemTitle() {
+            if (this.selectedItem === null) {
+                return this.itemCode;
+            }
+
+            const prefix = this.excellentMask > 0 && this.selectedItem.excellentType !== 4
+                ? `${this.itemOptionLabels.excellentPrefix} `
+                : '';
+            const level = this.level > 0 ? ` +${this.level}` : '';
+
+            return `${prefix}${this.selectedItem.name}${level}`;
+        },
+
+        /**
+         * Formats the additional option according to the selected item family.
+         *
+         * @returns {string|null}
+         */
+        get additionalOption() {
+            if (this.optionLevel <= 0 || this.selectedItem === null) {
+                return null;
+            }
+
+            if (this.selectedItem.optionType === 1) {
+                return `${this.itemOptionLabels.automaticHpRecovery} +${this.optionLevel}%`;
+            }
+
+            if (this.selectedItem.optionType === 2) {
+                return `${this.itemOptionLabels.additionalDefenseRate} +${this.optionLevel * 5}`;
+            }
+
+            const label = this.selectedItem.excellentType === 1
+                ? this.itemOptionLabels.additionalDefense
+                : this.itemOptionLabels.additionalDamage;
+
+            return `${label} +${this.optionLevel * 4}`;
+        },
+
+        /**
+         * Returns safe additional-option choices labeled for the selected item family.
+         *
+         * @returns {Array<{value: number, label: string}>}
+         */
+        get additionalOptionChoices() {
+            return this.optionLevels.map((optionLevel) => {
+                if (optionLevel === 0) {
+                    return {
+                        value: optionLevel,
+                        label: '0',
+                    };
+                }
+
+                let multiplier = 4;
+                let suffix = '';
+
+                if (this.selectedItem?.optionType === 1) {
+                    multiplier = 1;
+                    suffix = '%';
+                } else if (this.selectedItem?.optionType === 2) {
+                    multiplier = 5;
+                }
+
+                return {
+                    value: optionLevel,
+                    label: `+${optionLevel * multiplier}${suffix}`,
+                };
+            });
+        },
+
+        /**
+         * Returns every enabled option for the delivery preview.
+         *
+         * @returns {Array<string>}
+         */
+        get fullItemOptions() {
+            const options = [];
+
+            if (this.hasSkill) {
+                options.push(this.ui.skill);
+            }
+
+            if (this.hasLuck) {
+                options.push(this.ui.luck);
+            }
+
+            if (this.additionalOption !== null) {
+                options.push(this.additionalOption);
+            }
+
+            options.push(...this.selectedExcellentOptions);
+
+            return options;
+        },
+
+        /**
+         * Requires a catalog selection before opening the final confirmation.
+         *
+         * @returns {void}
+         */
+        openConfirmation() {
+            if (this.selectedItem === null) {
+                this.$refs.itemSearch.setCustomValidity(this.ui.itemRequired);
+                this.$refs.itemSearch.reportValidity();
+
+                return;
+            }
+
+            this.$refs.itemSearch.setCustomValidity('');
+            this.confirmationOpen = true;
+        },
+
+        /**
+         * Clears the selected item while the administrator edits its visible name.
+         *
+         * @returns {void}
+         */
+        filterItems() {
+            this.itemCode = '';
+            this.activeItemSuggestionIndex = -1;
+            this.itemSuggestionsOpen = true;
+            this.$refs.itemSearch.setCustomValidity('');
+        },
+
+        /**
+         * Selects one exact item from the verified catalog.
+         *
+         * @param {object} item Catalog item selected by the administrator.
+         * @returns {void}
+         */
+        selectItem(item) {
+            this.itemCode = item.code;
+            this.itemSearch = item.name;
+            const allowedBits = new Set(this.excellentOptions.map((option) => option.bit));
+            this.excellentOptionBits = this.excellentOptionBits.filter(
+                (bit) => allowedBits.has(Number(bit)),
+            );
+            this.itemSuggestionsOpen = false;
+            this.activeItemSuggestionIndex = -1;
+            this.$refs.itemSearch.setCustomValidity('');
+        },
+
+        /**
+         * Moves keyboard focus through the filtered item suggestions.
+         *
+         * @param {number} direction Positive for down and negative for up.
+         * @returns {void}
+         */
+        moveItemSuggestion(direction) {
+            if (!this.itemSuggestionsOpen || this.itemSuggestions.length === 0) {
+                return;
+            }
+
+            const nextIndex = this.activeItemSuggestionIndex + direction;
+            this.activeItemSuggestionIndex = Math.max(
+                0,
+                Math.min(this.itemSuggestions.length - 1, nextIndex),
+            );
+        },
+
+        /**
+         * Selects the keyboard-highlighted catalog item when one exists.
+         *
+         * @returns {void}
+         */
+        selectActiveItemSuggestion() {
+            const item = this.itemSuggestions[this.activeItemSuggestionIndex];
+
+            if (item !== undefined) {
+                this.selectItem(item);
+            }
+        },
+
+        /**
+         * Closes item suggestions without changing the current catalog selection.
+         *
+         * @returns {void}
+         */
+        closeItemSuggestions() {
+            this.itemSuggestionsOpen = false;
+            this.activeItemSuggestionIndex = -1;
+        },
+
+        /**
+         * Debounces account lookup after the administrator changes the query.
+         *
+         * @param {number} delay Milliseconds to wait before requesting suggestions.
+         * @returns {void}
+         */
+        scheduleAccountSearch(delay = 250) {
+            window.clearTimeout(this.searchTimer);
+            this.selectedAccount = null;
+            this.activeSuggestionIndex = -1;
+
+            if (this.accountId.trim().length < 2) {
+                this.searchRequest?.abort();
+                this.suggestions = [];
+                this.suggestionsOpen = false;
+                this.searchLoading = false;
+                this.searchFailed = false;
+
+                return;
+            }
+
+            this.suggestionsOpen = true;
+            this.searchTimer = window.setTimeout(
+                () => this.searchAccounts(),
+                delay,
+            );
+        },
+
+        /**
+         * Requests at most ten server-side account matches for the current query.
+         *
+         * @returns {Promise<void>}
+         */
+        async searchAccounts() {
+            const query = this.accountId.trim();
+
+            if (query.length < 2) {
+                return;
+            }
+
+            this.searchRequest?.abort();
+            this.searchRequest = new AbortController();
+            const activeRequest = this.searchRequest;
+            const parameters = new URLSearchParams({ search: query });
+            this.searchLoading = true;
+            this.searchFailed = false;
+
+            try {
+                const response = await window.fetch(`${this.searchUrl}?${parameters.toString()}`, {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    signal: activeRequest.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Account search failed with ${response.status}.`);
+                }
+
+                const payload = await response.json();
+
+                if (query === this.accountId.trim()) {
+                    this.suggestions = payload.data ?? [];
+                    this.suggestionsOpen = true;
+                }
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    this.searchFailed = true;
+                    this.suggestions = [];
+                }
+            } finally {
+                if (this.searchRequest === activeRequest) {
+                    this.searchLoading = false;
+                }
+            }
+        },
+
+        /**
+         * Selects one authoritative account suggestion.
+         *
+         * @param {object} account Account identifier and online state from the server.
+         * @returns {void}
+         */
+        selectAccount(account) {
+            this.accountId = account.account_id;
+            this.selectedAccount = account;
+            this.suggestionsOpen = false;
+            this.activeSuggestionIndex = -1;
+        },
+
+        /**
+         * Moves keyboard focus through the current account suggestions.
+         *
+         * @param {number} direction Positive for down and negative for up.
+         * @returns {void}
+         */
+        moveSuggestion(direction) {
+            if (!this.suggestionsOpen || this.suggestions.length === 0) {
+                return;
+            }
+
+            const nextIndex = this.activeSuggestionIndex + direction;
+            this.activeSuggestionIndex = Math.max(
+                0,
+                Math.min(this.suggestions.length - 1, nextIndex),
+            );
+        },
+
+        /**
+         * Selects the keyboard-highlighted suggestion when one exists.
+         *
+         * @returns {void}
+         */
+        selectActiveSuggestion() {
+            const account = this.suggestions[this.activeSuggestionIndex];
+
+            if (account !== undefined) {
+                this.selectAccount(account);
+            }
+        },
+
+        /**
+         * Closes account suggestions without changing the typed value.
+         *
+         * @returns {void}
+         */
+        closeSuggestions() {
+            this.suggestionsOpen = false;
+            this.activeSuggestionIndex = -1;
         },
     };
 }
@@ -2885,179 +3393,6 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         resetAllocations() {
             this.allocations = createEmptyStatAllocations(this.selectedCharacter);
             this.clearStatReview();
-        },
-    };
-}
-
-/**
- * Creates live reset calculations and persists audited administration drafts.
- *
- * @param {object} initialSettings The server reset profile loaded from Laravel.
- * @param {object} translations Localized labels used by the live preview.
- * @param {object} persistence Endpoint, CSRF token and current revision metadata.
- * @returns {object} Alpine state for reset settings and their live preview.
- */
-export function resetSettings(initialSettings, translations, persistence) {
-    return {
-        settings: initialSettings,
-        translations,
-        persistence,
-        previewResetNumber: 8,
-        revision: persistence.revision,
-        revisions: persistence.revisions,
-        saving: false,
-        validationErrors: {},
-        savedNoticeVisible: false,
-        savedNoticeIsError: false,
-        savedNoticeMessage: translations.saved,
-        noticeTimeoutId: null,
-
-        /**
-         * Returns the localized outcome for the stat reset policy.
-         *
-         * @returns {string}
-         */
-        get statsPolicyLabel() {
-            if (this.settings.clearStats) {
-                return this.translations.statsReset;
-            }
-
-            return this.translations.preserved;
-        },
-
-        /**
-         * Returns the localized label for the selected inventory policy.
-         *
-         * @returns {string}
-         */
-        get inventoryPolicyLabel() {
-            const policyLabels = {
-                keep_all: this.translations.keepAll,
-                clear_bag: this.translations.clearBag,
-                clear_all: this.translations.clearAll,
-            };
-
-            return policyLabels[this.settings.inventoryPolicy];
-        },
-
-        /**
-         * Calculates the Zen charge for the selected preview reset number.
-         *
-         * @returns {number}
-         */
-        get previewZenCost() {
-            if (!this.settings.multiplyCostByReset) {
-                return Number(this.settings.baseZenCost);
-            }
-
-            return Number(this.settings.baseZenCost) * Number(this.previewResetNumber);
-        },
-
-        /**
-         * Calculates the level-up points granted by the selected reset profile.
-         *
-         * @returns {number}
-         */
-        get previewPoints() {
-            if (this.settings.pointsMode === 'fixed') {
-                return Number(this.settings.pointsPerReset);
-            }
-
-            return Number(this.settings.pointsPerReset) * Number(this.previewResetNumber);
-        },
-
-        /**
-         * Returns the first server validation message for one settings field.
-         *
-         * @param {string} field The camel-case request field being rendered.
-         * @returns {string|null}
-         */
-        firstValidationError(field) {
-            const messages = this.validationErrors[field];
-
-            if (!Array.isArray(messages) || messages.length === 0) {
-                return null;
-            }
-
-            return messages[0];
-        },
-
-        /**
-         * Saves the complete reset policy as one server-owned audit revision.
-         */
-        async saveSettings() {
-            this.saving = true;
-            this.validationErrors = {};
-
-            try {
-                const response = await window.fetch(this.persistence.saveUrl, {
-                    method: 'PUT',
-                    credentials: 'same-origin',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': this.persistence.csrfToken,
-                    },
-                    body: JSON.stringify(this.settings),
-                });
-                const contentType = response.headers.get('content-type') ?? '';
-                const responsePayload = contentType.includes('application/json')
-                    ? await response.json()
-                    : {};
-
-                if (response.status === 422) {
-                    this.validationErrors = responsePayload.errors ?? {};
-                    this.showSavedNotice(this.translations.saveFailed, true);
-
-                    return;
-                }
-
-                if (!response.ok) {
-                    throw new Error(`Reset settings request failed with status ${response.status}.`);
-                }
-
-                this.settings = responsePayload.settings;
-                this.revision = responsePayload.revision;
-                this.revisions.unshift({
-                    revision: responsePayload.revision,
-                    changedAt: this.translations.justNow,
-                });
-                this.revisions = this.revisions.slice(0, 8);
-                this.showSavedNotice(responsePayload.message ?? this.translations.saved, false);
-            } catch {
-                this.showSavedNotice(this.translations.saveFailed, true);
-            } finally {
-                this.saving = false;
-            }
-        },
-
-        /**
-         * Shows a temporary success or failure notice for a persistence attempt.
-         *
-         * @param {string} message The localized notice text.
-         * @param {boolean} isError Whether the notice represents a failed save.
-         */
-        showSavedNotice(message, isError) {
-            if (this.noticeTimeoutId !== null) {
-                window.clearTimeout(this.noticeTimeoutId);
-            }
-
-            this.savedNoticeMessage = message;
-            this.savedNoticeIsError = isError;
-            this.savedNoticeVisible = true;
-
-            this.noticeTimeoutId = window.setTimeout(
-                this.hideSavedNotice.bind(this),
-                2200,
-            );
-        },
-
-        /**
-         * Hides the reset-setting saved-state notice.
-         */
-        hideSavedNotice() {
-            this.savedNoticeVisible = false;
-            this.noticeTimeoutId = null;
         },
     };
 }

@@ -11,6 +11,7 @@ use App\Moderation\ModerationTarget;
 use App\Moderation\ModerationTargetType;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\Query\Builder;
 use stdClass;
 
 /**
@@ -28,8 +29,55 @@ final readonly class SqlServer97d99iModerationRepository implements ModerationRe
      *
      * @return list<ModerationTarget>
      */
-    public function searchAccounts(?string $search, int $limit): array
+    public function searchAccounts(?string $search, int $limit, int $offset = 0): array
     {
+        return $this->accountTargets(
+            search: $search,
+            limit: $limit,
+            offset: $offset,
+        );
+    }
+
+    /**
+     * Finds account groups by account identifier or one of their character names.
+     *
+     * @return list<ModerationTarget>
+     */
+    public function searchAccountGroups(?string $search, int $limit, int $offset = 0): array
+    {
+        $characterAccountIds = [];
+
+        if ($search !== null) {
+            $characterAccountIds = $this->database
+                ->connection('game')
+                ->table('Character')
+                ->where('Name', 'like', '%'.$search.'%')
+                ->distinct()
+                ->pluck('AccountID')
+                ->map(static fn (mixed $accountId): string => (string) $accountId)
+                ->all();
+        }
+
+        return $this->accountTargets(
+            search: $search,
+            limit: $limit,
+            offset: $offset,
+            characterAccountIds: $characterAccountIds,
+        );
+    }
+
+    /**
+     * Builds account moderation targets with optional character-search matches.
+     *
+     * @param  list<string>  $characterAccountIds
+     * @return list<ModerationTarget>
+     */
+    private function accountTargets(
+        ?string $search,
+        int $limit,
+        int $offset,
+        array $characterAccountIds = [],
+    ): array {
         $query = $this->database
             ->connection('game')
             ->table('MEMB_INFO as accounts')
@@ -38,10 +86,19 @@ final readonly class SqlServer97d99iModerationRepository implements ModerationRe
                 'accounts.bloc_code as control_code',
             ])
             ->orderBy('accounts.memb___id')
+            ->offset($offset)
             ->limit($limit);
 
         if ($search !== null) {
-            $query->where('accounts.memb___id', 'like', '%'.$search.'%');
+            $searchPattern = '%'.$search.'%';
+
+            $query->where(static function (Builder $query) use ($characterAccountIds, $searchPattern): void {
+                $query->where('accounts.memb___id', 'like', $searchPattern);
+
+                if ($characterAccountIds !== []) {
+                    $query->orWhereIn('accounts.memb___id', $characterAccountIds);
+                }
+            });
         }
 
         $rows = $query->get();
@@ -73,7 +130,7 @@ final readonly class SqlServer97d99iModerationRepository implements ModerationRe
      *
      * @return list<ModerationTarget>
      */
-    public function searchCharacters(?string $search, int $limit): array
+    public function searchCharacters(?string $search, int $limit, int $offset = 0): array
     {
         $query = $this->database
             ->connection('game')
@@ -83,13 +140,58 @@ final readonly class SqlServer97d99iModerationRepository implements ModerationRe
                 'characters.AccountID as account_id',
                 'characters.CtlCode as control_code',
             ])
+            ->orderBy('characters.AccountID')
             ->orderBy('characters.Name')
+            ->offset($offset)
             ->limit($limit);
 
         if ($search !== null) {
-            $query->where('characters.Name', 'like', '%'.$search.'%');
+            $searchPattern = '%'.$search.'%';
+
+            $query->where(static function (Builder $query) use ($searchPattern): void {
+                $query
+                    ->where('characters.Name', 'like', $searchPattern)
+                    ->orWhere('characters.AccountID', 'like', $searchPattern);
+            });
         }
 
+        return $this->characterTargets($query);
+    }
+
+    /**
+     * Finds all characters belonging to the visible account page.
+     *
+     * @param  list<string>  $accountIds
+     * @return list<ModerationTarget>
+     */
+    public function charactersForAccounts(array $accountIds): array
+    {
+        if ($accountIds === []) {
+            return [];
+        }
+
+        $query = $this->database
+            ->connection('game')
+            ->table('Character as characters')
+            ->select([
+                'characters.Name as identifier',
+                'characters.AccountID as account_id',
+                'characters.CtlCode as control_code',
+            ])
+            ->whereIn('characters.AccountID', $accountIds)
+            ->orderBy('characters.AccountID')
+            ->orderBy('characters.Name');
+
+        return $this->characterTargets($query);
+    }
+
+    /**
+     * Converts one verified character query to credential-free moderation targets.
+     *
+     * @return list<ModerationTarget>
+     */
+    private function characterTargets(Builder $query): array
+    {
         $rows = $query->get();
         $accountIds = $rows
             ->map(static fn (stdClass $row): string => (string) $row->account_id)

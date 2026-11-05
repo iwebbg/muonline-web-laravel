@@ -41,7 +41,6 @@ final class EventScheduleController extends Controller
                 ->get();
 
         return view('admin.event-schedules', [
-            'profileKey' => $profileKey,
             'gameVersion' => $gameVersion,
             'effectiveDefinitions' => $eventProfileReader->definitions(),
             'entries' => $entries,

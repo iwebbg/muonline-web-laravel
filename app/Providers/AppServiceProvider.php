@@ -14,20 +14,22 @@ use App\Game\Repositories\LegacyGameAccountLookupRepository;
 use App\Game\Status\FixtureGameServerStatus;
 use App\Game\Status\TcpGameServerStatus;
 use App\Game\Versions\Contracts\GameVersionProfile;
-use App\Models\GameServer;
 use App\Modules\ModuleManager;
+use App\Website\WebsiteSettings;
+use App\Website\WebsiteSettingsManager;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\View\View as LaravelView;
 use LogicException;
+use Throwable;
 
 /**
  * Registers version-aware game adapters, module settings and request limiters.
@@ -72,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(GameServerStatus::class, $serverStatusClass);
         $this->app->bind(GameAccountLookupRepository::class, LegacyGameAccountLookupRepository::class);
         $this->app->singleton(ModuleManager::class);
+        $this->app->singleton(WebsiteSettingsManager::class);
     }
 
     /**
@@ -86,24 +89,41 @@ class AppServiceProvider extends ServiceProvider
 
                 $view->with('gameServerOnline', $gameServerStatus->isOnline());
 
+                if (in_array($view->name(), ['layouts.app', 'home'], true)) {
+                    $websiteSettings = $this->app->make(WebsiteSettingsManager::class)->current();
+                    $view->with('websiteSettings', $websiteSettings);
+                }
+
                 if ($view->name() !== 'layouts.app') {
                     return;
                 }
 
-                $websiteServerName = Schema::hasTable('game_servers')
-                    ? GameServer::query()
-                        ->where('is_current', true)
-                        ->value('name')
-                    : null;
-
                 $view->with(
-                    'websiteServerName',
-                    is_string($websiteServerName) && $websiteServerName !== ''
-                        ? $websiteServerName
-                        : config('app.name'),
+                    'websiteLogoUrl',
+                    $websiteSettings->logoPath === null
+                        ? null
+                        : Storage::disk('public')->url($websiteSettings->logoPath),
+                );
+                $view->with(
+                    'websiteOgImageUrl',
+                    $websiteSettings->ogImagePath === null
+                        ? null
+                        : Storage::disk('public')->url($websiteSettings->ogImagePath),
                 );
             },
         );
+
+        View::composer('errors.layout', function (LaravelView $view): void {
+            $websiteSettings = $this->errorPageWebsiteSettings();
+
+            $view->with('websiteSettings', $websiteSettings);
+            $view->with(
+                'websiteLogoUrl',
+                $websiteSettings->logoPath === null
+                    ? null
+                    : Storage::disk('public')->url($websiteSettings->logoPath),
+            );
+        });
 
         Auth::provider('game_accounts', function (Application $application): GameAccountUserProvider {
             return new GameAccountUserProvider($application->make(DatabaseManager::class));
@@ -189,6 +209,20 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by($limiterKey);
         });
 
+        RateLimiter::for('shop-purchase', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(10)->by($limiterKey);
+        });
+
+        RateLimiter::for('shop-reward', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(15)->by($limiterKey);
+        });
+
         RateLimiter::for('auction-bid', function (Request $request): Limit {
             $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
             $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
@@ -236,6 +270,13 @@ class AppServiceProvider extends ServiceProvider
             $limiterKey = Str::transliterate($administratorId.'|'.$request->ip());
 
             return Limit::perMinute(10)->by($limiterKey);
+        });
+
+        RateLimiter::for('admin-item-grant-search', function (Request $request): Limit {
+            $administratorId = (string) ($request->user('admin')?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($administratorId.'|'.$request->ip());
+
+            return Limit::perMinute(60)->by($limiterKey);
         });
 
         RateLimiter::for('reset-preview', function (Request $request): Limit {
@@ -356,5 +397,17 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perMinute(5)->by($limiterKey);
         });
+    }
+
+    /**
+     * Resolves managed identity without allowing a database failure to break an error page.
+     */
+    private function errorPageWebsiteSettings(): WebsiteSettings
+    {
+        try {
+            return $this->app->make(WebsiteSettingsManager::class)->current();
+        } catch (Throwable) {
+            return WebsiteSettings::defaults();
+        }
     }
 }

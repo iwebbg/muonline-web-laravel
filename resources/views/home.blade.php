@@ -9,7 +9,7 @@
         <div class="max-w-3xl">
             <div class="eyebrow mb-6">
                 <span @class(['status-dot', 'status-dot-server-offline' => ! $gameServerOnline])></span>
-                {{ __('ui.home.season') }} · {{ $server['version'] }}
+                {{ $websiteSettings->brandTitle }} · {{ $websiteSettings->brandSubtitle }}
             </div>
 
             <h1 class="font-display text-5xl leading-[0.95] text-white sm:text-6xl lg:text-8xl">

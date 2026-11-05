@@ -60,7 +60,7 @@ final class ContentPageTest extends TestCase
     }
 
     /**
-     * Confirms the footer uses the current server name and exposes legal navigation.
+     * Confirms the footer uses the website owner fallback and exposes legal navigation.
      */
     public function test_footer_and_cookie_notice_render_public_legal_links(): void
     {
@@ -74,7 +74,7 @@ final class ContentPageTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('&copy; '.now()->year.' DreamMu 97d+99i Easy.', false)
+            ->assertSee('&copy; '.now()->year.' MuOnline Web.', false)
             ->assertSee('Website created by')
             ->assertSee('https://interweb.bg', false)
             ->assertSee('/pages/privacy-policy', false)

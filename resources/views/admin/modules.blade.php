@@ -30,8 +30,8 @@
                     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                             <p class="kicker">{{ __('ui.admin.modules_profile') }}</p>
-                            <h2 class="mt-2 text-xl font-semibold text-white">{{ $profileKey }}</h2>
-                            <p class="mt-1 text-sm text-steel">{{ $gameVersion }} · {{ __('ui.admin.revision') }} {{ $revision }}</p>
+                            <h2 class="mt-2 text-xl font-semibold text-white">{{ $gameVersion }}</h2>
+                            <p class="mt-1 text-sm text-steel">{{ __('ui.admin.revision') }} {{ $revision }}</p>
                         </div>
                         <span class="resource-chip">{{ __('ui.admin.modules_server_authoritative') }}</span>
                     </div>
@@ -66,35 +66,12 @@
                     </form>
                 </section>
 
-                <section class="panel-card overflow-hidden">
-                    <div class="border-b border-white/8 p-5 sm:p-6">
-                        <p class="kicker">{{ __('ui.admin.modules_history') }}</p>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-left text-sm">
-                            <thead class="text-xs uppercase tracking-[0.14em] text-steel">
-                                <tr>
-                                    <th class="p-4">{{ __('ui.admin.revision') }}</th>
-                                    <th class="p-4">{{ __('ui.admin.modules_changed_by') }}</th>
-                                    <th class="p-4">{{ __('ui.admin.modules_changed_at') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/8">
-                                @forelse ($recentRevisions as $profileRevision)
-                                    <tr>
-                                        <td class="p-4 font-semibold text-white">{{ $profileRevision->revision }}</td>
-                                        <td class="p-4 text-silver">{{ $profileRevision->changed_by_administrator_id ?? __('ui.admin.modules_system') }}</td>
-                                        <td class="p-4 text-steel">{{ $profileRevision->created_at?->format('Y-m-d H:i:s') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="p-8 text-center text-steel">{{ __('ui.admin.modules_no_history') }}</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                <x-admin-revision-history
+                    :revisions="$recentRevisions"
+                    :title="__('ui.admin.modules_history')"
+                    :empty-message="__('ui.admin.modules_no_history')"
+                    wide
+                />
             </main>
         </div>
     </div>

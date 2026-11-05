@@ -12,6 +12,8 @@ use App\Game\Data\GuildRankingQuery;
 use App\Game\Data\PublicCharacterProfile;
 use App\Game\Data\PublicGuildMember;
 use App\Game\Data\PublicGuildProfile;
+use App\Game\Data\RealmAnalytics;
+use App\Game\Data\RealmDistributionEntry;
 use App\Game\Data\RealmOverview;
 use App\Game\Rankings\RankingBoard;
 use App\Game\Versions\Version97d99i\GuildMarkDecoder;
@@ -44,6 +46,40 @@ final class FixtureRealmReadRepository implements RealmReadRepository
             characters: 1620,
             guilds: 114,
             dataSource: 'fixture',
+        );
+    }
+
+    /**
+     * Returns deterministic aggregate analytics for local interface development.
+     */
+    public function analytics(): RealmAnalytics
+    {
+        $characterTotal = 1620;
+
+        return new RealmAnalytics(
+            accounts: 1550,
+            characters: $characterTotal,
+            guilds: 114,
+            onlinePlayers: 186,
+            classes: [
+                new RealmDistributionEntry('Blade Knight', 520, $characterTotal, 'BK'),
+                new RealmDistributionEntry('Soul Master', 410, $characterTotal, 'SM'),
+                new RealmDistributionEntry('Muse Elf', 330, $characterTotal, 'ME'),
+                new RealmDistributionEntry('Magic Gladiator', 200, $characterTotal, 'MG'),
+                new RealmDistributionEntry('Dark Knight', 80, $characterTotal, 'DK'),
+                new RealmDistributionEntry('Dark Wizard', 50, $characterTotal, 'DW'),
+                new RealmDistributionEntry('Fairy Elf', 30, $characterTotal, 'FE'),
+            ],
+            maps: [
+                new RealmDistributionEntry('Lorencia', 400, $characterTotal),
+                new RealmDistributionEntry('Davias', 320, $characterTotal),
+                new RealmDistributionEntry('Noria', 280, $characterTotal),
+                new RealmDistributionEntry('Losttower', 210, $characterTotal),
+                new RealmDistributionEntry('Stadium', 160, $characterTotal),
+                new RealmDistributionEntry('Atlans', 110, $characterTotal),
+                new RealmDistributionEntry('Tarkan', 80, $characterTotal),
+                new RealmDistributionEntry('Dungeon', 60, $characterTotal),
+            ],
         );
     }
 
@@ -262,7 +298,7 @@ final class FixtureRealmReadRepository implements RealmReadRepository
                 level: 400,
                 resets: 20,
                 grandResets: 5,
-                map: 'Devias',
+                map: 'Davias',
                 pkLevel: 3,
                 guildName: 'Immortal',
                 online: true,
@@ -275,7 +311,7 @@ final class FixtureRealmReadRepository implements RealmReadRepository
                 level: 395,
                 resets: 19,
                 grandResets: 5,
-                map: 'Arena',
+                map: 'Stadium',
                 pkLevel: 6,
                 guildName: 'NoMercy',
                 online: false,

@@ -52,12 +52,16 @@ final class AdministratorPermissionTest extends TestCase
                 '_token' => $csrfToken,
             ])
             ->actingAs($gameMaster, 'admin')
-            ->putJson('/admin/reset-profile', [
+            ->putJson('/admin/character-rules/reset', [
                 '_token' => $csrfToken,
             ]);
 
         $dashboardResponse->assertRedirect('/admin/audit-log');
-        $auditResponse->assertOk();
+        $auditResponse
+            ->assertOk()
+            ->assertSee('Web Control')
+            ->assertSee('Audit log')
+            ->assertDontSee('Game servers');
         $settingsResponse->assertForbidden();
     }
 
@@ -79,7 +83,11 @@ final class AdministratorPermissionTest extends TestCase
             ->actingAs($gameMaster, 'admin')
             ->get('/admin/audit-log');
 
-        $dashboardResponse->assertOk();
+        $dashboardResponse
+            ->assertOk()
+            ->assertSee('Web Control')
+            ->assertSee('Game servers')
+            ->assertDontSee('Audit log');
         $auditResponse->assertForbidden();
     }
 

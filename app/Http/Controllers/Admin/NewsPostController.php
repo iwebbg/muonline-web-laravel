@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Content\NewsPostStatus;
 use App\Content\PublicationTime;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\FilterNewsPostsRequest;
 use App\Http\Requests\Admin\StoreNewsPostRequest;
 use App\Http\Requests\Admin\UpdateNewsPostRequest;
 use App\Models\Administrator;
 use App\Models\NewsPost;
 use App\Models\NewsPostRevision;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,24 +32,49 @@ final class NewsPostController extends Controller
     /**
      * Displays all active articles for permission-scoped content management.
      */
-    public function index(Request $request): View
+    public function index(FilterNewsPostsRequest $request): View
     {
         $administrator = $request->user('admin');
 
         abort_unless($administrator instanceof Administrator, 403);
 
-        $posts = NewsPost::query()
-            ->withCount('revisions')
+        $search = $request->search();
+        $type = $request->type();
+        $postsQuery = NewsPost::query()
+            ->withCount('revisions');
+
+        if ($search !== '') {
+            $searchPattern = '%'.$search.'%';
+
+            $postsQuery->where(function (Builder $query) use ($searchPattern): void {
+                $query
+                    ->whereLike('title_en', $searchPattern)
+                    ->orWhereLike('title_bg', $searchPattern)
+                    ->orWhereLike('slug', $searchPattern);
+            });
+        }
+
+        if ($type !== null) {
+            $postsQuery->where('type', $type->value);
+        }
+
+        $postPaginator = $postsQuery
             ->latest('updated_at')
-            ->get();
+            ->paginate(20)
+            ->withQueryString();
         $serializedPosts = [];
 
-        foreach ($posts as $post) {
+        foreach ($postPaginator->items() as $post) {
             $serializedPosts[] = $this->serializeForManager($post);
         }
 
         return view('admin.news-posts', [
             'posts' => $serializedPosts,
+            'postPaginator' => $postPaginator,
+            'contentFilters' => [
+                'search' => $search,
+                'type' => $type?->value ?? '',
+            ],
         ]);
     }
 

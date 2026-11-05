@@ -10,6 +10,7 @@ use App\Game\Data\GuildRankingPage;
 use App\Game\Data\GuildRankingQuery;
 use App\Game\Data\PublicCharacterProfile;
 use App\Game\Data\PublicGuildProfile;
+use App\Game\Data\RealmAnalytics;
 use App\Game\Data\RealmOverview;
 
 /**
@@ -21,6 +22,11 @@ interface RealmReadRepository
      * Returns the aggregate realm status displayed on the public dashboard.
      */
     public function overview(): RealmOverview;
+
+    /**
+     * Returns aggregate totals and character distributions for administration.
+     */
+    public function analytics(): RealmAnalytics;
 
     /**
      * Returns the strongest characters ordered by version-specific progression.

@@ -21,6 +21,8 @@ use App\Http\Controllers\Account\MarketPurchaseController;
 use App\Http\Controllers\Account\MoveToTownPreviewController;
 use App\Http\Controllers\Account\PkClearPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
+use App\Http\Controllers\Account\RewardController;
+use App\Http\Controllers\Account\ShopPurchaseController;
 use App\Http\Controllers\Account\StatAllocationPreviewController;
 use App\Http\Controllers\Account\StatResetPreviewController;
 use App\Http\Controllers\Account\VipPurchaseController;
@@ -30,22 +32,27 @@ use App\Http\Controllers\Account\ZenBankController;
 use App\Http\Controllers\AccountDashboardController;
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
+use App\Http\Controllers\Admin\CharacterRuleProfileController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
 use App\Http\Controllers\Admin\EconomyRecoveryController;
 use App\Http\Controllers\Admin\EventScheduleController;
 use App\Http\Controllers\Admin\GameMasterController;
 use App\Http\Controllers\Admin\GameServerController;
+use App\Http\Controllers\Admin\ItemGrantAccountController;
 use App\Http\Controllers\Admin\ItemGrantController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\ModuleProfileController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
-use App\Http\Controllers\Admin\ResetProfileController;
+use App\Http\Controllers\Admin\ShopOfferController as AdminShopOfferController;
+use App\Http\Controllers\Admin\ShopRewardGrantController;
 use App\Http\Controllers\Admin\VipPlanController;
+use App\Http\Controllers\Admin\VoteClaimController as AdminVoteClaimController;
 use App\Http\Controllers\Admin\VoteClaimReviewController;
 use App\Http\Controllers\Admin\VoteSiteController;
 use App\Http\Controllers\Admin\WalletController;
+use App\Http\Controllers\Admin\WebsiteSettingController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\GameAccountActivationController;
 use App\Http\Controllers\Auth\GameAccountActivationLinkController;
@@ -64,6 +71,7 @@ use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RankingsController;
 use App\Http\Controllers\ReadinessController;
 use App\Http\Controllers\ServerStatusController;
+use App\Http\Controllers\ShopController;
 use App\Http\Controllers\VoteController;
 use App\Http\Middleware\SetLocale;
 use App\Modules\ServerModule;
@@ -127,6 +135,12 @@ Route::get('/downloads', DownloadController::class)
 Route::get('/market', MarketController::class)
     ->middleware('module.enabled:'.ServerModule::Market->value)
     ->name('market.index');
+Route::get('/shop/items', [ShopController::class, 'items'])
+    ->middleware('module.enabled:'.ServerModule::WebShop->value)
+    ->name('shop.items.index');
+Route::get('/shop/mystery-boxes', [ShopController::class, 'mysteryBoxes'])
+    ->middleware('module.enabled:'.ServerModule::MysteryBoxes->value)
+    ->name('shop.mystery-boxes.index');
 
 Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
     ->middleware('module.enabled:'.ServerModule::PasswordRecovery->value)
@@ -182,6 +196,36 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/account/credits', CreditController::class)
         ->middleware('module.enabled:'.ServerModule::Credits->value)
         ->name('account.credits.index');
+    Route::get('/account/rewards', [RewardController::class, 'index'])
+        ->middleware('module.enabled:'.ServerModule::Rewards->value)
+        ->name('account.rewards.index');
+    Route::post('/account/rewards/{accountReward}/open', [RewardController::class, 'open'])
+        ->middleware([
+            'module.enabled:'.ServerModule::Rewards->value,
+            'module.enabled:'.ServerModule::MysteryBoxes->value,
+            'throttle:shop-reward',
+        ])
+        ->name('account.rewards.open');
+    Route::post('/account/rewards/{accountReward}/deliver', [RewardController::class, 'deliver'])
+        ->middleware([
+            'module.enabled:'.ServerModule::Rewards->value,
+            'throttle:shop-reward',
+        ])
+        ->name('account.rewards.deliver');
+    Route::post('/shop/items/{shopOffer}/purchase', ShopPurchaseController::class)
+        ->middleware([
+            'module.enabled:'.ServerModule::WebShop->value,
+            'module.enabled:'.ServerModule::Rewards->value,
+            'throttle:shop-purchase',
+        ])
+        ->name('shop.items.purchase');
+    Route::post('/shop/mystery-boxes/{shopOffer}/purchase', ShopPurchaseController::class)
+        ->middleware([
+            'module.enabled:'.ServerModule::MysteryBoxes->value,
+            'module.enabled:'.ServerModule::Rewards->value,
+            'throttle:shop-purchase',
+        ])
+        ->name('shop.mystery-boxes.purchase');
     Route::get('/account/votes', VoteController::class)
         ->middleware('module.enabled:'.ServerModule::VoteRewards->value)
         ->name('account.votes.index');
@@ -369,6 +413,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                     ->name('vip-plans.destroy');
                 Route::get('/economy/votes', [VoteSiteController::class, 'index'])
                     ->name('vote-sites.index');
+                Route::get('/economy/votes/history', [AdminVoteClaimController::class, 'index'])
+                    ->name('vote-claims.index');
                 Route::post('/economy/votes', [VoteSiteController::class, 'store'])
                     ->name('vote-sites.store');
                 Route::put('/economy/votes/{voteSite}', [VoteSiteController::class, 'update'])
@@ -380,6 +426,11 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                     ->name('vote-claims.review');
                 Route::get('/economy/market', [AdminMarketController::class, 'index'])
                     ->name('market.index');
+                Route::resource('/economy/shop-offers', AdminShopOfferController::class)
+                    ->except(['show']);
+                Route::post('/economy/shop-offers/{shopOffer}/grants', ShopRewardGrantController::class)
+                    ->middleware('throttle:admin-item-grant')
+                    ->name('shop-offers.grants.store');
                 Route::post('/economy/market/{marketListing}/retry', [AdminMarketController::class, 'retry'])
                     ->middleware('throttle:admin-market')
                     ->name('market.retry');
@@ -434,9 +485,13 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             Route::put('/game-masters/{gameMaster}', [GameMasterController::class, 'update'])
                 ->name('game-masters.update');
         });
-        Route::put('/reset-profile', [ResetProfileController::class, 'update'])
-            ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
-            ->name('reset-profile.update');
+        Route::middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
+            ->group(function (): void {
+                Route::get('/character-rules/{profile}', [CharacterRuleProfileController::class, 'edit'])
+                    ->name('character-rules.edit');
+                Route::put('/character-rules/{profile}', [CharacterRuleProfileController::class, 'update'])
+                    ->name('character-rules.update');
+            });
         Route::get('/modules', [ModuleProfileController::class, 'index'])
             ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->name('modules.index');
@@ -454,6 +509,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('event-schedules.update');
         Route::middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->group(function (): void {
+                Route::get('/website-settings', [WebsiteSettingController::class, 'edit'])
+                    ->name('website-settings.edit');
+                Route::put('/website-settings', [WebsiteSettingController::class, 'update'])
+                    ->name('website-settings.update');
                 Route::get('/game-servers', [GameServerController::class, 'index'])
                     ->name('game-servers.index');
                 Route::post('/game-servers', [GameServerController::class, 'store'])
@@ -466,6 +525,12 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/item-grants', [ItemGrantController::class, 'index'])
             ->middleware('admin.permission:'.AdministratorPermission::GrantItems->value)
             ->name('item-grants.index');
+        Route::get('/item-grants/accounts', ItemGrantAccountController::class)
+            ->middleware([
+                'admin.permission:'.AdministratorPermission::GrantItems->value,
+                'throttle:admin-item-grant-search',
+            ])
+            ->name('item-grants.accounts.index');
         Route::post('/item-grants', [ItemGrantController::class, 'store'])
             ->middleware([
                 'admin.permission:'.AdministratorPermission::GrantItems->value,
@@ -480,3 +545,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 Route::post('/locale/{locale}', LocaleController::class)
     ->whereIn('locale', config('localization.supported'))
     ->name('locale.update');
+
+Route::any('{fallbackPlaceholder}', static function (): never {
+    abort(404);
+})
+    ->where('fallbackPlaceholder', '.*')
+    ->fallback()
+    ->withoutMiddleware(PreventRequestForgery::class);

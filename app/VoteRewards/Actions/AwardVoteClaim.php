@@ -16,7 +16,7 @@ use App\VoteRewards\VoteClaimStatus;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Settles one verified vote claim into Credits and Zen ledgers atomically.
+ * Settles one manually verified or automatic vote claim atomically.
  */
 final readonly class AwardVoteClaim
 {
@@ -38,11 +38,50 @@ final readonly class AwardVoteClaim
             throw new VoteClaimRejected(VoteClaimBlockReason::PermissionDenied);
         }
 
-        $reviewedClaim = DB::transaction(function () use ($voteClaim, $administrator): VoteClaim {
+        return $this->settle(
+            voteClaim: $voteClaim,
+            administrator: $administrator,
+            requireAutomaticMode: false,
+        );
+    }
+
+    /**
+     * Awards a click-trust claim only when its destination enables automatic rewards.
+     *
+     * @throws VoteClaimRejected When the destination or claim state refuses settlement.
+     */
+    public function executeAutomatically(VoteClaim $voteClaim): VoteClaim
+    {
+        return $this->settle(
+            voteClaim: $voteClaim,
+            administrator: null,
+            requireAutomaticMode: true,
+        );
+    }
+
+    /**
+     * Commits both reward balances and the claim audit in one transaction.
+     *
+     * @throws VoteClaimRejected When the claim cannot be safely rewarded.
+     */
+    private function settle(
+        VoteClaim $voteClaim,
+        ?Administrator $administrator,
+        bool $requireAutomaticMode,
+    ): VoteClaim {
+        $reviewedClaim = DB::transaction(function () use (
+            $voteClaim,
+            $administrator,
+            $requireAutomaticMode,
+        ): VoteClaim {
             $lockedClaim = VoteClaim::query()
                 ->with('site')
                 ->lockForUpdate()
                 ->findOrFail($voteClaim->getKey());
+
+            if ($requireAutomaticMode && ! $lockedClaim->site->auto_reward_on_click) {
+                throw new VoteClaimRejected(VoteClaimBlockReason::AutomaticRewardDisabled);
+            }
 
             if ($lockedClaim->status !== VoteClaimStatus::Pending) {
                 throw new VoteClaimRejected(VoteClaimBlockReason::AlreadyReviewed);
@@ -52,7 +91,7 @@ final readonly class AwardVoteClaim
                 $lockedClaim->update([
                     'status' => VoteClaimStatus::Expired,
                     'reviewed_at' => now(),
-                    'reviewed_by_administrator_id' => $administrator->getKey(),
+                    'reviewed_by_administrator_id' => $administrator?->getKey(),
                     'rejection_reason' => VoteClaimBlockReason::ClaimExpired->value,
                 ]);
 
@@ -67,7 +106,7 @@ final readonly class AwardVoteClaim
                 'wallet_transaction_id' => $walletTransaction?->getKey(),
                 'zen_balance_before' => $zenBalanceBefore,
                 'zen_balance_after' => $zenBalanceAfter,
-                'reviewed_by_administrator_id' => $administrator->getKey(),
+                'reviewed_by_administrator_id' => $administrator?->getKey(),
                 'reviewed_at' => now(),
                 'rewarded_at' => now(),
                 'rejection_reason' => null,
@@ -88,7 +127,7 @@ final readonly class AwardVoteClaim
      */
     private function awardCredits(
         VoteClaim $voteClaim,
-        Administrator $administrator,
+        ?Administrator $administrator,
     ): ?WalletTransaction {
         if ($voteClaim->reward_credits === 0) {
             return null;
@@ -99,8 +138,10 @@ final readonly class AwardVoteClaim
             currency: WalletCurrency::Credits,
             type: WalletTransactionType::Reward,
             amount: $voteClaim->reward_credits,
-            reason: 'Verified vote reward for site '.$voteClaim->vote_site_id,
-            administratorId: (int) $administrator->getKey(),
+            reason: $administrator instanceof Administrator
+                ? 'Verified vote reward for site '.$voteClaim->vote_site_id
+                : 'Automatic vote reward for site '.$voteClaim->vote_site_id,
+            administratorId: $administrator?->getKey(),
             idempotencyKey: $voteClaim->public_id,
         );
     }

@@ -3,28 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
+use App\Game\Contracts\RealmReadRepository;
 use App\Http\Controllers\Controller;
 use App\Http\SystemReadiness;
 use App\Models\Administrator;
-use App\Models\ResetProfileRevision;
-use App\Reset\ResetProfileReader;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Displays the administrator control center with persisted reset settings.
+ * Displays the administrator overview with service and realm analytics status.
  */
 final class DashboardController extends Controller
 {
     /**
-     * Displays the current typed policy and recent immutable revision history.
+     * Displays service readiness and the current read-only realm snapshot.
      */
     public function __invoke(
         Request $request,
-        ResetProfileReader $resetProfileReader,
         SystemReadiness $systemReadiness,
+        RealmReadRepository $realmReadRepository,
     ): View|RedirectResponse {
         $administrator = $request->user('admin');
 
@@ -49,34 +47,14 @@ final class DashboardController extends Controller
             abort(403);
         }
 
-        $recentRevisions = $resetProfileReader->recentRevisions();
         $readiness = $systemReadiness->inspect();
+        $realmAnalytics = $readiness['checks']['gameDatabase']
+            ? $realmReadRepository->analytics()->toArray()
+            : null;
 
         return view('admin.dashboard', [
-            'resetSettings' => $resetProfileReader->current()->toClientArray(),
-            'resetRevision' => $resetProfileReader->revision(),
-            'resetRevisions' => $this->summarizeRevisions($recentRevisions),
+            'realmAnalytics' => $realmAnalytics,
             'systemReady' => $readiness['ready'],
         ]);
-    }
-
-    /**
-     * Reduces audit models to the non-sensitive fields rendered by the interface.
-     *
-     * @param  Collection<int, ResetProfileRevision>  $revisions
-     * @return list<array{revision: int, changedAt: string}>
-     */
-    private function summarizeRevisions(Collection $revisions): array
-    {
-        $summaries = [];
-
-        foreach ($revisions as $revision) {
-            $summaries[] = [
-                'revision' => $revision->revision,
-                'changedAt' => $revision->created_at?->diffForHumans() ?? '',
-            ];
-        }
-
-        return $summaries;
     }
 }

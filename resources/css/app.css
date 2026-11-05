@@ -1307,6 +1307,7 @@
 
     .field-group {
         display: grid;
+        align-self: start;
         gap: 0.5rem;
     }
 

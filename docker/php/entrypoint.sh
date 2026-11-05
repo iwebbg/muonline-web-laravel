@@ -5,6 +5,7 @@ set -eu
 cd /var/www/html
 
 mkdir -p \
+    storage/app/public \
     storage/framework/cache/data \
     storage/framework/sessions \
     storage/framework/views \
@@ -30,6 +31,10 @@ if [ "${APP_ENV:-production}" = "production" ] && [ -z "${APP_KEY:-}" ]; then
 fi
 
 container_role="${CONTAINER_ROLE:-app}"
+
+if [ "$container_role" = "app" ] && [ ! -e public/storage ]; then
+    php artisan storage:link --no-interaction
+fi
 
 if [ "${DB_CONNECTION:-}" = "sqlite" ]; then
     database_path="${DB_DATABASE:-/var/www/html/database/database.sqlite}"

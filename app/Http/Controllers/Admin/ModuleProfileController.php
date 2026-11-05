@@ -10,6 +10,7 @@ use App\Models\ModuleProfile;
 use App\Models\ModuleProfileRevision;
 use App\Modules\Actions\UpdateModuleProfile;
 use App\Modules\ModuleManager;
+use App\Modules\ModuleProfileRevisionPresenter;
 use App\Modules\ServerModule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -22,8 +23,10 @@ final class ModuleProfileController extends Controller
     /**
      * Displays current switches and recent immutable revisions.
      */
-    public function index(ModuleManager $moduleManager): View
-    {
+    public function index(
+        ModuleManager $moduleManager,
+        ModuleProfileRevisionPresenter $revisionPresenter,
+    ): View {
         $moduleCards = [];
 
         foreach (ServerModule::cases() as $module) {
@@ -47,10 +50,9 @@ final class ModuleProfileController extends Controller
 
         return view('admin.modules', [
             'moduleCards' => $moduleCards,
-            'profileKey' => $moduleManager->profileKey(),
             'gameVersion' => $moduleManager->gameVersion(),
             'revision' => $moduleManager->revision(),
-            'recentRevisions' => $recentRevisions,
+            'recentRevisions' => $revisionPresenter->present($recentRevisions),
         ]);
     }
 

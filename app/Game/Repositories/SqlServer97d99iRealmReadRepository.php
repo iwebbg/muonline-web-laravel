@@ -12,6 +12,8 @@ use App\Game\Data\GuildRankingQuery;
 use App\Game\Data\PublicCharacterProfile;
 use App\Game\Data\PublicGuildMember;
 use App\Game\Data\PublicGuildProfile;
+use App\Game\Data\RealmAnalytics;
+use App\Game\Data\RealmDistributionEntry;
 use App\Game\Data\RealmOverview;
 use App\Game\Rankings\RankingBoard;
 use App\Game\Versions\Contracts\GameVersionProfile;
@@ -66,6 +68,88 @@ final class SqlServer97d99iRealmReadRepository implements RealmReadRepository
             characters: $characters,
             guilds: $guilds,
             dataSource: 'database',
+        );
+    }
+
+    /**
+     * Returns read-only aggregate totals and character distributions.
+     */
+    public function analytics(): RealmAnalytics
+    {
+        $connection = $this->database->connection('game');
+        $accounts = $connection
+            ->table('MEMB_INFO')
+            ->count();
+        $characters = $connection
+            ->table('Character')
+            ->count();
+        $guilds = $connection
+            ->table('Guild')
+            ->count();
+        $onlinePlayers = $connection
+            ->table('MEMB_STAT')
+            ->where('ConnectStat', 1)
+            ->count();
+        $classRows = $connection
+            ->table('Character')
+            ->select('Class as class_code')
+            ->selectRaw('COUNT(*) as character_count')
+            ->groupBy('Class')
+            ->orderByDesc('character_count')
+            ->orderBy('Class')
+            ->get();
+        $mapRows = $connection
+            ->table('Character')
+            ->select('MapNumber as map_number')
+            ->selectRaw('COUNT(*) as character_count')
+            ->groupBy('MapNumber')
+            ->orderByDesc('character_count')
+            ->orderBy('MapNumber')
+            ->get();
+        $classDistribution = [];
+        $mapDistribution = [];
+
+        foreach ($classRows as $row) {
+            $classCode = is_numeric($row->class_code) ? (int) $row->class_code : null;
+            $classDefinition = $classCode === null
+                ? null
+                : $this->versionProfile->classForCode($classCode);
+
+            if ($classDefinition !== null) {
+                $classLabel = $classDefinition->name;
+            } elseif ($classCode === null) {
+                $classLabel = 'Unknown class';
+            } else {
+                $classLabel = sprintf('Unknown class (%d)', $classCode);
+            }
+
+            $classDistribution[] = new RealmDistributionEntry(
+                label: $classLabel,
+                count: (int) $row->character_count,
+                total: $characters,
+                abbreviation: $classDefinition?->abbreviation ?? '??',
+            );
+        }
+
+        foreach ($mapRows as $row) {
+            $mapNumber = is_numeric($row->map_number) ? (int) $row->map_number : null;
+
+            $mapDistribution[] = new RealmDistributionEntry(
+                label: $mapNumber === null
+                    ? 'Unknown map'
+                    : $this->mapNameMapper->nameFor($mapNumber),
+                count: (int) $row->character_count,
+                total: $characters,
+            );
+        }
+
+        return new RealmAnalytics(
+            accounts: $accounts,
+            characters: $characters,
+            guilds: $guilds,
+            onlinePlayers: $onlinePlayers,
+            classes: $classDistribution,
+            maps: $mapDistribution,
         );
     }
 

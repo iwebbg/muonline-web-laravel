@@ -124,6 +124,85 @@ final class AdminAuditLogTest extends TestCase
     }
 
     /**
+     * Confirms inclusive date filters exclude audit events outside the selected range.
+     */
+    public function test_administrator_can_filter_audit_events_by_date_range(): void
+    {
+        $administrator = Administrator::factory()->create();
+        CharacterResetOperation::factory()->create([
+            'account_id' => 'inside-range',
+            'status' => CharacterOperationStatus::Completed,
+            'created_at' => '2026-11-02 12:00:00',
+            'updated_at' => '2026-11-02 12:00:00',
+        ]);
+        CharacterResetOperation::factory()->create([
+            'account_id' => 'outside-range',
+            'status' => CharacterOperationStatus::Completed,
+            'created_at' => '2026-10-31 23:59:59',
+            'updated_at' => '2026-10-31 23:59:59',
+        ]);
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?type=character_reset&date_from=2026-11-01&date_to=2026-11-03');
+
+        $response
+            ->assertOk()
+            ->assertSee('inside-range')
+            ->assertDontSee('outside-range');
+    }
+
+    /**
+     * Confirms normalized audit history is paginated and retains active filters.
+     */
+    public function test_audit_log_paginates_twenty_events_and_preserves_filters(): void
+    {
+        $administrator = Administrator::factory()->create();
+
+        for ($eventNumber = 1; $eventNumber <= 21; $eventNumber++) {
+            $accountSuffix = str_pad((string) $eventNumber, 2, '0', STR_PAD_LEFT);
+            CharacterResetOperation::factory()->create([
+                'account_id' => 'audit-account-'.$accountSuffix,
+                'status' => CharacterOperationStatus::Completed,
+                'created_at' => '2026-11-02 12:'.str_pad((string) $eventNumber, 2, '0', STR_PAD_LEFT).':00',
+                'updated_at' => '2026-11-02 12:'.str_pad((string) $eventNumber, 2, '0', STR_PAD_LEFT).':00',
+            ]);
+        }
+
+        $firstPage = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?type=character_reset&date_from=2026-11-01&date_to=2026-11-03');
+        $secondPage = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?type=character_reset&date_from=2026-11-01&date_to=2026-11-03&page=2');
+
+        $firstPage
+            ->assertOk()
+            ->assertSee('audit-account-21')
+            ->assertDontSee('audit-account-01')
+            ->assertSee('date_from=2026-11-01', false)
+            ->assertSee('page=2', false);
+        $secondPage
+            ->assertOk()
+            ->assertSee('audit-account-01')
+            ->assertDontSee('audit-account-21');
+    }
+
+    /**
+     * Confirms a reversed audit date range is rejected before querying history.
+     */
+    public function test_audit_log_rejects_reversed_date_range(): void
+    {
+        $administrator = Administrator::factory()->create();
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/audit-log?date_from=2026-11-03&date_to=2026-11-01');
+
+        $response->assertSessionHasErrors('date_to');
+    }
+
+    /**
      * Confirms market recovery actions join the normalized immutable audit trail.
      */
     public function test_administrator_can_filter_market_recovery_events(): void

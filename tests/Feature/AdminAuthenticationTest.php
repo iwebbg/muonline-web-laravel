@@ -128,7 +128,12 @@ final class AdminAuthenticationTest extends TestCase
             ->get('/admin');
 
         $response->assertOk();
-        $response->assertSee('Reset profile');
+        $response->assertSee('Server snapshot');
+        $response->assertSee('Characters by class');
+        $response->assertSee('Characters by map');
+        $response->assertSee('1,550');
+        $response->assertSee('Blade Knight');
+        $response->assertSee('Lorencia');
         $response->assertSeeText($dangerousName);
         $response->assertDontSee($dangerousName, false);
     }

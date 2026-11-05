@@ -59,109 +59,110 @@
                     <button type="submit" class="button button-primary">{{ __('ui.admin.moderation_search_submit') }}</button>
                 </form>
 
-                @if ($canModerateAccounts)
-                    <section class="panel-card overflow-hidden" aria-labelledby="moderation-accounts-heading">
-                        <div class="border-b border-white/8 p-5 sm:p-6">
-                            <p class="kicker">MEMB_INFO.bloc_code</p>
-                            <h2 id="moderation-accounts-heading" class="mt-2 text-2xl font-semibold text-white">
-                                {{ __('ui.admin.moderation_accounts') }}
-                            </h2>
-                        </div>
-                        <div class="divide-y divide-white/8">
-                            @forelse ($accountTargets as $target)
-                                <article class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                                    <div>
-                                        <p class="font-semibold text-white">{{ $target['identifier'] }}</p>
-                                        <div class="mt-2 flex flex-wrap gap-2 text-xs">
-                                            <span class="rounded-full border border-white/10 px-2.5 py-1 text-steel">
-                                                {{ $target['online'] ? __('ui.admin.moderation_online') : __('ui.admin.moderation_offline') }}
-                                            </span>
-                                            <span @class([
-                                                'rounded-full border px-2.5 py-1',
-                                                'border-red-300/25 text-red-200' => $target['blocked'],
-                                                'border-emerald-300/25 text-emerald-200' => ! $target['blocked'],
-                                            ])>
-                                                {{ $target['blocked'] ? __('ui.admin.moderation_blocked') : __('ui.admin.moderation_active') }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        class="button {{ $target['blocked'] ? 'button-ghost' : 'button-primary' }}"
-                                        @disabled(! $writesEnabled)
-                                        x-on:click="openModeration('account', @js($target['identifier']), '{{ $target['blocked'] ? 'unblock' : 'block' }}')"
-                                    >
-                                        {{ $target['blocked'] ? __('ui.admin.moderation_unblock') : __('ui.admin.moderation_block') }}
-                                    </button>
-                                </article>
-                            @empty
-                                <p class="p-6 text-sm text-steel">{{ __('ui.admin.moderation_empty_accounts') }}</p>
-                            @endforelse
-                        </div>
-                    </section>
-                @endif
-
-                @if ($canModerateCharacters)
-                    <section class="panel-card overflow-hidden" aria-labelledby="moderation-characters-heading">
-                        <div class="border-b border-white/8 p-5 sm:p-6">
-                            <p class="kicker">Character.CtlCode</p>
-                            <h2 id="moderation-characters-heading" class="mt-2 text-2xl font-semibold text-white">
-                                {{ __('ui.admin.moderation_characters') }}
-                            </h2>
+                <section id="moderation-targets" class="panel-card overflow-hidden" aria-labelledby="moderation-targets-heading">
+                    <div class="border-b border-white/8 p-5 sm:p-6">
+                        <p class="kicker">MEMB_INFO + Character</p>
+                        <h2 id="moderation-targets-heading" class="mt-2 text-2xl font-semibold text-white">
+                            {{ __('ui.admin.moderation_targets') }}
+                        </h2>
+                        @if ($canModerateCharacters)
                             <p class="mt-2 text-sm text-steel">{{ __('ui.admin.moderation_character_help') }}</p>
-                        </div>
-                        <div class="divide-y divide-white/8">
-                            @forelse ($characterTargets as $target)
-                                <article class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                        @endif
+                    </div>
+
+                    <div class="grid gap-4 p-4 sm:p-6">
+                        @forelse ($accountTargets as $accountTarget)
+                            @php($characters = $characterGroups[$accountTarget['accountId']] ?? [])
+                            <article class="overflow-hidden rounded-2xl border border-white/8 bg-black/15">
+                                <header class="flex flex-col gap-4 border-b border-white/8 bg-white/[0.025] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
                                     <div>
-                                        <p class="font-semibold text-white">{{ $target['identifier'] }}</p>
-                                        <p class="mt-1 text-sm text-steel">{{ __('ui.admin.moderation_account') }}: {{ $target['accountId'] }}</p>
+                                        <p class="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-steel">{{ __('ui.admin.moderation_account') }}</p>
+                                        <h3 class="mt-1 font-semibold text-white">{{ $accountTarget['identifier'] }}</h3>
                                         <div class="mt-2 flex flex-wrap gap-2 text-xs">
                                             <span class="rounded-full border border-white/10 px-2.5 py-1 text-steel">
-                                                {{ $target['online'] ? __('ui.admin.moderation_online') : __('ui.admin.moderation_offline') }}
+                                                {{ $accountTarget['online'] ? __('ui.admin.moderation_online') : __('ui.admin.moderation_offline') }}
                                             </span>
                                             <span @class([
                                                 'rounded-full border px-2.5 py-1',
-                                                'border-red-300/25 text-red-200' => $target['blocked'],
-                                                'border-emerald-300/25 text-emerald-200' => ! $target['blocked'],
-                                                'border-amber-300/25 text-amber-200' => ! in_array($target['controlCode'], [0, 1], true),
+                                                'border-red-300/25 text-red-200' => $accountTarget['blocked'],
+                                                'border-emerald-300/25 text-emerald-200' => ! $accountTarget['blocked'],
                                             ])>
-                                                @if (! in_array($target['controlCode'], [0, 1], true))
-                                                    {{ __('ui.admin.moderation_protected_code', ['code' => $target['controlCode']]) }}
-                                                @else
-                                                    {{ $target['blocked'] ? __('ui.admin.moderation_blocked') : __('ui.admin.moderation_active') }}
-                                                @endif
+                                                {{ $accountTarget['blocked'] ? __('ui.admin.moderation_blocked') : __('ui.admin.moderation_active') }}
                                             </span>
                                         </div>
                                     </div>
-                                    <button
-                                        type="button"
-                                        class="button {{ $target['blocked'] ? 'button-ghost' : 'button-primary' }}"
-                                        @disabled(! $writesEnabled || $target['online'] || ! in_array($target['controlCode'], [0, 1], true))
-                                        x-on:click="openModeration('character', @js($target['identifier']), '{{ $target['blocked'] ? 'unblock' : 'block' }}')"
-                                    >
-                                        {{ $target['blocked'] ? __('ui.admin.moderation_unblock') : __('ui.admin.moderation_block') }}
-                                    </button>
-                                </article>
-                            @empty
-                                <p class="p-6 text-sm text-steel">{{ __('ui.admin.moderation_empty_characters') }}</p>
-                            @endforelse
-                        </div>
-                    </section>
-                @endif
+
+                                    @if ($canModerateAccounts)
+                                        <button
+                                            type="button"
+                                            class="button {{ $accountTarget['blocked'] ? 'button-ghost' : 'button-primary' }}"
+                                            @disabled(! $writesEnabled)
+                                            x-on:click="openModeration('account', @js($accountTarget['identifier']), '{{ $accountTarget['blocked'] ? 'unblock' : 'block' }}')"
+                                        >
+                                            {{ $accountTarget['blocked'] ? __('ui.admin.moderation_unblock') : __('ui.admin.moderation_block') }}
+                                        </button>
+                                    @endif
+                                </header>
+
+                                @if ($canModerateCharacters)
+                                    <div class="divide-y divide-white/8">
+                                        @forelse ($characters as $target)
+                                            <div class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                                                <div>
+                                                    <p class="font-semibold text-white">{{ $target['identifier'] }}</p>
+                                                    <div class="mt-2 flex flex-wrap gap-2 text-xs">
+                                                        <span @class([
+                                                            'rounded-full border px-2.5 py-1',
+                                                            'border-red-300/25 text-red-200' => $target['blocked'],
+                                                            'border-emerald-300/25 text-emerald-200' => ! $target['blocked'],
+                                                            'border-amber-300/25 text-amber-200' => ! in_array($target['controlCode'], [0, 1], true),
+                                                        ])>
+                                                            @if (! in_array($target['controlCode'], [0, 1], true))
+                                                                {{ $protectedControlCodeLabels[$target['controlCode']] ?? __('ui.admin.moderation_protected_code', ['code' => $target['controlCode']]) }}
+                                                            @else
+                                                                {{ $target['blocked'] ? __('ui.admin.moderation_blocked') : __('ui.admin.moderation_active') }}
+                                                            @endif
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    class="button {{ $target['blocked'] ? 'button-ghost' : 'button-primary' }}"
+                                                    @disabled(! $writesEnabled || $target['online'] || ! in_array($target['controlCode'], [0, 1], true))
+                                                    x-on:click="openModeration('character', @js($target['identifier']), '{{ $target['blocked'] ? 'unblock' : 'block' }}')"
+                                                >
+                                                    {{ $target['blocked'] ? __('ui.admin.moderation_unblock') : __('ui.admin.moderation_block') }}
+                                                </button>
+                                            </div>
+                                        @empty
+                                            <p class="p-4 text-sm text-steel sm:px-5">{{ __('ui.admin.moderation_empty_account_characters') }}</p>
+                                        @endforelse
+                                    </div>
+                                @endif
+                            </article>
+                        @empty
+                            <p class="p-6 text-sm text-steel">{{ __('ui.admin.moderation_empty_targets') }}</p>
+                        @endforelse
+                    </div>
+
+                    @if ($accountTargets->hasPages())
+                        <div class="border-t border-white/8 p-5">{{ $accountTargets->links() }}</div>
+                    @endif
+                </section>
             </main>
         </div>
 
-        <div
-            x-cloak
-            x-show="modalOpen"
-            class="fixed inset-0 z-[90] grid place-items-center overflow-y-auto bg-black/75 p-4 backdrop-blur-sm"
-            x-on:click.self="closeModeration()"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="moderation-dialog-title"
-        >
-            <section class="panel-card w-full max-w-xl p-6 sm:p-8">
+        <template x-teleport="body">
+            <div
+                x-cloak
+                x-show="modalOpen"
+                class="fixed inset-0 z-[120] grid place-items-center overflow-y-auto bg-black/75 p-4 backdrop-blur-sm"
+                x-on:click.self="closeModeration()"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="moderation-dialog-title"
+            >
+                <section class="panel-card w-full max-w-xl p-6 sm:p-8">
                 <p class="kicker" x-text="targetType === 'account' ? 'MEMB_INFO' : 'Character'"></p>
                 <h2 id="moderation-dialog-title" class="mt-2 text-2xl font-semibold text-white">
                     <span x-text="action === 'block' ? @js(__('ui.admin.moderation_block')) : @js(__('ui.admin.moderation_unblock'))"></span>
@@ -200,7 +201,8 @@
                         </button>
                     </div>
                 </form>
-            </section>
-        </div>
+                </section>
+            </div>
+        </template>
     </div>
 @endsection

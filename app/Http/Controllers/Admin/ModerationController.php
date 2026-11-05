@@ -16,6 +16,8 @@ use App\Moderation\ModerationTargetType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 /**
@@ -23,6 +25,8 @@ use Illuminate\View\View;
  */
 final class ModerationController extends Controller
 {
+    private const int RESULTS_PER_PAGE = 15;
+
     /**
      * Displays searchable non-sensitive game targets for the current administrator.
      */
@@ -45,17 +49,38 @@ final class ModerationController extends Controller
 
         $searchValue = $request->string('search')->trim()->toString();
         $search = $searchValue === '' ? null : mb_substr($searchValue, 0, 50);
-        $accountTargets = $canModerateAccounts
-            ? $moderationRepository->searchAccounts($search, 25)
-            : [];
+        $currentPage = max(1, $request->integer('page', 1));
+        $accountTargets = $moderationRepository->searchAccountGroups(
+            $search,
+            self::RESULTS_PER_PAGE + 1,
+            ($currentPage - 1) * self::RESULTS_PER_PAGE,
+        );
+        $accountPaginator = $this->paginateTargets(
+            $accountTargets,
+            $request,
+            'page',
+            $currentPage,
+            'moderation-targets',
+        );
+        $visibleAccountIds = collect($accountPaginator->items())
+            ->pluck('accountId')
+            ->all();
         $characterTargets = $canModerateCharacters
-            ? $moderationRepository->searchCharacters($search, 25)
+            ? $moderationRepository->charactersForAccounts($visibleAccountIds)
             : [];
+        $characterGroups = collect($this->serializeTargets($characterTargets))
+            ->groupBy('accountId')
+            ->map(static fn (Collection $targets): array => $targets->values()->all())
+            ->all();
 
         return view('admin.moderation', [
             'search' => $search ?? '',
-            'accountTargets' => $this->serializeTargets($accountTargets),
-            'characterTargets' => $this->serializeTargets($characterTargets),
+            'accountTargets' => $accountPaginator,
+            'characterGroups' => $characterGroups,
+            'protectedControlCodeLabels' => [
+                8 => __('ui.admin.moderation_game_master'),
+                32 => __('ui.admin.moderation_game_master'),
+            ],
             'canModerateAccounts' => $canModerateAccounts,
             'canModerateCharacters' => $canModerateCharacters,
             'writesEnabled' => (bool) config('game.writes_enabled', false)
@@ -152,6 +177,34 @@ final class ModerationController extends Controller
             static fn (ModerationTarget $target): array => $target->toArray(),
             $targets,
         );
+    }
+
+    /**
+     * Builds one independent simple paginator while preserving the other result filters.
+     *
+     * @param  list<ModerationTarget>  $targets
+     * @return Paginator<int, array{type: string, identifier: string, accountId: string, blocked: bool, online: bool, controlCode: int}>
+     */
+    private function paginateTargets(
+        array $targets,
+        Request $request,
+        string $pageName,
+        int $currentPage,
+        string $fragment,
+    ): Paginator {
+        $paginator = new Paginator(
+            $this->serializeTargets($targets),
+            self::RESULTS_PER_PAGE,
+            $currentPage,
+            [
+                'path' => $request->url(),
+                'pageName' => $pageName,
+            ],
+        );
+
+        return $paginator
+            ->appends($request->except($pageName))
+            ->fragment($fragment);
     }
 
     /**

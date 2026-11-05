@@ -53,7 +53,7 @@
                                 </span>
                             @elseif ($card['availableAt'])
                                 <span class="button button-ghost w-full cursor-not-allowed justify-center opacity-60">
-                                    {{ __('ui.votes.available_at', ['time' => $card['availableAt']->format('Y-m-d H:i')]) }}
+                                    {{ __('ui.votes.available_after', ['duration' => $card['availableIn']]) }}
                                 </span>
                             @else
                                 <form method="POST" action="{{ route('account.votes.claims.store', $site) }}" target="_blank">

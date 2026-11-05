@@ -67,6 +67,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
                 'Class' => 17,
                 'Resets' => 20,
                 'GrandResets' => 2,
+                'MapNumber' => 0,
             ],
             [
                 'AccountID' => 'account2',
@@ -75,6 +76,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
                 'Class' => 1,
                 'Resets' => 19,
                 'GrandResets' => 2,
+                'MapNumber' => 2,
             ],
             [
                 'AccountID' => 'account2',
@@ -83,6 +85,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
                 'Class' => 33,
                 'Resets' => 18,
                 'GrandResets' => 1,
+                'MapNumber' => 2,
             ],
         ]);
         $connection->table('Guild')->insert([
@@ -112,6 +115,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
             mapNameMapper: new MapNameMapper,
         );
         $overview = $repository->overview();
+        $analytics = $repository->analytics();
         $characters = $repository->topCharacters(2);
         $guilds = $repository->topGuilds(1);
 
@@ -120,6 +124,18 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
         $this->assertSame(3, $overview->characters);
         $this->assertSame(2, $overview->guilds);
         $this->assertSame('database', $overview->dataSource);
+        $this->assertSame(2, $analytics->accounts);
+        $this->assertSame(3, $analytics->characters);
+        $this->assertSame(2, $analytics->guilds);
+        $this->assertSame(1, $analytics->onlinePlayers);
+        $this->assertCount(3, $analytics->classes);
+        $this->assertSame('Soul Master', $analytics->classes[0]->label);
+        $this->assertSame(1, $analytics->classes[0]->count);
+        $this->assertSame(33.3, $analytics->classes[0]->toArray()['percentage']);
+        $this->assertCount(2, $analytics->maps);
+        $this->assertSame('Davias', $analytics->maps[0]->label);
+        $this->assertSame(2, $analytics->maps[0]->count);
+        $this->assertSame(66.7, $analytics->maps[0]->toArray()['percentage']);
         $this->assertCount(2, $characters);
         $this->assertSame('Knight', $characters[0]->name);
         $this->assertSame('Blade Knight', $characters[0]->className);
@@ -291,7 +307,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
 
         $this->assertNotNull($character);
         $this->assertSame('Magic Gladiator', $character->className);
-        $this->assertSame('Arena', $character->map);
+        $this->assertSame('Stadium', $character->map);
         $this->assertSame('PublicGuild', $character->guildName);
         $this->assertTrue($character->online);
         $this->assertTrue($character->vip);

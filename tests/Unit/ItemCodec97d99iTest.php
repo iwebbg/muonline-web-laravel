@@ -96,6 +96,30 @@ final class ItemCodec97d99iTest extends TestCase
     }
 
     /**
+     * Confirms the codec rejects item levels unavailable on DarksTeam 97d+99i.
+     */
+    public function test_it_rejects_item_levels_above_eleven(): void
+    {
+        $codec = new ItemCodec97d99i;
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The item level or durability is outside the 97d+99i format.');
+
+        $codec->create(
+            group: 0,
+            index: 0,
+            level: 12,
+            durability: 255,
+            optionLevel: 0,
+            hasSkill: false,
+            hasLuck: false,
+            excellentMask: 0,
+            ancientOption: 0,
+            serial: 1,
+        );
+    }
+
+    /**
      * Confirms malformed blobs are rejected before any slot is decoded.
      */
     public function test_it_rejects_an_unexpected_blob_length(): void

@@ -57,9 +57,12 @@ final class AdminModuleProfileTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('darksteam_97d99i')
+            ->assertSee('97d + 99i')
+            ->assertDontSee('darksteam_97d99i')
             ->assertSee('Account registration')
-            ->assertSee('Player market');
+            ->assertSee('Player market')
+            ->assertSee('aria-modal="true"', false)
+            ->assertSee(__('ui.admin.revision_changes'));
     }
 
     /**

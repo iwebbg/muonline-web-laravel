@@ -2,292 +2,279 @@
 
 namespace Tests\Feature;
 
-use App\Auth\GameAccount;
 use App\Models\Administrator;
 use App\Models\ResetProfile;
 use App\Models\ResetProfileRevision;
+use App\Reset\ResetProfileSettings;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 /**
- * Verifies secured and audited administration of the reset policy draft.
+ * Verifies focused, immediate and audited character-rule profile updates.
  */
 final class AdminResetProfileTest extends TestCase
 {
     use LazilyRefreshDatabase;
 
     /**
-     * Confirms that guests cannot change server reset settings.
+     * Confirms guests cannot view or update a character-rule profile.
      */
-    public function test_guest_cannot_update_reset_profile(): void
+    public function test_guest_cannot_access_character_rule_profiles(): void
     {
-        $response = $this->putWithCsrf('/admin/reset-profile', $this->validPayload());
+        $this->get('/admin/character-rules/reset')->assertRedirect('/admin/login');
+        $this->putWithCsrf('/admin/character-rules/reset', $this->resetPayload())->assertRedirect('/admin/login');
 
-        $response->assertRedirect('/admin/login');
         $this->assertDatabaseCount('reset_profiles', 0);
     }
 
     /**
-     * Confirms that an authenticated game account never gains administration rights.
+     * Confirms every focused editor is reachable from the character-rules navigation.
      */
-    public function test_game_account_cannot_update_reset_profile(): void
-    {
-        $gameAccount = new GameAccount(
-            guid: 1,
-            username: 'player',
-            displayName: 'Player',
-            email: null,
-            blocked: false,
-            vip: false,
-            password: 'secret1',
-        );
-
-        $this->actingAs($gameAccount);
-
-        $response = $this->putWithCsrf('/admin/reset-profile', $this->validPayload());
-
-        $response->assertRedirect('/admin/login');
-        $this->assertDatabaseCount('reset_profiles', 0);
-    }
-
-    /**
-     * Confirms that one valid update stores typed settings and a complete audit snapshot.
-     */
-    public function test_administrator_can_store_first_reset_profile_revision(): void
+    public function test_administrator_can_open_each_character_rule_profile(): void
     {
         $administrator = Administrator::factory()->create();
-
         $this->actingAs($administrator, 'admin');
 
-        $response = $this->putJsonWithCsrf('/admin/reset-profile', $this->validPayload());
+        foreach (['reset', 'grand-reset', 'stat-reset', 'pk-clear', 'move-to-town'] as $profile) {
+            $this->get('/admin/character-rules/'.$profile)
+                ->assertOk()
+                ->assertSee('aria-modal="true"', false)
+                ->assertSee(__('ui.admin.revision_changes'))
+                ->assertSee(route('admin.character-rules.edit', ['profile' => $profile]));
+        }
+    }
+
+    /**
+     * Confirms a reset update is active immediately and leaves other profile defaults intact.
+     */
+    public function test_reset_profile_update_changes_only_reset_settings(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $this->actingAs($administrator, 'admin');
+
+        $response = $this->putJsonWithCsrf('/admin/character-rules/reset', $this->resetPayload());
 
         $response
             ->assertOk()
             ->assertJsonPath('revision', 1)
-            ->assertJsonPath('settings.inventoryPolicy', 'clear_bag')
-            ->assertJsonPath('settings.maximumStat', 30_000)
-            ->assertJsonPath('settings.grandResetRequiredResets', 100)
-            ->assertJsonPath('settings.grandResetPointsMode', 'add_fixed')
-            ->assertJsonPath('settings.statResetZenCost', 5_000_000)
-            ->assertJsonPath('settings.pkClearPriceMode', 'by_pk_level')
-            ->assertJsonPath('settings.moveToTownMap', 0);
-
+            ->assertJsonPath('settings.requiredLevel', 400)
+            ->assertJsonPath('settings.grandResetRequiredLevel', 350);
         $profile = ResetProfile::query()->sole();
         $revision = ResetProfileRevision::query()->sole();
 
-        $this->assertSame(350, $profile->required_level);
-        $this->assertSame(25_000_000, $profile->base_zen_cost);
-        $this->assertSame(30_000, $profile->maximum_stat);
-        $this->assertSame(100, $profile->grand_reset_required_resets);
+        $this->assertSame(400, $profile->required_level);
         $this->assertSame(350, $profile->grand_reset_required_level);
-        $this->assertSame(999, $profile->maximum_grand_resets);
-        $this->assertSame(500, $profile->grand_reset_points);
-        $this->assertTrue($profile->stat_reset_enabled);
-        $this->assertSame(1, $profile->stat_reset_required_level);
-        $this->assertSame(1, $profile->stat_reset_required_resets);
-        $this->assertSame(5_000_000, $profile->stat_reset_zen_cost);
-        $this->assertTrue($profile->pk_clear_enabled);
-        $this->assertSame(100, $profile->pk_clear_required_level);
-        $this->assertSame(100_000, $profile->pk_clear_base_zen_cost);
-        $this->assertTrue($profile->move_to_town_enabled);
-        $this->assertSame(0, $profile->move_to_town_map);
-        $this->assertSame(141, $profile->move_to_town_x);
-        $this->assertSame(127, $profile->move_to_town_y);
-        $this->assertSame($administrator->id, $profile->updated_by_administrator_id);
         $this->assertSame(1, $revision->revision);
-        $this->assertSame(15_000_000, $revision->before_snapshot['baseZenCost']);
-        $this->assertSame(25_000_000, $revision->after_snapshot['baseZenCost']);
         $this->assertSame($administrator->id, $revision->changed_by_administrator_id);
     }
 
     /**
-     * Confirms that later updates increment the revision and retain the previous snapshot.
+     * Confirms Grand Reset settings are merged without overwriting a saved normal Reset profile.
      */
-    public function test_later_update_creates_next_revision_with_previous_state(): void
+    public function test_grand_reset_profile_update_preserves_reset_settings(): void
     {
         $administrator = Administrator::factory()->create();
-
         $this->actingAs($administrator, 'admin');
-        $this->putJsonWithCsrf('/admin/reset-profile', $this->validPayload())->assertOk();
+        $this->putJsonWithCsrf('/admin/character-rules/reset', $this->resetPayload())->assertOk();
 
-        $updatedPayload = [
-            ...$this->validPayload(),
-            'requiredLevel' => 400,
-            'pointsPerReset' => 750,
-        ];
-
-        $response = $this->putJsonWithCsrf('/admin/reset-profile', $updatedPayload);
+        $response = $this->putJsonWithCsrf('/admin/character-rules/grand-reset', $this->grandResetPayload());
 
         $response
             ->assertOk()
             ->assertJsonPath('revision', 2)
+            ->assertJsonPath('settings.grandResetRequiredLevel', 400)
             ->assertJsonPath('settings.requiredLevel', 400);
+        $profile = ResetProfile::query()->sole();
 
-        $latestRevision = ResetProfileRevision::query()
-            ->where('revision', 2)
-            ->sole();
-
-        $this->assertSame(350, $latestRevision->before_snapshot['requiredLevel']);
-        $this->assertSame(400, $latestRevision->after_snapshot['requiredLevel']);
+        $this->assertSame(400, $profile->required_level);
+        $this->assertSame(400, $profile->grand_reset_required_level);
+        $this->assertSame(2, $profile->revision);
         $this->assertDatabaseCount('reset_profile_revisions', 2);
     }
 
     /**
-     * Confirms that invalid input cannot partially update the profile or audit history.
+     * Confirms Stats Reset settings can be applied without changing another section.
      */
-    public function test_invalid_reset_profile_is_rejected_without_database_writes(): void
+    public function test_stat_reset_profile_update_changes_only_stat_reset_settings(): void
     {
+        $profile = $this->createDefaultProfile();
         $administrator = Administrator::factory()->create();
-        $invalidPayload = [
-            ...$this->validPayload(),
-            'requiredLevel' => 401,
-            'maximumStat' => 32_768,
-            'inventoryPolicy' => 'delete_database',
-        ];
-
         $this->actingAs($administrator, 'admin');
 
-        $response = $this->putJsonWithCsrf('/admin/reset-profile', $invalidPayload);
+        $this->putJsonWithCsrf('/admin/character-rules/stat-reset', [
+            'statResetEnabled' => false,
+            'statResetRequiredLevel' => 200,
+            'statResetRequiredResets' => 25,
+            'statResetZenCost' => 7_000_000,
+        ])->assertOk();
 
-        $response
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors([
-                'requiredLevel',
-                'maximumStat',
-                'inventoryPolicy',
-            ]);
+        $profile->refresh();
+        $this->assertFalse($profile->stat_reset_enabled);
+        $this->assertSame(7_000_000, $profile->stat_reset_zen_cost);
+        $this->assertSame(100, $profile->pk_clear_required_level);
+    }
+
+    /**
+     * Confirms PK Clear settings can be applied without changing another section.
+     */
+    public function test_pk_clear_profile_update_changes_only_pk_clear_settings(): void
+    {
+        $profile = $this->createDefaultProfile();
+        $administrator = Administrator::factory()->create();
+        $this->actingAs($administrator, 'admin');
+
+        $this->putJsonWithCsrf('/admin/character-rules/pk-clear', [
+            'pkClearEnabled' => true,
+            'pkClearRequiredLevel' => 250,
+            'pkClearBaseZenCost' => 900_000,
+            'pkClearPriceMode' => 'by_pk_count',
+        ])->assertOk();
+
+        $profile->refresh();
+        $this->assertSame(250, $profile->pk_clear_required_level);
+        $this->assertSame('by_pk_count', $profile->pk_clear_price_mode->value);
+        $this->assertSame(0, $profile->move_to_town_map);
+    }
+
+    /**
+     * Confirms Move to Town settings can be applied without changing another section.
+     */
+    public function test_move_to_town_profile_update_changes_only_move_settings(): void
+    {
+        $profile = $this->createDefaultProfile();
+        $administrator = Administrator::factory()->create();
+        $this->actingAs($administrator, 'admin');
+
+        $this->putJsonWithCsrf('/admin/character-rules/move-to-town', [
+            'moveToTownEnabled' => true,
+            'moveToTownMap' => 3,
+            'moveToTownX' => 10,
+            'moveToTownY' => 20,
+            'moveToTownZenCost' => 50_000,
+        ])->assertOk();
+
+        $profile->refresh();
+        $this->assertSame(3, $profile->move_to_town_map);
+        $this->assertSame(10, $profile->move_to_town_x);
+        $this->assertSame(100, $profile->pk_clear_required_level);
+    }
+
+    /**
+     * Confirms invalid input cannot create a partial profile or audit revision.
+     */
+    public function test_invalid_focused_profile_is_rejected_without_database_writes(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $this->actingAs($administrator, 'admin');
+
+        $this->putJsonWithCsrf('/admin/character-rules/pk-clear', [
+            'pkClearEnabled' => true,
+            'pkClearRequiredLevel' => 401,
+            'pkClearBaseZenCost' => -1,
+            'pkClearPriceMode' => 'unsafe',
+        ])->assertUnprocessable()->assertJsonValidationErrors([
+            'pkClearRequiredLevel',
+            'pkClearBaseZenCost',
+            'pkClearPriceMode',
+        ]);
+
         $this->assertDatabaseCount('reset_profiles', 0);
         $this->assertDatabaseCount('reset_profile_revisions', 0);
     }
 
     /**
-     * Confirms grand-reset progression cannot require unreachable normal resets.
+     * Confirms profile identifiers outside the fixed navigation set return not found.
      */
-    public function test_grand_reset_requirement_cannot_exceed_maximum_resets(): void
+    public function test_unknown_character_rule_profile_returns_not_found(): void
     {
         $administrator = Administrator::factory()->create();
-        $invalidPayload = [
-            ...$this->validPayload(),
-            'maximumResets' => 99,
-            'grandResetRequiredResets' => 100,
-        ];
 
-        $this->actingAs($administrator, 'admin');
-
-        $response = $this->putJsonWithCsrf('/admin/reset-profile', $invalidPayload);
-
-        $response
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors('grandResetRequiredResets');
-        $this->assertDatabaseCount('reset_profiles', 0);
-        $this->assertDatabaseCount('reset_profile_revisions', 0);
+        $this->actingAs($administrator, 'admin')
+            ->get('/admin/character-rules/not-real')
+            ->assertNotFound();
     }
 
     /**
-     * Confirms that clients cannot choose revision or audit ownership fields.
+     * Creates the active default profile used to prove isolated updates.
      */
-    public function test_administrator_cannot_override_server_managed_audit_fields(): void
+    private function createDefaultProfile(): ResetProfile
     {
-        $administrator = Administrator::factory()->create();
-        $payload = [
-            ...$this->validPayload(),
-            'revision' => 9000,
+        return ResetProfile::query()->create([
+            ...ResetProfileSettings::defaults()->toPersistenceArray(),
+            'revision' => 0,
             'updated_by_administrator_id' => null,
-        ];
-
-        $this->actingAs($administrator, 'admin');
-
-        $this->putJsonWithCsrf('/admin/reset-profile', $payload)->assertOk();
-
-        $profile = ResetProfile::query()->sole();
-
-        $this->assertSame(1, $profile->revision);
-        $this->assertSame($administrator->id, $profile->updated_by_administrator_id);
+        ]);
     }
 
     /**
-     * Returns one valid reset policy payload at the HTTP boundary.
+     * Returns one valid normal Reset section payload.
      *
      * @return array<string, bool|int|string>
      */
-    private function validPayload(): array
+    private function resetPayload(): array
     {
         return [
             'enabled' => true,
-            'requiredLevel' => 350,
-            'maximumResets' => 100,
+            'requiredLevel' => 400,
+            'maximumResets' => 999,
             'maximumStat' => 30_000,
-            'grandResetRequiredResets' => 100,
             'baseZenCost' => 25_000_000,
             'multiplyCostByReset' => true,
             'clearStats' => true,
             'pointsMode' => 'cumulative',
             'pointsPerReset' => 500,
             'inventoryPolicy' => 'clear_bag',
-            'grandResetEnabled' => true,
-            'grandResetRequiredLevel' => 350,
-            'maximumGrandResets' => 999,
-            'grandResetBaseZenCost' => 5_000_000,
-            'grandResetMultiplyCost' => false,
-            'grandResetClearStats' => false,
-            'grandResetPointsMode' => 'add_fixed',
-            'grandResetPoints' => 500,
-            'grandResetInventoryPolicy' => 'keep_all',
-            'grandResetConsumeRequiredResets' => true,
-            'statResetEnabled' => true,
-            'statResetRequiredLevel' => 1,
-            'statResetRequiredResets' => 1,
-            'statResetZenCost' => 5_000_000,
-            'pkClearEnabled' => true,
-            'pkClearRequiredLevel' => 100,
-            'pkClearBaseZenCost' => 100_000,
-            'pkClearPriceMode' => 'by_pk_level',
-            'moveToTownEnabled' => true,
-            'moveToTownMap' => 0,
-            'moveToTownX' => 141,
-            'moveToTownY' => 127,
-            'moveToTownZenCost' => 0,
         ];
     }
 
     /**
-     * Sends a form request with a valid CSRF token.
+     * Returns one valid Grand Reset section payload.
+     *
+     * @return array<string, bool|int|string>
+     */
+    private function grandResetPayload(): array
+    {
+        return [
+            'grandResetEnabled' => true,
+            'grandResetRequiredLevel' => 400,
+            'grandResetRequiredResets' => 200,
+            'maximumGrandResets' => 500,
+            'grandResetBaseZenCost' => 10_000_000,
+            'grandResetMultiplyCost' => true,
+            'grandResetClearStats' => true,
+            'grandResetPointsMode' => 'fixed',
+            'grandResetPoints' => 1_000,
+            'grandResetInventoryPolicy' => 'clear_all',
+            'grandResetConsumeRequiredResets' => true,
+        ];
+    }
+
+    /**
+     * Sends one form request with a matching CSRF token.
      *
      * @param  array<string, mixed>  $data
      */
     private function putWithCsrf(string $uri, array $data): TestResponse
     {
-        $csrfToken = 'admin-reset-profile-test-token';
-        $payload = [
-            ...$data,
-            '_token' => $csrfToken,
-        ];
+        $csrfToken = 'character-rule-form-token';
 
         return $this
-            ->withSession([
-                '_token' => $csrfToken,
-            ])
-            ->put($uri, $payload);
+            ->withSession(['_token' => $csrfToken])
+            ->put($uri, [...$data, '_token' => $csrfToken]);
     }
 
     /**
-     * Sends a JSON request with a valid CSRF token.
+     * Sends one JSON request with a matching CSRF token.
      *
      * @param  array<string, mixed>  $data
      */
     private function putJsonWithCsrf(string $uri, array $data): TestResponse
     {
-        $csrfToken = 'admin-reset-profile-json-test-token';
-        $payload = [
-            ...$data,
-            '_token' => $csrfToken,
-        ];
+        $csrfToken = 'character-rule-json-token';
 
         return $this
-            ->withSession([
-                '_token' => $csrfToken,
-            ])
-            ->putJson($uri, $payload);
+            ->withSession(['_token' => $csrfToken])
+            ->putJson($uri, [...$data, '_token' => $csrfToken]);
     }
 }

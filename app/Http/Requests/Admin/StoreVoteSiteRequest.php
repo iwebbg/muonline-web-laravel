@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 /**
- * Authorizes and validates creation of one manual-review vote destination.
+ * Authorizes and validates creation of one vote destination and reward mode.
  */
 class StoreVoteSiteRequest extends FormRequest
 {
@@ -47,6 +47,7 @@ class StoreVoteSiteRequest extends FormRequest
             'cooldown_hours' => ['required', 'integer', 'between:1,168'],
             'reward_credits' => ['required', 'integer', 'between:0,1000000000'],
             'reward_zen' => ['required', 'integer', 'between:0,2000000000'],
+            'auto_reward_on_click' => ['nullable', 'boolean'],
             'enabled' => ['nullable', 'boolean'],
             'sort_order' => ['required', 'integer', 'between:0,10000'],
         ];
@@ -78,7 +79,8 @@ class StoreVoteSiteRequest extends FormRequest
     public function voteSiteData(): array
     {
         return [
-            ...$this->safe()->except('enabled'),
+            ...$this->safe()->except(['auto_reward_on_click', 'enabled']),
+            'auto_reward_on_click' => $this->boolean('auto_reward_on_click'),
             'enabled' => $this->boolean('enabled'),
         ];
     }

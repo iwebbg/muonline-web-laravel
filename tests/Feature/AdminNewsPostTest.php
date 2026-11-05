@@ -10,6 +10,7 @@ use App\Models\NewsPost;
 use App\Models\NewsPostRevision;
 use DateTimeImmutable;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Tests\TestCase;
 
 /**
@@ -34,13 +35,59 @@ final class AdminNewsPostTest extends TestCase
         $this->actingAs($contentManager, 'admin')
             ->get('/admin/content/news')
             ->assertOk()
-            ->assertSee('contentManager(', false);
+            ->assertSee('contentManager(', false)
+            ->assertSee('x-teleport="body"', false);
         $this->actingAs($contentManager, 'admin')
             ->get('/admin')
             ->assertRedirect('/admin/content/news');
         $this->actingAs($moderator, 'admin')
             ->get('/admin/content/news')
             ->assertForbidden();
+    }
+
+    /**
+     * Confirms content search and type filters run before bounded pagination.
+     */
+    public function test_content_manager_filters_and_paginates_articles(): void
+    {
+        $administrator = Administrator::factory()->create();
+        NewsPost::factory()->count(21)->create();
+        NewsPost::factory()->guide()->create([
+            'slug' => 'castle-siege-guide',
+            'title_en' => 'Castle Siege preparation',
+            'title_bg' => 'Подготовка за Castle Siege',
+        ]);
+
+        $filteredResponse = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/content/news?search=Castle+Siege&type=guide');
+
+        $filteredResponse
+            ->assertOk()
+            ->assertSee('Castle Siege preparation')
+            ->assertViewHas('contentFilters', [
+                'search' => 'Castle Siege',
+                'type' => 'guide',
+            ])
+            ->assertViewHas(
+                'postPaginator',
+                function (LengthAwarePaginator $paginator): bool {
+                    return $paginator->total() === 1
+                        && $paginator->count() === 1;
+                },
+            );
+
+        $this
+            ->get('/admin/content/news')
+            ->assertOk()
+            ->assertViewHas(
+                'postPaginator',
+                function (LengthAwarePaginator $paginator): bool {
+                    return $paginator->total() === 22
+                        && $paginator->count() === 20
+                        && $paginator->hasMorePages();
+                },
+            );
     }
 
     /**

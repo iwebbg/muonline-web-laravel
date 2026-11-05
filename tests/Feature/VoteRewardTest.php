@@ -55,6 +55,61 @@ final class VoteRewardTest extends TestCase
     }
 
     /**
+     * Confirms a click-trust destination immediately settles both configured rewards.
+     */
+    public function test_automatic_destination_rewards_the_account_on_click(): void
+    {
+        $site = VoteSite::factory()->create([
+            'url' => 'https://ranking.example/vote/automatic',
+            'reward_credits' => 18,
+            'reward_zen' => 750_000,
+            'auto_reward_on_click' => true,
+        ]);
+        $lookup = $this->mock(GameAccountLookupRepository::class);
+        $lookup->shouldReceive('exists')->once()->with('autovote')->andReturnTrue();
+        $csrfToken = 'automatic-vote-claim-token';
+
+        $response = $this
+            ->withSession(['_token' => $csrfToken])
+            ->actingAs($this->account('autovote'))
+            ->post(route('account.votes.claims.store', $site), [
+                '_token' => $csrfToken,
+                'idempotency_key' => '4c65814d-a332-4df5-8ad2-f187072f1618',
+            ]);
+
+        $response->assertRedirect('https://ranking.example/vote/automatic');
+
+        $claim = VoteClaim::query()->sole();
+        $walletTransaction = WalletTransaction::query()->sole();
+
+        $this->assertSame(VoteClaimStatus::Rewarded, $claim->status);
+        $this->assertNull($claim->reviewed_by_administrator_id);
+        $this->assertSame(18, AccountWallet::query()->sole()->balance);
+        $this->assertSame(750_000, AccountZenBalance::query()->sole()->balance);
+        $this->assertNull($walletTransaction->performed_by_administrator_id);
+    }
+
+    /**
+     * Confirms automatic settlement cannot bypass a manual destination's policy.
+     */
+    public function test_automatic_settlement_rejects_a_manual_destination(): void
+    {
+        $site = VoteSite::factory()->create(['auto_reward_on_click' => false]);
+        $claim = VoteClaim::factory()->for($site, 'site')->create();
+
+        try {
+            $this->app->make(AwardVoteClaim::class)->executeAutomatically($claim);
+            $this->fail('A manual destination must not be settled through the automatic path.');
+        } catch (VoteClaimRejected $exception) {
+            $this->assertSame(VoteClaimBlockReason::AutomaticRewardDisabled, $exception->reason);
+        }
+
+        $this->assertSame(VoteClaimStatus::Pending, $claim->refresh()->status);
+        $this->assertSame(0, AccountWallet::query()->count());
+        $this->assertSame(0, AccountZenBalance::query()->count());
+    }
+
+    /**
      * Confirms pending and rewarded claims enforce account cooldown independently.
      */
     public function test_pending_and_rewarded_claims_block_duplicate_account_visits(): void
@@ -238,6 +293,33 @@ final class VoteRewardTest extends TestCase
             ->assertSee('Realm Ranking')
             ->assertViewHas('claims', fn ($claims): bool => $claims->count() === 1
                 && $claims->first()->account_id === 'visible1');
+    }
+
+    /**
+     * Confirms cooldown cards show a relative remaining duration instead of a date.
+     */
+    public function test_vote_page_displays_dynamic_remaining_cooldown(): void
+    {
+        $this->travelTo('2026-11-04 12:00:00');
+        $site = VoteSite::factory()->create([
+            'name_en' => 'Relative Ranking',
+            'cooldown_hours' => 12,
+        ]);
+        VoteClaim::factory()->for($site, 'site')->create([
+            'account_id' => 'relative1',
+            'status' => VoteClaimStatus::Rewarded,
+            'reviewed_at' => now()->subHours(9),
+            'rewarded_at' => now()->subHours(9),
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('relative1'))
+            ->get(route('account.votes.index'));
+
+        $response
+            ->assertOk()
+            ->assertSee('Available after 3h')
+            ->assertDontSee('2026-11-04 15:00');
     }
 
     /**

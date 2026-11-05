@@ -21,7 +21,7 @@ class InteractiveShellTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Your adventure');
-        $response->assertSee('Classic MuOnline');
+        $response->assertSee('MUONLINE · 97d + 99i');
         $response->assertSee('Play your favorite MMORPG');
         $response->assertSee('characters online');
         $response->assertDontSee('Fixture data');
@@ -123,7 +123,7 @@ class InteractiveShellTest extends TestCase
 
         $homeResponse->assertOk();
         $homeResponse->assertSee('Светът');
-        $homeResponse->assertSee('Класически MuOnline');
+        $homeResponse->assertSee('MUONLINE · 97d + 99i');
         $homeResponse->assertSee('Играй любимото си MMORPG');
         $homeResponse->assertSee('герои онлайн');
         $homeResponse->assertSee('Топ играчи');

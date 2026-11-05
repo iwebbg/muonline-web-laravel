@@ -35,6 +35,32 @@
                     </div>
                 @endif
 
+                <form method="GET" action="{{ route('admin.news-posts.index') }}" class="panel-card grid gap-4 md:grid-cols-[minmax(16rem,1fr)_14rem_auto] md:items-end">
+                    <label class="field-group">
+                        <span>{{ __('ui.admin.news_search') }}</span>
+                        <input
+                            type="search"
+                            name="search"
+                            value="{{ $contentFilters['search'] }}"
+                            maxlength="120"
+                            placeholder="{{ __('ui.admin.news_search_placeholder') }}"
+                        >
+                    </label>
+                    <label class="field-group">
+                        <span>{{ __('ui.admin.news_type') }}</span>
+                        <select name="type">
+                            <option value="">{{ __('ui.admin.news_all_types') }}</option>
+                            <option value="news" @selected($contentFilters['type'] === 'news')>{{ __('ui.admin.news_type_news') }}</option>
+                            <option value="guide" @selected($contentFilters['type'] === 'guide')>{{ __('ui.admin.news_type_guide') }}</option>
+                            <option value="page" @selected($contentFilters['type'] === 'page')>{{ __('ui.admin.news_type_page') }}</option>
+                        </select>
+                    </label>
+                    <div class="flex items-end gap-2">
+                        <button type="submit" class="button button-primary">{{ __('ui.admin.news_filter') }}</button>
+                        <a href="{{ route('admin.news-posts.index') }}" class="button button-ghost">{{ __('ui.admin.news_clear') }}</a>
+                    </div>
+                </form>
+
                 @forelse ($posts as $post)
                     <article class="panel-card flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                         <div class="min-w-0">
@@ -71,19 +97,26 @@
                         <p class="mx-auto mt-3 max-w-xl text-silver">{{ __('ui.admin.news_empty_help') }}</p>
                     </article>
                 @endforelse
+
+                @if ($postPaginator->hasPages())
+                    <div class="panel-card p-4 sm:p-5">
+                        {{ $postPaginator->links() }}
+                    </div>
+                @endif
             </main>
         </div>
 
-        <div
-            x-cloak
-            x-show="editorOpen"
-            class="fixed inset-0 z-[90] overflow-y-auto bg-black/80 p-4 backdrop-blur-sm sm:p-8"
-            x-on:click.self="closeEditor()"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="news-editor-title"
-        >
-            <section class="panel-card mx-auto w-full max-w-5xl p-5 sm:p-8">
+        <template x-teleport="body">
+            <div
+                x-cloak
+                x-show="editorOpen"
+                class="fixed inset-0 z-[120] overflow-y-auto bg-black/80 p-4 backdrop-blur-sm sm:p-8"
+                x-on:click.self="closeEditor()"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="news-editor-title"
+            >
+                <section class="panel-card mx-auto w-full max-w-5xl p-5 sm:p-8">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="kicker">{{ __('ui.admin.content') }}</p>
@@ -164,28 +197,31 @@
                         <button type="submit" class="button button-primary">{{ __('ui.admin.news_save') }}</button>
                     </div>
                 </form>
-            </section>
-        </div>
+                </section>
+            </div>
+        </template>
 
-        <div
-            x-cloak
-            x-show="deleteOpen"
-            class="fixed inset-0 z-[100] grid place-items-center bg-black/80 p-4 backdrop-blur-sm"
-            x-on:click.self="closeDelete()"
-            role="dialog"
-            aria-modal="true"
-        >
-            <section class="panel-card w-full max-w-lg p-6 sm:p-8">
-                <p class="kicker">{{ __('ui.admin.news_delete') }}</p>
-                <h2 class="mt-3 text-2xl font-semibold text-white" x-text="form.title_en"></h2>
-                <p class="mt-3 text-sm text-silver">{{ __('ui.admin.news_delete_help') }}</p>
-                <form method="POST" x-bind:action="deleteAction" class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                    @csrf
-                    @method('DELETE')
-                    <button type="button" class="button button-ghost" x-on:click="closeDelete()">{{ __('ui.admin.news_cancel') }}</button>
-                    <button type="submit" class="button button-primary">{{ __('ui.admin.news_delete_confirm') }}</button>
-                </form>
-            </section>
-        </div>
+        <template x-teleport="body">
+            <div
+                x-cloak
+                x-show="deleteOpen"
+                class="fixed inset-0 z-[130] grid place-items-center bg-black/80 p-4 backdrop-blur-sm"
+                x-on:click.self="closeDelete()"
+                role="dialog"
+                aria-modal="true"
+            >
+                <section class="panel-card w-full max-w-lg p-6 sm:p-8">
+                    <p class="kicker">{{ __('ui.admin.news_delete') }}</p>
+                    <h2 class="mt-3 text-2xl font-semibold text-white" x-text="form.title_en"></h2>
+                    <p class="mt-3 text-sm text-silver">{{ __('ui.admin.news_delete_help') }}</p>
+                    <form method="POST" x-bind:action="deleteAction" class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" class="button button-ghost" x-on:click="closeDelete()">{{ __('ui.admin.news_cancel') }}</button>
+                        <button type="submit" class="button button-primary">{{ __('ui.admin.news_delete_confirm') }}</button>
+                    </form>
+                </section>
+            </div>
+        </template>
     </div>
 @endsection

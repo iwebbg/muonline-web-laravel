@@ -18,4 +18,7 @@ enum ServerModule: string
     case ZenBank = 'zen_bank';
     case Market = 'market';
     case Auction = 'auction';
+    case WebShop = 'web_shop';
+    case MysteryBoxes = 'mystery_boxes';
+    case Rewards = 'rewards';
 }

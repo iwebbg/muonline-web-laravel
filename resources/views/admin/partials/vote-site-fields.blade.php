@@ -40,7 +40,19 @@
         <input type="number" name="sort_order" value="{{ old('sort_order', $site?->sort_order ?? 0) }}" min="0" max="10000" required>
     </label>
 </div>
-<label class="flex items-center gap-3 text-sm text-silver">
-    <input type="checkbox" name="enabled" value="1" @checked(old('enabled', $site?->enabled ?? true))>
-    {{ __('ui.admin.vote_site_enabled') }}
-</label>
+<div class="grid gap-3 sm:grid-cols-2">
+    <label class="flex items-start gap-3 rounded-xl border border-white/8 bg-black/15 p-4 text-sm text-silver">
+        <input type="checkbox" name="auto_reward_on_click" value="1" @checked(old('auto_reward_on_click', $site?->auto_reward_on_click ?? false))>
+        <span>
+            <strong class="block text-white">{{ __('ui.admin.vote_site_auto_reward') }}</strong>
+            <span class="mt-1 block text-xs text-steel">{{ __('ui.admin.vote_site_auto_reward_help') }}</span>
+        </span>
+    </label>
+    <label class="flex items-start gap-3 rounded-xl border border-white/8 bg-black/15 p-4 text-sm text-silver">
+        <input type="checkbox" name="enabled" value="1" @checked(old('enabled', $site?->enabled ?? true))>
+        <span>
+            <strong class="block text-white">{{ __('ui.admin.vote_site_enabled') }}</strong>
+            <span class="mt-1 block text-xs text-steel">{{ __('ui.admin.vote_site_enabled_help') }}</span>
+        </span>
+    </label>
+</div>

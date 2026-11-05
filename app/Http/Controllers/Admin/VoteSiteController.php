@@ -5,19 +5,18 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreVoteSiteRequest;
 use App\Http\Requests\Admin\UpdateVoteSiteRequest;
-use App\Models\VoteClaim;
 use App\Models\VoteSite;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
- * Manages vote destinations and displays their newest manual-review claims.
+ * Manages vote-link destinations and their future reward policies.
  */
 final class VoteSiteController extends Controller
 {
     /**
-     * Displays configured destinations and the latest claim review queue.
+     * Displays configured destinations without loading historical claims.
      */
     public function index(): View
     {
@@ -25,15 +24,9 @@ final class VoteSiteController extends Controller
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get();
-        $claims = VoteClaim::query()
-            ->with(['site', 'reviewer'])
-            ->latest('id')
-            ->limit(100)
-            ->get();
 
-        return view('admin.vote-rewards', [
+        return view('admin.vote-links', [
             'sites' => $sites,
-            'claims' => $claims,
         ]);
     }
 

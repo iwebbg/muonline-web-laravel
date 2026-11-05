@@ -15,6 +15,7 @@ enum VoteClaimBlockReason: string
     case AlreadyReviewed = 'already_reviewed';
     case ClaimExpired = 'claim_expired';
     case InvalidReward = 'invalid_reward';
+    case AutomaticRewardDisabled = 'automatic_reward_disabled';
     case BalanceLimitExceeded = 'balance_limit_exceeded';
     case PermissionDenied = 'permission_denied';
 }

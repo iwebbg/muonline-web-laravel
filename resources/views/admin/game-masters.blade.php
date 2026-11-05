@@ -69,16 +69,17 @@
             </main>
         </div>
 
-        <div
-            x-cloak
-            x-show="editorOpen"
-            class="fixed inset-0 z-[90] overflow-y-auto bg-black/80 p-4 backdrop-blur-sm sm:p-8"
-            x-on:click.self="closeEditor()"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="game-master-editor-title"
-        >
-            <section class="panel-card mx-auto w-full max-w-3xl p-6 sm:p-8">
+        <template x-teleport="body">
+            <div
+                x-cloak
+                x-show="editorOpen"
+                class="fixed inset-0 z-[120] overflow-y-auto bg-black/80 p-4 backdrop-blur-sm sm:p-8"
+                x-on:click.self="closeEditor()"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="game-master-editor-title"
+            >
+                <section class="panel-card mx-auto w-full max-w-3xl p-6 sm:p-8">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="kicker">{{ __('ui.admin.game_masters') }}</p>
@@ -143,7 +144,8 @@
                         <button type="submit" class="button button-primary">{{ __('ui.admin.game_master_save') }}</button>
                     </div>
                 </form>
-            </section>
-        </div>
+                </section>
+            </div>
+        </template>
     </div>
 @endsection

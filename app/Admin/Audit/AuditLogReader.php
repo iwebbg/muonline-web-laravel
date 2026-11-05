@@ -23,6 +23,7 @@ use App\Models\NewsPostRevision;
 use App\Models\ResetProfileRevision;
 use App\Models\VoteClaim;
 use App\Models\WalletTransaction;
+use App\Models\WebsiteSettingRevision;
 use App\Models\WebStorageItem;
 use App\Models\ZenBankOperation;
 use App\WebStorage\WebStorageItemStatus;
@@ -30,7 +31,9 @@ use App\ZenBank\ZenBankOperationStatus;
 use BackedEnum;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use LogicException;
 
@@ -116,6 +119,7 @@ final class AuditLogReader
             'economy_recovery',
             'vote_reward',
             'module_profile',
+            'website_settings',
             'event_schedule',
             'item_grant',
         ];
@@ -128,15 +132,58 @@ final class AuditLogReader
     }
 
     /**
+     * Returns one page of normalized audit events inside a bounded date range.
+     *
+     * @return LengthAwarePaginator<int, array{type: string, subject: string, characterName: string|null, status: string, failureCode: string|null, contextSnapshot: array<string, mixed>, beforeSnapshot: array<string, mixed>|null, afterSnapshot: array<string, mixed>|null, occurredAt: string, occurredAtDisplay: string}>
+     */
+    public function paginate(
+        ?string $type,
+        ?string $status,
+        ?string $search,
+        DateTimeInterface $dateFrom,
+        DateTimeInterface $dateTo,
+        int $perPage = 20,
+        ?int $page = null,
+    ): LengthAwarePaginator {
+        $currentPage = $page ?? LengthAwarePaginator::resolveCurrentPage();
+        $entries = $this->latest(
+            limit: null,
+            type: $type,
+            status: $status,
+            search: $search,
+            dateFrom: $dateFrom,
+            dateTo: $dateTo,
+        );
+        $pageEntries = array_slice(
+            $entries,
+            ($currentPage - 1) * $perPage,
+            $perPage,
+        );
+
+        return new LengthAwarePaginator(
+            items: $pageEntries,
+            total: count($entries),
+            perPage: $perPage,
+            currentPage: $currentPage,
+            options: [
+                'path' => LengthAwarePaginator::resolveCurrentPath(),
+                'pageName' => 'page',
+            ],
+        );
+    }
+
+    /**
      * Returns the newest normalized events matching safe administrator filters.
      *
      * @return list<array{type: string, subject: string, characterName: string|null, status: string, failureCode: string|null, contextSnapshot: array<string, mixed>, beforeSnapshot: array<string, mixed>|null, afterSnapshot: array<string, mixed>|null, occurredAt: string, occurredAtDisplay: string}>
      */
     public function latest(
-        int $limit = 100,
+        ?int $limit = 100,
         ?string $type = null,
         ?string $status = null,
         ?string $search = null,
+        ?DateTimeInterface $dateFrom = null,
+        ?DateTimeInterface $dateTo = null,
     ): array {
         $entries = [];
 
@@ -145,10 +192,12 @@ final class AuditLogReader
                 continue;
             }
 
-            $records = $source['model']::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $records = $this->records(
+                model: $source['model'],
+                limit: $limit,
+                dateFrom: $dateFrom,
+                dateTo: $dateTo,
+            );
 
             foreach ($records as $record) {
                 $entries[] = $this->operationEntry(
@@ -160,10 +209,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'reset_profile') {
-            $revisions = ResetProfileRevision::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $revisions = $this->records(ResetProfileRevision::class, $limit, $dateFrom, $dateTo);
 
             foreach ($revisions as $revision) {
                 $entries[] = $this->revisionEntry($revision);
@@ -171,10 +217,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'game_master_identity') {
-            $identityRevisions = AdministratorIdentityRevision::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $identityRevisions = $this->records(AdministratorIdentityRevision::class, $limit, $dateFrom, $dateTo);
 
             foreach ($identityRevisions as $identityRevision) {
                 $entries[] = $this->identityRevisionEntry($identityRevision);
@@ -182,10 +225,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'news_content') {
-            $newsRevisions = NewsPostRevision::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $newsRevisions = $this->records(NewsPostRevision::class, $limit, $dateFrom, $dateTo);
 
             foreach ($newsRevisions as $newsRevision) {
                 $entries[] = $this->contentRevisionEntry(
@@ -198,10 +238,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'download_content') {
-            $downloadRevisions = DownloadRevision::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $downloadRevisions = $this->records(DownloadRevision::class, $limit, $dateFrom, $dateTo);
 
             foreach ($downloadRevisions as $downloadRevision) {
                 $entries[] = $this->contentRevisionEntry(
@@ -214,10 +251,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'wallet_adjustment') {
-            $walletTransactions = WalletTransaction::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $walletTransactions = $this->records(WalletTransaction::class, $limit, $dateFrom, $dateTo);
 
             foreach ($walletTransactions as $walletTransaction) {
                 $entries[] = $this->walletTransactionEntry($walletTransaction);
@@ -225,10 +259,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'market_recovery') {
-            $marketActions = MarketAdminAction::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $marketActions = $this->records(MarketAdminAction::class, $limit, $dateFrom, $dateTo);
 
             foreach ($marketActions as $marketAction) {
                 $entries[] = $this->marketActionEntry($marketAction);
@@ -236,10 +267,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'item_custody') {
-            $storedItems = WebStorageItem::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $storedItems = $this->records(WebStorageItem::class, $limit, $dateFrom, $dateTo);
 
             foreach ($storedItems as $storedItem) {
                 $entries[] = $this->webStorageEntry($storedItem);
@@ -247,10 +275,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'zen_bank') {
-            $zenOperations = ZenBankOperation::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $zenOperations = $this->records(ZenBankOperation::class, $limit, $dateFrom, $dateTo);
 
             foreach ($zenOperations as $zenOperation) {
                 $entries[] = $this->zenBankEntry($zenOperation);
@@ -258,10 +283,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'economy_recovery') {
-            $recoveryActions = EconomyRecoveryAction::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $recoveryActions = $this->records(EconomyRecoveryAction::class, $limit, $dateFrom, $dateTo);
 
             foreach ($recoveryActions as $recoveryAction) {
                 $entries[] = $this->economyRecoveryEntry($recoveryAction);
@@ -269,10 +291,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'vote_reward') {
-            $voteClaims = VoteClaim::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $voteClaims = $this->records(VoteClaim::class, $limit, $dateFrom, $dateTo);
 
             foreach ($voteClaims as $voteClaim) {
                 $entries[] = $this->voteClaimEntry($voteClaim);
@@ -280,21 +299,23 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'module_profile') {
-            $moduleRevisions = ModuleProfileRevision::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $moduleRevisions = $this->records(ModuleProfileRevision::class, $limit, $dateFrom, $dateTo);
 
             foreach ($moduleRevisions as $moduleRevision) {
                 $entries[] = $this->moduleProfileEntry($moduleRevision);
             }
         }
 
+        if ($type === null || $type === 'website_settings') {
+            $websiteRevisions = $this->records(WebsiteSettingRevision::class, $limit, $dateFrom, $dateTo);
+
+            foreach ($websiteRevisions as $websiteRevision) {
+                $entries[] = $this->websiteSettingEntry($websiteRevision);
+            }
+        }
+
         if ($type === null || $type === 'event_schedule') {
-            $eventRevisions = EventScheduleEntryRevision::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $eventRevisions = $this->records(EventScheduleEntryRevision::class, $limit, $dateFrom, $dateTo);
 
             foreach ($eventRevisions as $eventRevision) {
                 $entries[] = $this->eventScheduleEntry($eventRevision);
@@ -302,10 +323,7 @@ final class AuditLogReader
         }
 
         if ($type === null || $type === 'item_grant') {
-            $itemGrants = ItemGrantOperation::query()
-                ->latest()
-                ->limit($limit)
-                ->get();
+            $itemGrants = $this->records(ItemGrantOperation::class, $limit, $dateFrom, $dateTo);
 
             foreach ($itemGrants as $itemGrant) {
                 $entries[] = $this->itemGrantEntry($itemGrant);
@@ -326,7 +344,9 @@ final class AuditLogReader
             fn (AuditLogEntry $left, AuditLogEntry $right): int => $right->occurredAt <=> $left->occurredAt,
         );
 
-        $latestEntries = array_slice($filteredEntries, 0, $limit);
+        $latestEntries = $limit === null
+            ? $filteredEntries
+            : array_slice($filteredEntries, 0, $limit);
         $results = [];
 
         foreach ($latestEntries as $entry) {
@@ -656,6 +676,27 @@ final class AuditLogReader
     }
 
     /**
+     * Normalizes one immutable website branding and search metadata revision.
+     */
+    private function websiteSettingEntry(WebsiteSettingRevision $revision): AuditLogEntry
+    {
+        return new AuditLogEntry(
+            type: 'website_settings',
+            subject: 'website-settings:'.$revision->website_setting_id,
+            characterName: null,
+            status: 'completed',
+            failureCode: null,
+            contextSnapshot: [
+                'revision' => $revision->revision,
+                'changed_by_administrator_id' => $revision->changed_by_administrator_id,
+            ],
+            beforeSnapshot: $revision->before_snapshot,
+            afterSnapshot: $revision->after_snapshot,
+            occurredAt: $this->occurredAt($revision),
+        );
+    }
+
+    /**
      * Normalizes one immutable event schedule revision.
      */
     private function eventScheduleEntry(EventScheduleEntryRevision $revision): AuditLogEntry
@@ -726,6 +767,37 @@ final class AuditLogReader
         $snapshot = $record->getAttribute($column);
 
         return is_array($snapshot) ? $snapshot : null;
+    }
+
+    /**
+     * Loads one audit source with shared date boundaries and deterministic ordering.
+     *
+     * @param  class-string<Model>  $model
+     * @return Collection<int, Model>
+     */
+    private function records(
+        string $model,
+        ?int $limit,
+        ?DateTimeInterface $dateFrom,
+        ?DateTimeInterface $dateTo,
+    ): Collection {
+        $query = $model::query()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
+
+        if ($dateFrom !== null) {
+            $query->where('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo !== null) {
+            $query->where('created_at', '<=', $dateTo);
+        }
+
+        if ($limit !== null) {
+            $query->limit($limit);
+        }
+
+        return $query->get();
     }
 
     /**

@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'cooldown_hours',
     'reward_credits',
     'reward_zen',
+    'auto_reward_on_click',
     'enabled',
     'sort_order',
 ])]
@@ -64,6 +65,7 @@ final class VoteSite extends Model
             'cooldown_hours' => 'integer',
             'reward_credits' => 'integer',
             'reward_zen' => 'integer',
+            'auto_reward_on_click' => 'boolean',
             'enabled' => 'boolean',
             'sort_order' => 'integer',
         ];

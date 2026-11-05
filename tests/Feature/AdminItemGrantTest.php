@@ -14,7 +14,10 @@ use App\Market\MarketEscrowResult;
 use App\Market\MarketListingBlockReason;
 use App\Models\Administrator;
 use App\Models\ItemGrantOperation;
+use App\Moderation\ModerationTarget;
+use App\Moderation\ModerationTargetType;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Tests\TestCase;
 
 /**
@@ -65,10 +68,7 @@ final class AdminItemGrantTest extends TestCase
     {
         $gameMaster = $this->itemGrantAdministrator();
         $this->mock(ModerationRepository::class)
-            ->shouldReceive('searchAccounts')
-            ->once()
-            ->with(null, 25)
-            ->andReturn([]);
+            ->shouldNotReceive('searchAccounts');
 
         $response = $this
             ->actingAs($gameMaster, 'admin')
@@ -78,7 +78,134 @@ final class AdminItemGrantTest extends TestCase
             ->assertOk()
             ->assertSee('Warehouse item grants')
             ->assertSee('Kris')
+            ->assertSee('Search items by name…')
+            ->assertDontSee('0:0 · Kris · 1×2')
+            ->assertSee('x-for="itemLevel in itemLevels"', false)
+            ->assertSee('x-for="option in additionalOptionChoices"', false)
+            ->assertDontSee('name="ancient_option" value="10"', false)
+            ->assertSee('Excellent damage rate +10%')
+            ->assertSee('Type at least 2 characters. Up to 10 matching accounts are loaded.')
             ->assertSee('Game writes are disabled');
+    }
+
+    /**
+     * Confirms grant history can be searched, filtered and paginated with reasons.
+     */
+    public function test_item_grant_history_supports_search_status_filters_and_pagination(): void
+    {
+        $gameMaster = $this->itemGrantAdministrator();
+
+        ItemGrantOperation::factory()
+            ->count(21)
+            ->state(['administrator_id' => $gameMaster->getKey()])
+            ->create();
+        ItemGrantOperation::factory()
+            ->state(['administrator_id' => $gameMaster->getKey()])
+            ->create([
+                'account_id' => 'winner01',
+                'item_name' => 'Black Dragon Helm',
+                'serial' => null,
+                'status' => CharacterOperationStatus::Failed,
+                'reason' => 'Castle Siege champion reward',
+                'after_snapshot' => null,
+                'failure_code' => 'warehouse_full',
+                'completed_at' => null,
+            ]);
+
+        $unfilteredResponse = $this
+            ->actingAs($gameMaster, 'admin')
+            ->get(route('admin.item-grants.index'));
+
+        $unfilteredResponse
+            ->assertOk()
+            ->assertViewHas('operations', static function (LengthAwarePaginator $operations): bool {
+                return $operations->total() === 22
+                    && $operations->count() === 20
+                    && $operations->hasMorePages();
+            });
+
+        $filteredResponse = $this
+            ->actingAs($gameMaster, 'admin')
+            ->get(route('admin.item-grants.index', [
+                'history_search' => 'Castle Siege',
+                'history_status' => CharacterOperationStatus::Failed->value,
+            ]));
+
+        $filteredResponse
+            ->assertOk()
+            ->assertSee('Black Dragon Helm')
+            ->assertSee('Castle Siege champion reward')
+            ->assertSee('Failed')
+            ->assertViewHas('historyFilters', [
+                'search' => 'Castle Siege',
+                'status' => CharacterOperationStatus::Failed->value,
+            ])
+            ->assertViewHas('operations', static function (LengthAwarePaginator $operations): bool {
+                return $operations->total() === 1
+                    && $operations->count() === 1;
+            });
+    }
+
+    /**
+     * Confirms account autocomplete returns only the bounded non-sensitive matches.
+     */
+    public function test_account_autocomplete_uses_a_ten_result_limit(): void
+    {
+        $gameMaster = $this->itemGrantAdministrator();
+        $targets = [
+            new ModerationTarget(
+                type: ModerationTargetType::Account,
+                identifier: 'owner05',
+                accountId: 'owner05',
+                blocked: false,
+                online: false,
+                controlCode: 0,
+            ),
+            new ModerationTarget(
+                type: ModerationTargetType::Account,
+                identifier: 'owner06',
+                accountId: 'owner06',
+                blocked: true,
+                online: true,
+                controlCode: 1,
+            ),
+        ];
+        $this->mock(ModerationRepository::class)
+            ->shouldReceive('searchAccounts')
+            ->once()
+            ->with('owner', 10)
+            ->andReturn($targets);
+
+        $response = $this
+            ->actingAs($gameMaster, 'admin')
+            ->getJson(route('admin.item-grants.accounts.index', ['search' => 'owner']));
+
+        $response
+            ->assertOk()
+            ->assertExactJson([
+                'data' => [
+                    ['account_id' => 'owner05', 'online' => false],
+                    ['account_id' => 'owner06', 'online' => true],
+                ],
+            ]);
+    }
+
+    /**
+     * Confirms broad one-character account lookups are rejected before querying.
+     */
+    public function test_account_autocomplete_rejects_queries_shorter_than_two_characters(): void
+    {
+        $gameMaster = $this->itemGrantAdministrator();
+        $this->mock(ModerationRepository::class)
+            ->shouldNotReceive('searchAccounts');
+
+        $response = $this
+            ->actingAs($gameMaster, 'admin')
+            ->getJson(route('admin.item-grants.accounts.index', ['search' => 'o']));
+
+        $response
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('search');
     }
 
     /**
@@ -136,6 +263,12 @@ final class AdminItemGrantTest extends TestCase
         $payload = [
             '_token' => $csrfToken,
             ...$this->validPayload(),
+            'level' => 11,
+            'option_level' => 7,
+            'has_skill' => 1,
+            'has_luck' => 1,
+            'excellent_mask' => 33,
+            'ancient_option' => 0,
         ];
 
         $firstResponse = $this
@@ -160,6 +293,12 @@ final class AdminItemGrantTest extends TestCase
         $this->assertSame(CharacterOperationStatus::Completed, $operation->status);
         $this->assertSame(123456, $operation->serial);
         $this->assertSame('0001E240', $decodedItem->serial);
+        $this->assertSame(11, $decodedItem->level);
+        $this->assertSame(7, $decodedItem->optionLevel);
+        $this->assertTrue($decodedItem->hasSkill);
+        $this->assertTrue($decodedItem->hasLuck);
+        $this->assertSame(33, $decodedItem->excellentMask);
+        $this->assertSame(0, $decodedItem->ancientOption);
         $this->assertTrue($operation->after_snapshot['delivered']);
 
         $auditEntries = $this->app->make(AuditLogReader::class)->latest(type: 'item_grant');
@@ -196,9 +335,9 @@ final class AdminItemGrantTest extends TestCase
     }
 
     /**
-     * Confirms crafted advanced options remain closed until family rules are verified.
+     * Confirms an excellent mask outside the six-bit item format is rejected.
      */
-    public function test_unverified_excellent_option_is_rejected_by_validation(): void
+    public function test_out_of_range_excellent_option_is_rejected_by_validation(): void
     {
         $this->enableGameWrites();
         $administrator = $this->itemGrantAdministrator();
@@ -213,12 +352,39 @@ final class AdminItemGrantTest extends TestCase
             ->post(route('admin.item-grants.store'), [
                 '_token' => $csrfToken,
                 ...$this->validPayload(),
-                'excellent_mask' => 1,
+                'excellent_mask' => 64,
             ]);
 
         $response
             ->assertRedirect(route('admin.item-grants.index'))
             ->assertSessionHasErrors('excellent_mask');
+        $this->assertSame(0, ItemGrantOperation::query()->count());
+    }
+
+    /**
+     * Confirms item levels above the verified 97d+99i maximum are rejected.
+     */
+    public function test_item_level_above_eleven_is_rejected_by_validation(): void
+    {
+        $this->enableGameWrites();
+        $administrator = $this->itemGrantAdministrator();
+        $this->mock(ItemSerialRepository::class)
+            ->shouldNotReceive('nextSerial');
+        $csrfToken = 'item-level-grant-token';
+
+        $response = $this
+            ->from(route('admin.item-grants.index'))
+            ->withSession(['_token' => $csrfToken])
+            ->actingAs($administrator, 'admin')
+            ->post(route('admin.item-grants.store'), [
+                '_token' => $csrfToken,
+                ...$this->validPayload(),
+                'level' => 12,
+            ]);
+
+        $response
+            ->assertRedirect(route('admin.item-grants.index'))
+            ->assertSessionHasErrors('level');
         $this->assertSame(0, ItemGrantOperation::query()->count());
     }
 

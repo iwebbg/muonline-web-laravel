@@ -24,7 +24,6 @@
                 <section class="panel-card p-5 sm:p-7">
                     <p class="kicker">{{ __('ui.admin.event_effective_schedule') }}</p>
                     <div class="mt-4 flex flex-wrap gap-2 text-sm text-steel">
-                        <span class="resource-chip">{{ $profileKey }}</span>
                         <span class="resource-chip">{{ $gameVersion }}</span>
                         <span class="resource-chip">{{ count($effectiveDefinitions) }} {{ __('ui.admin.event_definitions') }}</span>
                     </div>

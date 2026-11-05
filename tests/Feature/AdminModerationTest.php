@@ -9,6 +9,7 @@ use App\Models\ModerationOperation;
 use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
@@ -54,7 +55,8 @@ final class AdminModerationTest extends TestCase
     public function test_administrator_can_search_non_sensitive_moderation_targets(): void
     {
         $this->insertAccount('testowner', 'legacy-secret');
-        $this->insertCharacter('testowner', 'SafeHero');
+        $this->insertCharacter('testowner', 'SafeHero', 8);
+        $this->insertCharacter('testowner', 'SafeMage');
         $administrator = Administrator::factory()->create();
 
         $response = $this
@@ -64,8 +66,49 @@ final class AdminModerationTest extends TestCase
         $response
             ->assertOk()
             ->assertSee('SafeHero')
+            ->assertSee('SafeMage')
             ->assertSee('testowner')
+            ->assertSee('Game Master')
+            ->assertDontSee('Protected control code 8')
+            ->assertViewHas('characterGroups', static function (array $groups): bool {
+                return count($groups) === 1
+                    && count($groups['testowner']) === 2;
+            })
             ->assertDontSee('legacy-secret');
+    }
+
+    /**
+     * Confirms account and grouped character results paginate independently.
+     */
+    public function test_grouped_moderation_results_use_one_account_paginator(): void
+    {
+        foreach (range(1, 16) as $index) {
+            $accountId = sprintf('owner%02d', $index);
+            $characterName = sprintf('Hero%02d', $index);
+
+            $this->insertAccount($accountId);
+            $this->insertCharacter($accountId, $characterName);
+        }
+        $administrator = Administrator::factory()->create();
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin/moderation?page=2');
+
+        $response
+            ->assertOk()
+            ->assertSee('owner16')
+            ->assertSee('Hero16')
+            ->assertDontSee('owner01')
+            ->assertDontSee('Hero01')
+            ->assertViewHas('accountTargets', static function (Paginator $targets): bool {
+                return $targets->currentPage() === 2
+                    && $targets->count() === 1;
+            })
+            ->assertViewHas('characterGroups', static function (array $groups): bool {
+                return array_keys($groups) === ['owner16']
+                    && count($groups['owner16']) === 1;
+            });
     }
 
     /**

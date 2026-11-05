@@ -1,4 +1,19 @@
 @inject('moduleManager', 'App\Modules\ModuleManager')
+@php
+    $pageTitle = $websiteSettings->documentTitle(
+        trim($__env->yieldContent('title', config('app.name'))),
+        request()->routeIs('home'),
+        app()->getLocale(),
+    );
+    $metaDescription = trim($__env->yieldContent(
+        'meta_description',
+        $websiteSettings->localizedDescription(app()->getLocale()) ?? '',
+    ));
+    $metaKeywords = trim($__env->yieldContent(
+        'meta_keywords',
+        $websiteSettings->localizedKeywords(app()->getLocale()) ?? '',
+    ));
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
     <head>
@@ -7,7 +22,21 @@
         <meta name="theme-color" content="#08090c">
         <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
 
-        <title>@yield('title', config('app.name'))</title>
+        <title>{{ $pageTitle }}</title>
+        @if ($metaDescription !== '')
+            <meta name="description" content="{{ $metaDescription }}">
+        @endif
+        @if ($metaKeywords !== '')
+            <meta name="keywords" content="{{ $metaKeywords }}">
+        @endif
+        <meta property="og:title" content="{{ $pageTitle }}">
+        @if ($metaDescription !== '')
+            <meta property="og:description" content="{{ $metaDescription }}">
+        @endif
+        <meta property="og:type" content="website">
+        @if ($websiteOgImageUrl !== null)
+            <meta property="og:image" content="{{ $websiteOgImageUrl }}">
+        @endif
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
@@ -21,10 +50,16 @@
         <header class="sticky top-0 z-50 border-b border-white/8 bg-void/82 backdrop-blur-xl">
             <div class="shell flex h-18 items-center justify-between gap-6">
                 <a href="{{ route('home') }}" class="group flex items-center gap-3" aria-label="{{ __('ui.navigation.brand_home') }}">
-                    <span class="brand-mark" aria-hidden="true">MU</span>
+                    <span class="brand-mark overflow-hidden" aria-hidden="true">
+                        @if ($websiteLogoUrl !== null)
+                            <img src="{{ $websiteLogoUrl }}" alt="" class="size-full object-cover">
+                        @else
+                            MU
+                        @endif
+                    </span>
                     <span>
-                        <span class="block font-display text-sm tracking-[0.22em] text-white">MUONLINE</span>
-                        <span class="block text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-gold">97d + 99i</span>
+                        <span class="block font-display text-sm tracking-[0.22em] text-white">{{ $websiteSettings->brandTitle }}</span>
+                        <span class="block text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-gold">{{ $websiteSettings->brandSubtitle }}</span>
                     </span>
                 </a>
 
@@ -36,6 +71,9 @@
                     <a href="{{ route('downloads.index') }}" class="nav-link {{ request()->routeIs('downloads.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.downloads') }}</a>
                     @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
                         <a href="{{ route('market.index') }}" class="nav-link {{ request()->routeIs('market.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.market') }}</a>
+                    @endif
+                    @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop) || $moduleManager->enabled(\App\Modules\ServerModule::MysteryBoxes))
+                        <a href="{{ $moduleManager->enabled(\App\Modules\ServerModule::WebShop) ? route('shop.items.index') : route('shop.mystery-boxes.index') }}" class="nav-link {{ request()->routeIs('shop.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.shop') }}</a>
                     @endif
                     <a href="{{ route('home') }}#events" class="nav-link">{{ __('ui.navigation.events') }}</a>
                     <a href="{{ route('account.dashboard') }}" class="nav-link {{ request()->routeIs('account.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.account') }}</a>
@@ -102,6 +140,9 @@
                     @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
                         <a href="{{ route('market.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.market') }}</a>
                     @endif
+                    @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop) || $moduleManager->enabled(\App\Modules\ServerModule::MysteryBoxes))
+                        <a href="{{ $moduleManager->enabled(\App\Modules\ServerModule::WebShop) ? route('shop.items.index') : route('shop.mystery-boxes.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.shop') }}</a>
+                    @endif
                     <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.account_panel') }}</a>
                     @guest
                         @if ($moduleManager->enabled(\App\Modules\ServerModule::Registration))
@@ -137,7 +178,7 @@
         <footer class="relative z-10 mt-20 border-t border-white/8 bg-void/75">
             <div class="shell flex flex-col gap-5 py-8 text-sm text-steel lg:flex-row lg:items-center lg:justify-between">
                 <p>
-                    &copy; {{ now()->year }} {{ $websiteServerName }}.
+                    &copy; {{ now()->year }} {{ $websiteSettings->resolvedCopyrightHolder() }}.
                     {{ __('ui.footer.created_by') }}
                     <a href="https://interweb.bg" class="font-semibold text-silver transition hover:text-gold" target="_blank" rel="noopener noreferrer">InterWeb Ltd.</a>
                 </p>

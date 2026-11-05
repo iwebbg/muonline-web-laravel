@@ -6,6 +6,7 @@ use App\Auth\GameAccount;
 use App\Models\VoteClaim;
 use App\Models\VoteSite;
 use App\VoteRewards\VoteClaimStatus;
+use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -46,11 +47,17 @@ final class VoteController extends Controller
                 ->first(fn (VoteClaim $claim): bool => $claim->status === VoteClaimStatus::Rewarded);
             $availableAt = $lastRewardedClaim?->rewarded_at?->addHours($site->cooldown_hours);
             $isCoolingDown = $availableAt?->isFuture() ?? false;
+            $availableIn = $isCoolingDown
+                ? $availableAt
+                    ->locale(app()->getLocale())
+                    ->diffForHumans(now(), CarbonInterface::DIFF_ABSOLUTE, true, 2)
+                : null;
 
             $voteCards[] = [
                 'site' => $site,
                 'pendingClaim' => $pendingClaim,
                 'availableAt' => $isCoolingDown ? $availableAt : null,
+                'availableIn' => $availableIn,
                 'canInitiate' => $pendingClaim === null && ! $isCoolingDown,
                 'idempotencyKey' => (string) Str::uuid(),
             ];

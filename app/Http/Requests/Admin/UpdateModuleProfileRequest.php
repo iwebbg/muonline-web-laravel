@@ -66,6 +66,22 @@ final class UpdateModuleProfileRequest extends FormRequest
                     $this->input('modules.'.ServerModule::WebStorage->value, false),
                     FILTER_VALIDATE_BOOL,
                 );
+                $creditsEnabled = filter_var(
+                    $this->input('modules.'.ServerModule::Credits->value, false),
+                    FILTER_VALIDATE_BOOL,
+                );
+                $rewardsEnabled = filter_var(
+                    $this->input('modules.'.ServerModule::Rewards->value, false),
+                    FILTER_VALIDATE_BOOL,
+                );
+                $webShopEnabled = filter_var(
+                    $this->input('modules.'.ServerModule::WebShop->value, false),
+                    FILTER_VALIDATE_BOOL,
+                );
+                $mysteryBoxesEnabled = filter_var(
+                    $this->input('modules.'.ServerModule::MysteryBoxes->value, false),
+                    FILTER_VALIDATE_BOOL,
+                );
 
                 if ($marketEnabled && ! $webStorageEnabled) {
                     $validator->errors()->add(
@@ -78,6 +94,20 @@ final class UpdateModuleProfileRequest extends FormRequest
                     $validator->errors()->add(
                         'modules.'.ServerModule::Auction->value,
                         __('ui.admin.modules_auction_requires_market'),
+                    );
+                }
+
+                if (($webShopEnabled || $mysteryBoxesEnabled) && ! $creditsEnabled) {
+                    $validator->errors()->add(
+                        'modules.'.ServerModule::Credits->value,
+                        __('ui.admin.modules_shop_requires_credits'),
+                    );
+                }
+
+                if (($webShopEnabled || $mysteryBoxesEnabled) && ! $rewardsEnabled) {
+                    $validator->errors()->add(
+                        'modules.'.ServerModule::Rewards->value,
+                        __('ui.admin.modules_shop_requires_rewards'),
                     );
                 }
             },

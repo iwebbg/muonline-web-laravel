@@ -16,14 +16,29 @@ interface ModerationRepository
      *
      * @return list<ModerationTarget>
      */
-    public function searchAccounts(?string $search, int $limit): array;
+    public function searchAccounts(?string $search, int $limit, int $offset = 0): array;
+
+    /**
+     * Finds account groups matching either an account identifier or character name.
+     *
+     * @return list<ModerationTarget>
+     */
+    public function searchAccountGroups(?string $search, int $limit, int $offset = 0): array;
 
     /**
      * Finds non-sensitive character targets matching an optional name fragment.
      *
      * @return list<ModerationTarget>
      */
-    public function searchCharacters(?string $search, int $limit): array;
+    public function searchCharacters(?string $search, int $limit, int $offset = 0): array;
+
+    /**
+     * Finds every character owned by the supplied account identifiers.
+     *
+     * @param  list<string>  $accountIds
+     * @return list<ModerationTarget>
+     */
+    public function charactersForAccounts(array $accountIds): array;
 
     /**
      * Atomically updates the verified MEMB_INFO bloc_code field.
