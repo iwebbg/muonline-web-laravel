@@ -76,19 +76,12 @@
                     @endforelse
                 </section>
 
-                <section class="panel-card p-5 sm:p-7">
-                    <p class="kicker">{{ __('ui.admin.event_revision_history') }}</p>
-                    <div class="mt-4 grid gap-3">
-                        @forelse ($recentRevisions as $revision)
-                            <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/8 bg-black/20 p-4 text-sm">
-                                <span class="text-white">#{{ $revision->event_schedule_entry_id }} · {{ $revision->action }} · r{{ $revision->revision }}</span>
-                                <span class="text-steel">{{ $revision->created_at?->format('Y-m-d H:i:s') }}</span>
-                            </div>
-                        @empty
-                            <p class="text-sm text-steel">{{ __('ui.admin.event_no_revisions') }}</p>
-                        @endforelse
-                    </div>
-                </section>
+                <x-admin-revision-history
+                    :revisions="$recentRevisions"
+                    :title="__('ui.admin.event_revision_history')"
+                    :empty-message="__('ui.admin.event_no_revisions')"
+                    wide
+                />
             </main>
         </div>
     </div>

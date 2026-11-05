@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\UpdateWebsiteSettingRequest;
 use App\Models\Administrator;
 use App\Models\WebsiteSettingRevision;
 use App\Website\Actions\UpdateWebsiteSettings;
+use App\Website\WebsiteSettingRevisionPresenter;
 use App\Website\WebsiteSettingsManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
@@ -24,9 +25,16 @@ final class WebsiteSettingController extends Controller
     /**
      * Displays the resolved settings and recent immutable revisions.
      */
-    public function edit(WebsiteSettingsManager $settingsManager): View
-    {
+    public function edit(
+        WebsiteSettingsManager $settingsManager,
+        WebsiteSettingRevisionPresenter $revisionPresenter,
+    ): View {
         $settings = $settingsManager->current();
+        $recentRevisions = WebsiteSettingRevision::query()
+            ->with('changedByAdministrator')
+            ->latest('id')
+            ->limit(15)
+            ->get();
 
         return view('admin.website-settings', [
             'settings' => $settings,
@@ -36,11 +44,7 @@ final class WebsiteSettingController extends Controller
             'websiteOgImageUrl' => $settings->ogImagePath === null
                 ? null
                 : Storage::disk('public')->url($settings->ogImagePath),
-            'recentRevisions' => WebsiteSettingRevision::query()
-                ->with('changedByAdministrator')
-                ->latest('id')
-                ->limit(15)
-                ->get(),
+            'recentRevisions' => $revisionPresenter->present($recentRevisions),
         ]);
     }
 

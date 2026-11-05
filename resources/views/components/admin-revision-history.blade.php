@@ -22,6 +22,9 @@
                     <span class="text-sm font-semibold text-white">{{ __('ui.admin.revision') }} {{ $revisionEntry['revision'] }}</span>
                     <span class="text-xs text-gold">{{ __('ui.admin.revision_view_changes') }} →</span>
                 </span>
+                @if (($revisionEntry['context'] ?? '') !== '')
+                    <span class="mt-1 block truncate text-xs text-silver">{{ $revisionEntry['context'] }}</span>
+                @endif
                 <span class="mt-1 block text-xs text-steel">{{ $revisionEntry['createdAt'] }}</span>
             </button>
         @empty
@@ -47,6 +50,7 @@
                         <h2 id="admin-revision-title" class="mt-2 text-2xl font-semibold text-white">
                             {{ __('ui.admin.revision') }} <span x-text="selectedRevision?.revision"></span>
                         </h2>
+                        <p x-show="selectedRevision?.context" class="mt-1 text-sm text-silver" x-text="selectedRevision?.context"></p>
                         <p class="mt-1 text-sm text-steel" x-text="selectedRevision?.createdAt"></p>
                     </div>
                     <button type="button" class="icon-button" x-on:click="selectedRevision = null" aria-label="{{ __('ui.admin.close_revision') }}">×</button>

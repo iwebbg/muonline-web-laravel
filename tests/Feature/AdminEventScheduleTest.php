@@ -66,6 +66,17 @@ final class AdminEventScheduleTest extends TestCase
         $this->assertSame('created', $revision->action);
         $this->assertSame('custom-arena', $revision->after_snapshot['event_key']);
 
+        $this->actingAs($administrator, 'admin')
+            ->get(route('admin.event-schedules.index'))
+            ->assertOk()
+            ->assertSee('custom-arena · Created')
+            ->assertSee('View')
+            ->assertSee('Changed settings')
+            ->assertSee('English name')
+            ->assertSee('Custom Arena')
+            ->assertSee('x-teleport="body"', false)
+            ->assertSee('aria-modal="true"', false);
+
         $auditEntries = $this->app->make(AuditLogReader::class)->latest(type: 'event_schedule');
 
         $this->assertCount(1, $auditEntries);

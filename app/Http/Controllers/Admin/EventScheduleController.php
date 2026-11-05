@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\EventSchedules\Actions\SaveEventScheduleEntry;
+use App\EventSchedules\EventScheduleEntryRevisionPresenter;
 use App\Game\Events\EventProfileReader;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreEventScheduleEntryRequest;
@@ -21,8 +22,10 @@ final class EventScheduleController extends Controller
     /**
      * Displays effective definitions, editable overrides and revision history.
      */
-    public function index(EventProfileReader $eventProfileReader): View
-    {
+    public function index(
+        EventProfileReader $eventProfileReader,
+        EventScheduleEntryRevisionPresenter $revisionPresenter,
+    ): View {
         $profileKey = (string) config('game.event_profile');
         $gameVersion = (string) config('game.profile.version');
         $entries = EventScheduleEntry::query()
@@ -44,7 +47,7 @@ final class EventScheduleController extends Controller
             'gameVersion' => $gameVersion,
             'effectiveDefinitions' => $eventProfileReader->definitions(),
             'entries' => $entries,
-            'recentRevisions' => $recentRevisions,
+            'recentRevisions' => $revisionPresenter->present($recentRevisions),
         ]);
     }
 

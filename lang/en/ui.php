@@ -1996,6 +1996,8 @@ return [
         'revision_value_enabled' => 'Enabled',
         'revision_value_disabled' => 'Disabled',
         'revision_value_not_set' => 'Not set',
+        'revision_action_created' => 'Created',
+        'revision_action_updated' => 'Updated',
         'close_revision' => 'Close revision details',
         'just_now' => 'just now',
         'no_revisions' => 'No saved revisions yet.',

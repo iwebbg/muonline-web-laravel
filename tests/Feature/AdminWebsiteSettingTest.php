@@ -114,7 +114,14 @@ final class AdminWebsiteSettingTest extends TestCase
         $historyResponse
             ->assertOk()
             ->assertSee('Website Operator')
-            ->assertSee('operator@example.com');
+            ->assertSee('operator@example.com')
+            ->assertSee('View')
+            ->assertSee('Changed settings')
+            ->assertSee('Header title')
+            ->assertSee('MUONLINE')
+            ->assertSee('DREAMMU')
+            ->assertSee('x-teleport="body"', false)
+            ->assertSee('aria-modal="true"', false);
 
         $entries = $this->app->make(AuditLogReader::class)->latest(type: 'website_settings');
 

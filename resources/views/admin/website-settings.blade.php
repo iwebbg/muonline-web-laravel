@@ -136,42 +136,12 @@
                     </div>
                 </form>
 
-                <section class="panel-card overflow-hidden">
-                    <div class="border-b border-white/8 p-5 sm:p-6">
-                        <p class="kicker">{{ __('ui.admin.website_history') }}</p>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-left text-sm">
-                            <thead class="text-xs uppercase tracking-[0.14em] text-steel">
-                                <tr>
-                                    <th class="p-4">{{ __('ui.admin.revision') }}</th>
-                                    <th class="p-4">{{ __('ui.admin.website_changed_by') }}</th>
-                                    <th class="p-4">{{ __('ui.admin.modules_changed_at') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/8">
-                                @forelse ($recentRevisions as $settingRevision)
-                                    <tr>
-                                        <td class="p-4 font-semibold text-white">{{ $settingRevision->revision }}</td>
-                                        <td class="p-4">
-                                            @if ($settingRevision->changedByAdministrator !== null)
-                                                <span class="block font-medium text-white">{{ $settingRevision->changedByAdministrator->name }}</span>
-                                                <span class="mt-1 block text-xs text-steel">{{ $settingRevision->changedByAdministrator->email }}</span>
-                                            @else
-                                                <span class="text-silver">{{ __('ui.admin.modules_system') }}</span>
-                                            @endif
-                                        </td>
-                                        <td class="p-4 text-steel">{{ $settingRevision->created_at?->format('Y-m-d H:i:s') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="p-8 text-center text-steel">{{ __('ui.admin.website_no_history') }}</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                <x-admin-revision-history
+                    :revisions="$recentRevisions"
+                    :title="__('ui.admin.website_history')"
+                    :empty-message="__('ui.admin.website_no_history')"
+                    wide
+                />
             </main>
         </div>
     </div>

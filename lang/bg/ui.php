@@ -1996,6 +1996,8 @@ return [
         'revision_value_enabled' => 'Активно',
         'revision_value_disabled' => 'Изключено',
         'revision_value_not_set' => 'Няма стойност',
+        'revision_action_created' => 'Създаден',
+        'revision_action_updated' => 'Обновен',
         'close_revision' => 'Затвори детайлите за ревизията',
         'just_now' => 'току-що',
         'no_revisions' => 'Все още няма запазени ревизии.',
