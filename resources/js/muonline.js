@@ -209,35 +209,68 @@ export function moderationPanel() {
 /**
  * Creates repeatable item rows for an administrator Web Shop offer.
  *
- * @param {Array<object>} initialItems Existing or validation-returned item options.
+ * @param {object} configuration Catalog metadata and existing or validation-returned item options.
  * @returns {object}
  */
-export function shopOfferEditor(initialItems) {
+export function shopOfferEditor(configuration) {
+    const excellentBits = [1, 2, 4, 8, 16, 32];
+
+    /**
+     * Normalizes checkbox values returned from validation redirects or persisted models.
+     *
+     * @param {boolean|number|string|undefined} value Submitted checkbox state.
+     * @returns {boolean}
+     */
+    const checkboxEnabled = (value) => value === true || value === 1 || value === '1';
+
     /**
      * Returns one complete safe item row for the offer form.
      *
+     * @param {object} item Existing item values to normalize.
      * @returns {object}
      */
-    const emptyItem = () => ({
-        item_code: '',
-        level: 0,
-        durability: 255,
-        option_level: 0,
-        has_skill: false,
-        has_luck: false,
-        excellent_mask: 0,
-        ancient_option: 0,
-        weight: 1,
-    });
+    const itemRow = (item = {}) => {
+        const itemCode = item.item_code ?? '';
+        const definition = configuration.items[itemCode] ?? null;
+        const excellentMask = Number(item.excellent_mask) || 0;
+
+        return {
+            key: window.crypto.randomUUID(),
+            item_code: itemCode,
+            item_search: definition?.name ?? itemCode,
+            item_suggestions_open: false,
+            active_item_suggestion_index: -1,
+            level: Number(item.level) || 0,
+            durability: Number(item.durability ?? 255),
+            option_level: Number(item.option_level) || 0,
+            has_skill: checkboxEnabled(item.has_skill),
+            has_luck: checkboxEnabled(item.has_luck),
+            excellent_option_bits: excellentBits.filter(
+                (bit) => (excellentMask & bit) !== 0,
+            ),
+            ancient_option: 0,
+            weight: Number(item.weight) || 1,
+        };
+    };
+
+    const initialItems = configuration.initialItems.length > 0
+        ? configuration.initialItems.map((item) => itemRow(item))
+        : [itemRow()];
 
     return {
-        items: initialItems.length > 0 ? initialItems : [emptyItem()],
+        catalog: configuration.items,
+        itemLevels: configuration.itemLevels,
+        optionLevels: configuration.optionLevels,
+        itemOptionLabels: configuration.itemOptionLabels,
+        ui: configuration.ui,
+        offerType: configuration.initialOfferType,
+        items: initialItems,
 
         /**
          * Adds another independently editable weighted reward item.
          */
         addItem() {
-            this.items.push(emptyItem());
+            this.items.push(itemRow());
         },
 
         /**
@@ -251,6 +284,207 @@ export function shopOfferEditor(initialItems) {
             }
 
             this.items.splice(index, 1);
+        },
+
+        /**
+         * Requires every visible item name to resolve to one exact verified catalog record.
+         *
+         * @returns {boolean}
+         */
+        validateItems() {
+            let valid = true;
+
+            this.items.forEach((item) => {
+                const input = this.$root.querySelector(`[data-shop-item-key="${item.key}"]`);
+                const selected = this.selectedItem(item) !== null;
+
+                input?.setCustomValidity(selected ? '' : this.ui.itemRequired);
+
+                if (!selected && valid) {
+                    input?.reportValidity();
+                    valid = false;
+                }
+            });
+
+            return valid;
+        },
+
+        /**
+         * Returns the verified catalog definition selected for one reward row.
+         *
+         * @param {object} item Editable reward row.
+         * @returns {object|null}
+         */
+        selectedItem(item) {
+            return this.catalog[item.item_code] ?? null;
+        },
+
+        /**
+         * Returns up to twelve verified catalog matches for one row's search text.
+         *
+         * @param {object} item Editable reward row.
+         * @returns {Array<object>}
+         */
+        itemSuggestions(item) {
+            const query = item.item_search.trim().toLocaleLowerCase();
+            const definitions = Object.values(this.catalog);
+
+            if (query === '') {
+                return definitions.slice(0, 12);
+            }
+
+            return definitions
+                .filter((definition) => definition.name.toLocaleLowerCase().includes(query))
+                .slice(0, 12);
+        },
+
+        /**
+         * Clears an exact selection while an administrator edits visible search text.
+         *
+         * @param {object} item Editable reward row.
+         */
+        filterItems(item) {
+            const input = this.$root.querySelector(`[data-shop-item-key="${item.key}"]`);
+
+            item.item_code = '';
+            item.active_item_suggestion_index = -1;
+            item.item_suggestions_open = true;
+            input?.setCustomValidity('');
+        },
+
+        /**
+         * Applies one exact verified catalog selection to a reward row.
+         *
+         * @param {object} item Editable reward row.
+         * @param {object} definition Verified catalog definition.
+         */
+        selectItem(item, definition) {
+            const input = this.$root.querySelector(`[data-shop-item-key="${item.key}"]`);
+
+            item.item_code = definition.code;
+            item.item_search = definition.name;
+            const allowedBits = new Set(this.excellentOptions(item).map((option) => option.bit));
+            item.excellent_option_bits = item.excellent_option_bits.filter(
+                (bit) => allowedBits.has(Number(bit)),
+            );
+            item.item_suggestions_open = false;
+            item.active_item_suggestion_index = -1;
+            input?.setCustomValidity('');
+        },
+
+        /**
+         * Moves keyboard selection through one row's item suggestions.
+         *
+         * @param {object} item Editable reward row.
+         * @param {number} direction Positive for down and negative for up.
+         */
+        moveItemSuggestion(item, direction) {
+            const suggestions = this.itemSuggestions(item);
+
+            if (!item.item_suggestions_open || suggestions.length === 0) {
+                return;
+            }
+
+            const nextIndex = item.active_item_suggestion_index + direction;
+            item.active_item_suggestion_index = Math.max(
+                0,
+                Math.min(suggestions.length - 1, nextIndex),
+            );
+        },
+
+        /**
+         * Applies the keyboard-highlighted catalog suggestion to one reward row.
+         *
+         * @param {object} item Editable reward row.
+         */
+        selectActiveItemSuggestion(item) {
+            const definition = this.itemSuggestions(item)[item.active_item_suggestion_index];
+
+            if (definition !== undefined) {
+                this.selectItem(item, definition);
+            }
+        },
+
+        /**
+         * Closes one row's item suggestions without changing its selection.
+         *
+         * @param {object} item Editable reward row.
+         */
+        closeItemSuggestions(item) {
+            item.item_suggestions_open = false;
+            item.active_item_suggestion_index = -1;
+        },
+
+        /**
+         * Returns excellent choices appropriate for one selected item family.
+         *
+         * @param {object} item Editable reward row.
+         * @returns {Array<{bit: number, label: string}>}
+         */
+        excellentOptions(item) {
+            const definition = this.selectedItem(item);
+            let labels = this.itemOptionLabels.excellent.weapon;
+
+            if (definition?.excellentType === 4) {
+                labels = this.itemOptionLabels.excellent.wing;
+            } else if (definition?.excellentType === 1) {
+                labels = this.itemOptionLabels.excellent.armor;
+            }
+
+            return labels
+                .map((label, index) => ({
+                    bit: 1 << index,
+                    label,
+                }))
+                .filter((option) => option.label !== '');
+        },
+
+        /**
+         * Calculates the six-bit excellent mask submitted for one reward row.
+         *
+         * @param {object} item Editable reward row.
+         * @returns {number}
+         */
+        excellentMask(item) {
+            const allowedBits = new Set(this.excellentOptions(item).map((option) => option.bit));
+
+            return item.excellent_option_bits
+                .filter((bit) => allowedBits.has(Number(bit)))
+                .reduce((mask, bit) => mask | Number(bit), 0);
+        },
+
+        /**
+         * Returns readable additional-option choices for one selected item family.
+         *
+         * @param {object} item Editable reward row.
+         * @returns {Array<{value: number, label: string}>}
+         */
+        additionalOptionChoices(item) {
+            const definition = this.selectedItem(item);
+
+            return this.optionLevels.map((optionLevel) => {
+                if (optionLevel === 0) {
+                    return {
+                        value: optionLevel,
+                        label: '0',
+                    };
+                }
+
+                let multiplier = 4;
+                let suffix = '';
+
+                if (definition?.optionType === 1) {
+                    multiplier = 1;
+                    suffix = '%';
+                } else if (definition?.optionType === 2) {
+                    multiplier = 5;
+                }
+
+                return {
+                    value: optionLevel,
+                    label: `+${optionLevel * multiplier}${suffix}`,
+                };
+            });
         },
     };
 }

@@ -40,6 +40,24 @@ final class AdminShopOfferTest extends TestCase
     }
 
     /**
+     * Confirms reward items are selected from the verified catalog with readable options.
+     */
+    public function test_shop_offer_editor_uses_the_verified_item_selector(): void
+    {
+        $administrator = Administrator::factory()
+            ->gameMaster([AdministratorPermission::ManageEconomy])
+            ->create();
+
+        $this->actingAs($administrator, 'admin')
+            ->get(route('admin.shop-offers.create'))
+            ->assertOk()
+            ->assertSee('Search items by name')
+            ->assertSee('Kris')
+            ->assertSee('Excellent options')
+            ->assertDontSee('Excellent mask');
+    }
+
+    /**
      * Confirms an item offer cannot conceal multiple reward definitions.
      */
     public function test_item_offer_requires_exactly_one_reward_item(): void

@@ -26,11 +26,27 @@
             <main class="min-w-0">
                 @if (session('status'))<div class="mb-5 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100">{{ session('status') }}</div>@endif
                 @if ($errors->any())<div class="mb-5 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100">{{ $errors->first() }}</div>@endif
-                <form method="POST" action="{{ $offer ? route('admin.shop-offers.update', $offer) : route('admin.shop-offers.store') }}" class="panel-card grid gap-6 p-5 sm:p-7" x-data="shopOfferEditor(@js($initialItems))">
+                <form
+                    method="POST"
+                    action="{{ $offer ? route('admin.shop-offers.update', $offer) : route('admin.shop-offers.store') }}"
+                    class="panel-card grid gap-6 p-5 sm:p-7"
+                    x-data="shopOfferEditor(@js([
+                        'initialItems' => $initialItems,
+                        'initialOfferType' => old('type', $offer?->type->value ?? 'item'),
+                        'items' => $definitionsByCode,
+                        'itemLevels' => $itemLevels,
+                        'optionLevels' => $optionLevels,
+                        'itemOptionLabels' => $itemOptionLabels,
+                        'ui' => [
+                            'itemRequired' => __('ui.admin.item_grant_item_required'),
+                        ],
+                    ]))"
+                    x-on:submit="if (! validateItems()) { $event.preventDefault(); }"
+                >
                     @csrf
                     @if ($offer) @method('PUT') @endif
                     <div class="grid gap-5 md:grid-cols-3">
-                        <label class="field-group"><span>{{ __('ui.admin.shop_offer_type') }}</span><select name="type">@foreach ($types as $type)<option value="{{ $type->value }}" @selected(old('type', $offer?->type->value ?? 'item') === $type->value)>{{ __('ui.admin.shop_offer_types.'.$type->value) }}</option>@endforeach</select></label>
+                        <label class="field-group"><span>{{ __('ui.admin.shop_offer_type') }}</span><select name="type" x-model="offerType">@foreach ($types as $type)<option value="{{ $type->value }}" @selected(old('type', $offer?->type->value ?? 'item') === $type->value)>{{ __('ui.admin.shop_offer_types.'.$type->value) }}</option>@endforeach</select></label>
                         <label class="field-group"><span>{{ __('ui.admin.shop_offer_class_scope') }}</span><select name="class_scope">@foreach ($classScopes as $scope)<option value="{{ $scope->value }}" @selected(old('class_scope', $offer?->class_scope->value ?? 'all') === $scope->value)>{{ __('ui.shop.class_scopes.'.$scope->value) }}</option>@endforeach</select></label>
                         <label class="field-group"><span>{{ __('ui.admin.shop_offer_status') }}</span><select name="status">@foreach ($statuses as $status)<option value="{{ $status->value }}" @selected(old('status', $offer?->status->value ?? 'draft') === $status->value)>{{ __('ui.admin.shop_offer_statuses.'.$status->value) }}</option>@endforeach</select></label>
                     </div>
@@ -48,19 +64,100 @@
                     </div>
 
                     <fieldset class="grid gap-4 border-t border-white/8 pt-6">
-                        <div class="flex items-center justify-between gap-4"><legend class="kicker">{{ __('ui.admin.shop_offer_items') }}</legend><button type="button" class="button button-ghost" @click="addItem()">{{ __('ui.admin.shop_offer_add_item') }}</button></div>
-                        <datalist id="shop-item-catalog">@foreach ($definitions as $definition)<option value="{{ $definition['code'] }}">{{ $definition['name'] }}</option>@endforeach</datalist>
-                        <template x-for="(item, index) in items" :key="index">
+                        <div class="flex items-center justify-between gap-4"><legend class="kicker">{{ __('ui.admin.shop_offer_items') }}</legend><button type="button" class="button button-ghost" x-show="offerType === 'mystery_box'" @click="addItem()">{{ __('ui.admin.shop_offer_add_item') }}</button></div>
+                        <template x-for="(item, index) in items" :key="item.key">
                             <div class="rounded-2xl border border-white/8 bg-black/20 p-4">
-                                <div class="grid gap-4 md:grid-cols-4">
-                                    <label class="field-group md:col-span-2"><span>{{ __('ui.admin.shop_offer_item') }}</span><input list="shop-item-catalog" x-bind:name="`items[${index}][item_code]`" x-model="item.item_code" placeholder="0:0" required></label>
-                                    <label class="field-group"><span>{{ __('ui.admin.shop_offer_level') }}</span><select x-bind:name="`items[${index}][level]`" x-model.number="item.level">@foreach ($itemLevels as $level)<option value="{{ $level }}">+{{ $level }}</option>@endforeach</select></label>
+                                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                    <div class="relative md:col-span-2 xl:col-span-3" x-on:click.outside="closeItemSuggestions(item)">
+                                        <input type="hidden" x-bind:name="`items[${index}][item_code]`" x-bind:value="item.item_code">
+                                        <label class="field-group">
+                                            <span>{{ __('ui.admin.shop_offer_item') }}</span>
+                                            <input
+                                                type="search"
+                                                x-bind:data-shop-item-key="item.key"
+                                                x-model="item.item_search"
+                                                x-on:input="filterItems(item)"
+                                                x-on:focus="item.item_suggestions_open = true"
+                                                x-on:keydown.down.prevent="moveItemSuggestion(item, 1)"
+                                                x-on:keydown.up.prevent="moveItemSuggestion(item, -1)"
+                                                x-on:keydown.enter.prevent="selectActiveItemSuggestion(item)"
+                                                autocomplete="off"
+                                                role="combobox"
+                                                aria-autocomplete="list"
+                                                x-bind:aria-controls="`shop-offer-item-suggestions-${item.key}`"
+                                                x-bind:aria-expanded="item.item_suggestions_open"
+                                                x-bind:aria-activedescendant="item.active_item_suggestion_index >= 0 ? `shop-offer-item-${item.key}-${item.active_item_suggestion_index}` : ''"
+                                                placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
+                                                required
+                                            >
+                                        </label>
+                                        <div
+                                            class="absolute inset-x-0 top-full z-30 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-white/10 bg-[#0d1016]/98 shadow-2xl backdrop-blur-xl"
+                                            x-bind:id="`shop-offer-item-suggestions-${item.key}`"
+                                            x-cloak
+                                            x-show="item.item_suggestions_open"
+                                            role="listbox"
+                                        >
+                                            <p x-show="itemSuggestions(item).length === 0" class="px-4 py-3 text-sm text-steel">{{ __('ui.admin.item_grant_item_empty') }}</p>
+                                            <template x-for="(definition, suggestionIndex) in itemSuggestions(item)" :key="definition.code">
+                                                <button
+                                                    type="button"
+                                                    class="flex w-full items-center gap-4 px-4 py-3 text-left transition hover:bg-white/[0.06]"
+                                                    x-bind:id="`shop-offer-item-${item.key}-${suggestionIndex}`"
+                                                    x-bind:class="item.active_item_suggestion_index === suggestionIndex ? 'bg-white/[0.08]' : ''"
+                                                    x-on:mouseenter="item.active_item_suggestion_index = suggestionIndex"
+                                                    x-on:click="selectItem(item, definition)"
+                                                    role="option"
+                                                    x-bind:aria-selected="item.item_code === definition.code"
+                                                >
+                                                    <span class="grid size-11 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
+                                                        <img x-show="definition.image" x-bind:src="definition.image" alt="" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]">
+                                                    </span>
+                                                    <strong class="text-sm text-white" x-text="definition.name"></strong>
+                                                </button>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <label class="field-group">
+                                        <span>{{ __('ui.admin.shop_offer_level') }}</span>
+                                        <select x-bind:name="`items[${index}][level]`" x-model.number="item.level">
+                                            <template x-for="itemLevel in itemLevels" :key="itemLevel">
+                                                <option x-bind:value="itemLevel" x-text="itemLevel === 0 ? '0' : `+${itemLevel}`"></option>
+                                            </template>
+                                        </select>
+                                    </label>
                                     <label class="field-group"><span>{{ __('ui.admin.shop_offer_durability') }}</span><input type="number" x-bind:name="`items[${index}][durability]`" x-model.number="item.durability" min="0" max="255" required></label>
-                                    <label class="field-group"><span>{{ __('ui.admin.shop_offer_option') }}</span><select x-bind:name="`items[${index}][option_level]`" x-model.number="item.option_level">@foreach ($optionLevels as $level)<option value="{{ $level }}">+{{ $level }}</option>@endforeach</select></label>
-                                    <label class="field-group"><span>{{ __('ui.admin.shop_offer_excellent_mask') }}</span><input type="number" x-bind:name="`items[${index}][excellent_mask]`" x-model.number="item.excellent_mask" min="0" max="63" required></label>
-                                    <label class="field-group"><span>{{ __('ui.admin.shop_offer_weight') }}</span><input type="number" x-bind:name="`items[${index}][weight]`" x-model.number="item.weight" min="1" required></label>
-                                    <div class="flex flex-wrap items-end gap-4 pb-2"><label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_skill]`" x-model="item.has_skill">{{ __('ui.admin.shop_offer_skill') }}</label><label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_luck]`" x-model="item.has_luck">{{ __('ui.admin.shop_offer_luck') }}</label></div>
+                                    <label class="field-group">
+                                        <span>{{ __('ui.admin.shop_offer_option') }}</span>
+                                        <select x-bind:name="`items[${index}][option_level]`" x-model.number="item.option_level">
+                                            <template x-for="option in additionalOptionChoices(item)" :key="option.value">
+                                                <option x-bind:value="option.value" x-text="option.label"></option>
+                                            </template>
+                                        </select>
+                                    </label>
+                                    <template x-if="offerType === 'mystery_box'">
+                                        <label class="field-group"><span>{{ __('ui.admin.shop_offer_weight') }}</span><input type="number" x-bind:name="`items[${index}][weight]`" x-model.number="item.weight" min="1" required></label>
+                                    </template>
+                                    <template x-if="offerType !== 'mystery_box'">
+                                        <input type="hidden" x-bind:name="`items[${index}][weight]`" value="1">
+                                    </template>
+                                    <div class="flex flex-wrap items-end gap-5 pb-2">
+                                        <label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_skill]`" x-model="item.has_skill">{{ __('ui.admin.shop_offer_skill') }}</label>
+                                        <label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_luck]`" x-model="item.has_luck">{{ __('ui.admin.shop_offer_luck') }}</label>
+                                    </div>
                                     <input type="hidden" x-bind:name="`items[${index}][ancient_option]`" value="0">
+                                    <input type="hidden" x-bind:name="`items[${index}][excellent_mask]`" x-bind:value="excellentMask(item)">
+                                    <fieldset class="grid gap-3 md:col-span-2 xl:col-span-3">
+                                        <legend class="text-sm font-semibold text-white">{{ __('ui.admin.item_grant_excellent_options') }}</legend>
+                                        <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                                            <template x-for="option in excellentOptions(item)" :key="option.bit">
+                                                <label class="flex items-start gap-3 rounded-xl border border-white/8 bg-black/15 p-3 text-sm text-silver">
+                                                    <input type="checkbox" x-model.number="item.excellent_option_bits" x-bind:value="option.bit">
+                                                    <span x-text="option.label"></span>
+                                                </label>
+                                            </template>
+                                        </div>
+                                    </fieldset>
                                 </div>
                                 <button type="button" class="mt-4 text-sm text-red-200" @click="removeItem(index)" x-show="items.length > 1">{{ __('ui.admin.shop_offer_remove_item') }}</button>
                             </div>

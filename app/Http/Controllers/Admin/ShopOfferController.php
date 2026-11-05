@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
 use App\Game\Versions\Version97d99i\ItemGrantRules97d99i;
+use App\Http\AccountPanelConfiguration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreShopOfferRequest;
 use App\Http\Requests\Admin\UpdateShopOfferRequest;
@@ -57,8 +58,14 @@ final class ShopOfferController extends Controller
     public function create(
         ItemCatalog97d99i $catalog,
         ItemGrantRules97d99i $rules,
+        AccountPanelConfiguration $accountPanelConfiguration,
     ): View {
-        return view('admin.shop-offers.form', $this->formData(null, $catalog, $rules));
+        return view('admin.shop-offers.form', $this->formData(
+            null,
+            $catalog,
+            $rules,
+            $accountPanelConfiguration,
+        ));
     }
 
     /**
@@ -96,10 +103,16 @@ final class ShopOfferController extends Controller
         ShopOffer $shopOffer,
         ItemCatalog97d99i $catalog,
         ItemGrantRules97d99i $rules,
+        AccountPanelConfiguration $accountPanelConfiguration,
     ): View {
         $shopOffer->load('items');
 
-        return view('admin.shop-offers.form', $this->formData($shopOffer, $catalog, $rules));
+        return view('admin.shop-offers.form', $this->formData(
+            $shopOffer,
+            $catalog,
+            $rules,
+            $accountPanelConfiguration,
+        ));
     }
 
     /**
@@ -139,19 +152,25 @@ final class ShopOfferController extends Controller
         ?ShopOffer $offer,
         ItemCatalog97d99i $catalog,
         ItemGrantRules97d99i $rules,
+        AccountPanelConfiguration $accountPanelConfiguration,
     ): array {
+        $definitions = array_map(static fn ($definition): array => [
+            'code' => $definition->code(),
+            'name' => $definition->name,
+            'image' => $definition->image,
+            'excellentType' => $definition->excellentType,
+            'optionType' => $definition->optionType,
+        ], $catalog->allDefinitions());
+
         return [
             'offer' => $offer,
-            'definitions' => array_map(static fn ($definition): array => [
-                'code' => $definition->code(),
-                'name' => $definition->name,
-                'image' => $definition->image,
-            ], $catalog->allDefinitions()),
+            'definitionsByCode' => array_column($definitions, null, 'code'),
             'types' => ShopOfferType::cases(),
             'classScopes' => app(GameVersionProfile::class)->shopClassScopes(),
             'statuses' => ShopOfferStatus::cases(),
             'itemLevels' => $rules->itemLevels(),
             'optionLevels' => $rules->optionLevels(),
+            'itemOptionLabels' => $accountPanelConfiguration->itemOptionLabels(),
         ];
     }
 }
