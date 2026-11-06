@@ -15,15 +15,22 @@
                 <div class="allocation-row">
                     <div>
                         <strong x-text="statDefinition.label"></strong>
-                        <span>
+                        <div class="mt-0.5 flex gap-1 text-xs text-steel">
                             <span x-text="selectedCharacter.stats[statDefinition.key].toLocaleString()"></span>
-                            <span class="text-gold" x-show="allocations[statDefinition.key] > 0">+ <span x-text="allocations[statDefinition.key]"></span></span>
-                        </span>
+                            <span
+                                class="text-gold"
+                                x-show="allocations[statDefinition.key] > 0"
+                                x-text="`+ ${allocations[statDefinition.key].toLocaleString()}`"
+                            ></span>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center justify-end gap-2">
                         <button type="button" class="step-button" @click="removePoints(statDefinition.key, 10)">−10</button>
+                        <button type="button" class="step-button" @click="removePoints(statDefinition.key, 1)">−1</button>
+                        <button type="button" class="step-button" @click="allocatePoints(statDefinition.key, 1)">+1</button>
                         <button type="button" class="step-button" @click="allocatePoints(statDefinition.key, 10)">+10</button>
                         <button type="button" class="step-button" @click="allocatePoints(statDefinition.key, 100)">+100</button>
+                        <button type="button" class="step-button" @click="allocatePoints(statDefinition.key, 1000)">+1000</button>
                     </div>
                 </div>
             </template>
