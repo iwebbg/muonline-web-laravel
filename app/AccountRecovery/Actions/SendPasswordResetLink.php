@@ -5,8 +5,10 @@ namespace App\AccountRecovery\Actions;
 use App\AccountCredentials\AccountCredentialStatus;
 use App\Game\Contracts\AccountPasswordRecoveryRepository;
 use App\Mail\GameAccountPasswordResetMail;
+use App\Mail\MailBranding;
 use App\Models\AccountPasswordRecoveryOperation;
 use App\Models\GameAccountPasswordReset;
+use App\Website\WebsiteSettingsManager;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Throwable;
@@ -21,6 +23,7 @@ final readonly class SendPasswordResetLink
      */
     public function __construct(
         private AccountPasswordRecoveryRepository $accountPasswordRecoveryRepository,
+        private WebsiteSettingsManager $websiteSettingsManager,
     ) {}
 
     /**
@@ -83,6 +86,9 @@ final readonly class SendPasswordResetLink
                         'token' => $rawToken,
                     ]),
                     expiresInMinutes: $expiresInMinutes,
+                    mailBranding: MailBranding::fromWebsiteSettings(
+                        $this->websiteSettingsManager->current(),
+                    ),
                 ));
         } catch (Throwable $exception) {
             $token->update(['used_at' => now()]);

@@ -1,4 +1,4 @@
-<x-mail::message>
+<x-mail::message :mail-branding="$mailBranding">
 # {{ __('ui.account.deletion_mail_heading') }}
 
 {{ __('ui.account.deletion_mail_intro', ['account' => $accountId]) }}
@@ -11,6 +11,6 @@
 
 {{ __('ui.account.deletion_mail_ignore') }}
 
-Thanks,<br>
-{{ config('app.name') }}
+{{ __('ui.recovery.mail_thanks') }},<br>
+{{ $mailBranding->senderName }}
 </x-mail::message>

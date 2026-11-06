@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -23,6 +24,7 @@ final class GameAccountActivationMail extends Mailable
         private readonly string $accountId,
         private readonly string $activationUrl,
         private readonly int $expiresInMinutes,
+        private readonly MailBranding $mailBranding,
     ) {}
 
     /**
@@ -31,6 +33,10 @@ final class GameAccountActivationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            from: new Address(
+                address: (string) config('mail.from.address'),
+                name: $this->mailBranding->senderName,
+            ),
             subject: __('ui.activation.mail_subject'),
         );
     }
@@ -46,6 +52,7 @@ final class GameAccountActivationMail extends Mailable
                 'accountId' => $this->accountId,
                 'activationUrl' => $this->activationUrl,
                 'expiresInMinutes' => $this->expiresInMinutes,
+                'mailBranding' => $this->mailBranding,
             ],
         );
     }

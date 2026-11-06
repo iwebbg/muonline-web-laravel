@@ -4,7 +4,9 @@ namespace App\AccountRegistration\Actions;
 
 use App\Game\Contracts\AccountPasswordRecoveryRepository;
 use App\Mail\GameAccountActivationMail;
+use App\Mail\MailBranding;
 use App\Models\GameAccountActivation;
+use App\Website\WebsiteSettingsManager;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Throwable;
@@ -19,6 +21,7 @@ final readonly class SendAccountActivationLink
      */
     public function __construct(
         private AccountPasswordRecoveryRepository $accountPasswordRecoveryRepository,
+        private WebsiteSettingsManager $websiteSettingsManager,
     ) {}
 
     /**
@@ -63,6 +66,9 @@ final readonly class SendAccountActivationLink
                         'token' => $rawToken,
                     ]),
                     expiresInMinutes: $expiresInMinutes,
+                    mailBranding: MailBranding::fromWebsiteSettings(
+                        $this->websiteSettingsManager->current(),
+                    ),
                 ));
         } catch (Throwable $exception) {
             $activation->update(['used_at' => now()]);

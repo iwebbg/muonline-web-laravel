@@ -1,4 +1,4 @@
-<x-mail::message>
+<x-mail::message :mail-branding="$mailBranding">
 # {{ __('ui.recovery.mail_heading') }}
 
 {{ __('ui.recovery.mail_intro', ['account' => $accountId]) }}
@@ -12,5 +12,5 @@
 {{ __('ui.recovery.mail_ignore') }}
 
 {{ __('ui.recovery.mail_thanks') }},<br>
-{{ config('app.name') }}
+{{ $mailBranding->senderName }}
 </x-mail::message>

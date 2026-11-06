@@ -7,7 +7,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\ConfirmAccountDeletionRequest;
 use App\Http\Requests\Account\StoreAccountDeletionRequest;
 use App\Mail\AccountDeletionCodeMail;
+use App\Mail\MailBranding;
 use App\Models\AccountDeletionRequest;
+use App\Website\WebsiteSettingsManager;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
@@ -24,6 +26,7 @@ final class AccountDeletionRequestController extends Controller
      */
     public function __construct(
         private readonly DatabaseManager $database,
+        private readonly WebsiteSettingsManager $websiteSettingsManager,
     ) {}
 
     /**
@@ -76,6 +79,9 @@ final class AccountDeletionRequestController extends Controller
                 accountId: $account->username,
                 verificationCode: $verificationCode,
                 expiresInMinutes: $expiresInMinutes,
+                mailBranding: MailBranding::fromWebsiteSettings(
+                    $this->websiteSettingsManager->current(),
+                ),
             ));
 
         return back()
