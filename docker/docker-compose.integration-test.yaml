@@ -84,6 +84,7 @@ services:
             - integration
         volumes:
             - ..:/var/www/html:ro
+            - composer-vendor:/var/www/html/vendor
         tmpfs:
             - /var/www/html/bootstrap/cache
             - /var/www/html/storage
@@ -94,4 +95,5 @@ networks:
         internal: true
 
 volumes:
+    composer-vendor:
     sqlserver-test-data:

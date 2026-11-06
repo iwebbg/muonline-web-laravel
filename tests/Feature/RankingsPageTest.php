@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -9,6 +10,8 @@ use Tests\TestCase;
  */
 final class RankingsPageTest extends TestCase
 {
+    use LazilyRefreshDatabase;
+
     /**
      * Confirms guests can browse version-normalized player and guild rankings.
      */

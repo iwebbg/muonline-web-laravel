@@ -51,7 +51,7 @@ if [ "${1:-}" = "test" ]; then
     compose_files+=(
         "$docker_directory/docker-compose.test.yaml"
     )
-    set -- run --rm --no-deps test composer test -- "${test_arguments[@]}"
+    set -- run --rm --build --no-deps test composer test -- "${test_arguments[@]}"
 elif [ "${1:-}" = "test-integration" ]; then
     shift
     test_arguments=("$@")
@@ -62,7 +62,7 @@ elif [ "${1:-}" = "test-integration" ]; then
         --project-name muonline-web-integration
     )
     integration_test=true
-    set -- run --rm integration-test composer test:integration -- "${test_arguments[@]}"
+    set -- run --rm --build integration-test composer test:integration -- "${test_arguments[@]}"
 fi
 
 compose_file_arguments=()
