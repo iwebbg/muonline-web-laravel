@@ -18,6 +18,8 @@ services:
             APP_DB_BOOTSTRAP: "false"
             APP_DEBUG: "false"
             APP_ENV: testing
+            APP_KEY: ${APP_KEY}
+            APP_NAME: ${APP_NAME}
             AUTO_MIGRATE: "false"
             CACHE_STORE: array
             COMPOSER_ROOT_VERSION: dev-main
@@ -39,13 +41,7 @@ services:
             MAIL_MAILER: array
             QUEUE_CONNECTION: sync
             SESSION_DRIVER: array
-        volumes:
-            - ..:/var/www/html:ro
-            - composer-vendor:/var/www/html/vendor
         tmpfs:
             - /var/www/html/bootstrap/cache
             - /var/www/html/storage
         command: ["composer", "test"]
-
-volumes:
-    composer-vendor:

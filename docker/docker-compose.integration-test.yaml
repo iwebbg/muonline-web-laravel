@@ -57,6 +57,8 @@ services:
             APP_CONFIG_CACHE: /tmp/muonline-web-laravel-integration-config.php
             APP_DEBUG: "false"
             APP_ENV: testing
+            APP_KEY: ${APP_KEY}
+            APP_NAME: ${APP_NAME}
             CACHE_STORE: array
             COMPOSER_ROOT_VERSION: dev-main
             CONTAINER_ROLE: test
@@ -82,9 +84,6 @@ services:
                 condition: service_completed_successfully
         networks:
             - integration
-        volumes:
-            - ..:/var/www/html:ro
-            - composer-vendor:/var/www/html/vendor
         tmpfs:
             - /var/www/html/bootstrap/cache
             - /var/www/html/storage
@@ -95,5 +94,4 @@ networks:
         internal: true
 
 volumes:
-    composer-vendor:
     sqlserver-test-data:

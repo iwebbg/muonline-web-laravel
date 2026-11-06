@@ -71,7 +71,16 @@ RUN composer install \
         --prefer-dist \
         --optimize-autoloader
 
-FROM test-dependencies AS testing
+FROM test-dependencies AS test-application
+
+COPY . .
+
+RUN composer dump-autoload \
+        --no-interaction \
+        --no-scripts \
+        --optimize
+
+FROM test-application AS testing
 
 ENV APP_ENV=testing
 ENV APP_DEBUG=false
@@ -82,7 +91,7 @@ RUN rm -f \
 
 CMD ["composer", "test"]
 
-FROM test-dependencies AS integration-testing
+FROM test-application AS integration-testing
 
 ENV APP_ENV=testing
 ENV APP_DEBUG=false
