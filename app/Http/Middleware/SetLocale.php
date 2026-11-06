@@ -17,9 +17,9 @@ class SetLocale
     public function handle(Request $request, Closure $next): Response
     {
         $defaultLocale = config('app.locale');
-        $supportedLocales = config('localization.supported');
+        $supportedLocales = config('localization.supported', []);
         $requestedLocale = $request->session()->get('locale', $defaultLocale);
-        $locale = in_array($requestedLocale, $supportedLocales, true)
+        $locale = is_string($requestedLocale) && array_key_exists($requestedLocale, $supportedLocales)
             ? $requestedLocale
             : config('app.fallback_locale');
 

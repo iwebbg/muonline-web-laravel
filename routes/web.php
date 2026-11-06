@@ -588,7 +588,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 });
 
 Route::post('/locale/{locale}', LocaleController::class)
-    ->whereIn('locale', config('localization.supported'))
+    ->whereIn('locale', array_keys(config('localization.supported', [])))
     ->name('locale.update');
 
 Route::any('{fallbackPlaceholder}', static function (): never {

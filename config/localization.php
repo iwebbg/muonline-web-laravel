@@ -2,7 +2,13 @@
 
 return [
     'supported' => [
-        'en',
-        'bg',
+        'en' => [
+            'label' => 'EN',
+            'name' => 'English',
+        ],
+        'bg' => [
+            'label' => 'BG',
+            'name' => 'Български',
+        ],
     ],
 ];

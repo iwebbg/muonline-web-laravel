@@ -140,6 +140,27 @@ class InteractiveShellTest extends TestCase
     }
 
     /**
+     * Confirms the language dropdown renders every locale from central configuration.
+     */
+    public function test_language_dropdown_renders_configured_locales(): void
+    {
+        config()->set('localization.supported.de', [
+            'label' => 'DE',
+            'name' => 'Deutsch',
+        ]);
+
+        $response = $this->get('/login');
+
+        $response
+            ->assertOk()
+            ->assertSee('language-selector-trigger', false)
+            ->assertSee(route('locale.update', 'en'), false)
+            ->assertSee(route('locale.update', 'bg'), false)
+            ->assertSee(route('locale.update', 'de'), false)
+            ->assertSee('Deutsch');
+    }
+
+    /**
      * Confirms that missing Bulgarian strings fall back to English.
      */
     public function test_missing_translation_falls_back_to_english(): void

@@ -140,31 +140,81 @@
         color: white;
     }
 
-    .language-switcher {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.2rem;
-        border: 1px solid rgb(255 255 255 / 0.1);
-        border-radius: 0.7rem;
-        background: rgb(255 255 255 / 0.035);
-        padding: 0.2rem;
+    .language-selector {
+        position: relative;
+        display: inline-block;
     }
 
-    .language-option {
-        min-width: 2.15rem;
-        border-radius: 0.48rem;
-        padding: 0.4rem 0.48rem;
-        color: var(--color-steel);
-        font-size: 0.65rem;
+    .language-selector-trigger {
+        display: inline-flex;
+        min-width: 4.6rem;
+        min-height: 2.65rem;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.65rem;
+        border: 1px solid rgb(255 255 255 / 0.1);
+        border-radius: 0.8rem;
+        background: rgb(255 255 255 / 0.035);
+        padding: 0.65rem 0.8rem;
+        color: var(--color-gold);
+        font-size: 0.68rem;
         font-weight: 800;
         letter-spacing: 0.08em;
+        transition: border-color 160ms ease, background-color 160ms ease, color 160ms ease;
+    }
+
+    .language-selector-trigger:hover,
+    .language-selector-trigger:focus-visible {
+        border-color: rgb(242 184 91 / 0.32);
+        background: rgb(242 184 91 / 0.08);
+        color: #ffd68f;
+    }
+
+    .language-selector-menu {
+        position: absolute;
+        top: calc(100% + 0.55rem);
+        z-index: 70;
+        width: 13rem;
+        overflow: hidden;
+        border: 1px solid rgb(255 255 255 / 0.11);
+        border-radius: 0.9rem;
+        background: rgb(13 15 20 / 0.98);
+        padding: 0.35rem;
+        box-shadow: 0 1.2rem 3rem rgb(0 0 0 / 0.5);
+        backdrop-filter: blur(1rem);
+    }
+
+    .language-selector-option {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        gap: 0.75rem;
+        border-radius: 0.65rem;
+        padding: 0.65rem 0.7rem;
+        color: var(--color-silver);
+        font-size: 0.78rem;
         transition: background-color 160ms ease, color 160ms ease;
     }
 
-    .language-option:hover,
-    .language-option-active {
+    .language-selector-option:hover,
+    .language-selector-option:focus-visible,
+    .language-selector-option-active {
         background: rgb(242 184 91 / 0.14);
+        color: white;
+    }
+
+    .language-selector-code {
+        display: grid;
+        width: 2.2rem;
+        height: 1.8rem;
+        place-items: center;
+        border: 1px solid rgb(242 184 91 / 0.2);
+        border-radius: 0.45rem;
+        background: rgb(242 184 91 / 0.08);
         color: var(--color-gold);
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 0.07em;
     }
 
     .button {

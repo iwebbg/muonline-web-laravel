@@ -77,18 +77,7 @@
                 </nav>
 
                 <div class="hidden items-center gap-3 sm:flex">
-                    <div class="language-switcher" role="group" aria-label="{{ __('ui.language.label') }}">
-                        @foreach (['en' => 'EN', 'bg' => 'BG'] as $locale => $label)
-                            <form method="POST" action="{{ route('locale.update', $locale) }}">
-                                @csrf
-                                <button
-                                    type="submit"
-                                    class="language-option {{ app()->isLocale($locale) ? 'language-option-active' : '' }}"
-                                    aria-pressed="{{ app()->isLocale($locale) ? 'true' : 'false' }}"
-                                >{{ $label }}</button>
-                            </form>
-                        @endforeach
-                    </div>
+                    <x-language-selector />
                     @if (auth('admin')->check())
                         <a href="{{ route('admin.dashboard') }}" class="button button-ghost max-w-40 truncate">
                             {{ auth('admin')->user()->name }}
@@ -163,18 +152,7 @@
                             <button type="submit" class="mobile-nav-link w-full text-left">{{ __('ui.navigation.logout') }}</button>
                         </form>
                     @endif
-                    <div class="language-switcher mt-3 w-fit" role="group" aria-label="{{ __('ui.language.label') }}">
-                        @foreach (['en' => 'EN', 'bg' => 'BG'] as $locale => $label)
-                            <form method="POST" action="{{ route('locale.update', $locale) }}">
-                                @csrf
-                                <button
-                                    type="submit"
-                                    class="language-option {{ app()->isLocale($locale) ? 'language-option-active' : '' }}"
-                                    aria-pressed="{{ app()->isLocale($locale) ? 'true' : 'false' }}"
-                                >{{ $label }}</button>
-                            </form>
-                        @endforeach
-                    </div>
+                    <x-language-selector align="left" class="mt-3 w-fit" />
                 </div>
             </nav>
         </header>

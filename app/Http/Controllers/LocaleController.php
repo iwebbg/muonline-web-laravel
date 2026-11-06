@@ -12,9 +12,9 @@ class LocaleController extends Controller
      */
     public function __invoke(Request $request, string $locale): RedirectResponse
     {
-        $supportedLocales = config('localization.supported');
+        $supportedLocales = config('localization.supported', []);
 
-        abort_unless(in_array($locale, $supportedLocales, true), 404);
+        abort_unless(array_key_exists($locale, $supportedLocales), 404);
 
         $request->session()->put('locale', $locale);
 
