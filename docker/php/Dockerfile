@@ -60,7 +60,27 @@ FROM php-base AS development
 
 ENV APP_ENV=local
 
-FROM development AS testing
+FROM development AS test-dependencies
+
+COPY composer.json composer.lock ./
+
+RUN composer install \
+        --no-interaction \
+        --no-progress \
+        --no-scripts \
+        --prefer-dist \
+        --optimize-autoloader
+
+FROM test-dependencies AS test-application
+
+COPY . .
+
+RUN composer dump-autoload \
+        --no-interaction \
+        --no-scripts \
+        --optimize
+
+FROM test-application AS testing
 
 ENV APP_ENV=testing
 ENV APP_DEBUG=false
@@ -71,7 +91,7 @@ RUN rm -f \
 
 CMD ["composer", "test"]
 
-FROM development AS integration-testing
+FROM test-application AS integration-testing
 
 ENV APP_ENV=testing
 ENV APP_DEBUG=false

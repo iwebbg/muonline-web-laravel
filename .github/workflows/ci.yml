@@ -1,0 +1,92 @@
+name: CI
+
+on:
+    pull_request:
+        branches:
+            - develop
+            - main
+    push:
+        branches:
+            - develop
+            - main
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ci-${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    branch-policy:
+        name: Branch policy
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+
+        steps:
+            - name: Require develop as the source for main
+              env:
+                  BASE_BRANCH: ${{ github.base_ref }}
+                  HEAD_BRANCH: ${{ github.head_ref }}
+                  HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+                  REPOSITORY: ${{ github.repository }}
+              run: |
+                  if [[ "$BASE_BRANCH" == "main" ]]; then
+                      if [[ "$HEAD_BRANCH" != "develop" || "$HEAD_REPOSITORY" != "$REPOSITORY" ]]; then
+                          echo "Pull requests into main must come from this repository's develop branch."
+                          exit 1
+                      fi
+                  fi
+
+    backend:
+        name: Backend
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+
+        steps:
+            - name: Check out the repository
+              uses: actions/checkout@v4
+              with:
+                  persist-credentials: false
+
+            - name: Prepare isolated test configuration
+              run: |
+                  cp .env.example .env
+                  sed -i 's|^APP_KEY=.*$|APP_KEY=base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=|' .env
+                  cp docker/.env.example docker/.env
+
+            - name: Validate Composer metadata and PHP formatting
+              run: |
+                  compose=(
+                      docker compose
+                      --project-directory docker
+                      --env-file .env
+                      --env-file docker/.env
+                      --file docker/docker-compose.local.yaml
+                      --file docker/docker-compose.test.yaml
+                  )
+
+                  "${compose[@]}" run --rm --no-deps test composer validate --strict --no-check-publish
+                  "${compose[@]}" run --rm --no-deps test vendor/bin/pint --test
+
+            - name: Run unit and feature tests
+              run: ./docker/compose test
+
+            - name: Run SQL Server integration tests
+              run: ./docker/compose test-integration
+
+    frontend:
+        name: Frontend
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+
+        steps:
+            - name: Check out the repository
+              uses: actions/checkout@v4
+              with:
+                  persist-credentials: false
+
+            - name: Build frontend assets with the production toolchain
+              run: docker build --file docker/php/Dockerfile --target frontend-build --tag muonline-web-frontend-check .
