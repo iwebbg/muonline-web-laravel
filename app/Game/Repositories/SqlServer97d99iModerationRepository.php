@@ -3,6 +3,7 @@
 namespace App\Game\Repositories;
 
 use App\Game\Contracts\ModerationRepository;
+use App\Game\GameAccountWriteStatus;
 use App\Moderation\Exceptions\ModerationRejected;
 use App\Moderation\ModerationAction;
 use App\Moderation\ModerationBlockReason;
@@ -117,7 +118,7 @@ final readonly class SqlServer97d99iModerationRepository implements ModerationRe
                 identifier: $identifier,
                 accountId: $identifier,
                 blocked: $controlCode === 1,
-                online: $onlineStatuses[$identifier] ?? false,
+                online: $onlineStatuses[$identifier] ?? true,
                 controlCode: $controlCode,
             );
         }
@@ -210,7 +211,7 @@ final readonly class SqlServer97d99iModerationRepository implements ModerationRe
                 identifier: (string) $row->identifier,
                 accountId: $accountId,
                 blocked: $controlCode === 1,
-                online: $onlineStatuses[$accountId] ?? false,
+                online: $onlineStatuses[$accountId] ?? true,
                 controlCode: $controlCode,
             );
         }
@@ -238,7 +239,9 @@ final readonly class SqlServer97d99iModerationRepository implements ModerationRe
         $statuses = [];
 
         foreach ($rows as $row) {
-            $statuses[(string) $row->memb___id] = (int) ($row->ConnectStat ?? 0) === 1;
+            $statuses[(string) $row->memb___id] = GameAccountWriteStatus::blocksWrites(
+                $row->ConnectStat ?? null,
+            );
         }
 
         return $statuses;
@@ -336,7 +339,7 @@ final readonly class SqlServer97d99iModerationRepository implements ModerationRe
                 ->lockForUpdate()
                 ->value('ConnectStat');
 
-            if ((int) ($connectStatus ?? 0) === 1) {
+            if (GameAccountWriteStatus::blocksWrites($connectStatus)) {
                 throw new ModerationRejected(ModerationBlockReason::TargetOnline);
             }
 

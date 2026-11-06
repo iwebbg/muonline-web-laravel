@@ -4,6 +4,7 @@ namespace App\Game\Repositories;
 
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Data\AccountCharacter;
+use App\Game\GameAccountWriteStatus;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Reset\ResetProfileSettings;
 use App\Stats\Actions\PreviewCharacterStatAllocation;
@@ -67,7 +68,7 @@ final readonly class SqlServer97d99iCharacterStatAllocationRepository implements
 
             $character = $this->mapCharacter(
                 row: $characterRow,
-                online: (int) ($connectStatus ?? 0) === 1,
+                online: GameAccountWriteStatus::blocksWrites($connectStatus),
             );
             $preview = $this->previewCharacterStatAllocation->handle(
                 character: $character,

@@ -4,6 +4,7 @@ namespace App\Game\Repositories;
 
 use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Data\ItemSlot;
+use App\Game\GameAccountWriteStatus;
 use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
 use App\Game\Versions\Version97d99i\ItemCodec97d99i;
 use App\Market\Exceptions\MarketListingRejected;
@@ -165,7 +166,7 @@ final readonly class SqlServer97d99iCharacterInventoryEscrowRepository implement
             ->lockForUpdate()
             ->first(['ConnectStat']);
 
-        if ((int) ($status->ConnectStat ?? 0) === 1) {
+        if (GameAccountWriteStatus::blocksWrites($status->ConnectStat ?? null)) {
             throw new MarketListingRejected(MarketListingBlockReason::CharacterOnline);
         }
     }

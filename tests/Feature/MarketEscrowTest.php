@@ -30,6 +30,7 @@ use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Query\Grammars\SqlServerGrammar;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Mockery;
+use PHPUnit\Framework\Attributes\DataProvider;
 use ReflectionMethod;
 use RuntimeException;
 use Tests\TestCase;
@@ -328,6 +329,48 @@ final class MarketEscrowTest extends TestCase
     }
 
     /**
+     * Confirms online and unknown statuses leave warehouse item bytes unchanged.
+     */
+    #[DataProvider('unsafeConnectionStatuses')]
+    public function test_adapter_rejects_warehouse_mutation_without_explicit_offline_status(
+        bool $createStatusRow,
+        ?int $connectStatus,
+    ): void {
+        $database = $this->configurePortableGameSchema(
+            slot: 5,
+            createStatusRow: $createStatusRow,
+            connectStatus: $connectStatus,
+        );
+        $repository = $this->repository($database);
+        $beforeWarehouse = $database->connection('game')->table('warehouse')->value('Items');
+
+        try {
+            $repository->extract('seller05', 0, 5, $this->itemBinary);
+            $this->fail('An account without explicit offline status must not mutate its warehouse.');
+        } catch (MarketListingRejected $exception) {
+            $this->assertSame(MarketListingBlockReason::CharacterOnline, $exception->reason);
+        }
+
+        $afterWarehouse = $database->connection('game')->table('warehouse')->value('Items');
+
+        $this->assertSame($beforeWarehouse, $afterWarehouse);
+    }
+
+    /**
+     * Provides every connection state that cannot prove an account is offline.
+     *
+     * @return array<string, array{bool, int|null}>
+     */
+    public static function unsafeConnectionStatuses(): array
+    {
+        return [
+            'online' => [true, 1],
+            'null status' => [true, null],
+            'missing status row' => [false, null],
+        ];
+    }
+
+    /**
      * Confirms game delivery rejects a vault without a free item rectangle.
      */
     public function test_adapter_rejects_deposit_when_game_vault_has_no_item_space(): void
@@ -478,8 +521,11 @@ final class MarketEscrowTest extends TestCase
     /**
      * Creates portable Darksteam status and warehouse tables with one item.
      */
-    private function configurePortableGameSchema(int $slot): DatabaseManager
-    {
+    private function configurePortableGameSchema(
+        int $slot,
+        bool $createStatusRow = true,
+        ?int $connectStatus = 0,
+    ): DatabaseManager {
         config()->set('database.connections.game', [
             'driver' => 'sqlite',
             'database' => ':memory:',
@@ -494,7 +540,12 @@ final class MarketEscrowTest extends TestCase
         $connection->statement('CREATE TABLE warehouse (AccountID TEXT PRIMARY KEY, Items BLOB NULL)');
         $warehouse = str_repeat("\xFF", 1200);
         $warehouse = substr_replace($warehouse, $this->itemBinary, $slot * 10, 10);
-        $connection->table('MEMB_STAT')->insert(['memb___id' => 'seller05', 'ConnectStat' => 0]);
+        if ($createStatusRow) {
+            $connection->table('MEMB_STAT')->insert([
+                'memb___id' => 'seller05',
+                'ConnectStat' => $connectStatus,
+            ]);
+        }
         $connection->table('warehouse')->insert(['AccountID' => 'seller05', 'Items' => $warehouse]);
 
         return $database;

@@ -3,6 +3,7 @@
 namespace App\Game\Repositories;
 
 use App\Game\Contracts\ZenBankRepository;
+use App\Game\GameAccountWriteStatus;
 use App\ZenBank\Exceptions\ZenBankRejected;
 use App\ZenBank\ZenBankBlockReason;
 use App\ZenBank\ZenProjectionResult;
@@ -91,7 +92,7 @@ final readonly class SqlServer97d99iZenBankRepository implements ZenBankReposito
             ->lockForUpdate()
             ->first(['ConnectStat']);
 
-        if ((int) ($status->ConnectStat ?? 0) === 1) {
+        if (GameAccountWriteStatus::blocksWrites($status->ConnectStat ?? null)) {
             throw new ZenBankRejected(ZenBankBlockReason::CharacterOnline);
         }
     }

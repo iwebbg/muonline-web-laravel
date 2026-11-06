@@ -4,6 +4,7 @@ namespace App\Game\Repositories;
 
 use App\Game\Contracts\CharacterResetRepository;
 use App\Game\Data\AccountCharacter;
+use App\Game\GameAccountWriteStatus;
 use App\Game\Versions\Version97d99i\CharacterBaseStats;
 use App\Game\Versions\Version97d99i\CharacterBaseStatsMapper;
 use App\Reset\Actions\PreviewCharacterReset;
@@ -67,7 +68,7 @@ final readonly class SqlServer97d99iCharacterResetRepository implements Characte
 
             $character = $this->mapCharacter(
                 row: $characterRow,
-                online: (int) ($connectStatus ?? 0) === 1,
+                online: GameAccountWriteStatus::blocksWrites($connectStatus),
             );
             $preview = $this->previewCharacterReset->handle(
                 character: $character,

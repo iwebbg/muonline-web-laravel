@@ -3,6 +3,7 @@
 namespace App\Game\Repositories;
 
 use App\Game\Contracts\CharacterVipRepository;
+use App\Game\GameAccountWriteStatus;
 use App\Vip\Exceptions\VipPurchaseRejected;
 use App\Vip\VipPurchaseBlockReason;
 use DateTimeInterface;
@@ -44,7 +45,7 @@ final readonly class SqlServer97d99iCharacterVipRepository implements CharacterV
                 ->lockForUpdate()
                 ->first(['ConnectStat']);
 
-            if ((int) ($accountStatus->ConnectStat ?? 0) === 1) {
+            if (GameAccountWriteStatus::blocksWrites($accountStatus->ConnectStat ?? null)) {
                 throw new VipPurchaseRejected(VipPurchaseBlockReason::CharacterOnline);
             }
 

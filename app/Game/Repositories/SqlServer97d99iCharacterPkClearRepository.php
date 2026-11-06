@@ -3,6 +3,7 @@
 namespace App\Game\Repositories;
 
 use App\Game\Contracts\CharacterPkClearRepository;
+use App\Game\GameAccountWriteStatus;
 use App\PkClear\Actions\PreviewCharacterPkClear;
 use App\PkClear\CharacterPkClearResult;
 use App\PkClear\CharacterPkState;
@@ -92,7 +93,7 @@ final readonly class SqlServer97d99iCharacterPkClearRepository implements Charac
                 pkLevel: (int) $characterRow->PkLevel,
                 pkCount: (int) $characterRow->PkCount,
                 pkTime: (int) $characterRow->PkTime,
-                online: (int) ($connectStatus ?? 0) === 1,
+                online: GameAccountWriteStatus::blocksWrites($connectStatus),
             );
             $preview = $this->previewCharacterPkClear->handle(
                 character: $character,
@@ -180,7 +181,7 @@ final readonly class SqlServer97d99iCharacterPkClearRepository implements Charac
             pkLevel: (int) $row->pk_level,
             pkCount: (int) $row->pk_count,
             pkTime: (int) $row->pk_time,
-            online: (int) ($row->connect_stat ?? 0) === 1,
+            online: GameAccountWriteStatus::blocksWrites($row->connect_stat ?? null),
         );
     }
 }

@@ -4,6 +4,7 @@ namespace App\Game\Repositories;
 
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Data\AccountCharacter;
+use App\Game\GameAccountWriteStatus;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Version97d99i\MapNameMapper;
 use Illuminate\Database\DatabaseManager;
@@ -135,7 +136,7 @@ final readonly class SqlServer97d99iAccountReadRepository implements AccountRead
             vitality: $stats['vitality'] ?? 0,
             energy: $stats['energy'] ?? 0,
             map: $this->mapNameMapper->nameFor((int) $row->map_number),
-            online: (int) ($row->connect_stat ?? 0) === 1,
+            online: GameAccountWriteStatus::blocksWrites($row->connect_stat ?? null),
             additionalStats: $additionalStats,
         );
     }

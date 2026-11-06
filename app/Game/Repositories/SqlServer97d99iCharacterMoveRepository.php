@@ -8,6 +8,7 @@ use App\CharacterMove\CharacterMoveBlockReason;
 use App\CharacterMove\CharacterMoveResult;
 use App\CharacterMove\Exceptions\CharacterMoveRejected;
 use App\Game\Contracts\CharacterMoveRepository;
+use App\Game\GameAccountWriteStatus;
 use App\Game\Versions\Version97d99i\MapNameMapper;
 use App\Reset\ResetProfileSettings;
 use Illuminate\Database\DatabaseManager;
@@ -92,7 +93,7 @@ final readonly class SqlServer97d99iCharacterMoveRepository implements Character
                 x: (int) $characterRow->MapPosX,
                 y: (int) $characterRow->MapPosY,
                 zen: (int) $characterRow->Money,
-                online: (int) ($connectStatus ?? 0) === 1,
+                online: GameAccountWriteStatus::blocksWrites($connectStatus),
             );
             $preview = $this->previewMoveToTown->handle($character, $settings);
 
@@ -174,7 +175,7 @@ final readonly class SqlServer97d99iCharacterMoveRepository implements Character
             x: (int) $row->map_x,
             y: (int) $row->map_y,
             zen: (int) $row->zen,
-            online: (int) ($row->connect_stat ?? 0) === 1,
+            online: GameAccountWriteStatus::blocksWrites($row->connect_stat ?? null),
         );
     }
 }
