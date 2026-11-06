@@ -35,6 +35,8 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
+        $this->withoutVite();
+
         config()->set('game.data_source', 'fixture');
         $this->app->bind(RealmReadRepository::class, FixtureRealmReadRepository::class);
     }
