@@ -10,6 +10,11 @@ A manual installation makes the server administrator responsible for matching
 those dependencies, running background processes, renewing TLS certificates,
 applying security updates and preserving writable-directory permissions.
 
+Keep the installation as a Git working copy and select either the latest
+`main` branch or a fixed release tag. The shared cloning, release-selection and
+update commands are documented in
+[Source control and release selection](installation.md#source-control-and-release-selection).
+
 ## Runtime requirements
 
 - Apache 2.4 with `mod_rewrite` and permission to use `.htaccess` files.

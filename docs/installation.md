@@ -23,10 +23,50 @@ creates and renews Let's Encrypt certificates and persists application storage.
   `MuOnline_Web` application database and, when enabled, live game data.
 - A dedicated MuOnline test server before enabling any write operation.
 
+## Source control and release selection
+
+Every installation should remain a Git working copy instead of being downloaded
+as a ZIP archive or copied manually between servers. Git records the exact
+application revision, makes updates reproducible and allows an operator to
+choose between the latest `main` branch and a published version tag.
+
+Clone the repository and enter the project directory:
+
+```bash
+git clone https://github.com/iwebbg/muonline-web-laravel.git
+cd muonline-web-laravel
+```
+
+The `main` branch contains the latest project changes. It is appropriate for
+development, testing and operators who deliberately want to follow current
+development:
+
+```bash
+git switch main
+git pull --ff-only origin main
+```
+
+Published version tags provide a fixed, reproducible application release and
+are recommended for production. Fetch the available tags, list them and switch
+to the selected release:
+
+```bash
+git fetch origin --tags --prune
+git tag --sort=-version:refname
+git switch --detach v1.2.3
+git describe --tags --exact-match
+```
+
+Replace `v1.2.3` with a tag that exists in the repository. The detached state
+is intentional for a tagged deployment: application files remain fixed at that
+release until the operator explicitly switches to a newer tag. Keep local
+configuration in the untracked `.env` files and do not edit tracked application
+files directly on the server.
+
 ## Local installation
 
-Clone the repository and enter its directory, then create the two environment
-files:
+After cloning the repository and selecting the desired branch or tag, create
+the two environment files:
 
 ```bash
 cp .env.example .env
@@ -409,11 +449,35 @@ production release.
 ## Updating
 
 Before updating, read the release notes, create both backups and keep game
-writes closed. Then pull the selected release, rebuild images, run
-`game:doctor`, apply application migrations and restart the stack:
+writes closed. Check that no tracked files have been modified locally:
 
 ```bash
-git pull --ff-only
+git status --short
+```
+
+Investigate and preserve any reported changes before continuing. To update an
+installation that follows the latest development, switch to `main` and perform
+a fast-forward-only pull:
+
+```bash
+git switch main
+git pull --ff-only origin main
+```
+
+To update a production installation to a published release, fetch the tags and
+switch to the selected newer tag instead. Replace `v1.2.4` with the release
+being deployed:
+
+```bash
+git fetch origin --tags --prune
+git switch --detach v1.2.4
+git describe --tags --exact-match
+```
+
+After selecting either `main` or a tag, rebuild the images, run `game:doctor`,
+apply application migrations and restart the stack:
+
+```bash
 ./docker/compose build
 ./docker/compose run --rm app php artisan game:doctor
 ./docker/compose run --rm app php artisan migrate --force --no-interaction
