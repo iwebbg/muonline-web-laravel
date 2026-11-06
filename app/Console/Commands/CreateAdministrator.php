@@ -29,7 +29,12 @@ final class CreateAdministrator extends Command
             'password_confirmation' => $passwordConfirmation,
         ];
         $validator = Validator::make($input, [
-            'name' => ['required', 'string', 'max:255'],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/\A[\x{0000}-\x{FFFF}]*\z/u',
+            ],
             'email' => ['required', 'email', 'max:255', 'unique:administrators,email'],
             'password' => [
                 'required',
@@ -40,6 +45,8 @@ final class CreateAdministrator extends Command
                     ->numbers()
                     ->symbols(),
             ],
+        ], [
+            'name.regex' => 'The administrator name must be valid UTF-8 and cannot contain emoji.',
         ]);
 
         if ($validator->fails()) {

@@ -111,6 +111,7 @@ Route::get('/server/status', ServerStatusController::class)
 
 Route::post('/payments/webhooks/{provider}', PaymentWebhookController::class)
     ->withoutMiddleware(PreventRequestForgery::class)
+    ->middleware('demo:blocked')
     ->whereIn('provider', ['stripe', 'paypal', 'revolut'])
     ->name('payments.webhooks');
 
@@ -152,6 +153,7 @@ Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
     ->name('password.request');
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
     ->middleware([
+        'demo:blocked',
         'module.enabled:'.ServerModule::PasswordRecovery->value,
         'throttle:password-recovery-link',
     ])
@@ -163,12 +165,14 @@ Route::get('/reset-password/{account}/{token}', [NewPasswordController::class, '
     ->name('password.reset');
 Route::post('/reset-password', [NewPasswordController::class, 'store'])
     ->middleware([
+        'demo:blocked',
         'module.enabled:'.ServerModule::PasswordRecovery->value,
         'throttle:password-recovery-reset',
     ])
     ->name('password.update');
 
 Route::get('/activate-account/{account}/{token}', GameAccountActivationController::class)
+    ->middleware('demo:blocked')
     ->where('account', '[A-Za-z0-9_-]{4,10}')
     ->where('token', '[A-Za-z0-9]{64}')
     ->name('account.activation');
@@ -179,6 +183,7 @@ Route::middleware('guest')->group(function (): void {
         ->name('register');
     Route::post('/register', [RegisteredAccountController::class, 'store'])
         ->middleware([
+            'demo:blocked',
             'module.enabled:'.ServerModule::Registration->value,
             'throttle:registration',
         ])
@@ -186,7 +191,7 @@ Route::middleware('guest')->group(function (): void {
     Route::get('/activate-account', [GameAccountActivationLinkController::class, 'create'])
         ->name('account.activation.request');
     Route::post('/activate-account', [GameAccountActivationLinkController::class, 'store'])
-        ->middleware('throttle:account-activation-link')
+        ->middleware(['demo:blocked', 'throttle:account-activation-link'])
         ->name('account.activation.email');
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
@@ -195,17 +200,17 @@ Route::middleware('guest')->group(function (): void {
         ->name('login.store');
 });
 
-Route::middleware('auth')->group(function (): void {
+Route::middleware(['auth', 'demo:account'])->group(function (): void {
     Route::get('/account', AccountDashboardController::class)
         ->name('account.dashboard');
     Route::get('/account/credits', CreditController::class)
         ->middleware('module.enabled:'.ServerModule::Credits->value)
         ->name('account.credits.index');
     Route::post('/account/credits/packages/{creditPackage}/purchase', CreditPurchaseController::class)
-        ->middleware(['module.enabled:'.ServerModule::Credits->value, 'throttle:credit-purchase'])
+        ->middleware(['demo:blocked', 'module.enabled:'.ServerModule::Credits->value, 'throttle:credit-purchase'])
         ->name('account.credit-packages.purchase');
     Route::get('/account/credits/payments/{creditPayment}/return', CreditPaymentReturnController::class)
-        ->middleware(['module.enabled:'.ServerModule::Credits->value, 'throttle:credit-purchase'])
+        ->middleware(['demo:blocked', 'module.enabled:'.ServerModule::Credits->value, 'throttle:credit-purchase'])
         ->name('account.credit-payments.return');
     Route::get('/account/rewards', [RewardController::class, 'index'])
         ->middleware('module.enabled:'.ServerModule::Rewards->value)
@@ -267,18 +272,21 @@ Route::middleware('auth')->group(function (): void {
         ->name('account.security.index');
     Route::put('/account/credentials', [AccountCredentialController::class, 'update'])
         ->middleware([
+            'demo:blocked',
             'module.enabled:'.ServerModule::AccountSecurity->value,
             'throttle:account-credentials',
         ])
         ->name('account.credentials.update');
     Route::post('/account/deletion-requests', [AccountDeletionRequestController::class, 'store'])
         ->middleware([
+            'demo:blocked',
             'module.enabled:'.ServerModule::AccountSecurity->value,
             'throttle:account-deletion',
         ])
         ->name('account.deletion-requests.store');
     Route::post('/account/deletion-requests/confirm', [AccountDeletionRequestController::class, 'confirm'])
         ->middleware([
+            'demo:blocked',
             'module.enabled:'.ServerModule::AccountSecurity->value,
             'throttle:account-deletion',
         ])
@@ -411,7 +419,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('login.store');
     });
 
-    Route::middleware('auth:admin')->group(function (): void {
+    Route::middleware(['auth:admin', 'demo:unsafe'])->group(function (): void {
         Route::get('/', AdminDashboardController::class)
             ->name('dashboard');
         Route::get('/audit-log', AdminAuditLogController::class)

@@ -1,0 +1,51 @@
+services:
+    test:
+        build:
+            context: ..
+            dockerfile: docker/php/Dockerfile
+            target: testing
+        restart: "no"
+        working_dir: /var/www/html
+        network_mode: none
+        cap_drop:
+            - ALL
+        security_opt:
+            - no-new-privileges:true
+        environment:
+            APP_CONFIG_CACHE: /tmp/muonline-web-laravel-test-config.php
+            APP_DB_ADMIN_PASSWORD: ""
+            APP_DB_ADMIN_USERNAME: ""
+            APP_DB_BOOTSTRAP: "false"
+            APP_DEBUG: "false"
+            APP_ENV: testing
+            AUTO_MIGRATE: "false"
+            CACHE_STORE: array
+            COMPOSER_ROOT_VERSION: dev-main
+            CONTAINER_ROLE: test
+            DB_CONNECTION: sqlite
+            DB_DATABASE: ":memory:"
+            DB_HOST: ""
+            DB_PASSWORD: ""
+            DB_URL: ""
+            DB_USERNAME: ""
+            GAME_DATA_SOURCE: fixture
+            GAME_DB_CONNECTION: sqlite
+            GAME_DB_HOST: ""
+            GAME_DB_MUONLINE: ":memory:"
+            GAME_DB_PASSWORD: ""
+            GAME_DB_RANKING: ":memory:"
+            GAME_DB_USERNAME: ""
+            GAME_WRITES_ENABLED: "false"
+            MAIL_MAILER: array
+            QUEUE_CONNECTION: sync
+            SESSION_DRIVER: array
+        volumes:
+            - ..:/var/www/html:ro
+            - composer-vendor:/var/www/html/vendor
+        tmpfs:
+            - /var/www/html/bootstrap/cache
+            - /var/www/html/storage
+        command: ["composer", "test"]
+
+volumes:
+    composer-vendor:

@@ -34,6 +34,20 @@ final class AdminEventScheduleTest extends TestCase
     }
 
     /**
+     * Confirms the event schedule workspace renders before any override is saved.
+     */
+    public function test_administrator_can_view_event_schedules_without_persisted_overrides(): void
+    {
+        $administrator = Administrator::factory()->create();
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get(route('admin.event-schedules.index'));
+
+        $response->assertOk();
+    }
+
+    /**
      * Confirms a valid explicit-time event is normalized and audited.
      */
     public function test_valid_event_is_created_with_normalized_schedule_and_audit(): void

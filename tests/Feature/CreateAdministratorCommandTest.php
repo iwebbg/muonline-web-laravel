@@ -38,6 +38,43 @@ final class CreateAdministratorCommandTest extends TestCase
     }
 
     /**
+     * Confirms that a Cyrillic administrator name is stored without corruption.
+     */
+    public function test_command_accepts_cyrillic_administrator_name(): void
+    {
+        $this->artisan('admin:create')
+            ->expectsQuestion('Administrator name', 'Стефан')
+            ->expectsQuestion('Administrator email', 'stefan@example.com')
+            ->expectsQuestion('Password', 'VeryStrong!Password123')
+            ->expectsQuestion('Confirm password', 'VeryStrong!Password123')
+            ->expectsOutput('Administrator created successfully.')
+            ->assertSuccessful();
+
+        $this->assertDatabaseHas('administrators', [
+            'name' => 'Стефан',
+            'email' => 'stefan@example.com',
+        ]);
+    }
+
+    /**
+     * Confirms that names unsupported by the SQL Server UCS-2 driver fail before insertion.
+     */
+    public function test_command_rejects_emoji_in_administrator_name(): void
+    {
+        $this->artisan('admin:create')
+            ->expectsQuestion('Administrator name', '👑Stefan')
+            ->expectsQuestion('Administrator email', 'stefan@example.com')
+            ->expectsQuestion('Password', 'VeryStrong!Password123')
+            ->expectsQuestion('Confirm password', 'VeryStrong!Password123')
+            ->expectsOutput('The administrator name must be valid UTF-8 and cannot contain emoji.')
+            ->assertFailed();
+
+        $this->assertDatabaseMissing('administrators', [
+            'email' => 'stefan@example.com',
+        ]);
+    }
+
+    /**
      * Confirms that a weak administrator password is rejected without a database write.
      */
     public function test_command_rejects_weak_administrator_password(): void

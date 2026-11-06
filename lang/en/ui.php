@@ -313,6 +313,11 @@ return [
             'message' => 'This area is beyond your permissions.',
             'description' => 'Your account is recognized, but it does not have access to the requested destination.',
         ],
+        'demo' => [
+            'title' => 'Demo mode',
+            'message' => 'This action is unavailable in the demo.',
+            'description' => 'The website is currently running in demo mode, so this change is not permitted.',
+        ],
         '404' => [
             'title' => 'Page not found',
             'message' => 'This path has vanished from the realm.',

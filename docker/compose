@@ -19,6 +19,8 @@ fi
 
 docker_environment="$(sed -n 's/^DOCKER_ENV=//p' "$docker_environment_file" | tail -n 1)"
 compose_files=()
+compose_project_arguments=()
+integration_test=false
 
 case "$docker_environment" in
     local)
@@ -43,6 +45,26 @@ case "$docker_environment" in
         ;;
 esac
 
+if [ "${1:-}" = "test" ]; then
+    shift
+    test_arguments=("$@")
+    compose_files+=(
+        "$docker_directory/docker-compose.test.yaml"
+    )
+    set -- run --rm --no-deps test composer test -- "${test_arguments[@]}"
+elif [ "${1:-}" = "test-integration" ]; then
+    shift
+    test_arguments=("$@")
+    compose_files=(
+        "$docker_directory/docker-compose.integration-test.yaml"
+    )
+    compose_project_arguments=(
+        --project-name muonline-web-integration
+    )
+    integration_test=true
+    set -- run --rm integration-test composer test:integration -- "${test_arguments[@]}"
+fi
+
 compose_file_arguments=()
 
 for compose_file in "${compose_files[@]}"; do
@@ -54,6 +76,7 @@ done
 compose_command=(
     docker compose
     --project-directory "$docker_directory"
+    "${compose_project_arguments[@]}"
     --env-file "$application_environment_file"
     --env-file "$docker_environment_file"
     "${compose_file_arguments[@]}"
@@ -74,5 +97,27 @@ compose_command=(
     printf ' %q' "${compose_command[@]}"
     printf '\n\n'
 } >&2
+
+if [ "$integration_test" = true ]; then
+    cleanup_command=(
+        docker compose
+        --project-directory "$docker_directory"
+        "${compose_project_arguments[@]}"
+        --env-file "$application_environment_file"
+        --env-file "$docker_environment_file"
+        "${compose_file_arguments[@]}"
+        down
+        --volumes
+        --remove-orphans
+    )
+
+    "${cleanup_command[@]}" >/dev/null 2>&1 || true
+
+    set +e
+    "${compose_command[@]}"
+    test_exit_code=$?
+    "${cleanup_command[@]}"
+    exit "$test_exit_code"
+fi
 
 exec "${compose_command[@]}"

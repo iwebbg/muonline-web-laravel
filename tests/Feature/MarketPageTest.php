@@ -72,6 +72,22 @@ final class MarketPageTest extends TestCase
     }
 
     /**
+     * Confirms the current-bids workspace stays hidden without active participation.
+     */
+    public function test_authenticated_market_page_hides_empty_current_bids_section(): void
+    {
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get(route('market.index'));
+
+        $response
+            ->assertOk()
+            ->assertDontSee('Your current bids')
+            ->assertDontSee('You are not participating in an active auction yet.')
+            ->assertDontSee('id="your-current-bids"', false);
+    }
+
+    /**
      * Confirms item-name search limits public results and preserves escaped rendering.
      */
     public function test_market_can_search_active_listings_by_item_name(): void

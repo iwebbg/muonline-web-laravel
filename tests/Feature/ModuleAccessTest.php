@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Auth\GameAccount;
+use App\Game\Contracts\AccountReadRepository;
 use App\Models\ModuleProfile;
 use App\Modules\ServerModule;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -33,6 +34,13 @@ final class ModuleAccessTest extends TestCase
      */
     public function test_web_shop_is_only_linked_from_account_navigation(): void
     {
+        $accountReadRepository = $this->mock(AccountReadRepository::class);
+        $accountReadRepository
+            ->shouldReceive('charactersFor')
+            ->once()
+            ->with('module05')
+            ->andReturn([]);
+
         $homeResponse = $this->get(route('home'));
         $accountResponse = $this
             ->actingAs($this->account('module05'))

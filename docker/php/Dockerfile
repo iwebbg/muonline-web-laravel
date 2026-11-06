@@ -44,6 +44,9 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/pear
 
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/99-muonline.ini
 COPY docker/php/entrypoint.sh /usr/local/bin/muonline-entrypoint
@@ -56,6 +59,24 @@ CMD ["php-fpm"]
 FROM php-base AS development
 
 ENV APP_ENV=local
+
+FROM development AS testing
+
+ENV APP_ENV=testing
+ENV APP_DEBUG=false
+
+RUN rm -f \
+        /usr/local/etc/php/conf.d/docker-php-ext-pdo_sqlsrv.ini \
+        /usr/local/etc/php/conf.d/docker-php-ext-sqlsrv.ini
+
+CMD ["composer", "test"]
+
+FROM development AS integration-testing
+
+ENV APP_ENV=testing
+ENV APP_DEBUG=false
+
+CMD ["composer", "test:integration"]
 
 FROM node:24-bookworm-slim AS frontend-build
 

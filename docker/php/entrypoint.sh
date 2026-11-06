@@ -36,7 +36,7 @@ if [ "$container_role" = "app" ] && [ ! -e public/storage ]; then
     php artisan storage:link --no-interaction
 fi
 
-if [ "${DB_CONNECTION:-}" = "sqlite" ]; then
+if [ "${DB_CONNECTION:-}" = "sqlite" ] && [ "${DB_DATABASE:-}" != ":memory:" ]; then
     database_path="${DB_DATABASE:-/var/www/html/database/database.sqlite}"
     database_directory="${database_path%/*}"
 

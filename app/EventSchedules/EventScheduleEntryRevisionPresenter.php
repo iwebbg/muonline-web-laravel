@@ -3,7 +3,7 @@
 namespace App\EventSchedules;
 
 use App\Models\EventScheduleEntryRevision;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 /**
  * Converts event schedule revisions into administrator-facing changes.

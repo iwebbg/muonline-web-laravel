@@ -101,9 +101,30 @@ Useful local commands:
 ./docker/compose ps
 ./docker/compose logs --follow app scheduler nginx
 ./docker/compose exec -T app php artisan about
-./docker/compose exec -T app php artisan test --compact
+./docker/compose test
 ./docker/compose down
 ```
+
+The test command creates a disposable container that has no network access and
+uses SQLite in memory. It never runs PHPUnit inside the long-running application
+container. Pass a file path or PHPUnit filter after the command for a narrow run:
+
+```bash
+./docker/compose test tests/Feature/MarketPageTest.php
+./docker/compose test --filter=test_authenticated_market_page
+```
+
+SQL Server adapter tests use a second disposable environment initialized from
+the committed `tests/Fixtures/SqlServer/97d99i-schema.sql` legacy schema. This
+environment has an internal-only Docker network, fixed test credentials and a
+temporary database volume that is removed after every run:
+
+```bash
+./docker/compose test-integration
+```
+
+See the dedicated [testing guide](testing.md) for isolation guarantees, narrow
+test commands, legacy schema handling and failure diagnosis.
 
 ### Automatic SQL Server application database first start
 
@@ -186,6 +207,41 @@ production `app` container and open `https://mu.example.com/admin/login` with
 your configured domain. Do not create administrator records manually in the
 database and do not reuse a game-account password.
 
+## Demo mode
+
+A public demonstration can expose the complete read experience while preventing
+visitors from changing administration, account identity or payment data. Enable
+the restriction and list the disposable game Account IDs that may execute real
+player operations:
+
+```dotenv
+DEMO_MODE=true
+DEMO_ACCOUNTS=test1,test2,test3
+```
+
+Account IDs are comma-separated, trimmed and matched without letter-case
+sensitivity. Listed accounts may use player operations such as resets, stat
+changes, storage, banks, Market and Web Shop. Other authenticated accounts may
+view the same pages and request non-persistent previews, but their write
+requests receive a localized `403` demo-mode response.
+
+Demo mode always blocks administrator mutations, registration, activation,
+password recovery, credential changes, account deletion and payment processing,
+including for a listed demo account. Administrator and player login, logout and
+language selection remain available. Keep payment providers disabled on a demo
+deployment and use only disposable game accounts and data.
+
+After changing either value, clear cached configuration and recreate long-running
+containers:
+
+```bash
+./docker/compose exec -T app php artisan optimize:clear
+./docker/compose up --detach --force-recreate
+```
+
+Set `DEMO_MODE=false` for a normal installation. An empty `DEMO_ACCOUNTS` value
+allows no account to execute player mutations while demo mode is active.
+
 ## Connecting a MuOnline database
 
 Keep fixture mode and both game-write switches closed until the website works
@@ -206,8 +262,8 @@ compatibility and privilege check:
 ```
 
 The first supported profile expects the DarksTeam 97d+99i schema. The
-application does not migrate or modify game-owned tables. `script.sql` is a
-reference export only and must not be passed to Laravel migrations.
+application does not migrate or modify game-owned tables. The SQL Server schema
+fixture is a reference export only and must not be passed to Laravel migrations.
 
 Use a dedicated SQL Server login with only the permissions required by the web
 adapter. The template at `docker/sql/create-game-web-login.sql` is the starting

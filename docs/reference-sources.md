@@ -26,9 +26,10 @@ unsafe examples and must never be copied into an installation.
 
 ## Schema reference in this repository
 
-The root `script.sql` file is a schema-only export used to document the current
-97d+99i database contract. It includes the game tables, view, stored procedures,
-indexes and defaults needed during adapter development.
+The `tests/Fixtures/SqlServer/97d99i-schema.sql` file is a schema-only export
+used to document the current 97d+99i database contract. It includes the game
+tables, view, stored procedures, indexes and defaults needed during adapter
+development.
 
 It contains no application migration and must never be executed automatically.
 Laravel migrations own only the web application's database objects. Game tables

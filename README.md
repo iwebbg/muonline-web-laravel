@@ -90,6 +90,7 @@ first start; the installation guide documents the temporary credential flow.
 - [Installation with Docker](docs/installation.md)
 - [Manual Apache installation (XAMPP, LAMP and similar stacks)](docs/installation-apache.md)
 - [Credits payments configuration](docs/payments.md)
+- [Testing and SQL Server integration tests](docs/testing.md)
 - [Complete feature catalogue](docs/features.md)
 - [Current implementation state](docs/current-state.md)
 - [Product and UX direction](docs/product-ux.md)
@@ -98,9 +99,10 @@ first start; the installation guide documents the temporary credential flow.
 - [Coding standards](docs/coding-standards.md)
 - [Contributor and agent instructions](AGENTS.md)
 
-The exported `script.sql` file is a schema reference for 97d+99i. It is not a
-Laravel migration and must never be executed automatically against a game
-database.
+The exported `tests/Fixtures/SqlServer/97d99i-schema.sql` file is a schema
+reference for 97d+99i. It is not a Laravel migration and must never be executed
+automatically against a configured game database. The isolated integration-test
+workflow may load it only into a new disposable SQL Server database.
 
 ## License
 

@@ -147,8 +147,9 @@ This project has domain-specific skills available in `.claude/skills/**`. You MU
 
 ## Running Tests
 
-- Run the narrowest set of tests that covers the change. Pass a file path or `--filter=testName` to `php artisan test --compact`.
+- Run tests only through the disposable, network-isolated test container with `./docker/compose test`. Never run PHPUnit inside the long-running `app` container.
+- Run the narrowest set of tests that covers the change. Pass a file path or `--filter=testName` after `./docker/compose test`.
+- Run SQL Server adapter integration tests with `./docker/compose test-integration`. This workflow may connect only to its disposable internal SQL Server service initialized from `tests/Fixtures/SqlServer/97d99i-schema.sql`.
 - Rerun a test after each change to it.
-- Run `vendor/bin/phpunit` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
 
 </laravel-boost-guidelines>

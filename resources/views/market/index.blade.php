@@ -30,7 +30,7 @@
         @endif
 
         @auth
-            @if ($auctionEnabled)
+            @if ($auctionEnabled && $currentBids->isNotEmpty())
                 <section id="your-current-bids" class="mt-8 scroll-mt-24">
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
@@ -41,7 +41,7 @@
                     </div>
 
                     <div class="mt-5 grid gap-4 lg:grid-cols-2">
-                        @forelse ($currentBids as $listing)
+                        @foreach ($currentBids as $listing)
                             @php($item = $listing->item_snapshot)
                             @php($isLeading = $listing->highest_bidder_account_id === $currentAccountId)
                             @php($nextBid = ($listing->highest_bid_credits ?? ($listing->minimum_bid_credits - $listing->bid_increment_credits)) + $listing->bid_increment_credits)
@@ -99,11 +99,7 @@
                                     @endif
                                 </div>
                             </article>
-                        @empty
-                            <div class="panel-card p-8 text-center text-steel lg:col-span-2">
-                                {{ __('ui.market.no_current_bids') }}
-                            </div>
-                        @endforelse
+                        @endforeach
                     </div>
 
                     @if ($currentBids->hasPages())

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnforceDemoMode;
 use App\Http\Middleware\EnsureAdministratorPermission;
 use App\Http\Middleware\EnsureFullAdministrator;
 use App\Http\Middleware\EnsureModuleEnabled;
@@ -19,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin.permission' => EnsureAdministratorPermission::class,
             'admin.full' => EnsureFullAdministrator::class,
+            'demo' => EnforceDemoMode::class,
             'module.enabled' => EnsureModuleEnabled::class,
         ]);
         $middleware->web(append: [

@@ -57,9 +57,22 @@ Useful verification commands:
 
 ```bash
 ./docker/compose exec -T app php artisan migrate --force
-./docker/compose exec -T app php artisan test --compact tests/Feature/RelevantTest.php
+./docker/compose test tests/Feature/RelevantTest.php
 ./docker/compose exec -T app php artisan view:clear
 vendor/bin/pint --dirty --format agent
+```
+
+Automated tests run only in a disposable container with no network access. The
+container uses SQLite in memory, mounts the source read-only and is removed as
+soon as PHPUnit exits. It is not part of the long-running application stack.
+
+SQL Server adapters have a separate integration workflow. It starts an internal
+SQL Server 2022 Developer container, loads the sanitized 97d+99i schema from
+`tests/Fixtures/SqlServer/97d99i-schema.sql`, runs only `tests/Integration`,
+then removes its containers and database volume:
+
+```bash
+./docker/compose test-integration
 ```
 
 ## Database ownership and write safety
@@ -72,8 +85,8 @@ and **MuOnline**, with distinct restricted logins:
 - A one-time **APP_DB_BOOTSTRAP=true** container start may use temporary
   administrator credentials to create **MuOnline_Web** and its runtime login.
   Those credentials are removed immediately after provisioning.
-- The exported `script.sql` and live MuOnline schema are external legacy
-  contracts and are never migrated by Laravel.
+- The exported `tests/Fixtures/SqlServer/97d99i-schema.sql` and live MuOnline
+  schema are external legacy contracts and are never migrated by Laravel.
 - Version adapters under `app/Game/Versions` and repositories under
   `app/Game/Repositories` isolate legacy table and binary-layout details.
 - All game mutations pass through typed actions and repository contracts.
