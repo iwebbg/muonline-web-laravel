@@ -77,10 +77,6 @@
                 </nav>
 
                 <div class="hidden items-center gap-3 sm:flex">
-                    <div class="status-pill">
-                        <span @class(['status-dot', 'status-dot-server-offline' => ! $gameServerOnline])></span>
-                        <span>{{ $gameServerOnline ? __('ui.navigation.server_online') : __('ui.navigation.server_offline') }}</span>
-                    </div>
                     <div class="language-switcher" role="group" aria-label="{{ __('ui.language.label') }}">
                         @foreach (['en' => 'EN', 'bg' => 'BG'] as $locale => $label)
                             <form method="POST" action="{{ route('locale.update', $locale) }}">
@@ -93,8 +89,18 @@
                             </form>
                         @endforeach
                     </div>
-                    @auth
-                        <a href="{{ route('account.dashboard') }}" class="button button-ghost">{{ auth()->user()->username }}</a>
+                    @if (auth('admin')->check())
+                        <a href="{{ route('admin.dashboard') }}" class="button button-ghost max-w-40 truncate">
+                            {{ auth('admin')->user()->name }}
+                        </a>
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button type="submit" class="button button-primary">{{ __('ui.navigation.logout') }}</button>
+                        </form>
+                    @elseif (auth('web')->check())
+                        <a href="{{ route('account.dashboard') }}" class="button button-ghost max-w-40 truncate">
+                            {{ auth('web')->user()->username }}
+                        </a>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="button button-primary">{{ __('ui.navigation.logout') }}</button>
@@ -104,7 +110,7 @@
                             <a href="{{ route('register') }}" class="button button-ghost">{{ __('ui.navigation.register') }}</a>
                         @endif
                         <a href="{{ route('login') }}" class="button button-primary">{{ __('ui.navigation.enter_account') }}</a>
-                    @endauth
+                    @endif
                 </div>
 
                 <button
@@ -137,18 +143,26 @@
                     @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
                         <a href="{{ route('market.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.market') }}</a>
                     @endif
-                    <a href="{{ auth()->check() ? route('account.dashboard') : route('login') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.account_panel') }}</a>
-                    @guest
+                    <a href="{{ auth('web')->check() ? route('account.dashboard') : route('login') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.account_panel') }}</a>
+                    @if (! auth('admin')->check() && ! auth('web')->check())
                         @if ($moduleManager->enabled(\App\Modules\ServerModule::Registration))
                         <a href="{{ route('register') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.register') }}</a>
                         @endif
-                    @endguest
-                    @auth
+                    @endif
+                    @if (auth('admin')->check())
+                        <a href="{{ route('admin.dashboard') }}" class="mobile-nav-link" @click="closeMobileMenu">
+                            {{ auth('admin')->user()->name }}
+                        </a>
+                        <form method="POST" action="{{ route('admin.logout') }}">
+                            @csrf
+                            <button type="submit" class="mobile-nav-link w-full text-left">{{ __('ui.navigation.logout') }}</button>
+                        </form>
+                    @elseif (auth('web')->check())
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit" class="mobile-nav-link w-full text-left">{{ __('ui.navigation.logout') }}</button>
                         </form>
-                    @endauth
+                    @endif
                     <div class="language-switcher mt-3 w-fit" role="group" aria-label="{{ __('ui.language.label') }}">
                         @foreach (['en' => 'EN', 'bg' => 'BG'] as $locale => $label)
                             <form method="POST" action="{{ route('locale.update', $locale) }}">

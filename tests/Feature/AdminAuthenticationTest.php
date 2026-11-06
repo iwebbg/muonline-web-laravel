@@ -139,6 +139,26 @@ final class AdminAuthenticationTest extends TestCase
     }
 
     /**
+     * Confirms the shared header displays the administrator and uses its isolated logout route.
+     */
+    public function test_administrator_header_uses_administrator_identity_and_logout(): void
+    {
+        $administrator = Administrator::factory()->create([
+            'name' => 'Server Owner',
+        ]);
+
+        $response = $this
+            ->actingAs($administrator, 'admin')
+            ->get('/admin');
+
+        $response
+            ->assertOk()
+            ->assertSee('Server Owner')
+            ->assertSee('action="'.route('admin.logout').'"', false)
+            ->assertDontSee('action="'.route('logout').'"', false);
+    }
+
+    /**
      * Confirms that administrator logout destroys the privileged browser session.
      */
     public function test_administrator_can_log_out(): void

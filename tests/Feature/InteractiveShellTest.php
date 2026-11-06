@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Game\Contracts\GameServerStatus;
 use App\Game\Contracts\RealmClock;
 use DateTimeImmutable;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -12,6 +13,8 @@ use Tests\TestCase;
  */
 class InteractiveShellTest extends TestCase
 {
+    use LazilyRefreshDatabase;
+
     /**
      * Confirms that the public server page exposes its interactive content.
      */
@@ -32,6 +35,8 @@ class InteractiveShellTest extends TestCase
         $response->assertSee('ranking-showcase-card', false);
         $response->assertSee('ranking-showcase-card-champion', false);
         $response->assertSee('guild-mark', false);
+        $response->assertDontSee('status-pill', false);
+        $response->assertSee('online-badge', false);
         $response->assertSee('Blood Castle');
         $response->assertSee('eventSchedule(', false);
         $response->assertSee('Server event schedule');

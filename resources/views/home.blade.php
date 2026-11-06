@@ -366,4 +366,37 @@
             </div>
         </div>
     </section>
+
+    @if ($latestNews->isNotEmpty())
+        <section class="shell py-14 lg:pb-20">
+            <div class="section-heading">
+                <div>
+                    <p class="kicker">{{ __('ui.home.news_kicker') }}</p>
+                    <h2>{{ __('ui.home.latest_news') }}</h2>
+                </div>
+                <a href="{{ route('news.index') }}" class="button button-ghost">
+                    {{ __('ui.home.view_all_news') }}
+                </a>
+            </div>
+
+            <div class="mt-8 grid gap-5 lg:grid-cols-3">
+                @foreach ($latestNews as $post)
+                    <article class="panel-card flex flex-col p-6 sm:p-7">
+                        <time class="kicker" datetime="{{ $post->published_at?->toAtomString() }}">
+                            {{ $post->published_at?->translatedFormat('d M Y') }}
+                        </time>
+                        <h3 class="mt-4 font-display text-3xl text-white">
+                            {{ $post->localizedTitle(app()->getLocale()) }}
+                        </h3>
+                        <p class="mt-4 flex-1 leading-7 text-silver">
+                            {{ $post->localizedExcerpt(app()->getLocale()) }}
+                        </p>
+                        <a href="{{ route('news.show', $post->slug) }}" class="mt-6 inline-flex items-center gap-2 font-semibold text-gold hover:text-amber-200">
+                            {{ __('ui.news.read_more') }} <span aria-hidden="true">→</span>
+                        </a>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+    @endif
 @endsection

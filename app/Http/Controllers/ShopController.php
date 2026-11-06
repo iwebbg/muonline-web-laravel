@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Auth\GameAccount;
 use App\Economy\WalletCurrency;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Http\AccountPanelConfiguration;
 use App\Models\AccountWallet;
 use App\Models\ShopOffer;
+use App\Models\ShopOfferItem;
 use App\Shop\ShopClassScope;
+use App\Shop\ShopItemPresenter;
 use App\Shop\ShopOfferType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -18,6 +21,14 @@ use Illuminate\View\View;
  */
 final class ShopController extends Controller
 {
+    /**
+     * Creates the catalog controller with trusted item metadata and tooltip labels.
+     */
+    public function __construct(
+        private readonly ShopItemPresenter $shopItemPresenter,
+        private readonly AccountPanelConfiguration $accountPanelConfiguration,
+    ) {}
+
     /**
      * Returns available offers filtered by compatible class family.
      */
@@ -71,9 +82,20 @@ final class ShopController extends Controller
 
         $offers = $offersQuery->paginate(18)->withQueryString();
         $purchaseKeys = [];
+        $itemPresentations = [];
 
         foreach ($offers as $offer) {
             $purchaseKeys[$offer->public_id] = (string) Str::uuid();
+
+            if ($type === ShopOfferType::Item) {
+                $item = $offer->items->first();
+
+                if ($item instanceof ShopOfferItem) {
+                    $itemPresentations[$offer->public_id] = $this->shopItemPresenter->present(
+                        $item->snapshot(),
+                    );
+                }
+            }
         }
 
         return view('shop.index', [
@@ -83,6 +105,8 @@ final class ShopController extends Controller
             'selectedClassScope' => $classScope,
             'balance' => (int) $balance,
             'purchaseKeys' => $purchaseKeys,
+            'itemPresentations' => $itemPresentations,
+            'itemOptionLabels' => $this->accountPanelConfiguration->itemOptionLabels(),
         ]);
     }
 }

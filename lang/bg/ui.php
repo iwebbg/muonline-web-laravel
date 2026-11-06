@@ -25,8 +25,6 @@ return [
         'account_panel' => 'Акаунт панел',
         'admin' => 'Админ',
         'administration' => 'Администрация',
-        'server_online' => 'Сървърът е онлайн',
-        'server_offline' => 'Сървърът е офлайн',
         'register' => 'Регистрация',
         'enter_account' => 'Влез в акаунта',
         'logout' => 'Изход',
@@ -539,6 +537,9 @@ return [
         'score' => 'точки',
         'members' => 'членове',
         'online_status' => 'Онлайн',
+        'news_kicker' => 'Вести от света',
+        'latest_news' => 'Последни новини',
+        'view_all_news' => 'Всички новини',
     ],
     'shop' => [
         'items_title' => 'Items Shop · MuOnline Web',

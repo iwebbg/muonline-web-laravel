@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Account;
 
 use App\Auth\GameAccount;
+use App\Http\AccountPanelConfiguration;
 use App\Http\Controllers\Controller;
 use App\Models\AccountReward;
 use App\Shop\AccountRewardStatus;
 use App\Shop\Actions\FulfillAccountReward;
 use App\Shop\Actions\OpenAccountReward;
 use App\Shop\Exceptions\RewardOpenRejected;
+use App\Shop\ShopItemPresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -21,8 +23,11 @@ final class RewardController extends Controller
     /**
      * Returns the account's unopened, pending and delivered reward history.
      */
-    public function index(Request $request): View
-    {
+    public function index(
+        Request $request,
+        ShopItemPresenter $shopItemPresenter,
+        AccountPanelConfiguration $accountPanelConfiguration,
+    ): View {
         $account = $request->user();
 
         abort_unless($account instanceof GameAccount, 403);
@@ -31,8 +36,21 @@ final class RewardController extends Controller
             ->where('account_id', $account->username)
             ->latest('id')
             ->paginate(20);
+        $itemPresentations = [];
 
-        return view('account.rewards', ['rewards' => $rewards]);
+        foreach ($rewards as $reward) {
+            if (is_array($reward->selected_item_snapshot)) {
+                $itemPresentations[$reward->public_id] = $shopItemPresenter->present(
+                    $reward->selected_item_snapshot,
+                );
+            }
+        }
+
+        return view('account.rewards', [
+            'rewards' => $rewards,
+            'itemPresentations' => $itemPresentations,
+            'itemOptionLabels' => $accountPanelConfiguration->itemOptionLabels(),
+        ]);
     }
 
     /**

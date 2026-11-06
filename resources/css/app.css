@@ -1138,6 +1138,17 @@
         transform: translate(-50%, 0);
     }
 
+    .shop-item-preview:hover .item-tooltip,
+    .shop-item-preview:focus-visible .item-tooltip {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    .shop-item-preview:focus-visible {
+        outline: 1px solid rgb(242 184 91 / 0.4);
+        outline-offset: 0.25rem;
+    }
+
     .market-item-card {
         position: relative;
     }

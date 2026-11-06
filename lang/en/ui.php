@@ -25,8 +25,6 @@ return [
         'account_panel' => 'Account panel',
         'admin' => 'Admin',
         'administration' => 'Administration',
-        'server_online' => 'Server online',
-        'server_offline' => 'Server offline',
         'register' => 'Register',
         'enter_account' => 'Enter account',
         'logout' => 'Log out',
@@ -539,6 +537,9 @@ return [
         'score' => 'score',
         'members' => 'members',
         'online_status' => 'Online',
+        'news_kicker' => 'From the realm',
+        'latest_news' => 'Latest news',
+        'view_all_news' => 'View all news',
     ],
     'shop' => [
         'items_title' => 'Items Shop · MuOnline Web',

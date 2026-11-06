@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Auth\GameAccount;
 use App\Models\AccountReward;
 use App\Shop\AccountRewardStatus;
 use App\Shop\Actions\OpenAccountReward;
@@ -17,6 +18,33 @@ use Tests\TestCase;
 final class RewardInventoryTest extends TestCase
 {
     use LazilyRefreshDatabase;
+
+    /**
+     * Confirms revealed delivery items expose the shared item option tooltip.
+     */
+    public function test_reward_delivery_history_renders_the_shared_item_tooltip(): void
+    {
+        AccountReward::factory()->create([
+            'account_id' => 'owner04',
+            'status' => AccountRewardStatus::Claimed,
+            'selected_item_snapshot' => [
+                ...$this->rewardItem('0:0', 'Kris'),
+                'level' => 11,
+                'has_luck' => true,
+                'excellent_mask' => 1,
+            ],
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('owner04'))
+            ->get(route('account.rewards.index'));
+
+        $response
+            ->assertOk()
+            ->assertSee('shop-item-preview', false)
+            ->assertSee('itemInspector(', false)
+            ->assertSee('item-tooltip', false);
+    }
 
     /**
      * Confirms opening a box persists one result and never rerolls it on replay.
@@ -110,5 +138,21 @@ final class RewardInventoryTest extends TestCase
             'ancient_option' => 0,
             'weight' => 1,
         ];
+    }
+
+    /**
+     * Creates one authenticated fixture-backed game account.
+     */
+    private function account(string $username): GameAccount
+    {
+        return new GameAccount(
+            guid: 1,
+            username: $username,
+            displayName: $username,
+            email: null,
+            blocked: false,
+            vip: false,
+            password: 'secret1',
+        );
     }
 }

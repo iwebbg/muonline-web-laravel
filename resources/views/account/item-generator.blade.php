@@ -112,20 +112,20 @@
                             <span>{{ __('ui.admin.item_grant_durability') }}</span>
                             <input type="number" name="durability" x-model.number="durability" min="0" max="255" required>
                         </label>
-                        <label class="field-group">
-                            <span>{{ __('ui.admin.item_grant_option_level') }}</span>
-                            <select name="option_level" x-model.number="optionLevel" required>
-                                <template x-for="option in additionalOptionChoices" :key="option.value">
-                                    <option x-bind:value="option.value" x-text="option.label"></option>
-                                </template>
-                            </select>
-                        </label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <label class="flex items-center gap-3 rounded-xl border border-white/8 p-3 text-sm text-silver">
+                        <div class="grid gap-3 sm:col-span-2 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-end">
+                            <label class="field-group">
+                                <span>{{ __('ui.admin.item_grant_option_level') }}</span>
+                                <select name="option_level" x-model.number="optionLevel" required>
+                                    <template x-for="option in additionalOptionChoices" :key="option.value">
+                                        <option x-bind:value="option.value" x-text="option.label"></option>
+                                    </template>
+                                </select>
+                            </label>
+                            <label class="flex min-h-11 items-center gap-3 rounded-xl border border-white/8 px-4 py-3 text-sm text-silver">
                                 <input type="checkbox" name="has_skill" value="1" x-model="hasSkill" x-bind:disabled="selectedItem?.allowsSkill === false">
                                 {{ __('ui.admin.item_grant_skill') }}
                             </label>
-                            <label class="flex items-center gap-3 rounded-xl border border-white/8 p-3 text-sm text-silver">
+                            <label class="flex min-h-11 items-center gap-3 rounded-xl border border-white/8 px-4 py-3 text-sm text-silver">
                                 <input type="checkbox" name="has_luck" value="1" x-model="hasLuck" x-bind:disabled="selectedItem?.allowsLuck === false">
                                 {{ __('ui.admin.item_grant_luck') }}
                             </label>

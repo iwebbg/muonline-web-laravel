@@ -86,16 +86,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer(
-            ['layouts.app', 'home', 'auth.login'],
+            ['home', 'auth.login'],
             function (LaravelView $view): void {
                 $gameServerStatus = $this->app->make(GameServerStatus::class);
 
                 $view->with('gameServerOnline', $gameServerStatus->isOnline());
+            },
+        );
+        View::composer(
+            ['layouts.app', 'home'],
+            function (LaravelView $view): void {
+                $websiteSettings = $this->app->make(WebsiteSettingsManager::class)->current();
 
-                if (in_array($view->name(), ['layouts.app', 'home'], true)) {
-                    $websiteSettings = $this->app->make(WebsiteSettingsManager::class)->current();
-                    $view->with('websiteSettings', $websiteSettings);
-                }
+                $view->with('websiteSettings', $websiteSettings);
 
                 if ($view->name() !== 'layouts.app') {
                     return;

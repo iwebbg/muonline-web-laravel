@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Content\NewsPostStatus;
+use App\Content\NewsPostType;
 use App\Game\Contracts\GameServerStatus;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Events\EventProfileReader;
 use App\Game\Events\EventSchedule;
+use App\Models\NewsPost;
 use App\Servers\GameServerDirectory;
 use DateTimeZone;
 use Illuminate\Contracts\View\View;
@@ -77,6 +80,15 @@ class PreviewController extends Controller
             'players' => $players,
             'guilds' => $guilds,
         ];
+        $latestNews = NewsPost::query()
+            ->where('type', NewsPostType::News)
+            ->where('status', NewsPostStatus::Published)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->latest('published_at')
+            ->latest('id')
+            ->limit(3)
+            ->get();
 
         return view('home', [
             'server' => $server,
@@ -87,6 +99,7 @@ class PreviewController extends Controller
             'eventServerNow' => $serverNow->format(DATE_ATOM),
             'eventTimezone' => $eventTimezone->getName(),
             'rankings' => $rankings,
+            'latestNews' => $latestNews,
         ]);
     }
 }

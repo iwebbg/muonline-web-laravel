@@ -18,7 +18,13 @@
         <section class="mt-8 grid gap-5 lg:grid-cols-2">
             @forelse ($rewards as $reward)
                 @php($item = $reward->selected_item_snapshot)
-                <article class="panel-card p-6">
+                @php($itemPresentation = $itemPresentations[$reward->public_id] ?? null)
+                <article
+                    class="panel-card p-6"
+                    @if ($itemPresentation !== null)
+                        x-data="itemInspector(@js($itemOptionLabels), @js($itemPresentation))"
+                    @endif
+                >
                     <div class="flex items-start justify-between gap-5">
                         <div>
                             <div class="flex flex-wrap items-center gap-3">
@@ -31,10 +37,21 @@
                                 <p class="mt-2 text-xs font-semibold text-sky-100">{{ __('ui.shop.mystery_reward_modes.'.$reward->mystery_box_reward_mode->value) }}</p>
                             @endif
                         </div>
-                        @if (is_array($item) && ($item['item_image'] ?? null))
-                            <img src="{{ asset($item['item_image']) }}" alt="" class="size-16 object-contain">
+                        @if ($itemPresentation !== null)
+                            <div
+                                class="shop-item-preview relative grid size-16 shrink-0 place-items-center"
+                                tabindex="0"
+                                aria-label="{{ $item['item_name'] ?? __('ui.rewards.hidden_item') }}"
+                            >
+                                @if (($item['item_image'] ?? null))
+                                    <img src="{{ asset($item['item_image']) }}" alt="" class="size-16 object-contain">
+                                @else
+                                    <span class="grid size-16 place-items-center rounded-2xl border border-gold/25 bg-gold/8 font-display text-2xl text-gold" aria-hidden="true">?</span>
+                                @endif
+                                <x-item-tooltip item="item" />
+                            </div>
                         @else
-                            <div class="grid size-16 shrink-0 place-items-center rounded-2xl border border-gold/25 bg-gold/8 font-display text-2xl text-gold">?</div>
+                            <div class="grid size-16 shrink-0 place-items-center rounded-2xl border border-gold/25 bg-gold/8 font-display text-2xl text-gold" aria-hidden="true">?</div>
                         @endif
                     </div>
                     <div class="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-white/8 pt-5">

@@ -15,6 +15,57 @@ final class NewsPageTest extends TestCase
     use LazilyRefreshDatabase;
 
     /**
+     * Confirms the home page displays only the three newest public articles.
+     */
+    public function test_home_displays_three_latest_published_news_articles(): void
+    {
+        NewsPost::factory()->published()->create([
+            'slug' => 'oldest-public-news',
+            'title_en' => 'Oldest public news',
+            'published_at' => now()->subDays(4),
+        ]);
+        NewsPost::factory()->published()->create([
+            'slug' => 'third-latest-news',
+            'title_en' => 'Third latest news',
+            'published_at' => now()->subDays(3),
+        ]);
+        NewsPost::factory()->published()->create([
+            'slug' => 'second-latest-news',
+            'title_en' => 'Second latest news',
+            'published_at' => now()->subDays(2),
+        ]);
+        NewsPost::factory()->published()->create([
+            'slug' => 'latest-news',
+            'title_en' => 'Latest public news',
+            'published_at' => now()->subDay(),
+        ]);
+        NewsPost::factory()->create([
+            'slug' => 'private-home-news',
+            'title_en' => 'Private home news',
+        ]);
+        NewsPost::factory()->create([
+            'slug' => 'future-home-news',
+            'title_en' => 'Future home news',
+            'status' => NewsPostStatus::Published,
+            'published_at' => now()->addDay(),
+        ]);
+
+        $response = $this->get('/');
+
+        $response
+            ->assertOk()
+            ->assertSee('Latest news')
+            ->assertSeeInOrder([
+                'Latest public news',
+                'Second latest news',
+                'Third latest news',
+            ])
+            ->assertDontSee('Oldest public news')
+            ->assertDontSee('Private home news')
+            ->assertDontSee('Future home news');
+    }
+
+    /**
      * Confirms only currently published articles appear in public routes.
      */
     public function test_public_news_hides_drafts_and_future_articles(): void

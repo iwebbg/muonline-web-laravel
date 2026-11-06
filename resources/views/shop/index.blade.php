@@ -39,11 +39,28 @@
         <section class="mt-7 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             @forelse ($offers as $offer)
                 @php($item = $type === \App\Shop\ShopOfferType::Item ? $offer->items->first() : null)
-                <article class="panel-card flex min-h-72 flex-col p-6">
+                @php($itemPresentation = $itemPresentations[$offer->public_id] ?? null)
+                <article
+                    class="panel-card flex min-h-72 flex-col p-6"
+                    @if ($itemPresentation !== null)
+                        x-data="itemInspector(@js($itemOptionLabels), @js($itemPresentation))"
+                    @endif
+                >
                     <div class="flex items-start justify-between gap-4">
                         <span class="resource-chip">{{ __('ui.shop.class_scopes.'.$offer->class_scope->value) }}</span>
-                        @if ($item?->item_image)
-                            <img src="{{ asset($item->item_image) }}" alt="" class="size-16 object-contain" loading="lazy">
+                        @if ($itemPresentation !== null)
+                            <div
+                                class="shop-item-preview relative grid size-16 place-items-center"
+                                tabindex="0"
+                                aria-label="{{ $item->item_name }}"
+                            >
+                                @if ($item->item_image)
+                                    <img src="{{ asset($item->item_image) }}" alt="" class="size-16 object-contain" loading="lazy">
+                                @else
+                                    <span class="grid size-16 place-items-center rounded-2xl border border-gold/25 bg-gold/8 font-display text-2xl text-gold" aria-hidden="true">?</span>
+                                @endif
+                                <x-item-tooltip item="item" />
+                            </div>
                         @else
                             <div class="grid size-16 place-items-center rounded-2xl border border-gold/25 bg-gold/8 font-display text-2xl text-gold" aria-hidden="true">?</div>
                         @endif
@@ -58,7 +75,7 @@
                             {{ __('ui.shop.mystery_reward_modes.'.$offer->mystery_box_reward_mode->value) }}
                         </p>
                     @elseif ($item)
-                        <p class="mt-3 text-sm text-gold">{{ $item->item_name }}{{ $item->level > 0 ? ' +'.$item->level : '' }}</p>
+                        <p class="mt-3 mb-4 text-sm text-gold">{{ $item->item_name }}{{ $item->level > 0 ? ' +'.$item->level : '' }}</p>
                     @endif
                     <div class="mt-auto flex items-end justify-between gap-4 border-t border-white/8 pt-5">
                         <div><span class="block text-xs uppercase tracking-[0.14em] text-steel">{{ __('ui.shop.price') }}</span><strong class="mt-1 block text-xl text-white">{{ number_format($offer->price_credits) }} Credits</strong></div>

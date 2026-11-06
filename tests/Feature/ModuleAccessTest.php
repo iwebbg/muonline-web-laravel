@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Auth\GameAccount;
 use App\Game\Contracts\AccountReadRepository;
 use App\Models\ModuleProfile;
+use App\Models\ShopOffer;
+use App\Models\ShopOfferItem;
 use App\Modules\ServerModule;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -76,6 +78,36 @@ final class ModuleAccessTest extends TestCase
             ->assertSee(route('account.item-generator.index'), false)
             ->assertDontSee(route('shop.mystery-boxes.index'), false)
             ->assertDontSee(route('account.rewards.index'), false);
+    }
+
+    /**
+     * Confirms item offers expose the shared option tooltip without revealing mystery rewards.
+     */
+    public function test_item_shop_renders_the_shared_item_tooltip(): void
+    {
+        $offer = ShopOffer::factory()->create([
+            'title_en' => 'Excellent Kris',
+        ]);
+        ShopOfferItem::factory()
+            ->for($offer, 'offer')
+            ->create([
+                'item_code' => '0:0',
+                'item_name' => 'Kris',
+                'level' => 11,
+                'has_luck' => true,
+                'excellent_mask' => 1,
+            ]);
+
+        $response = $this
+            ->actingAs($this->account('module07'))
+            ->get(route('shop.items.index'));
+
+        $response
+            ->assertOk()
+            ->assertSee('shop-item-preview', false)
+            ->assertSee('itemInspector(', false)
+            ->assertSee('item-tooltip', false)
+            ->assertSee('Kris +11', false);
     }
 
     /**
