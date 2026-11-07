@@ -1,0 +1,3542 @@
+{
+    "0:0": {
+        "group": 0,
+        "index": 0,
+        "name": "Kris",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/0000.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:1": {
+        "group": 0,
+        "index": 1,
+        "name": "Short Sword",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/0001.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:2": {
+        "group": 0,
+        "index": 2,
+        "name": "Rapier",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/0002.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:3": {
+        "group": 0,
+        "index": 3,
+        "name": "Katana",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/0003.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:4": {
+        "group": 0,
+        "index": 4,
+        "name": "Sword of Assassin",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/0004.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:5": {
+        "group": 0,
+        "index": 5,
+        "name": "Blade",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/0005.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:6": {
+        "group": 0,
+        "index": 6,
+        "name": "Gladius",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/0006.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:7": {
+        "group": 0,
+        "index": 7,
+        "name": "Falchion",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/0007.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:8": {
+        "group": 0,
+        "index": 8,
+        "name": "Serpent Sword",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/0008.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:9": {
+        "group": 0,
+        "index": 9,
+        "name": "Sword of Salamander",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/0009.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:10": {
+        "group": 0,
+        "index": 10,
+        "name": "Light Saber",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/00010.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:11": {
+        "group": 0,
+        "index": 11,
+        "name": "Legendary Sword",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/00011.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:12": {
+        "group": 0,
+        "index": 12,
+        "name": "Heliacal Sword",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/00012.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:13": {
+        "group": 0,
+        "index": 13,
+        "name": "Double Blade",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/00013.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:14": {
+        "group": 0,
+        "index": 14,
+        "name": "Lighting Sword",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/00014.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:15": {
+        "group": 0,
+        "index": 15,
+        "name": "Giant Sword",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/00015.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:16": {
+        "group": 0,
+        "index": 16,
+        "name": "Sword of Destruction",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/00016.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:17": {
+        "group": 0,
+        "index": 17,
+        "name": "Dark Breaker",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/00017.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:18": {
+        "group": 0,
+        "index": 18,
+        "name": "Thunder Blade",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/00018.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:19": {
+        "group": 0,
+        "index": 19,
+        "name": "Divine Sword of Archangel",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/00019.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:20": {
+        "group": 0,
+        "index": 20,
+        "name": "Knight blade",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/00020.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:21": {
+        "group": 0,
+        "index": 21,
+        "name": "Death Blade",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/00021.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "0:31": {
+        "group": 0,
+        "index": 31,
+        "name": "Death Broad",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/00031.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "1:0": {
+        "group": 1,
+        "index": 0,
+        "name": "Small Axe",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/1000.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "1:1": {
+        "group": 1,
+        "index": 1,
+        "name": "Hand Axe",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/1001.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "1:2": {
+        "group": 1,
+        "index": 2,
+        "name": "Double Axe",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/1002.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "1:3": {
+        "group": 1,
+        "index": 3,
+        "name": "Tomahawk",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/1003.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "1:4": {
+        "group": 1,
+        "index": 4,
+        "name": "Elven Axe",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/1004.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "1:5": {
+        "group": 1,
+        "index": 5,
+        "name": "Battle Axe",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/1005.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "1:6": {
+        "group": 1,
+        "index": 6,
+        "name": "Axe of Nike",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/1006.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "1:7": {
+        "group": 1,
+        "index": 7,
+        "name": "Larkan Axe",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/1007.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "1:8": {
+        "group": 1,
+        "index": 8,
+        "name": "Cresent Axe",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/1008.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:0": {
+        "group": 2,
+        "index": 0,
+        "name": "Mace",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/2000.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:1": {
+        "group": 2,
+        "index": 1,
+        "name": "Morning Star",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/2001.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:2": {
+        "group": 2,
+        "index": 2,
+        "name": "Flail",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/2002.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:3": {
+        "group": 2,
+        "index": 3,
+        "name": "Great Hammer",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/2003.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:4": {
+        "group": 2,
+        "index": 4,
+        "name": "Crystal Morning Star",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/2004.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:5": {
+        "group": 2,
+        "index": 5,
+        "name": "Crystal Sword",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/2005.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:6": {
+        "group": 2,
+        "index": 6,
+        "name": "Chaos Dragon Axe",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/2006.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:7": {
+        "group": 2,
+        "index": 7,
+        "name": "Elemental Mace",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/2007.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:8": {
+        "group": 2,
+        "index": 8,
+        "name": "Battle Scepter",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/2008.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:9": {
+        "group": 2,
+        "index": 9,
+        "name": "Master Scepter",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/2009.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:10": {
+        "group": 2,
+        "index": 10,
+        "name": "Great Scepter",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/20010.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:11": {
+        "group": 2,
+        "index": 11,
+        "name": "Lord Scepter",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/20011.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "2:12": {
+        "group": 2,
+        "index": 12,
+        "name": "Great Lord Scepter",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/20012.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:0": {
+        "group": 3,
+        "index": 0,
+        "name": "Light Spear",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/3000.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:1": {
+        "group": 3,
+        "index": 1,
+        "name": "Spear",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/3001.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:2": {
+        "group": 3,
+        "index": 2,
+        "name": "Dragon Lance",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/3002.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:3": {
+        "group": 3,
+        "index": 3,
+        "name": "Giant Trident",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/3003.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:4": {
+        "group": 3,
+        "index": 4,
+        "name": "Serpent Spear",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/3004.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:5": {
+        "group": 3,
+        "index": 5,
+        "name": "Double Poleaxe",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/3005.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:6": {
+        "group": 3,
+        "index": 6,
+        "name": "Halberd",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/3006.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:7": {
+        "group": 3,
+        "index": 7,
+        "name": "Berdysh",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/3007.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:8": {
+        "group": 3,
+        "index": 8,
+        "name": "Great Scythe",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/3008.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:9": {
+        "group": 3,
+        "index": 9,
+        "name": "Balrog's Scythe",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/3009.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "3:10": {
+        "group": 3,
+        "index": 10,
+        "name": "Dragon Spear",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/30010.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:0": {
+        "group": 4,
+        "index": 0,
+        "name": "Short Bow",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/4000.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:1": {
+        "group": 4,
+        "index": 1,
+        "name": "Bow",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/4001.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:2": {
+        "group": 4,
+        "index": 2,
+        "name": "Elven Bow",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/4002.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:3": {
+        "group": 4,
+        "index": 3,
+        "name": "Battle Bow",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/4003.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:4": {
+        "group": 4,
+        "index": 4,
+        "name": "Tiger Bow",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/4004.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:5": {
+        "group": 4,
+        "index": 5,
+        "name": "Silver Bow",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/4005.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:6": {
+        "group": 4,
+        "index": 6,
+        "name": "Chaos Nature Bow",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/4006.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:7": {
+        "group": 4,
+        "index": 7,
+        "name": "Arrow for Crossbow",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/4007.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:8": {
+        "group": 4,
+        "index": 8,
+        "name": "Crossbow",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/4008.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:9": {
+        "group": 4,
+        "index": 9,
+        "name": "Golden Crossbow",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/4009.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:10": {
+        "group": 4,
+        "index": 10,
+        "name": "Arquebus",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/40010.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:11": {
+        "group": 4,
+        "index": 11,
+        "name": "Light Crossbow",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/40011.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:12": {
+        "group": 4,
+        "index": 12,
+        "name": "Serpent Crossbow",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/40012.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:13": {
+        "group": 4,
+        "index": 13,
+        "name": "Bluewing Crossbow",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/40013.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:14": {
+        "group": 4,
+        "index": 14,
+        "name": "Aquagold Crossbow",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/40014.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:15": {
+        "group": 4,
+        "index": 15,
+        "name": "Arrow",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/40015.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:16": {
+        "group": 4,
+        "index": 16,
+        "name": "Saint Crossbow",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/40016.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:17": {
+        "group": 4,
+        "index": 17,
+        "name": "Holy Sight Bow",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/40017.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:18": {
+        "group": 4,
+        "index": 18,
+        "name": "Divine Crossbow of Archangel",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/40018.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:19": {
+        "group": 4,
+        "index": 19,
+        "name": "Greatrain Crossbow",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/40019.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "4:20": {
+        "group": 4,
+        "index": 20,
+        "name": "Arrow Viper Bow",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/40020.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:0": {
+        "group": 5,
+        "index": 0,
+        "name": "Skull Staff",
+        "width": 1,
+        "height": 3,
+        "image": "/images/items/1_0m/5000.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:1": {
+        "group": 5,
+        "index": 1,
+        "name": "Angelic Staff",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/5001.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:2": {
+        "group": 5,
+        "index": 2,
+        "name": "Serpent Staff",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/5002.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:3": {
+        "group": 5,
+        "index": 3,
+        "name": "Lighting Staff",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/5003.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:4": {
+        "group": 5,
+        "index": 4,
+        "name": "Gorgon Staff",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/5004.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:5": {
+        "group": 5,
+        "index": 5,
+        "name": "Legendary Staff",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/5005.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:6": {
+        "group": 5,
+        "index": 6,
+        "name": "Staff of Resurrection",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/5006.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:7": {
+        "group": 5,
+        "index": 7,
+        "name": "Chaos Lighting Staff",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/5007.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:8": {
+        "group": 5,
+        "index": 8,
+        "name": "Staff of Destruction",
+        "width": 2,
+        "height": 4,
+        "image": "/images/items/1_0m/5008.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:9": {
+        "group": 5,
+        "index": 9,
+        "name": "Dragon Soul Staff",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/5009.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:10": {
+        "group": 5,
+        "index": 10,
+        "name": "Divine Staff of Archangel",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/50010.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "5:11": {
+        "group": 5,
+        "index": 11,
+        "name": "Staff of Kundun",
+        "width": 1,
+        "height": 4,
+        "image": "/images/items/1_0m/50011.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "6:0": {
+        "group": 6,
+        "index": 0,
+        "name": "Round Shield",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/6000.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:1": {
+        "group": 6,
+        "index": 1,
+        "name": "Horn Shield",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/6001.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:2": {
+        "group": 6,
+        "index": 2,
+        "name": "Kite Shield",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/6002.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:3": {
+        "group": 6,
+        "index": 3,
+        "name": "Elven Shield",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/6003.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:4": {
+        "group": 6,
+        "index": 4,
+        "name": "Buckler",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/6004.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:5": {
+        "group": 6,
+        "index": 5,
+        "name": "Dragon Slayer Shiled",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/6005.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:6": {
+        "group": 6,
+        "index": 6,
+        "name": "Skull Shield",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/6006.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:7": {
+        "group": 6,
+        "index": 7,
+        "name": "Spiked Shileld",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/6007.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:8": {
+        "group": 6,
+        "index": 8,
+        "name": "Tower Shield",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/6008.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:9": {
+        "group": 6,
+        "index": 9,
+        "name": "Plate Shiled",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/6009.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:10": {
+        "group": 6,
+        "index": 10,
+        "name": "Large Round Shiled",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/60010.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:11": {
+        "group": 6,
+        "index": 11,
+        "name": "Serpent Shiled",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/60011.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:12": {
+        "group": 6,
+        "index": 12,
+        "name": "Bronze Shileld",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/60012.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:13": {
+        "group": 6,
+        "index": 13,
+        "name": "Dragon Shield",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/60013.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:14": {
+        "group": 6,
+        "index": 14,
+        "name": "Legendary Shield",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/60014.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:15": {
+        "group": 6,
+        "index": 15,
+        "name": "Grand Soul Shield",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/60015.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "6:16": {
+        "group": 6,
+        "index": 16,
+        "name": "Elemental Shield",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/60016.gif",
+        "excellentType": 1,
+        "optionType": 2
+    },
+    "7:0": {
+        "group": 7,
+        "index": 0,
+        "name": "Bronze Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/7000.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:1": {
+        "group": 7,
+        "index": 1,
+        "name": "Dragon Helm",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/7001.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:2": {
+        "group": 7,
+        "index": 2,
+        "name": "Pad Helm",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/7002.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:3": {
+        "group": 7,
+        "index": 3,
+        "name": "Legendary Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/7003.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:4": {
+        "group": 7,
+        "index": 4,
+        "name": "Bone Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/7004.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:5": {
+        "group": 7,
+        "index": 5,
+        "name": "Leather Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/7005.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:6": {
+        "group": 7,
+        "index": 6,
+        "name": "Scale Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/7006.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:7": {
+        "group": 7,
+        "index": 7,
+        "name": "Sphinx Mask",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/7007.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:8": {
+        "group": 7,
+        "index": 8,
+        "name": "Brass Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/7008.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:9": {
+        "group": 7,
+        "index": 9,
+        "name": "Plate Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/7009.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:10": {
+        "group": 7,
+        "index": 10,
+        "name": "Vine Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70010.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:11": {
+        "group": 7,
+        "index": 11,
+        "name": "Silk Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70011.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:12": {
+        "group": 7,
+        "index": 12,
+        "name": "Wind Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70012.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:13": {
+        "group": 7,
+        "index": 13,
+        "name": "Spirit Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70013.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:14": {
+        "group": 7,
+        "index": 14,
+        "name": "Guardian Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70014.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:16": {
+        "group": 7,
+        "index": 16,
+        "name": "Black Dragon Helm",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70016.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:17": {
+        "group": 7,
+        "index": 17,
+        "name": "Dark Phoenix Helm",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70017.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:18": {
+        "group": 7,
+        "index": 18,
+        "name": "Grand Soul Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70018.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:19": {
+        "group": 7,
+        "index": 19,
+        "name": "Holy Sprit Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70019.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:21": {
+        "group": 7,
+        "index": 21,
+        "name": "Great Dragon Helm",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70021.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:22": {
+        "group": 7,
+        "index": 22,
+        "name": "Black soul Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70022.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:24": {
+        "group": 7,
+        "index": 24,
+        "name": "Red Spirit Helmet",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70024.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:25": {
+        "group": 7,
+        "index": 25,
+        "name": "Round Mask",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70025.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:26": {
+        "group": 7,
+        "index": 26,
+        "name": "Dark Soul Mask",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70026.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:27": {
+        "group": 7,
+        "index": 27,
+        "name": "Dark Breeze Mask",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70027.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "7:28": {
+        "group": 7,
+        "index": 28,
+        "name": "Dark Master Mask",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/70028.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:0": {
+        "group": 8,
+        "index": 0,
+        "name": "Bronze Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/8000.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:1": {
+        "group": 8,
+        "index": 1,
+        "name": "Dragon Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/8001.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:2": {
+        "group": 8,
+        "index": 2,
+        "name": "Pad Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/8002.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:3": {
+        "group": 8,
+        "index": 3,
+        "name": "Legendary Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/8003.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:4": {
+        "group": 8,
+        "index": 4,
+        "name": "Bone Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/8004.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:5": {
+        "group": 8,
+        "index": 5,
+        "name": "Leathre Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/8005.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:6": {
+        "group": 8,
+        "index": 6,
+        "name": "Scale Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/8006.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:7": {
+        "group": 8,
+        "index": 7,
+        "name": "Sphinx Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/8007.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:8": {
+        "group": 8,
+        "index": 8,
+        "name": "Brass Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/8008.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:9": {
+        "group": 8,
+        "index": 9,
+        "name": "Plate Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/8009.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:10": {
+        "group": 8,
+        "index": 10,
+        "name": "Vine Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/80010.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:11": {
+        "group": 8,
+        "index": 11,
+        "name": "Silk Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/80011.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:12": {
+        "group": 8,
+        "index": 12,
+        "name": "Wind Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/80012.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:13": {
+        "group": 8,
+        "index": 13,
+        "name": "Spirit Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/80013.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:14": {
+        "group": 8,
+        "index": 14,
+        "name": "Guardian Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/80014.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:15": {
+        "group": 8,
+        "index": 15,
+        "name": "Atlans Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80015.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:16": {
+        "group": 8,
+        "index": 16,
+        "name": "Black Dragon Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80016.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:17": {
+        "group": 8,
+        "index": 17,
+        "name": "Dark Phoenix Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80017.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:18": {
+        "group": 8,
+        "index": 18,
+        "name": "Grand Soul Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80018.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:19": {
+        "group": 8,
+        "index": 19,
+        "name": "Holy Spirit Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/80019.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:20": {
+        "group": 8,
+        "index": 20,
+        "name": "Thunder Hawk Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80020.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:21": {
+        "group": 8,
+        "index": 21,
+        "name": "Great Dragon Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80021.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:22": {
+        "group": 8,
+        "index": 22,
+        "name": "Black Soul Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80022.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:23": {
+        "group": 8,
+        "index": 23,
+        "name": "Athril Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80023.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:24": {
+        "group": 8,
+        "index": 24,
+        "name": "Red Sprit Armor",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/80024.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:25": {
+        "group": 8,
+        "index": 25,
+        "name": "Round Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80025.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:26": {
+        "group": 8,
+        "index": 26,
+        "name": "Dark Soul Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80026.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:27": {
+        "group": 8,
+        "index": 27,
+        "name": "Dark Breeze Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80027.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "8:28": {
+        "group": 8,
+        "index": 28,
+        "name": "Dark Master Armor",
+        "width": 2,
+        "height": 3,
+        "image": "/images/items/1_0m/80028.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:0": {
+        "group": 9,
+        "index": 0,
+        "name": "Bronze pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/9000.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:1": {
+        "group": 9,
+        "index": 1,
+        "name": "Draon pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/9001.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:2": {
+        "group": 9,
+        "index": 2,
+        "name": "Pad pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/9002.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:3": {
+        "group": 9,
+        "index": 3,
+        "name": "Legendary pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/9003.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:4": {
+        "group": 9,
+        "index": 4,
+        "name": "Bone pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/9004.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:5": {
+        "group": 9,
+        "index": 5,
+        "name": "Leather pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/9005.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:6": {
+        "group": 9,
+        "index": 6,
+        "name": "Scale pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/9006.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:7": {
+        "group": 9,
+        "index": 7,
+        "name": "Sphinx pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/9007.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:8": {
+        "group": 9,
+        "index": 8,
+        "name": "Brass pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/9008.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:9": {
+        "group": 9,
+        "index": 9,
+        "name": "Plate pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/9009.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:10": {
+        "group": 9,
+        "index": 10,
+        "name": "Vine pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90010.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:11": {
+        "group": 9,
+        "index": 11,
+        "name": "Silk pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90011.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:12": {
+        "group": 9,
+        "index": 12,
+        "name": "Wind pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90012.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:13": {
+        "group": 9,
+        "index": 13,
+        "name": "Spirit pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90013.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:14": {
+        "group": 9,
+        "index": 14,
+        "name": "Guardian pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90014.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:15": {
+        "group": 9,
+        "index": 15,
+        "name": "Atlans pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90015.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:16": {
+        "group": 9,
+        "index": 16,
+        "name": "Bkacj Dragon pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90016.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:17": {
+        "group": 9,
+        "index": 17,
+        "name": "Dark Phoenix pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90017.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:18": {
+        "group": 9,
+        "index": 18,
+        "name": "Grand Soul pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90018.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:19": {
+        "group": 9,
+        "index": 19,
+        "name": "Holy Spirit pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90019.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:20": {
+        "group": 9,
+        "index": 20,
+        "name": "Thunder Hawk pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90020.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:21": {
+        "group": 9,
+        "index": 21,
+        "name": "Great Dragon pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90021.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:22": {
+        "group": 9,
+        "index": 22,
+        "name": "Black Soul pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90022.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:23": {
+        "group": 9,
+        "index": 23,
+        "name": "Athril pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90023.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:24": {
+        "group": 9,
+        "index": 24,
+        "name": "Red Spirit pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90024.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:25": {
+        "group": 9,
+        "index": 25,
+        "name": "Round pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90025.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:26": {
+        "group": 9,
+        "index": 26,
+        "name": "Dark Soul pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90026.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:27": {
+        "group": 9,
+        "index": 27,
+        "name": "Dark Breeze pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90027.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "9:28": {
+        "group": 9,
+        "index": 28,
+        "name": "Dark Master pants",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/90028.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:0": {
+        "group": 10,
+        "index": 0,
+        "name": "Bronze Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/10000.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:1": {
+        "group": 10,
+        "index": 1,
+        "name": "Dragon Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/10001.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:2": {
+        "group": 10,
+        "index": 2,
+        "name": "Pad Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/10002.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:3": {
+        "group": 10,
+        "index": 3,
+        "name": "Legendary Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/10003.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:4": {
+        "group": 10,
+        "index": 4,
+        "name": "Bone Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/10004.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:5": {
+        "group": 10,
+        "index": 5,
+        "name": "Leather Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/10005.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:6": {
+        "group": 10,
+        "index": 6,
+        "name": "Scale Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/10006.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:7": {
+        "group": 10,
+        "index": 7,
+        "name": "Sphinx Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/10007.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:8": {
+        "group": 10,
+        "index": 8,
+        "name": "Brass Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/10008.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:9": {
+        "group": 10,
+        "index": 9,
+        "name": "Plate Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/10009.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:10": {
+        "group": 10,
+        "index": 10,
+        "name": "Vine Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100010.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:11": {
+        "group": 10,
+        "index": 11,
+        "name": "Silk Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100011.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:12": {
+        "group": 10,
+        "index": 12,
+        "name": "Wind Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100012.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:13": {
+        "group": 10,
+        "index": 13,
+        "name": "Spirit Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100013.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:14": {
+        "group": 10,
+        "index": 14,
+        "name": "Guardian Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100014.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:15": {
+        "group": 10,
+        "index": 15,
+        "name": "Atlans Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100015.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:16": {
+        "group": 10,
+        "index": 16,
+        "name": "Black Dragon Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100016.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:17": {
+        "group": 10,
+        "index": 17,
+        "name": "Dark Phoenix Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100017.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:18": {
+        "group": 10,
+        "index": 18,
+        "name": "Grand Soul Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100018.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:19": {
+        "group": 10,
+        "index": 19,
+        "name": "Holy Spirit Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100019.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:20": {
+        "group": 10,
+        "index": 20,
+        "name": "Thunder Hawk Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100020.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:21": {
+        "group": 10,
+        "index": 21,
+        "name": "Great Dragon Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100021.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:22": {
+        "group": 10,
+        "index": 22,
+        "name": "Black Soul Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100022.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:23": {
+        "group": 10,
+        "index": 23,
+        "name": "Athril Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100023.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:24": {
+        "group": 10,
+        "index": 24,
+        "name": "Red Spirit Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100024.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:25": {
+        "group": 10,
+        "index": 25,
+        "name": "Round Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100025.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:26": {
+        "group": 10,
+        "index": 26,
+        "name": "Dark Soul Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100026.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:27": {
+        "group": 10,
+        "index": 27,
+        "name": "Dark Breeze Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100027.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "10:28": {
+        "group": 10,
+        "index": 28,
+        "name": "Dark Master Gloves",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/100028.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:0": {
+        "group": 11,
+        "index": 0,
+        "name": "Bronze Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/11000.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:1": {
+        "group": 11,
+        "index": 1,
+        "name": "Dragon Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/11001.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:2": {
+        "group": 11,
+        "index": 2,
+        "name": "Pad Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/11002.gif",
+        "excellentType": 3,
+        "optionType": 0
+    },
+    "11:3": {
+        "group": 11,
+        "index": 3,
+        "name": "Legendary Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/11003.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:4": {
+        "group": 11,
+        "index": 4,
+        "name": "Bone Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/11004.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:5": {
+        "group": 11,
+        "index": 5,
+        "name": "Leather Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/11005.gif",
+        "excellentType": 3,
+        "optionType": 0
+    },
+    "11:6": {
+        "group": 11,
+        "index": 6,
+        "name": "Scale Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/11006.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:7": {
+        "group": 11,
+        "index": 7,
+        "name": "Sphinx Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/11007.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:8": {
+        "group": 11,
+        "index": 8,
+        "name": "Brass Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/11008.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:9": {
+        "group": 11,
+        "index": 9,
+        "name": "Plate Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/11009.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:10": {
+        "group": 11,
+        "index": 10,
+        "name": "Vine Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110010.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:11": {
+        "group": 11,
+        "index": 11,
+        "name": "Silk Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110011.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:12": {
+        "group": 11,
+        "index": 12,
+        "name": "Wind Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110012.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:13": {
+        "group": 11,
+        "index": 13,
+        "name": "Spirit Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110013.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:14": {
+        "group": 11,
+        "index": 14,
+        "name": "Guardian Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110014.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:15": {
+        "group": 11,
+        "index": 15,
+        "name": "Atlans Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110015.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:16": {
+        "group": 11,
+        "index": 16,
+        "name": "Black Dragon Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110016.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:17": {
+        "group": 11,
+        "index": 17,
+        "name": "Dark Phoenix Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110017.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:18": {
+        "group": 11,
+        "index": 18,
+        "name": "Grand Soul Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110018.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:19": {
+        "group": 11,
+        "index": 19,
+        "name": "Holy Spirit Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110019.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:20": {
+        "group": 11,
+        "index": 20,
+        "name": "Thunder Hawk Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110020.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:21": {
+        "group": 11,
+        "index": 21,
+        "name": "Great Dragon Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110021.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:22": {
+        "group": 11,
+        "index": 22,
+        "name": "Black Soul Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110022.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:23": {
+        "group": 11,
+        "index": 23,
+        "name": "Athril Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110023.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:24": {
+        "group": 11,
+        "index": 24,
+        "name": "Red Spirit Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110024.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:25": {
+        "group": 11,
+        "index": 25,
+        "name": "Round Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110025.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:26": {
+        "group": 11,
+        "index": 26,
+        "name": "Dark Soul Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110026.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:27": {
+        "group": 11,
+        "index": 27,
+        "name": "Dark Breeze Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110027.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "11:28": {
+        "group": 11,
+        "index": 28,
+        "name": "Dark Master Boots",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/110028.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "12:0": {
+        "group": 12,
+        "index": 0,
+        "name": "Wings of Elf",
+        "width": 3,
+        "height": 2,
+        "image": "/images/items/1_0m/12000.gif",
+        "excellentType": 2,
+        "optionType": 0
+    },
+    "12:1": {
+        "group": 12,
+        "index": 1,
+        "name": "Wings of Heaven",
+        "width": 5,
+        "height": 3,
+        "image": "/images/items/1_0m/12001.gif",
+        "excellentType": 2,
+        "optionType": 0
+    },
+    "12:2": {
+        "group": 12,
+        "index": 2,
+        "name": "Wings of Devil",
+        "width": 5,
+        "height": 2,
+        "image": "/images/items/1_0m/12002.gif",
+        "excellentType": 2,
+        "optionType": 0
+    },
+    "12:3": {
+        "group": 12,
+        "index": 3,
+        "name": "Wings of Spirits",
+        "width": 5,
+        "height": 3,
+        "image": "/images/items/1_0m/12003.gif",
+        "excellentType": 2,
+        "optionType": 0
+    },
+    "12:4": {
+        "group": 12,
+        "index": 4,
+        "name": "Wings of Soul",
+        "width": 5,
+        "height": 3,
+        "image": "/images/items/1_0m/12004.gif",
+        "excellentType": 2,
+        "optionType": 0
+    },
+    "12:5": {
+        "group": 12,
+        "index": 5,
+        "name": "Wings of Dragon",
+        "width": 3,
+        "height": 3,
+        "image": "/images/items/1_0m/12005.gif",
+        "excellentType": 2,
+        "optionType": 0
+    },
+    "12:6": {
+        "group": 12,
+        "index": 6,
+        "name": "Wings of Darkness",
+        "width": 4,
+        "height": 2,
+        "image": "/images/items/1_0m/12006.gif",
+        "excellentType": 2,
+        "optionType": 0
+    },
+    "12:7": {
+        "group": 12,
+        "index": 7,
+        "name": "Orb of Twisting Slash",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/12007.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:8": {
+        "group": 12,
+        "index": 8,
+        "name": "Orb of Healing",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/12008.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:9": {
+        "group": 12,
+        "index": 9,
+        "name": "Orb of Defense Improvement",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/12009.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:10": {
+        "group": 12,
+        "index": 10,
+        "name": "Orb of Offense Improvement",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120010.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:11": {
+        "group": 12,
+        "index": 11,
+        "name": "Orb of Summoning",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120011.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:12": {
+        "group": 12,
+        "index": 12,
+        "name": "Orb of Rageful Blow",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120012.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:13": {
+        "group": 12,
+        "index": 13,
+        "name": "Orb of Impaling",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120013.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:14": {
+        "group": 12,
+        "index": 14,
+        "name": "Orb of Life Swell",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120014.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:15": {
+        "group": 12,
+        "index": 15,
+        "name": "Jewel of Chaos",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120015.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:16": {
+        "group": 12,
+        "index": 16,
+        "name": "Orb of Blood Attack",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120016.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:17": {
+        "group": 12,
+        "index": 17,
+        "name": "Orb of Penetration",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120017.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:18": {
+        "group": 12,
+        "index": 18,
+        "name": "Orb of Ice Arrow",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120018.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:19": {
+        "group": 12,
+        "index": 19,
+        "name": "Orb of Blow",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120019.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:21": {
+        "group": 12,
+        "index": 21,
+        "name": "Scroll of FireBurst",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/120021.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:22": {
+        "group": 12,
+        "index": 22,
+        "name": "Scroll of Summon",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/120022.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:23": {
+        "group": 12,
+        "index": 23,
+        "name": "Scroll of Critical Damage",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/120023.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:24": {
+        "group": 12,
+        "index": 24,
+        "name": "Scroll of Electric Spark",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/120024.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:30": {
+        "group": 12,
+        "index": 30,
+        "name": "Jewel of Bless",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120030.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "12:31": {
+        "group": 12,
+        "index": 31,
+        "name": "Jewel of Soul",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/120031.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "13:0": {
+        "group": 13,
+        "index": 0,
+        "name": "Guardian Angel",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/13000.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "13:1": {
+        "group": 13,
+        "index": 1,
+        "name": "Imp",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/13001.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "13:2": {
+        "group": 13,
+        "index": 2,
+        "name": "Horn of Uniria",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/13002.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "13:3": {
+        "group": 13,
+        "index": 3,
+        "name": "Horn of Dinorant",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/13003.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "13:4": {
+        "group": 13,
+        "index": 4,
+        "name": "Horn of Dark Horse",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/13004.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "13:5": {
+        "group": 13,
+        "index": 5,
+        "name": "Talon of Dark Spirit",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/13005.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "13:7": {
+        "group": 13,
+        "index": 7,
+        "name": "Contract(Summon)",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/13007.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "13:8": {
+        "group": 13,
+        "index": 8,
+        "name": "Ring of Ice",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/13008.gif",
+        "excellentType": 1,
+        "optionType": 1
+    },
+    "13:9": {
+        "group": 13,
+        "index": 9,
+        "name": "Ring of Poison",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/13009.gif",
+        "excellentType": 1,
+        "optionType": 1
+    },
+    "13:10": {
+        "group": 13,
+        "index": 10,
+        "name": "Transpormation Ring",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/130010.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "13:11": {
+        "group": 13,
+        "index": 11,
+        "name": "Order(Guardian/Life Stone)",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/130011.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "13:12": {
+        "group": 13,
+        "index": 12,
+        "name": "Pendant of Lighting",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/130012.gif",
+        "excellentType": 0,
+        "optionType": 1
+    },
+    "13:13": {
+        "group": 13,
+        "index": 13,
+        "name": "Pendant of Fire",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/130013.gif",
+        "excellentType": 0,
+        "optionType": 1
+    },
+    "13:14": {
+        "group": 13,
+        "index": 14,
+        "name": "Loch's Feather",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/130014.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "13:15": {
+        "group": 13,
+        "index": 15,
+        "name": "Fruits",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/130015.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "13:16": {
+        "group": 13,
+        "index": 16,
+        "name": "Scroll of Archangel",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/130016.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "13:17": {
+        "group": 13,
+        "index": 17,
+        "name": "Blood Bone",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/130017.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "13:18": {
+        "group": 13,
+        "index": 18,
+        "name": "Invisibility Cloak",
+        "width": 2,
+        "height": 2,
+        "image": "/images/items/1_0m/130018.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "13:19": {
+        "group": 13,
+        "index": 19,
+        "name": "Absolute Weapon of Archangel",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/130019.gif",
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "13:20": {
+        "group": 13,
+        "index": 20,
+        "name": "Wizards Ring",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 1,
+        "optionType": 1
+    },
+    "13:21": {
+        "group": 13,
+        "index": 21,
+        "name": "Ring of Fire",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 1,
+        "optionType": 1
+    },
+    "13:22": {
+        "group": 13,
+        "index": 22,
+        "name": "Ring of Earth",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 1,
+        "optionType": 1
+    },
+    "13:23": {
+        "group": 13,
+        "index": 23,
+        "name": "Ring of Wind",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 1,
+        "optionType": 1
+    },
+    "13:24": {
+        "group": 13,
+        "index": 24,
+        "name": "Ring of Magic",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 1,
+        "optionType": 1
+    },
+    "13:25": {
+        "group": 13,
+        "index": 25,
+        "name": "Pendant of Ice",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 1
+    },
+    "13:26": {
+        "group": 13,
+        "index": 26,
+        "name": "Pendant of Wind",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 1
+    },
+    "13:27": {
+        "group": 13,
+        "index": 27,
+        "name": "Pendant of Water",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 1
+    },
+    "13:28": {
+        "group": 13,
+        "index": 28,
+        "name": "Pendant of Ability",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 1
+    },
+    "13:29": {
+        "group": 13,
+        "index": 29,
+        "name": "Armor of Guardman",
+        "width": 2,
+        "height": 2,
+        "image": null,
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "13:30": {
+        "group": 13,
+        "index": 30,
+        "name": "Cape of Lord",
+        "width": 2,
+        "height": 3,
+        "image": null,
+        "excellentType": 2,
+        "optionType": 0
+    },
+    "13:31": {
+        "group": 13,
+        "index": 31,
+        "name": "Spirit",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 1,
+        "optionType": 0
+    },
+    "14:0": {
+        "group": 14,
+        "index": 0,
+        "name": "Apple",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/14000.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:1": {
+        "group": 14,
+        "index": 1,
+        "name": "Small Healing Potion",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/14001.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:2": {
+        "group": 14,
+        "index": 2,
+        "name": "Healing Potion",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/14002.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:3": {
+        "group": 14,
+        "index": 3,
+        "name": "Large Healing Potion",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/14003.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:4": {
+        "group": 14,
+        "index": 4,
+        "name": "Small Mana Potion",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/14004.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:5": {
+        "group": 14,
+        "index": 5,
+        "name": "Mana Potion",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/14005.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:6": {
+        "group": 14,
+        "index": 6,
+        "name": "Large Mana Potion",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/14006.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:7": {
+        "group": 14,
+        "index": 7,
+        "name": "Siege Potion",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:8": {
+        "group": 14,
+        "index": 8,
+        "name": "Antidote",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/14008.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:9": {
+        "group": 14,
+        "index": 9,
+        "name": "Ale",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/14009.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:10": {
+        "group": 14,
+        "index": 10,
+        "name": "Town Portal Scroll",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/140010.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:11": {
+        "group": 14,
+        "index": 11,
+        "name": "Box of Luck",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140011.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:12": {
+        "group": 14,
+        "index": 12,
+        "name": "Heart",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140012.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:13": {
+        "group": 14,
+        "index": 13,
+        "name": "Jewel of Bless",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140013.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:14": {
+        "group": 14,
+        "index": 14,
+        "name": "Jewel of Soul",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140014.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:15": {
+        "group": 14,
+        "index": 15,
+        "name": "Zen",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140015.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:16": {
+        "group": 14,
+        "index": 16,
+        "name": "Jewel of Life",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140016.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:17": {
+        "group": 14,
+        "index": 17,
+        "name": "Devil's Eye",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140017.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:18": {
+        "group": 14,
+        "index": 18,
+        "name": "Devil's Key",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140018.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:19": {
+        "group": 14,
+        "index": 19,
+        "name": "Devil's Invitation",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140019.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:20": {
+        "group": 14,
+        "index": 20,
+        "name": "Remedy of Love",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140020.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:21": {
+        "group": 14,
+        "index": 21,
+        "name": "Rena",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140021.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:22": {
+        "group": 14,
+        "index": 22,
+        "name": "Jewel of Creation",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140022.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:23": {
+        "group": 14,
+        "index": 23,
+        "name": "Scroll of the Emperor",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140023.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:24": {
+        "group": 14,
+        "index": 24,
+        "name": "Broken Sword",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/140024.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:25": {
+        "group": 14,
+        "index": 25,
+        "name": "Tear of Elf",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140025.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:26": {
+        "group": 14,
+        "index": 26,
+        "name": "Sould of Wizard",
+        "width": 1,
+        "height": 1,
+        "image": "/images/items/1_0m/140026.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:28": {
+        "group": 14,
+        "index": 28,
+        "name": "Lost Map",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:29": {
+        "group": 14,
+        "index": 29,
+        "name": "Symbol of Kundun",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "14:31": {
+        "group": 14,
+        "index": 31,
+        "name": "Jewel of Guardian",
+        "width": 1,
+        "height": 1,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:0": {
+        "group": 15,
+        "index": 0,
+        "name": "Scroll of Poison",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/15000.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:1": {
+        "group": 15,
+        "index": 1,
+        "name": "Scroll of Meteorite",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/15001.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:2": {
+        "group": 15,
+        "index": 2,
+        "name": "Scroll of Lighting",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/15002.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:3": {
+        "group": 15,
+        "index": 3,
+        "name": "Scroll of Fire Ball",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/15003.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:4": {
+        "group": 15,
+        "index": 4,
+        "name": "Scroll of Flame",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/15004.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:5": {
+        "group": 15,
+        "index": 5,
+        "name": "Scroll of Teleport",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/15005.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:6": {
+        "group": 15,
+        "index": 6,
+        "name": "Scroll of Ice",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/15006.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:7": {
+        "group": 15,
+        "index": 7,
+        "name": "Scroll of Twister",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/15007.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:8": {
+        "group": 15,
+        "index": 8,
+        "name": "Scroll of Evil Spirit",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/15008.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:9": {
+        "group": 15,
+        "index": 9,
+        "name": "Scroll of Hellfire",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/15009.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:10": {
+        "group": 15,
+        "index": 10,
+        "name": "Scroll of Power Wave",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/150010.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:11": {
+        "group": 15,
+        "index": 11,
+        "name": "Scroll of Aquaflash",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/150011.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:12": {
+        "group": 15,
+        "index": 12,
+        "name": "Scroll of Blast",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/150012.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:13": {
+        "group": 15,
+        "index": 13,
+        "name": "Scroll of Inferno",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/150013.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:14": {
+        "group": 15,
+        "index": 14,
+        "name": "Scroll of Telekinesis",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/150014.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:15": {
+        "group": 15,
+        "index": 15,
+        "name": "Scroll of Soul Barrier",
+        "width": 1,
+        "height": 2,
+        "image": "/images/items/1_0m/150015.gif",
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:16": {
+        "group": 15,
+        "index": 16,
+        "name": "Scroll of Death Poison",
+        "width": 1,
+        "height": 2,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:17": {
+        "group": 15,
+        "index": 17,
+        "name": "Scroll of Sudden Ice",
+        "width": 1,
+        "height": 2,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 0
+    },
+    "15:18": {
+        "group": 15,
+        "index": 18,
+        "name": "Scroll of HellBurst",
+        "width": 1,
+        "height": 2,
+        "image": null,
+        "excellentType": 0,
+        "optionType": 0
+    }
+}
