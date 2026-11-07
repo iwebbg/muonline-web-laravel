@@ -19,7 +19,7 @@ final class Version1_0MProfileTest extends TestCase
     {
         $capabilities = (new Version1_0MProfile)->capabilities();
 
-        $this->assertFalse($capabilities->grandResets);
+        $this->assertTrue($capabilities->grandResets);
         $this->assertFalse($capabilities->characterVip);
         $this->assertFalse($capabilities->billingRecord);
     }

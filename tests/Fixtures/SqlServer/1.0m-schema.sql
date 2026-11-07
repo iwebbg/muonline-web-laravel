@@ -52,6 +52,7 @@ CREATE TABLE [dbo].[Character] (
     [Leadership] [smallint] NULL,
     [ChatLimitTime] [smallint] NULL,
     [Resets] [int] NOT NULL CONSTRAINT [DF_Character_Resets] DEFAULT (0),
+    [GrandResets] [int] NOT NULL CONSTRAINT [DF_Character_GrandResets] DEFAULT (0),
     [BanPost] [int] NOT NULL CONSTRAINT [DF_Character_BanPost] DEFAULT (0),
     [IsMarried] [int] NOT NULL CONSTRAINT [DF_Character_IsMarried] DEFAULT (0),
     [MarryName] [varchar](11) NULL,

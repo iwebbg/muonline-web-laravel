@@ -21,7 +21,7 @@ final class Version1_0MProfile implements GameVersionProfile
     public function capabilities(): GameVersionCapabilities
     {
         return new GameVersionCapabilities(
-            grandResets: false,
+            grandResets: true,
             characterVip: false,
             billingRecord: false,
         );
