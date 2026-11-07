@@ -5,12 +5,12 @@ namespace App\Game\Data;
 use InvalidArgumentException;
 
 /**
- * Represents one decoded 10-byte item slot while retaining its original bytes.
+ * Represents one decoded legacy 10-byte item slot while retaining its original bytes.
  */
 final readonly class ItemSlot
 {
     /**
-     * Creates an immutable item slot decoded from the 97d+99i binary format.
+     * Creates an immutable item slot decoded by one version-owned ten-byte codec.
      */
     public function __construct(
         public int $slot,
