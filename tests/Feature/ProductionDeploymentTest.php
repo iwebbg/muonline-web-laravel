@@ -52,6 +52,28 @@ class ProductionDeploymentTest extends TestCase
     }
 
     /**
+     * Confirms 1.0M bootstrap installs its game extension before normal migrations.
+     */
+    public function test_bootstrap_installs_only_the_selected_1_0m_game_profile_schema(): void
+    {
+        $entrypoint = file_get_contents(base_path('docker/php/entrypoint.sh'));
+
+        $this->assertIsString($entrypoint);
+        $this->assertStringContainsString(
+            'if [ "${GAME_SERVER_PROFILE:-darksteam_97d99i}" = "darksteam_1_0m" ]; then',
+            $entrypoint,
+        );
+        $this->assertStringContainsString(
+            'php artisan game:install-profile-schema --no-interaction',
+            $entrypoint,
+        );
+        $this->assertLessThan(
+            strpos($entrypoint, 'php artisan migrate --force --no-interaction'),
+            strpos($entrypoint, 'php artisan game:install-profile-schema --no-interaction'),
+        );
+    }
+
+    /**
      * Confirms that static assets retain the same browser security headers as dynamic pages.
      */
     public function test_nginx_static_assets_keep_browser_security_headers(): void
