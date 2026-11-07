@@ -153,22 +153,40 @@ APP_DB_BOOTSTRAP=true
 APP_DB_SEED=true
 APP_DB_ADMIN_USERNAME=sa
 APP_DB_ADMIN_PASSWORD=replace-with-the-current-sa-password
+
+GAME_DATA_SOURCE=database
+GAME_DB_CONNECTION=sqlsrv
+GAME_DB_HOST=192.168.0.105
+GAME_DB_PORT=1433
+GAME_DB_MUONLINE=MuOnline
+GAME_DB_USERNAME=muonline_game_web
+GAME_DB_PASSWORD=replace-with-a-strong-runtime-password-123!
+GAME_DB_ADMIN_USERNAME=
+GAME_DB_ADMIN_PASSWORD=
+GAME_DB_READONLY=true
+GAME_WRITES_ENABLED=false
 ~~~
 
 Apache has no container entrypoint, so run the guarded installer once:
 
 ~~~bash
 php artisan app:database:install --no-interaction
+php artisan game:database:install --no-interaction
+# Run this additional idempotent command only for GAME_SERVER_PROFILE=darksteam_1_0m.
+php artisan game:install-profile-schema --no-interaction
 php artisan migrate --force --no-interaction
 php artisan db:seed --force --no-interaction
 php artisan admin:create
 ~~~
 
-After success, set **APP_DB_BOOTSTRAP=false** and clear both
-**APP_DB_ADMIN_\*** values. Run **php artisan optimize:clear**, then restart
-Apache and every queue or scheduler process. Normal requests use only
-**muonline_web_app**. The SQLCMD fallback is
-**docker/sql/create-application-database-97d+99i.sql**.
+After success, set **APP_DB_BOOTSTRAP=false** and clear all
+**APP_DB_ADMIN_\*** and **GAME_DB_ADMIN_\*** values. Empty game-administrator
+values reuse the application administrator only during bootstrap; configure
+them separately when the game database is on another SQL Server. Run
+**php artisan optimize:clear**, then restart Apache and every queue or scheduler
+process. Normal requests use only the restricted application and game logins.
+The SQLCMD files under **docker/sql** are fallbacks when automatic provisioning
+is intentionally disabled.
 
 ### Connecting live data and enabling writes
 
@@ -325,11 +343,12 @@ php artisan optimize:clear
 php artisan game:doctor
 ```
 
-Use the least-privilege SQL login template in
-`docker/sql/create-game-web-login.sql`. Never connect the website with
-`sysadmin`, `db_owner` or the SQL Server service account.
-The game login is separate from the application login created for
-**MuOnline_Web**.
+Create the least-privilege login with **php artisan game:database:install** while
+bootstrap mode and the temporary administrator credentials are available. Use
+`docker/sql/create-game-web-login.sql` only as a fallback when automatic
+provisioning is intentionally disabled. Never connect the website with
+`sysadmin`, `db_owner` or the SQL Server service account. The game login is
+separate from the application login created for **MuOnline_Web**.
 
 ## Scheduler and queues
 
