@@ -14,5 +14,6 @@ final readonly class GameVersionCapabilities
         public bool $grandResets,
         public bool $characterVip,
         public bool $billingRecord,
+        public bool $itemGenerator = true,
     ) {}
 }

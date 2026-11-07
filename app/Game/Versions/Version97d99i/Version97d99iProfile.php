@@ -15,7 +15,11 @@ use App\Game\Contracts\CharacterResetRepository;
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
+use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemEscrowRepository;
+use App\Game\Contracts\ItemGeneratorCatalog;
+use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
@@ -201,6 +205,21 @@ final class Version97d99iProfile implements GameVersionProfile
                 sprintf('Unsupported 97d+99i character class code: %d.', $classCode),
             ),
         };
+    }
+
+    /**
+     * Returns item services verified for DarksTeam 97d+99i.
+     *
+     * @return array<class-string, class-string>
+     */
+    public function itemServiceBindings(): array
+    {
+        return [
+            ItemCatalog::class => ItemCatalog97d99i::class,
+            ItemCodec::class => ItemCodec97d99i::class,
+            ItemGrantRules::class => ItemGrantRules97d99i::class,
+            ItemGeneratorCatalog::class => ItemGeneratorCatalog97d99i::class,
+        ];
     }
 
     /**

@@ -200,6 +200,16 @@ final class GameVersionProfileExtensibilityTest extends TestCase
             }
 
             /**
+             * Returns no item services for the isolated calculator test.
+             *
+             * @return array<class-string, class-string>
+             */
+            public function itemServiceBindings(): array
+            {
+                return [];
+            }
+
+            /**
              * Returns no persistence adapters for the isolated calculator test.
              *
              * @return array<class-string, class-string>

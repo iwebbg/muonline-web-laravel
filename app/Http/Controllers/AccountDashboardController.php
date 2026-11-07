@@ -62,7 +62,8 @@ final class AccountDashboardController extends Controller
             $characterNames[] = $characterEntry->name;
         }
 
-        $vipEnabled = $this->moduleManager->enabled(ServerModule::Vip);
+        $vipEnabled = $this->moduleManager->enabled(ServerModule::Vip)
+            && $this->versionProfile->capabilities()->characterVip;
         $creditsEnabled = $this->moduleManager->enabled(ServerModule::Credits);
         $wallet = $vipEnabled || $creditsEnabled
             ? AccountWallet::query()
@@ -180,6 +181,7 @@ final class AccountDashboardController extends Controller
             'activeVipEntitlementCount' => $activeVipEntitlementCount,
             'vipPurchases' => $vipPurchases,
             'vipIdempotencyKey' => (string) Str::uuid(),
+            'vipEnabled' => $vipEnabled,
             'gameWritesEnabled' => $gameWritesEnabled,
             'accountPanelConfiguration' => $accountPanelConfiguration,
         ]);

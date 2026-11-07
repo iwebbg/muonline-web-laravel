@@ -15,7 +15,11 @@ use App\Game\Contracts\CharacterResetRepository;
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
+use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemEscrowRepository;
+use App\Game\Contracts\ItemGeneratorCatalog;
+use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
@@ -46,6 +50,7 @@ use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
+use App\Game\Versions\UnavailableItemGeneratorCatalog;
 use App\Stats\CharacterStats;
 use InvalidArgumentException;
 
@@ -63,6 +68,7 @@ final class Version1_0MProfile implements GameVersionProfile
             grandResets: true,
             characterVip: false,
             billingRecord: false,
+            itemGenerator: false,
         );
     }
 
@@ -89,8 +95,8 @@ final class Version1_0MProfile implements GameVersionProfile
             new CharacterClassDefinition(32, 'fe', 'FE', 'Fairy Elf', '/images/characters/muse-elf.png', 'elf', 1),
             new CharacterClassDefinition(33, 'me', 'ME', 'Muse Elf', '/images/characters/muse-elf.png', 'elf', 2, 32),
             new CharacterClassDefinition(48, 'mg', 'MG', 'Magic Gladiator', '/images/characters/magic-gladiator.png', 'magic-gladiator', 1),
-            new CharacterClassDefinition(64, 'dl', 'DL', 'Dark Lord', '/images/characters/dark-lord.png', 'dark-lord', 1),
-            new CharacterClassDefinition(65, 'le', 'LE', 'Lord Emperor', '/images/characters/dark-lord.png', 'dark-lord', 2, 64),
+            new CharacterClassDefinition(64, 'dl', 'DL', 'Dark Lord', '/images/characters/blade-knight.png', 'dark-lord', 1),
+            new CharacterClassDefinition(65, 'le', 'LE', 'Lord Emperor', '/images/characters/blade-knight.png', 'dark-lord', 2, 64),
         ];
     }
 
@@ -221,6 +227,23 @@ final class Version1_0MProfile implements GameVersionProfile
                 sprintf('Unsupported 1.0M character class code: %d.', $classCode),
             ),
         };
+    }
+
+    /**
+     * Returns item services owned exclusively by the DarksTeam 1.0M adapter.
+     *
+     * Generated-item sales remain unavailable until a 1.0M pricing source is audited.
+     *
+     * @return array<class-string, class-string>
+     */
+    public function itemServiceBindings(): array
+    {
+        return [
+            ItemCatalog::class => ItemCatalog1_0M::class,
+            ItemCodec::class => ItemCodec1_0M::class,
+            ItemGrantRules::class => ItemGrantRules1_0M::class,
+            ItemGeneratorCatalog::class => UnavailableItemGeneratorCatalog::class,
+        ];
     }
 
     /**

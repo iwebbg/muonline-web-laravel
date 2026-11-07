@@ -2,6 +2,7 @@
 
 namespace App\Game\Versions\Version1_0M;
 
+use App\Game\Contracts\ItemCatalog;
 use App\Game\Data\ItemDefinition;
 use JsonException;
 use RuntimeException;
@@ -9,7 +10,7 @@ use RuntimeException;
 /**
  * Reads item metadata owned exclusively by the DarksTeam 1.0M adapter.
  */
-final class ItemCatalog1_0M
+final class ItemCatalog1_0M implements ItemCatalog
 {
     private string $catalogPath;
 

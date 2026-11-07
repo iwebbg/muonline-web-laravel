@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Account;
 
 use App\Auth\GameAccount;
 use App\Economy\WalletCurrency;
-use App\Game\Versions\Version97d99i\ItemGeneratorCatalog97d99i;
-use App\Game\Versions\Version97d99i\ItemGrantRules97d99i;
+use App\Game\Contracts\ItemGeneratorCatalog;
+use App\Game\Contracts\ItemGrantRules;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\AccountPanelConfiguration;
 use App\Http\Controllers\Controller;
 use App\Models\AccountWallet;
@@ -23,13 +24,15 @@ final class ItemGeneratorController extends Controller
      */
     public function __invoke(
         Request $request,
-        ItemGeneratorCatalog97d99i $catalog,
-        ItemGrantRules97d99i $rules,
+        ItemGeneratorCatalog $catalog,
+        ItemGrantRules $rules,
         AccountPanelConfiguration $configuration,
+        GameVersionProfile $versionProfile,
     ): View {
         $account = $request->user();
 
         abort_unless($account instanceof GameAccount, 403);
+        abort_unless($versionProfile->capabilities()->itemGenerator, 404);
 
         $itemsByCode = [];
 

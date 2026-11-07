@@ -7,7 +7,7 @@ use App\Economy\Exceptions\WalletAdjustmentRejected;
 use App\Economy\WalletAdjustmentBlockReason;
 use App\Economy\WalletCurrency;
 use App\Economy\WalletTransactionType;
-use App\Game\Versions\Version97d99i\ItemGeneratorCatalog97d99i;
+use App\Game\Contracts\ItemGeneratorCatalog;
 use App\Models\AccountReward;
 use App\Models\ShopPurchase;
 use App\Shop\AccountRewardStatus;
@@ -30,7 +30,7 @@ final readonly class PurchaseGeneratedItem
      * Creates the action with pricing, ledger and delivery boundaries.
      */
     public function __construct(
-        private ItemGeneratorCatalog97d99i $catalog,
+        private ItemGeneratorCatalog $catalog,
         private AdjustWalletBalance $adjustWalletBalance,
         private FulfillAccountReward $fulfillAccountReward,
     ) {}

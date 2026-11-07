@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Account;
 
 use App\Auth\GameAccount;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -16,7 +17,8 @@ final class PurchaseVipRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() instanceof GameAccount;
+        return $this->user() instanceof GameAccount
+            && app(GameVersionProfile::class)->capabilities()->characterVip;
     }
 
     /**

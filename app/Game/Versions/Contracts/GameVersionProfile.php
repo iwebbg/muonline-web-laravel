@@ -67,6 +67,13 @@ interface GameVersionProfile
     public function baseStatsForClass(int $classCode): CharacterStats;
 
     /**
+     * Returns item-service bindings owned by this version.
+     *
+     * @return array<class-string, class-string>
+     */
+    public function itemServiceBindings(): array;
+
+    /**
      * Returns contract-to-adapter bindings owned by this version.
      *
      * @return array<class-string, class-string>

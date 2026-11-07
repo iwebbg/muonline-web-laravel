@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemGrantRules;
 use App\Game\Versions\Contracts\GameVersionProfile;
-use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
-use App\Game\Versions\Version97d99i\ItemGrantRules97d99i;
 use App\Http\AccountPanelConfiguration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreShopOfferRequest;
@@ -57,8 +57,8 @@ final class ShopOfferController extends Controller
      * Show the form for creating a new resource.
      */
     public function create(
-        ItemCatalog97d99i $catalog,
-        ItemGrantRules97d99i $rules,
+        ItemCatalog $catalog,
+        ItemGrantRules $rules,
         AccountPanelConfiguration $accountPanelConfiguration,
     ): View {
         return view('admin.shop-offers.form', $this->formData(
@@ -102,8 +102,8 @@ final class ShopOfferController extends Controller
      */
     public function edit(
         ShopOffer $shopOffer,
-        ItemCatalog97d99i $catalog,
-        ItemGrantRules97d99i $rules,
+        ItemCatalog $catalog,
+        ItemGrantRules $rules,
         AccountPanelConfiguration $accountPanelConfiguration,
     ): View {
         $shopOffer->load('items');
@@ -151,8 +151,8 @@ final class ShopOfferController extends Controller
      */
     private function formData(
         ?ShopOffer $offer,
-        ItemCatalog97d99i $catalog,
-        ItemGrantRules97d99i $rules,
+        ItemCatalog $catalog,
+        ItemGrantRules $rules,
         AccountPanelConfiguration $accountPanelConfiguration,
     ): array {
         $definitions = array_map(static fn ($definition): array => [

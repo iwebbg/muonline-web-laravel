@@ -2,6 +2,7 @@
 
 namespace App\Game\Versions\Version97d99i;
 
+use App\Game\Contracts\ItemGeneratorCatalog;
 use App\Shop\ItemGeneratorQuote;
 use JsonException;
 use RuntimeException;
@@ -9,7 +10,7 @@ use RuntimeException;
 /**
  * Provides the verified 97d+99i generator catalog and legacy-compatible pricing.
  */
-final class ItemGeneratorCatalog97d99i
+final class ItemGeneratorCatalog97d99i implements ItemGeneratorCatalog
 {
     private const LEVEL_PRICE = 4;
 

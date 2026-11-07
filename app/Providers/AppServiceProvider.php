@@ -61,6 +61,10 @@ class AppServiceProvider extends ServiceProvider
             $this->app->bind($contract, $adapter);
         }
 
+        foreach ($versionProfile->itemServiceBindings() as $contract => $adapter) {
+            $this->app->bind($contract, $adapter);
+        }
+
         if (config('game.data_source') !== 'database') {
             $this->app->bind(RealmReadRepository::class, FixtureRealmReadRepository::class);
         }

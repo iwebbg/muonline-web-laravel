@@ -4,10 +4,18 @@ namespace Tests\Unit;
 
 use App\Game\Contracts\CharacterGrandResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
+use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemCodec;
+use App\Game\Contracts\ItemGeneratorCatalog;
+use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterGrandResetRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterVipRepository;
 use App\Game\Repositories\SqlServer1_0MRealmReadRepository;
+use App\Game\Versions\UnavailableItemGeneratorCatalog;
+use App\Game\Versions\Version1_0M\ItemCatalog1_0M;
+use App\Game\Versions\Version1_0M\ItemCodec1_0M;
+use App\Game\Versions\Version1_0M\ItemGrantRules1_0M;
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -102,6 +110,23 @@ final class Version1_0MProfileTest extends TestCase
 
         foreach ($bindings as $adapter) {
             $this->assertStringContainsString('1_0M', $adapter);
+            $this->assertStringNotContainsString('97d99i', $adapter);
+        }
+    }
+
+    /**
+     * Confirms item services never resolve a 97d implementation under 1.0M.
+     */
+    public function test_exposes_only_isolated_1_0m_item_service_bindings(): void
+    {
+        $bindings = (new Version1_0MProfile)->itemServiceBindings();
+
+        $this->assertSame(ItemCatalog1_0M::class, $bindings[ItemCatalog::class]);
+        $this->assertSame(ItemCodec1_0M::class, $bindings[ItemCodec::class]);
+        $this->assertSame(ItemGrantRules1_0M::class, $bindings[ItemGrantRules::class]);
+        $this->assertSame(UnavailableItemGeneratorCatalog::class, $bindings[ItemGeneratorCatalog::class]);
+
+        foreach ($bindings as $adapter) {
             $this->assertStringNotContainsString('97d99i', $adapter);
         }
     }

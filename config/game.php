@@ -3,6 +3,18 @@
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use App\Game\Versions\Version97d99i\Version97d99iProfile;
 
+$serverProfileKey = env('GAME_SERVER_PROFILE', 'darksteam_97d99i');
+$serverProfileDefaults = match ($serverProfileKey) {
+    'darksteam_1_0m' => [
+        'name' => 'MuOnline DarksTeam 1.0M',
+        'version' => '0.99.60/62T (1.0M)',
+    ],
+    default => [
+        'name' => 'MuOnline 97d+99i',
+        'version' => '97d + 99i',
+    ],
+};
+
 return [
     'data_source' => env('GAME_DATA_SOURCE', 'fixture'),
 
@@ -54,9 +66,9 @@ return [
     ],
 
     'profile' => [
-        'key' => env('GAME_SERVER_PROFILE', 'darksteam_97d99i'),
-        'name' => 'MuOnline 97d+99i',
-        'version' => '97d + 99i',
+        'key' => $serverProfileKey,
+        'name' => env('GAME_SERVER_NAME', $serverProfileDefaults['name']),
+        'version' => env('GAME_SERVER_VERSION', $serverProfileDefaults['version']),
         'experience' => '9999x',
         'drop' => '60%',
         'capacity' => 500,
