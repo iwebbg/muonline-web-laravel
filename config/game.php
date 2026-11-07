@@ -1,5 +1,6 @@
 <?php
 
+use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use App\Game\Versions\Version97d99i\Version97d99iProfile;
 
 return [
@@ -63,5 +64,6 @@ return [
 
     'version_profiles' => [
         'darksteam_97d99i' => Version97d99iProfile::class,
+        'darksteam_1_0m' => Version1_0MProfile::class,
     ],
 ];

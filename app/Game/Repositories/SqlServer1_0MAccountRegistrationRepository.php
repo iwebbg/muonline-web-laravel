@@ -11,6 +11,7 @@ use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\QueryException;
 use RuntimeException;
 use SensitiveParameter;
+use stdClass;
 
 /**
  * Creates complete legacy accounts against the verified Darksteam 1.0M schema.
@@ -42,26 +43,33 @@ final readonly class SqlServer1_0MAccountRegistrationRepository implements Accou
                 $email,
             ): AccountRegistrationResult {
                 $this->rejectExistingAccount($connection, $username);
-                $passwordHash = $this->passwordHash(
-                    connection: $connection,
-                    accountId: $username,
-                    password: $password,
+                $insertedAccount = $connection->selectOne(
+                    <<<'SQL'
+                        INSERT INTO [MEMB_INFO] (
+                            [memb___id], [memb__pwd], [memb_name], [sno__numb],
+                            [mail_addr], [bloc_code], [ctl1_code]
+                        )
+                        OUTPUT INSERTED.[memb_guid] AS [account_guid]
+                        VALUES (?, dbo.UFN_MD5_ENCODEVALUE(?, ?), ?, ?, ?, ?, ?)
+                    SQL,
+                    [
+                        $username,
+                        $password,
+                        $username,
+                        $username,
+                        '1111111111111',
+                        $email,
+                        '1',
+                        '0',
+                    ],
                 );
 
-                $accountGuid = $connection
-                    ->table('MEMB_INFO')
-                    ->insertGetId([
-                        'memb___id' => $username,
-                        'memb__pwd' => $passwordHash,
-                        'memb_name' => $username,
-                        'sno__numb' => '1111111111111',
-                        'mail_addr' => $email,
-                        'bloc_code' => '1',
-                        'ctl1_code' => '0',
-                    ], 'memb_guid');
+                if (! $insertedAccount instanceof stdClass) {
+                    throw new RuntimeException('The game server did not return the created account identifier.');
+                }
 
                 return new AccountRegistrationResult(
-                    accountGuid: $accountGuid,
+                    accountGuid: (int) $insertedAccount->account_guid,
                     accountId: $username,
                     billingRecordCreated: false,
                 );
@@ -76,29 +84,6 @@ final readonly class SqlServer1_0MAccountRegistrationRepository implements Accou
 
             throw $exception;
         }
-    }
-
-    /**
-     * Encodes one password with the DarksTeam account-bound MD5 function.
-     */
-    private function passwordHash(
-        ConnectionInterface $connection,
-        string $accountId,
-        #[SensitiveParameter] string $password,
-    ): string {
-        $result = $connection->selectOne(
-            'SELECT dbo.UFN_MD5_ENCODEVALUE(?, ?) as password_hash',
-            [$password, $accountId],
-        );
-        $passwordHash = is_object($result)
-            ? ($result->password_hash ?? null)
-            : null;
-
-        if (! is_string($passwordHash) || strlen($passwordHash) !== 16) {
-            throw new RuntimeException('The game server did not encode a valid account password.');
-        }
-
-        return $passwordHash;
     }
 
     /**

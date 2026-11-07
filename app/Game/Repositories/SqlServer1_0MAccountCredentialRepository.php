@@ -6,10 +6,8 @@ use App\AccountCredentials\AccountCredentialBlockReason;
 use App\AccountCredentials\AccountCredentialResult;
 use App\AccountCredentials\Exceptions\AccountCredentialUpdateRejected;
 use App\Game\Contracts\AccountCredentialRepository;
-use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Str;
-use RuntimeException;
 use SensitiveParameter;
 use stdClass;
 
@@ -80,24 +78,22 @@ final readonly class SqlServer1_0MAccountCredentialRepository implements Account
                 );
             }
 
-            $updates = [];
-
-            if ($emailChanged) {
-                $updates['mail_addr'] = $email;
-            }
-
             if ($passwordChanged && $newPassword !== null) {
-                $updates['memb__pwd'] = $this->passwordHash(
-                    connection: $connection,
-                    accountId: $accountId,
-                    password: $newPassword,
-                );
+                $updatedRows = $emailChanged
+                    ? $connection->update(
+                        'UPDATE [MEMB_INFO] SET [mail_addr] = ?, [memb__pwd] = dbo.UFN_MD5_ENCODEVALUE(?, ?) WHERE [memb___id] = ?',
+                        [$email, $newPassword, $accountId, $accountId],
+                    )
+                    : $connection->update(
+                        'UPDATE [MEMB_INFO] SET [memb__pwd] = dbo.UFN_MD5_ENCODEVALUE(?, ?) WHERE [memb___id] = ?',
+                        [$newPassword, $accountId, $accountId],
+                    );
+            } else {
+                $updatedRows = $connection
+                    ->table('MEMB_INFO')
+                    ->where('memb___id', $accountId)
+                    ->update(['mail_addr' => $email]);
             }
-
-            $updatedRows = $connection
-                ->table('MEMB_INFO')
-                ->where('memb___id', $accountId)
-                ->update($updates);
 
             if ($updatedRows !== 1) {
                 throw new AccountCredentialUpdateRejected(
@@ -114,28 +110,5 @@ final readonly class SqlServer1_0MAccountCredentialRepository implements Account
                 emailCurrentlyPresent: $email !== '',
             );
         }, 3);
-    }
-
-    /**
-     * Encodes one replacement password with the server-owned MD5 function.
-     */
-    private function passwordHash(
-        ConnectionInterface $connection,
-        string $accountId,
-        #[SensitiveParameter] string $password,
-    ): string {
-        $result = $connection->selectOne(
-            'SELECT dbo.UFN_MD5_ENCODEVALUE(?, ?) as password_hash',
-            [$password, $accountId],
-        );
-        $passwordHash = is_object($result)
-            ? ($result->password_hash ?? null)
-            : null;
-
-        if (! is_string($passwordHash) || strlen($passwordHash) !== 16) {
-            throw new RuntimeException('The game server did not encode a valid account password.');
-        }
-
-        return $passwordHash;
     }
 }
