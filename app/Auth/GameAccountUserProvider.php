@@ -2,6 +2,8 @@
 
 namespace App\Auth;
 
+use App\Game\GameAccountPasswordScheme;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Database\DatabaseManager;
@@ -17,6 +19,7 @@ final readonly class GameAccountUserProvider implements UserProvider
      */
     public function __construct(
         private DatabaseManager $database,
+        private GameVersionProfile $versionProfile,
     ) {}
 
     /**
@@ -70,11 +73,15 @@ final readonly class GameAccountUserProvider implements UserProvider
             return false;
         }
 
-        if ($passwordScheme !== 'plaintext' || ! is_string($password)) {
+        if (! is_string($password)) {
             return false;
         }
 
-        return hash_equals($user->getAuthPassword(), $password);
+        return match (GameAccountPasswordScheme::tryFrom($passwordScheme)) {
+            GameAccountPasswordScheme::Plaintext => hash_equals($user->getAuthPassword(), $password),
+            GameAccountPasswordScheme::DarksTeamMd5 => $this->validatesDarksTeamMd5($user, $password),
+            default => false,
+        };
     }
 
     /**
@@ -93,19 +100,26 @@ final readonly class GameAccountUserProvider implements UserProvider
      */
     private function findByUsername(string $username): ?GameAccount
     {
-        $record = $this->database
+        $query = $this->database
             ->connection('game')
             ->table('MEMB_INFO')
             ->where('memb___id', $username)
-            ->first([
+            ->select([
                 'memb_guid',
                 'memb___id',
                 'memb__pwd',
                 'memb_name',
                 'mail_addr',
                 'bloc_code',
-                'IsVip',
             ]);
+
+        if ($this->versionProfile->capabilities()->characterVip) {
+            $query->addSelect('IsVip');
+        } else {
+            $query->selectRaw('CAST(0 AS int) as IsVip');
+        }
+
+        $record = $query->first();
 
         if ($record === null) {
             return null;
@@ -120,5 +134,25 @@ final readonly class GameAccountUserProvider implements UserProvider
             vip: (int) $record->IsVip === 1,
             password: (string) $record->memb__pwd,
         );
+    }
+
+    /**
+     * Verifies one DarksTeam MD5 credential through the server-owned SQL function.
+     */
+    private function validatesDarksTeamMd5(
+        GameAccount $account,
+        #[SensitiveParameter] string $password,
+    ): bool {
+        $result = $this->database
+            ->connection('game')
+            ->table('MEMB_INFO')
+            ->where('memb___id', $account->username)
+            ->selectRaw(
+                'dbo.UFN_MD5_CHECKVALUE(?, memb___id, memb__pwd) as credential_valid',
+                [$password],
+            )
+            ->value('credential_valid');
+
+        return (int) $result === 1;
     }
 }

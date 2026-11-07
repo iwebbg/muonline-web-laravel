@@ -13,6 +13,18 @@ use PHPUnit\Framework\TestCase;
 final class Version1_0MProfileTest extends TestCase
 {
     /**
+     * Confirms unsupported custom columns are disabled for the stock 1.0M schema.
+     */
+    public function test_declares_stock_schema_capabilities(): void
+    {
+        $capabilities = (new Version1_0MProfile)->capabilities();
+
+        $this->assertFalse($capabilities->grandResets);
+        $this->assertFalse($capabilities->characterVip);
+        $this->assertFalse($capabilities->billingRecord);
+    }
+
+    /**
      * Confirms every supported legacy class code resolves to its public name.
      */
     #[DataProvider('classDefinitions')]

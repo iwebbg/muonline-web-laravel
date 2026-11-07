@@ -5,6 +5,7 @@ namespace App\Game\Versions\Version1_0M;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
 use App\Stats\CharacterStats;
 use InvalidArgumentException;
@@ -14,6 +15,18 @@ use InvalidArgumentException;
  */
 final class Version1_0MProfile implements GameVersionProfile
 {
+    /**
+     * Returns the optional schema features implemented by DarksTeam 1.0M.
+     */
+    public function capabilities(): GameVersionCapabilities
+    {
+        return new GameVersionCapabilities(
+            grandResets: false,
+            characterVip: false,
+            billingRecord: false,
+        );
+    }
+
     /**
      * Returns the stable profile key used by environment configuration.
      */

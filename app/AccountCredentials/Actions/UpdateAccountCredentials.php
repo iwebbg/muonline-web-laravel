@@ -7,6 +7,7 @@ use App\AccountCredentials\AccountCredentialResult;
 use App\AccountCredentials\AccountCredentialStatus;
 use App\AccountCredentials\Exceptions\AccountCredentialUpdateRejected;
 use App\Game\Contracts\AccountCredentialRepository;
+use App\Game\GameAccountPasswordScheme;
 use App\Models\AccountCredentialOperation;
 use SensitiveParameter;
 use Throwable;
@@ -95,7 +96,7 @@ final readonly class UpdateAccountCredentials
             );
         }
 
-        if (config('game.account_password_scheme') !== 'plaintext') {
+        if (GameAccountPasswordScheme::tryFrom((string) config('game.account_password_scheme')) === null) {
             throw new AccountCredentialUpdateRejected(
                 AccountCredentialBlockReason::PasswordSchemeUnsupported,
                 503,

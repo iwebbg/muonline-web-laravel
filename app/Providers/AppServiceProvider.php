@@ -132,7 +132,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Auth::provider('game_accounts', function (Application $application): GameAccountUserProvider {
-            return new GameAccountUserProvider($application->make(DatabaseManager::class));
+            return new GameAccountUserProvider(
+                database: $application->make(DatabaseManager::class),
+                versionProfile: $application->make(GameVersionProfile::class),
+            );
         });
 
         RateLimiter::for('login', function (Request $request): Limit {
