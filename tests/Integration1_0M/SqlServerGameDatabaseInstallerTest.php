@@ -116,6 +116,10 @@ final class SqlServerGameDatabaseInstallerTest extends TestCase
                 'dbo.WZ_GetItemSerial', 'OBJECT', 'EXECUTE',
             ],
         );
+        $credentialFunctions = $runtimeConnection->selectOne(
+            'SELECT dbo.UFN_MD5_CHECKVALUE(?, ?, dbo.UFN_MD5_ENCODEVALUE(?, ?)) AS credential_valid',
+            ['test', 'intlogin', 'test', 'intlogin'],
+        );
 
         $this->assertSame(self::LOGIN_NAME, $identity->login_name);
         $this->assertSame(self::LOGIN_NAME, $identity->user_name);
@@ -123,6 +127,7 @@ final class SqlServerGameDatabaseInstallerTest extends TestCase
         $this->assertSame(1, (int) $permissions->can_update_characters);
         $this->assertSame(0, (int) $permissions->can_update_status);
         $this->assertSame(1, (int) $permissions->can_execute_serial);
+        $this->assertSame(1, (int) $credentialFunctions->credential_valid);
     }
 
     /**

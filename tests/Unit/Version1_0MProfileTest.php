@@ -51,6 +51,14 @@ final class Version1_0MProfileTest extends TestCase
             ['SELECT', 'UPDATE'],
             $profile->databaseObjectPermissions()['dbo.Character'],
         );
+        $this->assertSame(
+            ['EXECUTE'],
+            $profile->databaseObjectPermissions()['dbo.UFN_MD5_CHECKVALUE'],
+        );
+        $this->assertSame(
+            ['EXECUTE'],
+            $profile->databaseObjectPermissions()['dbo.UFN_MD5_ENCODEVALUE'],
+        );
     }
 
     /**
