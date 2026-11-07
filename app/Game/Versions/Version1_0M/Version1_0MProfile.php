@@ -2,6 +2,45 @@
 
 namespace App\Game\Versions\Version1_0M;
 
+use App\Game\Contracts\AccountActivationRepository;
+use App\Game\Contracts\AccountCredentialRepository;
+use App\Game\Contracts\AccountPasswordRecoveryRepository;
+use App\Game\Contracts\AccountReadRepository;
+use App\Game\Contracts\AccountRegistrationRepository;
+use App\Game\Contracts\CharacterGrandResetRepository;
+use App\Game\Contracts\CharacterInventoryEscrowRepository;
+use App\Game\Contracts\CharacterMoveRepository;
+use App\Game\Contracts\CharacterPkClearRepository;
+use App\Game\Contracts\CharacterResetRepository;
+use App\Game\Contracts\CharacterStatAllocationRepository;
+use App\Game\Contracts\CharacterStatResetRepository;
+use App\Game\Contracts\CharacterVipRepository;
+use App\Game\Contracts\ItemEscrowRepository;
+use App\Game\Contracts\ItemSerialRepository;
+use App\Game\Contracts\ItemStorageRepository;
+use App\Game\Contracts\MarketItemEscrowRepository;
+use App\Game\Contracts\ModerationRepository;
+use App\Game\Contracts\RealmReadRepository;
+use App\Game\Contracts\ZenBankRepository;
+use App\Game\Repositories\SqlServer1_0MAccountActivationRepository;
+use App\Game\Repositories\SqlServer1_0MAccountCredentialRepository;
+use App\Game\Repositories\SqlServer1_0MAccountPasswordRecoveryRepository;
+use App\Game\Repositories\SqlServer1_0MAccountReadRepository;
+use App\Game\Repositories\SqlServer1_0MAccountRegistrationRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterGrandResetRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterInventoryEscrowRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterMoveRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterPkClearRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterResetRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterStatAllocationRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterStatResetRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterVipRepository;
+use App\Game\Repositories\SqlServer1_0MItemSerialRepository;
+use App\Game\Repositories\SqlServer1_0MItemStorageRepository;
+use App\Game\Repositories\SqlServer1_0MMarketItemEscrowRepository;
+use App\Game\Repositories\SqlServer1_0MModerationRepository;
+use App\Game\Repositories\SqlServer1_0MRealmReadRepository;
+use App\Game\Repositories\SqlServer1_0MZenBankRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
@@ -185,12 +224,33 @@ final class Version1_0MProfile implements GameVersionProfile
     }
 
     /**
-     * Returns no adapters until the isolated 1.0M persistence set is complete.
+     * Returns every SQL adapter selected as one atomic 1.0M version bundle.
      *
      * @return array<class-string, class-string>
      */
     public function repositoryBindings(): array
     {
-        return [];
+        return [
+            RealmReadRepository::class => SqlServer1_0MRealmReadRepository::class,
+            AccountActivationRepository::class => SqlServer1_0MAccountActivationRepository::class,
+            AccountCredentialRepository::class => SqlServer1_0MAccountCredentialRepository::class,
+            AccountPasswordRecoveryRepository::class => SqlServer1_0MAccountPasswordRecoveryRepository::class,
+            AccountRegistrationRepository::class => SqlServer1_0MAccountRegistrationRepository::class,
+            AccountReadRepository::class => SqlServer1_0MAccountReadRepository::class,
+            CharacterResetRepository::class => SqlServer1_0MCharacterResetRepository::class,
+            CharacterGrandResetRepository::class => SqlServer1_0MCharacterGrandResetRepository::class,
+            CharacterMoveRepository::class => SqlServer1_0MCharacterMoveRepository::class,
+            CharacterPkClearRepository::class => SqlServer1_0MCharacterPkClearRepository::class,
+            CharacterStatAllocationRepository::class => SqlServer1_0MCharacterStatAllocationRepository::class,
+            CharacterStatResetRepository::class => SqlServer1_0MCharacterStatResetRepository::class,
+            CharacterVipRepository::class => SqlServer1_0MCharacterVipRepository::class,
+            CharacterInventoryEscrowRepository::class => SqlServer1_0MCharacterInventoryEscrowRepository::class,
+            ItemStorageRepository::class => SqlServer1_0MItemStorageRepository::class,
+            ItemEscrowRepository::class => SqlServer1_0MMarketItemEscrowRepository::class,
+            ItemSerialRepository::class => SqlServer1_0MItemSerialRepository::class,
+            MarketItemEscrowRepository::class => SqlServer1_0MMarketItemEscrowRepository::class,
+            ModerationRepository::class => SqlServer1_0MModerationRepository::class,
+            ZenBankRepository::class => SqlServer1_0MZenBankRepository::class,
+        ];
     }
 }

@@ -2,6 +2,12 @@
 
 namespace Tests\Unit;
 
+use App\Game\Contracts\CharacterGrandResetRepository;
+use App\Game\Contracts\CharacterVipRepository;
+use App\Game\Contracts\RealmReadRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterGrandResetRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterVipRepository;
+use App\Game\Repositories\SqlServer1_0MRealmReadRepository;
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -74,6 +80,30 @@ final class Version1_0MProfileTest extends TestCase
         $this->expectExceptionMessage('Unsupported 1.0M character class code: 66.');
 
         (new Version1_0MProfile)->statsForClass(66);
+    }
+
+    /**
+     * Confirms the profile installs one complete adapter bundle without 97d fallbacks.
+     */
+    public function test_exposes_only_isolated_1_0m_repository_bindings(): void
+    {
+        $bindings = (new Version1_0MProfile)->repositoryBindings();
+
+        $this->assertCount(20, $bindings);
+        $this->assertSame(SqlServer1_0MRealmReadRepository::class, $bindings[RealmReadRepository::class]);
+        $this->assertSame(
+            SqlServer1_0MCharacterGrandResetRepository::class,
+            $bindings[CharacterGrandResetRepository::class],
+        );
+        $this->assertSame(
+            SqlServer1_0MCharacterVipRepository::class,
+            $bindings[CharacterVipRepository::class],
+        );
+
+        foreach ($bindings as $adapter) {
+            $this->assertStringContainsString('1_0M', $adapter);
+            $this->assertStringNotContainsString('97d99i', $adapter);
+        }
     }
 
     /**
