@@ -47,25 +47,35 @@ class ProductionDeploymentTest extends TestCase
         $this->assertIsString($localCompose);
         $this->assertSame(2, substr_count($productionCompose, 'APP_DB_ADMIN_PASSWORD: ""'));
         $this->assertSame(1, substr_count($localCompose, 'APP_DB_ADMIN_PASSWORD: ""'));
+        $this->assertSame(2, substr_count($productionCompose, 'GAME_DB_ADMIN_PASSWORD: ""'));
+        $this->assertSame(1, substr_count($localCompose, 'GAME_DB_ADMIN_PASSWORD: ""'));
         $this->assertSame(2, substr_count($productionCompose, 'APP_DB_BOOTSTRAP: "false"'));
         $this->assertSame(1, substr_count($localCompose, 'APP_DB_BOOTSTRAP: "false"'));
     }
 
     /**
-     * Confirms 1.0M bootstrap installs its game extension before normal migrations.
+     * Confirms database mode provisions game access before profile extensions and migrations.
      */
-    public function test_bootstrap_installs_only_the_selected_1_0m_game_profile_schema(): void
+    public function test_bootstrap_installs_game_access_and_the_selected_profile_schema(): void
     {
         $entrypoint = file_get_contents(base_path('docker/php/entrypoint.sh'));
 
         $this->assertIsString($entrypoint);
         $this->assertStringContainsString(
-            'if [ "${GAME_SERVER_PROFILE:-darksteam_97d99i}" = "darksteam_1_0m" ]; then',
+            'if [ "${GAME_DATA_SOURCE:-fixture}" = "database" ]; then',
+            $entrypoint,
+        );
+        $this->assertStringContainsString(
+            'php artisan game:database:install --no-interaction',
             $entrypoint,
         );
         $this->assertStringContainsString(
             'php artisan game:install-profile-schema --no-interaction',
             $entrypoint,
+        );
+        $this->assertLessThan(
+            strpos($entrypoint, 'php artisan game:install-profile-schema --no-interaction'),
+            strpos($entrypoint, 'php artisan game:database:install --no-interaction'),
         );
         $this->assertLessThan(
             strpos($entrypoint, 'php artisan migrate --force --no-interaction'),

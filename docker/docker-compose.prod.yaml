@@ -58,6 +58,8 @@ services:
             APP_DB_BOOTSTRAP: "false"
             APP_DB_ADMIN_USERNAME: ""
             APP_DB_ADMIN_PASSWORD: ""
+            GAME_DB_ADMIN_USERNAME: ""
+            GAME_DB_ADMIN_PASSWORD: ""
         volumes:
             - app-storage:/var/www/html/storage
         depends_on:
@@ -81,6 +83,8 @@ services:
             APP_DB_BOOTSTRAP: "false"
             APP_DB_ADMIN_USERNAME: ""
             APP_DB_ADMIN_PASSWORD: ""
+            GAME_DB_ADMIN_USERNAME: ""
+            GAME_DB_ADMIN_PASSWORD: ""
         volumes:
             - app-storage:/var/www/html/storage
         depends_on:

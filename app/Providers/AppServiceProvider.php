@@ -13,9 +13,12 @@ use App\Game\Repositories\FixtureRealmReadRepository;
 use App\Game\Repositories\LegacyGameAccountLookupRepository;
 use App\Game\Status\FixtureGameServerStatus;
 use App\Game\Status\TcpGameServerStatus;
+use App\Game\Versions\Contracts\GameDatabaseProfile;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Installation\Contracts\ApplicationDatabaseInstaller;
+use App\Installation\Contracts\GameDatabaseInstaller;
 use App\Installation\SqlServerApplicationDatabaseInstaller;
+use App\Installation\SqlServerGameDatabaseInstaller;
 use App\Modules\ModuleManager;
 use App\Website\WebsiteSettings;
 use App\Website\WebsiteSettingsManager;
@@ -54,6 +57,15 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->app->singleton(GameVersionProfile::class, $profileClass);
+        $this->app->singleton(GameDatabaseProfile::class, function (Application $application): GameDatabaseProfile {
+            $profile = $application->make(GameVersionProfile::class);
+
+            if (! $profile instanceof GameDatabaseProfile) {
+                throw new LogicException('The selected game version does not define database provisioning rules.');
+            }
+
+            return $profile;
+        });
 
         $versionProfile = $this->app->make(GameVersionProfile::class);
 
@@ -82,6 +94,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ModuleManager::class);
         $this->app->singleton(WebsiteSettingsManager::class);
         $this->app->bind(ApplicationDatabaseInstaller::class, SqlServerApplicationDatabaseInstaller::class);
+        $this->app->bind(GameDatabaseInstaller::class, SqlServerGameDatabaseInstaller::class);
     }
 
     /**

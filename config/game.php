@@ -18,6 +18,12 @@ $serverProfileDefaults = match ($serverProfileKey) {
 return [
     'data_source' => env('GAME_DATA_SOURCE', 'fixture'),
 
+    'database_bootstrap' => [
+        'enabled' => env('APP_DB_BOOTSTRAP', false),
+        'admin_connection' => 'game_admin',
+        'role' => 'muonline_web_application',
+    ],
+
     'writes_enabled' => filter_var(
         env('GAME_WRITES_ENABLED', false),
         FILTER_VALIDATE_BOOL,

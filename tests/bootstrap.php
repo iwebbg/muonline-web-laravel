@@ -39,6 +39,7 @@ $testingEnvironment = [
     'GAME_DB_PASSWORD' => '',
     'GAME_DB_RANKING' => ':memory:',
     'GAME_DB_USERNAME' => '',
+    'GAME_SERVER_PROFILE' => 'darksteam_97d99i',
     'GAME_WRITES_ENABLED' => 'false',
     'MAIL_MAILER' => 'array',
     'NIGHTWATCH_ENABLED' => 'false',

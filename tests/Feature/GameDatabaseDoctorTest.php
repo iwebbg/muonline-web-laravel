@@ -37,7 +37,7 @@ final class GameDatabaseDoctorTest extends TestCase
 
         $this->artisan('game:doctor')
             ->expectsOutputToContain('Game database connection is available')
-            ->expectsOutputToContain('Required 97d+99i schema is available')
+            ->expectsOutputToContain('Required game profile schema is available')
             ->expectsOutputToContain('Game write safety switches are closed')
             ->assertSuccessful();
     }

@@ -60,8 +60,12 @@ if [ "$container_role" = "app" ] && [ "${APP_DB_BOOTSTRAP:-false}" = "true" ]; t
 
     php artisan app:database:install --no-interaction
 
-    if [ "${GAME_SERVER_PROFILE:-darksteam_97d99i}" = "darksteam_1_0m" ]; then
-        php artisan game:install-profile-schema --no-interaction
+    if [ "${GAME_DATA_SOURCE:-fixture}" = "database" ]; then
+        php artisan game:database:install --no-interaction
+
+        if [ "${GAME_SERVER_PROFILE:-darksteam_97d99i}" = "darksteam_1_0m" ]; then
+            php artisan game:install-profile-schema --no-interaction
+        fi
     fi
 
     php artisan migrate --force --no-interaction

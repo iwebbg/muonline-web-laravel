@@ -43,7 +43,7 @@ final class InstallGameProfileSchema extends Command
                 throw new InvalidArgumentException('The 1.0M schema extension is unavailable.');
             }
 
-            $connection = $database->connection('application_admin');
+            $connection = $database->connection('game_admin');
             $pdo = $connection->getPdo();
             $pdo->exec("USE {$quotedDatabase}");
             $pdo->exec($sql);
@@ -52,11 +52,11 @@ final class InstallGameProfileSchema extends Command
 
             return self::FAILURE;
         } finally {
-            $database->purge('application_admin');
+            $database->purge('game_admin');
         }
 
         $this->components->info("DarksTeam 1.0M schema extensions are ready in [{$databaseName}].");
-        $this->line('Remove APP_DB_ADMIN_PASSWORD and set APP_DB_BOOTSTRAP=false after this command succeeds.');
+        $this->line('Remove GAME_DB_ADMIN_PASSWORD and APP_DB_ADMIN_PASSWORD, then set APP_DB_BOOTSTRAP=false.');
 
         return self::SUCCESS;
     }

@@ -39,6 +39,21 @@ final class Version1_0MProfileTest extends TestCase
     }
 
     /**
+     * Confirms 1.0M provisioning excludes the 97d-only billing table.
+     */
+    public function test_declares_profile_specific_schema_and_permissions(): void
+    {
+        $profile = new Version1_0MProfile;
+
+        $this->assertArrayNotHasKey('VI_CURR_INFO', $profile->requiredDatabaseSchema());
+        $this->assertArrayNotHasKey('dbo.VI_CURR_INFO', $profile->databaseObjectPermissions());
+        $this->assertSame(
+            ['SELECT', 'UPDATE'],
+            $profile->databaseObjectPermissions()['dbo.Character'],
+        );
+    }
+
+    /**
      * Confirms every supported legacy class code resolves to its public name.
      */
     #[DataProvider('classDefinitions')]

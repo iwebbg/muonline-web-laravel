@@ -31,6 +31,8 @@ services:
             DB_URL: ""
             DB_USERNAME: ""
             GAME_DATA_SOURCE: fixture
+            GAME_DB_ADMIN_PASSWORD: ""
+            GAME_DB_ADMIN_USERNAME: ""
             GAME_DB_CONNECTION: sqlite
             GAME_DB_HOST: ""
             GAME_DB_MUONLINE: ":memory:"

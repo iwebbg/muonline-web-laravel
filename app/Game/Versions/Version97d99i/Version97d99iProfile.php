@@ -47,6 +47,7 @@ use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
 use App\Game\Repositories\SqlServer97d99iZenBankRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
+use App\Game\Versions\Contracts\GameDatabaseProfile;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
@@ -56,8 +57,47 @@ use InvalidArgumentException;
 /**
  * Defines the verified DarksTeam 97d+99i classes, stats and SQL adapters.
  */
-final class Version97d99iProfile implements GameVersionProfile
+final class Version97d99iProfile implements GameDatabaseProfile, GameVersionProfile
 {
+    /**
+     * Returns the minimum DarksTeam 97d+99i schema consumed by its adapters.
+     *
+     * @return array<string, list<string>>
+     */
+    public function requiredDatabaseSchema(): array
+    {
+        return [
+            'MEMB_INFO' => ['memb_guid', 'memb___id', 'memb__pwd', 'mail_addr', 'bloc_code', 'ctl1_code'],
+            'Character' => ['AccountID', 'Name', 'cLevel', 'Class', 'Money', 'Resets', 'GrandResets'],
+            'warehouse' => ['AccountID', 'Items', 'Money'],
+            'MEMB_STAT' => ['memb___id', 'ConnectStat'],
+            'Guild' => ['G_Name', 'G_Master', 'G_Score'],
+            'GuildMember' => ['Name', 'G_Name'],
+            'GameServerInfo' => ['ItemCount'],
+            'VI_CURR_INFO' => ['memb___id', 'memb_guid'],
+        ];
+    }
+
+    /**
+     * Returns only the SQL permissions used by DarksTeam 97d+99i adapters.
+     *
+     * @return array<string, list<string>>
+     */
+    public function databaseObjectPermissions(): array
+    {
+        return [
+            'dbo.MEMB_INFO' => ['SELECT', 'INSERT', 'UPDATE'],
+            'dbo.MEMB_STAT' => ['SELECT'],
+            'dbo.Character' => ['SELECT', 'UPDATE'],
+            'dbo.warehouse' => ['SELECT', 'UPDATE'],
+            'dbo.Guild' => ['SELECT'],
+            'dbo.GuildMember' => ['SELECT'],
+            'dbo.VI_CURR_INFO' => ['SELECT', 'INSERT'],
+            'dbo.GameServerInfo' => ['SELECT'],
+            'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
+        ];
+    }
+
     /**
      * Returns the optional schema features implemented by DarksTeam 97d+99i.
      */

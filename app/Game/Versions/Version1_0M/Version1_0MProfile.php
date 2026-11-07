@@ -47,6 +47,7 @@ use App\Game\Repositories\SqlServer1_0MRealmReadRepository;
 use App\Game\Repositories\SqlServer1_0MZenBankRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
+use App\Game\Versions\Contracts\GameDatabaseProfile;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
@@ -57,8 +58,45 @@ use InvalidArgumentException;
 /**
  * Defines the DarksTeam 1.0M classes, attributes and persistence adapters.
  */
-final class Version1_0MProfile implements GameVersionProfile
+final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfile
 {
+    /**
+     * Returns the minimum DarksTeam 1.0M schema consumed by its adapters.
+     *
+     * @return array<string, list<string>>
+     */
+    public function requiredDatabaseSchema(): array
+    {
+        return [
+            'MEMB_INFO' => ['memb_guid', 'memb___id', 'memb__pwd', 'mail_addr', 'bloc_code', 'ctl1_code'],
+            'Character' => ['AccountID', 'Name', 'cLevel', 'Class', 'Money', 'Resets', 'GrandResets', 'Leadership'],
+            'warehouse' => ['AccountID', 'Items', 'Money'],
+            'MEMB_STAT' => ['memb___id', 'ConnectStat'],
+            'Guild' => ['G_Name', 'G_Master', 'G_Score'],
+            'GuildMember' => ['Name', 'G_Name'],
+            'GameServerInfo' => ['ItemCount'],
+        ];
+    }
+
+    /**
+     * Returns only the SQL permissions used by DarksTeam 1.0M adapters.
+     *
+     * @return array<string, list<string>>
+     */
+    public function databaseObjectPermissions(): array
+    {
+        return [
+            'dbo.MEMB_INFO' => ['SELECT', 'INSERT', 'UPDATE'],
+            'dbo.MEMB_STAT' => ['SELECT'],
+            'dbo.Character' => ['SELECT', 'UPDATE'],
+            'dbo.warehouse' => ['SELECT', 'UPDATE'],
+            'dbo.Guild' => ['SELECT'],
+            'dbo.GuildMember' => ['SELECT'],
+            'dbo.GameServerInfo' => ['SELECT'],
+            'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
+        ];
+    }
+
     /**
      * Returns the optional schema features implemented by DarksTeam 1.0M.
      */
