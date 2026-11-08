@@ -51,7 +51,6 @@ use App\Game\Versions\Contracts\GameDatabaseProfile;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
-use App\Game\Versions\UnavailableItemGeneratorCatalog;
 use App\Stats\CharacterStats;
 use InvalidArgumentException;
 
@@ -106,7 +105,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             grandResets: true,
             characterVip: false,
             billingRecord: false,
-            itemGenerator: false,
+            itemGenerator: true,
         );
     }
 
@@ -270,8 +269,6 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
     /**
      * Returns item services owned exclusively by the DarksTeam 1.0M adapter.
      *
-     * Generated-item sales remain unavailable until a 1.0M pricing source is audited.
-     *
      * @return array<class-string, class-string>
      */
     public function itemServiceBindings(): array
@@ -280,7 +277,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             ItemCatalog::class => ItemCatalog1_0M::class,
             ItemCodec::class => ItemCodec1_0M::class,
             ItemGrantRules::class => ItemGrantRules1_0M::class,
-            ItemGeneratorCatalog::class => UnavailableItemGeneratorCatalog::class,
+            ItemGeneratorCatalog::class => ItemGeneratorCatalog1_0M::class,
         ];
     }
 

@@ -7,9 +7,9 @@ use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemGeneratorCatalog;
 use App\Game\Contracts\ItemGrantRules;
 use App\Game\Versions\Contracts\GameVersionProfile;
-use App\Game\Versions\UnavailableItemGeneratorCatalog;
 use App\Game\Versions\Version1_0M\ItemCatalog1_0M;
 use App\Game\Versions\Version1_0M\ItemCodec1_0M;
+use App\Game\Versions\Version1_0M\ItemGeneratorCatalog1_0M;
 use App\Game\Versions\Version1_0M\ItemGrantRules1_0M;
 use App\Providers\AppServiceProvider;
 use Tests\TestCase;
@@ -33,7 +33,7 @@ final class GameVersionItemServiceBindingTest extends TestCase
         $this->assertInstanceOf(ItemCodec1_0M::class, $this->app->make(ItemCodec::class));
         $this->assertInstanceOf(ItemGrantRules1_0M::class, $this->app->make(ItemGrantRules::class));
         $this->assertInstanceOf(
-            UnavailableItemGeneratorCatalog::class,
+            ItemGeneratorCatalog1_0M::class,
             $this->app->make(ItemGeneratorCatalog::class),
         );
     }

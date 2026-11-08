@@ -12,9 +12,9 @@ use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterGrandResetRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterVipRepository;
 use App\Game\Repositories\SqlServer1_0MRealmReadRepository;
-use App\Game\Versions\UnavailableItemGeneratorCatalog;
 use App\Game\Versions\Version1_0M\ItemCatalog1_0M;
 use App\Game\Versions\Version1_0M\ItemCodec1_0M;
+use App\Game\Versions\Version1_0M\ItemGeneratorCatalog1_0M;
 use App\Game\Versions\Version1_0M\ItemGrantRules1_0M;
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use InvalidArgumentException;
@@ -36,6 +36,7 @@ final class Version1_0MProfileTest extends TestCase
         $this->assertTrue($capabilities->grandResets);
         $this->assertFalse($capabilities->characterVip);
         $this->assertFalse($capabilities->billingRecord);
+        $this->assertTrue($capabilities->itemGenerator);
     }
 
     /**
@@ -147,7 +148,7 @@ final class Version1_0MProfileTest extends TestCase
         $this->assertSame(ItemCatalog1_0M::class, $bindings[ItemCatalog::class]);
         $this->assertSame(ItemCodec1_0M::class, $bindings[ItemCodec::class]);
         $this->assertSame(ItemGrantRules1_0M::class, $bindings[ItemGrantRules::class]);
-        $this->assertSame(UnavailableItemGeneratorCatalog::class, $bindings[ItemGeneratorCatalog::class]);
+        $this->assertSame(ItemGeneratorCatalog1_0M::class, $bindings[ItemGeneratorCatalog::class]);
 
         foreach ($bindings as $adapter) {
             $this->assertStringNotContainsString('97d99i', $adapter);
