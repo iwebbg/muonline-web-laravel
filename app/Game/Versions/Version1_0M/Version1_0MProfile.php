@@ -132,8 +132,8 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             new CharacterClassDefinition(32, 'fe', 'FE', 'Fairy Elf', '/images/characters/muse-elf.png', 'elf', 1),
             new CharacterClassDefinition(33, 'me', 'ME', 'Muse Elf', '/images/characters/muse-elf.png', 'elf', 2, 32),
             new CharacterClassDefinition(48, 'mg', 'MG', 'Magic Gladiator', '/images/characters/magic-gladiator.png', 'magic-gladiator', 1),
-            new CharacterClassDefinition(64, 'dl', 'DL', 'Dark Lord', '/images/characters/blade-knight.png', 'dark-lord', 1),
-            new CharacterClassDefinition(65, 'le', 'LE', 'Lord Emperor', '/images/characters/blade-knight.png', 'dark-lord', 2, 64),
+            new CharacterClassDefinition(64, 'dl', 'DL', 'Dark Lord', '/images/characters/dark-lord.png', 'dark-lord', 1),
+            new CharacterClassDefinition(65, 'le', 'LE', 'Lord Emperor', '/images/characters/dark-lord.png', 'dark-lord', 2, 64),
         ];
     }
 

@@ -104,6 +104,18 @@ final class Version1_0MProfileTest extends TestCase
     }
 
     /**
+     * Confirms both Dark Lord evolutions use their dedicated portrait asset.
+     */
+    public function test_returns_dark_lord_artwork_for_both_evolutions(): void
+    {
+        $profile = new Version1_0MProfile;
+
+        $this->assertSame('/images/characters/dark-lord.png', $profile->classForCode(64)?->image);
+        $this->assertSame('/images/characters/dark-lord.png', $profile->classForCode(65)?->image);
+        $this->assertFileExists(dirname(__DIR__, 2).'/public/images/characters/dark-lord.png');
+    }
+
+    /**
      * Confirms unsupported legacy class codes fail before reaching persistence.
      */
     public function test_rejects_unsupported_class_codes(): void
