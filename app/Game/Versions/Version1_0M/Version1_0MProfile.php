@@ -7,6 +7,7 @@ use App\Game\Contracts\AccountCredentialRepository;
 use App\Game\Contracts\AccountPasswordRecoveryRepository;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\AccountRegistrationRepository;
+use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\CharacterGrandResetRepository;
 use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Contracts\CharacterMoveRepository;
@@ -31,6 +32,7 @@ use App\Game\Repositories\SqlServer1_0MAccountCredentialRepository;
 use App\Game\Repositories\SqlServer1_0MAccountPasswordRecoveryRepository;
 use App\Game\Repositories\SqlServer1_0MAccountReadRepository;
 use App\Game\Repositories\SqlServer1_0MAccountRegistrationRepository;
+use App\Game\Repositories\SqlServer1_0MCastleSiegeReadRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterGrandResetRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterInventoryEscrowRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterMoveRepository;
@@ -74,6 +76,14 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             'Guild' => ['G_Name', 'G_Master', 'G_Score'],
             'GuildMember' => ['Name', 'G_Name'],
             'GameServerInfo' => ['ItemCount'],
+            'MuCastle_DATA' => [
+                'MAP_SVR_GROUP',
+                'SIEGE_START_DATE',
+                'SIEGE_END_DATE',
+                'SIEGE_ENDED',
+                'CASTLE_OCCUPY',
+                'OWNER_GUILD',
+            ],
         ];
     }
 
@@ -92,6 +102,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             'dbo.Guild' => ['SELECT'],
             'dbo.GuildMember' => ['SELECT'],
             'dbo.GameServerInfo' => ['SELECT'],
+            'dbo.MuCastle_DATA' => ['SELECT'],
             'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
         ];
     }
@@ -291,6 +302,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
     {
         return [
             RealmReadRepository::class => SqlServer1_0MRealmReadRepository::class,
+            CastleSiegeReadRepository::class => SqlServer1_0MCastleSiegeReadRepository::class,
             AccountActivationRepository::class => SqlServer1_0MAccountActivationRepository::class,
             AccountCredentialRepository::class => SqlServer1_0MAccountCredentialRepository::class,
             AccountPasswordRecoveryRepository::class => SqlServer1_0MAccountPasswordRecoveryRepository::class,

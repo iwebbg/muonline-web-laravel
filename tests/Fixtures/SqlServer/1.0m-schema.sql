@@ -157,6 +157,17 @@ CREATE TABLE [dbo].[GameServerInfo] (
 );
 GO
 
+CREATE TABLE [dbo].[MuCastle_DATA] (
+    [MAP_SVR_GROUP] [int] NOT NULL,
+    [SIEGE_START_DATE] [datetime] NOT NULL,
+    [SIEGE_END_DATE] [datetime] NOT NULL,
+    [SIEGE_ENDED] [bit] NOT NULL CONSTRAINT [DF_MuCastle_DATA_SIEGE_ENDED] DEFAULT (0),
+    [CASTLE_OCCUPY] [bit] NOT NULL CONSTRAINT [DF_MuCastle_DATA_CASTLE_OCCUPY] DEFAULT (0),
+    [OWNER_GUILD] [varchar](8) NOT NULL CONSTRAINT [DF_MuCastle_DATA_OWNER_GUILD] DEFAULT (''),
+    CONSTRAINT [PK_MuCastle_DATA] PRIMARY KEY CLUSTERED ([MAP_SVR_GROUP] ASC)
+);
+GO
+
 CREATE TABLE [dbo].[Guild] (
     [G_Name] [varchar](8) NOT NULL,
     [G_Mark] [varbinary](32) NULL,

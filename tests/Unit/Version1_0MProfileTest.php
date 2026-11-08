@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\CharacterGrandResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
 use App\Game\Contracts\ItemCatalog;
@@ -9,6 +10,7 @@ use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemGeneratorCatalog;
 use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\RealmReadRepository;
+use App\Game\Repositories\SqlServer1_0MCastleSiegeReadRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterGrandResetRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterVipRepository;
 use App\Game\Repositories\SqlServer1_0MRealmReadRepository;
@@ -60,6 +62,10 @@ final class Version1_0MProfileTest extends TestCase
         $this->assertArrayNotHasKey(
             'dbo.UFN_MD5_ENCODEVALUE',
             $profile->databaseObjectPermissions(),
+        );
+        $this->assertSame(
+            ['SELECT'],
+            $profile->databaseObjectPermissions()['dbo.MuCastle_DATA'],
         );
     }
 
@@ -134,7 +140,7 @@ final class Version1_0MProfileTest extends TestCase
     {
         $bindings = (new Version1_0MProfile)->repositoryBindings();
 
-        $this->assertCount(20, $bindings);
+        $this->assertCount(21, $bindings);
         $this->assertSame(SqlServer1_0MRealmReadRepository::class, $bindings[RealmReadRepository::class]);
         $this->assertSame(
             SqlServer1_0MCharacterGrandResetRepository::class,
@@ -143,6 +149,10 @@ final class Version1_0MProfileTest extends TestCase
         $this->assertSame(
             SqlServer1_0MCharacterVipRepository::class,
             $bindings[CharacterVipRepository::class],
+        );
+        $this->assertSame(
+            SqlServer1_0MCastleSiegeReadRepository::class,
+            $bindings[CastleSiegeReadRepository::class],
         );
 
         foreach ($bindings as $adapter) {
