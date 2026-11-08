@@ -24,6 +24,7 @@ final class HomeCastleSiegeTest extends TestCase
     public function test_home_page_displays_castle_siege_for_the_1_0m_profile(): void
     {
         config()->set('game.event_profile', 'darksteam_1_0m');
+        config()->set('game.event_home_limit', 12);
         config()->set('game.profile.version', '0.99.60/62T (1.0M)');
         $this->app->instance(GameVersionProfile::class, new Version1_0MProfile);
         $this->app->instance(CastleSiegeReadRepository::class, new class implements CastleSiegeReadRepository

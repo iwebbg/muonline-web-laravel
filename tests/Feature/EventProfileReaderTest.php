@@ -27,6 +27,54 @@ final class EventProfileReaderTest extends TestCase
     }
 
     /**
+     * Confirms the 1.0M profile exposes every enabled event with a verified schedule.
+     */
+    public function test_reader_uses_complete_1_0m_server_file_schedule(): void
+    {
+        config()->set('game.event_profile', 'darksteam_1_0m');
+        config()->set('game.profile.version', '0.99.60/62T (1.0M)');
+
+        $definitions = $this->app->make(EventProfileReader::class)->definitions();
+        $definitionsByKey = [];
+
+        foreach ($definitions as $definition) {
+            $definitionsByKey[$definition->key] = $definition;
+        }
+
+        $this->assertSame([
+            'blood-castle',
+            'devil-square',
+            'chaos-castle',
+            'skeleton-king-invasion',
+            'golden-dragon-invasion',
+            'white-wizard-invasion',
+            'happy-hour',
+            'sky-event',
+            'happy-level-up',
+            'castle-deep',
+        ], array_keys($definitionsByKey));
+        $this->assertSame(120, $definitionsByKey['blood-castle']->intervalMinutes);
+        $this->assertSame('00:00', $definitionsByKey['blood-castle']->intervalAnchor);
+        $this->assertSame(15, $definitionsByKey['blood-castle']->durationMinutes);
+        $this->assertSame(120, $definitionsByKey['devil-square']->intervalMinutes);
+        $this->assertSame('00:30', $definitionsByKey['devil-square']->intervalAnchor);
+        $this->assertSame(20, $definitionsByKey['devil-square']->durationMinutes);
+        $this->assertSame(
+            ['12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+            $definitionsByKey['chaos-castle']->times,
+        );
+        $this->assertSame([5], $definitionsByKey['happy-hour']->daysOfWeek);
+        $this->assertSame(['00:00'], $definitionsByKey['happy-hour']->times);
+        $this->assertSame(['20:00'], $definitionsByKey['sky-event']->times);
+        $this->assertSame(['14:00'], $definitionsByKey['happy-level-up']->times);
+        $this->assertSame(['21:30'], $definitionsByKey['castle-deep']->times);
+        $this->assertSame(
+            ['00:00', '02:00', '04:00', '08:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+            $definitionsByKey['white-wizard-invasion']->times,
+        );
+    }
+
+    /**
      * Confirms a database record replaces its config key and uses Bulgarian text.
      */
     public function test_reader_merges_localized_override_and_custom_event(): void
