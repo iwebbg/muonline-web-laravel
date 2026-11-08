@@ -1622,7 +1622,7 @@
     "9:1": {
         "group": 9,
         "index": 1,
-        "name": "Draon pants",
+        "name": "Dragon Pants",
         "width": 2,
         "height": 2,
         "image": "/images/items/1_0m/9001.gif",
@@ -1772,7 +1772,7 @@
     "9:16": {
         "group": 9,
         "index": 16,
-        "name": "Bkacj Dragon pants",
+        "name": "Black Dragon Pants",
         "width": 2,
         "height": 2,
         "image": "/images/items/1_0m/90016.gif",

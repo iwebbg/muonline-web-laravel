@@ -48,6 +48,20 @@ final class ItemCatalog1_0MTest extends TestCase
     }
 
     /**
+     * Confirms known server-file typos do not make Dragon set items unsearchable.
+     */
+    public function test_normalizes_dragon_pants_display_names(): void
+    {
+        $dragonPants = $this->catalog()->definitionFor(9, 1);
+        $blackDragonPants = $this->catalog()->definitionFor(9, 16);
+
+        $this->assertNotNull($dragonPants);
+        $this->assertSame('Dragon Pants', $dragonPants->name);
+        $this->assertNotNull($blackDragonPants);
+        $this->assertSame('Black Dragon Pants', $blackDragonPants->name);
+    }
+
+    /**
      * Confirms missing legacy artwork does not remove valid server items.
      */
     public function test_keeps_items_without_matching_artwork(): void
