@@ -1050,6 +1050,8 @@ return [
         'pk' => 'Top PK',
         'top_pk' => 'Top player killers',
         'guilds' => 'Guilds',
+        'castle_siege' => 'Castle Siege',
+        'castle_siege_owner' => 'Castle Siege owner',
         'leaderboard' => 'Server leaderboard',
         'search' => 'Search rankings',
         'search_placeholder' => 'Character, guild or master…',
@@ -1078,6 +1080,7 @@ return [
         'retry' => 'Try again',
         'no_players' => 'No player matches the current filters.',
         'no_guilds' => 'No guild matches the current search.',
+        'no_castle_owner' => 'The castle does not have a recorded owner yet.',
     ],
     'profiles' => [
         'character_title' => ':name · Character profile',

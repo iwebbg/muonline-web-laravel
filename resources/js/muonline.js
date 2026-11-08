@@ -1629,13 +1629,13 @@ export function rankingExplorer(initialPage, dataUrl) {
         /**
          * Selects an independently ordered leaderboard.
          *
-         * @param {string} selectedBoard The overall, PK or guild board key.
+         * @param {string} selectedBoard The overall, PK, guild or Castle Siege board key.
          * @returns {Promise<void>}
          */
         async selectBoard(selectedBoard) {
             this.board = selectedBoard;
 
-            if (selectedBoard === 'guilds') {
+            if (['guilds', 'castle_siege'].includes(selectedBoard)) {
                 this.classFilter = '';
                 this.onlineOnly = false;
             }
@@ -1734,7 +1734,7 @@ export function rankingExplorer(initialPage, dataUrl) {
                 per_page: String(this.pageData.meta.per_page),
             });
 
-            if (this.board !== 'guilds' && this.classFilter !== '') {
+            if (['overall', 'pk'].includes(this.board) && this.classFilter !== '') {
                 parameters.set('class', this.classFilter);
             }
 
@@ -1742,7 +1742,7 @@ export function rankingExplorer(initialPage, dataUrl) {
                 parameters.set('search', this.search.trim());
             }
 
-            if (this.board !== 'guilds' && this.onlineOnly) {
+            if (['overall', 'pk'].includes(this.board) && this.onlineOnly) {
                 parameters.set('online', '1');
             }
 

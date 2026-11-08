@@ -51,6 +51,7 @@ final class RankingsPageTest extends TestCase
             ->assertOk()
             ->assertSee('Dark Lord')
             ->assertSee('DL')
+            ->assertSee('Castle Siege')
             ->assertDontSee('Lord Emperor')
             ->assertDontSee('>LE<', escape: false);
     }

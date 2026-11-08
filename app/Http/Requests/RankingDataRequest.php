@@ -31,7 +31,7 @@ final class RankingDataRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'board' => ['sometimes', Rule::enum(RankingBoard::class)],
+            'board' => ['sometimes', Rule::in($this->rankingBoardValues())],
             'class' => ['sometimes', 'nullable', Rule::in($this->classFilterKeys())],
             'page' => ['sometimes', 'integer', 'min:1'],
             'per_page' => ['sometimes', 'integer', 'min:2', 'max:25'],
@@ -45,8 +45,11 @@ final class RankingDataRequest extends FormRequest
      */
     public function board(): RankingBoard
     {
-        return RankingBoard::tryFrom((string) $this->input('board'))
-            ?? RankingBoard::Overall;
+        $board = RankingBoard::tryFrom((string) $this->input('board'));
+
+        return $board !== null && in_array($board->value, $this->rankingBoardValues(), true)
+            ? $board
+            : RankingBoard::Overall;
     }
 
     /**
@@ -59,7 +62,7 @@ final class RankingDataRequest extends FormRequest
         );
         $board = $this->board();
 
-        if ($board === RankingBoard::Guilds) {
+        if (in_array($board, [RankingBoard::Guilds, RankingBoard::CastleSiege], true)) {
             $board = RankingBoard::Overall;
         }
 
@@ -99,6 +102,26 @@ final class RankingDataRequest extends FormRequest
         }
 
         return $keys;
+    }
+
+    /**
+     * Returns only the leaderboard keys supported by the active game profile.
+     *
+     * @return list<string>
+     */
+    private function rankingBoardValues(): array
+    {
+        $boards = [
+            RankingBoard::Overall->value,
+            RankingBoard::PlayerKillers->value,
+            RankingBoard::Guilds->value,
+        ];
+
+        if ($this->versionProfile()->capabilities()->castleSiege) {
+            $boards[] = RankingBoard::CastleSiege->value;
+        }
+
+        return $boards;
     }
 
     /**
