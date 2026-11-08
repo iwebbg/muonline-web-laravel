@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
-use App\Game\Versions\Version97d99i\ItemGrantRules97d99i;
+use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemGrantRules;
 use App\Http\AccountPanelConfiguration;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\FilterItemGrantHistoryRequest;
@@ -27,8 +27,8 @@ final class ItemGrantController extends Controller
      */
     public function index(
         FilterItemGrantHistoryRequest $request,
-        ItemCatalog97d99i $catalog,
-        ItemGrantRules97d99i $itemGrantRules,
+        ItemCatalog $catalog,
+        ItemGrantRules $itemGrantRules,
         AccountPanelConfiguration $accountPanelConfiguration,
     ): View {
         $requestedAccountId = $request->initialAccountId();

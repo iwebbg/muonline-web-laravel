@@ -27,6 +27,9 @@
         <env name="DB_DATABASE" value=":memory:" force="true"/>
         <env name="DB_URL" value="" force="true"/>
         <env name="GAME_DATA_SOURCE" value="fixture" force="true"/>
+        <env name="GAME_ACCOUNT_PASSWORD_SCHEME" value="plaintext" force="true"/>
+        <env name="GAME_EVENT_PROFILE" value="darksteam_97d99i" force="true"/>
+        <env name="GAME_SERVER_PROFILE" value="darksteam_97d99i" force="true"/>
         <env name="MAIL_MAILER" value="array" force="true"/>
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="SESSION_DRIVER" value="array" force="true"/>

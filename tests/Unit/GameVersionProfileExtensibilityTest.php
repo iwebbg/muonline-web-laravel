@@ -6,6 +6,7 @@ use App\Game\Data\AccountCharacter;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
 use App\Reset\ResetProfileSettings;
 use App\StatReset\Actions\PreviewCharacterStatReset;
@@ -91,6 +92,18 @@ final class GameVersionProfileExtensibilityTest extends TestCase
     {
         return new class implements GameVersionProfile
         {
+            /**
+             * Returns the optional capabilities needed by the isolated test profile.
+             */
+            public function capabilities(): GameVersionCapabilities
+            {
+                return new GameVersionCapabilities(
+                    grandResets: true,
+                    characterVip: true,
+                    billingRecord: true,
+                );
+            }
+
             /**
              * Returns the isolated test profile key.
              */
@@ -184,6 +197,16 @@ final class GameVersionProfileExtensibilityTest extends TestCase
                     'energy' => 15,
                     'command' => 0,
                 ]);
+            }
+
+            /**
+             * Returns no item services for the isolated calculator test.
+             *
+             * @return array<class-string, class-string>
+             */
+            public function itemServiceBindings(): array
+            {
+                return [];
             }
 
             /**

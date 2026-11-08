@@ -3,11 +3,11 @@
 namespace App\ItemGrants\Actions;
 
 use App\Admin\Authorization\AdministratorPermission;
+use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemEscrowRepository;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Operations\CharacterOperationStatus;
-use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
-use App\Game\Versions\Version97d99i\ItemCodec97d99i;
 use App\ItemGrants\Exceptions\ItemGrantRejected;
 use App\ItemGrants\ItemGrantBlockReason;
 use App\ItemGrants\ItemGrantResult;
@@ -29,8 +29,8 @@ final readonly class GrantItemToWarehouse
     public function __construct(
         private ItemSerialRepository $itemSerialRepository,
         private ItemEscrowRepository $itemEscrowRepository,
-        private ItemCatalog97d99i $catalog,
-        private ItemCodec97d99i $codec,
+        private ItemCatalog $catalog,
+        private ItemCodec $codec,
     ) {}
 
     /**

@@ -2,13 +2,14 @@
 
 namespace App\Game\Versions\Version97d99i;
 
+use App\Game\Contracts\ItemCodec;
 use App\Game\Data\ItemSlot;
 use InvalidArgumentException;
 
 /**
  * Decodes and losslessly re-encodes Darksteam 97d+99i item blobs.
  */
-final readonly class ItemCodec97d99i
+final readonly class ItemCodec97d99i implements ItemCodec
 {
     public const SLOT_BYTES = 10;
 

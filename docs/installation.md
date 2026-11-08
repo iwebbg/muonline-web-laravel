@@ -126,7 +126,7 @@ temporary database volume that is removed after every run:
 See the dedicated [testing guide](testing.md) for isolation guarantees, narrow
 test commands, legacy schema handling and failure diagnosis.
 
-### Automatic SQL Server application database first start
+### Automatic SQL Server database first start
 
 SQLite remains convenient for a fixture-only evaluation. A live or production
 installation should keep Laravel-owned tables in **MuOnline_Web** on the same
@@ -149,6 +149,18 @@ APP_DB_BOOTSTRAP=true
 APP_DB_SEED=true
 APP_DB_ADMIN_USERNAME=sa
 APP_DB_ADMIN_PASSWORD=replace-with-the-current-sa-password
+
+GAME_DATA_SOURCE=database
+GAME_DB_CONNECTION=sqlsrv
+GAME_DB_HOST=192.168.0.105
+GAME_DB_PORT=1433
+GAME_DB_MUONLINE=MuOnline
+GAME_DB_USERNAME=muonline_game_web
+GAME_DB_PASSWORD=replace-with-a-strong-runtime-password-123!
+GAME_DB_ADMIN_USERNAME=
+GAME_DB_ADMIN_PASSWORD=
+GAME_DB_READONLY=true
+GAME_WRITES_ENABLED=false
 ~~~
 
 **APP_DB_ADMIN_\*** is a temporary provisioning connection. On the first
@@ -159,7 +171,18 @@ automatically:
 2. Creates the restricted **muonline_web_app** SQL login and database user.
 3. Grants data access and only the schema permissions Laravel migrations need
    inside **MuOnline_Web**.
-4. Runs application migrations and the idempotent public seeders.
+4. Creates the separate restricted **muonline_game_web** login and user inside
+   the existing database selected by **GAME_DB_MUONLINE**.
+5. Grants only the object permissions required by the supported game adapters.
+6. Installs the selected profile's idempotent schema extension when required.
+7. Runs application migrations and the idempotent public seeders.
+
+When the game database is on the same SQL Server, empty
+**GAME_DB_ADMIN_\*** values reuse **APP_DB_ADMIN_\*** only during bootstrap. If
+it is on another SQL Server, set **GAME_DB_ADMIN_USERNAME** and
+**GAME_DB_ADMIN_PASSWORD** to temporary administrator credentials for that
+server. The game runtime password must contain at least 16 characters with an
+uppercase letter, lowercase letter, number and symbol.
 
 The container fails closed if any step fails. The **sa** login is never used as
 Laravel's normal connection and receives no application request.
@@ -170,6 +193,8 @@ After the app log reports that **MuOnline_Web** is ready, immediately change:
 APP_DB_BOOTSTRAP=false
 APP_DB_ADMIN_USERNAME=
 APP_DB_ADMIN_PASSWORD=
+GAME_DB_ADMIN_USERNAME=
+GAME_DB_ADMIN_PASSWORD=
 ~~~
 
 Then recreate the services so the administrator secret is removed from every
@@ -179,10 +204,10 @@ container environment:
 ./docker/compose up --detach --force-recreate
 ~~~
 
-Keep **DB_USERNAME**, **DB_PASSWORD** and **AUTO_MIGRATE=true**; future starts
-then use only the restricted runtime login. The fallback SQLCMD template is
-**docker/sql/create-application-database-97d+99i.sql** for environments where
-automatic bootstrap is intentionally disabled.
+Keep the application and game runtime credentials; future starts then use only
+their restricted logins. The SQLCMD templates under **docker/sql** remain
+fallbacks for environments where automatic bootstrap is intentionally
+disabled.
 
 ## Creating the first administrator
 
@@ -254,21 +279,27 @@ GAME_WRITES_ENABLED=false
 ```
 
 To test real read-only data, configure the `GAME_DB_*` values in the root
-`.env`, set `GAME_DATA_SOURCE=database` and keep writes disabled. Run the
-compatibility and privilege check:
+`.env`, set `GAME_DATA_SOURCE=database` and keep writes disabled. If the
+restricted game login does not exist yet, enable **APP_DB_BOOTSTRAP=true** for
+one app-container start so it is created automatically. Run the compatibility
+and privilege check:
 
 ```bash
 ./docker/compose exec -T app php artisan game:doctor
 ```
 
-The first supported profile expects the DarksTeam 97d+99i schema. The
-application does not migrate or modify game-owned tables. The SQL Server schema
-fixture is a reference export only and must not be passed to Laravel migrations.
+Each supported profile validates its own DarksTeam schema and receives only its
+adapter-specific SQL permissions. The application does not run Laravel
+migrations against game-owned tables; reviewed profile extensions such as the
+1.0M **GrandResets** column are installed idempotently during bootstrap. SQL
+Server schema fixtures remain test references and must not be passed to Laravel
+migrations.
 
-Use a dedicated SQL Server login with only the permissions required by the web
-adapter. The template at `docker/sql/create-game-web-login.sql` is the starting
-point for the current profile. `game:doctor` rejects `sysadmin`, `db_owner`,
-unrelated mutation permissions and missing schema objects.
+The bootstrap creates a dedicated SQL Server login with only the permissions
+required by the supported adapters. The template at
+`docker/sql/create-game-web-login.sql` is retained only as a manual fallback.
+`game:doctor` rejects `sysadmin`, `db_owner`, unrelated mutation permissions
+and missing schema objects.
 
 Only enable writes after all of the following are true:
 
@@ -377,6 +408,15 @@ APP_DB_SEED=true
 APP_DB_ADMIN_USERNAME=sa
 APP_DB_ADMIN_PASSWORD=replace-with-the-current-sa-password
 
+GAME_DATA_SOURCE=database
+GAME_DB_CONNECTION=sqlsrv
+GAME_DB_HOST=192.168.0.105
+GAME_DB_PORT=1433
+GAME_DB_MUONLINE=MuOnline
+GAME_DB_USERNAME=muonline_game_web
+GAME_DB_PASSWORD=replace-with-a-strong-runtime-password-123!
+GAME_DB_ADMIN_USERNAME=
+GAME_DB_ADMIN_PASSWORD=
 GAME_DB_READONLY=true
 GAME_WRITES_ENABLED=false
 ```
@@ -403,9 +443,10 @@ and migrates **MuOnline_Web** before PHP-FPM becomes available:
 ./docker/compose logs --follow app
 ```
 
-After the successful first start, clear both **APP_DB_ADMIN_\*** values, set
-**APP_DB_BOOTSTRAP=false**, and recreate the services as described in
-[Automatic SQL Server application database first start](#automatic-sql-server-application-database-first-start).
+After the successful first start, clear all **APP_DB_ADMIN_\*** and
+**GAME_DB_ADMIN_\*** values, set **APP_DB_BOOTSTRAP=false**, and recreate the
+services as described in
+[Automatic SQL Server database first start](#automatic-sql-server-database-first-start).
 Run **game:doctor** while game writes remain closed. Before accepting players,
 verify the read-only pages and backups, enable live game writes as documented
 above, recreate the services, and complete the disposable-account mutation

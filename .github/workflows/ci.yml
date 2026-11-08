@@ -73,6 +73,9 @@ jobs:
             - name: Run SQL Server integration tests
               run: ./docker/compose test-integration
 
+            - name: Run DarksTeam 1.0M SQL Server integration tests
+              run: ./docker/compose test-integration-1.0m
+
     frontend:
         name: Frontend
         runs-on: ubuntu-latest

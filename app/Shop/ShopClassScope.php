@@ -12,4 +12,5 @@ enum ShopClassScope: string
     case DarkKnight = 'dk_bk';
     case FairyElf = 'elf_me';
     case MagicGladiator = 'mg';
+    case DarkLord = 'dl_le';
 }

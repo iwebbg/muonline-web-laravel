@@ -2,9 +2,9 @@
 
 namespace App\Shop\Actions;
 
+use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
-use App\Game\Versions\Version97d99i\ItemCodec97d99i;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use App\Models\AccountReward;
@@ -31,7 +31,7 @@ final readonly class FulfillAccountReward
      */
     public function __construct(
         private ItemSerialRepository $itemSerialRepository,
-        private ItemCodec97d99i $codec,
+        private ItemCodec $codec,
         private MarketItemEscrowRepository $itemEscrowRepository,
         private ModuleManager $moduleManager,
     ) {}

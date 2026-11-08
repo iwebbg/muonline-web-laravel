@@ -64,6 +64,8 @@ services:
             APP_DB_BOOTSTRAP: "false"
             APP_DB_ADMIN_USERNAME: ""
             APP_DB_ADMIN_PASSWORD: ""
+            GAME_DB_ADMIN_USERNAME: ""
+            GAME_DB_ADMIN_PASSWORD: ""
         volumes:
             - ..:/var/www/html
             - composer-vendor:/var/www/html/vendor

@@ -10,8 +10,8 @@ final readonly class CharacterResetResult
     /**
      * Creates an immutable reset result from normalized game state snapshots.
      *
-     * @param  array{level: int, resets: int, zen: int, points: int, strength: int, agility: int, vitality: int, energy: int}  $beforeSnapshot
-     * @param  array{level: int, resets: int, zen: int, points: int, strength: int, agility: int, vitality: int, energy: int}  $afterSnapshot
+     * @param  array<string, int>  $beforeSnapshot
+     * @param  array<string, int>  $afterSnapshot
      */
     public function __construct(
         public string $characterName,
@@ -25,10 +25,16 @@ final readonly class CharacterResetResult
     /**
      * Converts the completed result to the stable account-panel response shape.
      *
-     * @return array{characterName: string, currentLevel: int, resultingLevel: int, currentResets: int, resultingResets: int, currentZen: int, zenCost: int, resultingZen: int, resultingPoints: int, resultingStats: array{strength: int, agility: int, vitality: int, energy: int}, statsCleared: bool, inventoryPolicy: string}
+     * @return array<string, mixed>
      */
     public function toClientArray(): array
     {
+        $snapshotKeys = ['level', 'resets', 'zen', 'points'];
+        $resultingStats = array_diff_key(
+            $this->afterSnapshot,
+            array_flip($snapshotKeys),
+        );
+
         return [
             'characterName' => $this->characterName,
             'currentLevel' => $this->beforeSnapshot['level'],
@@ -39,12 +45,7 @@ final readonly class CharacterResetResult
             'zenCost' => $this->zenCost,
             'resultingZen' => $this->afterSnapshot['zen'],
             'resultingPoints' => $this->afterSnapshot['points'],
-            'resultingStats' => [
-                'strength' => $this->afterSnapshot['strength'],
-                'agility' => $this->afterSnapshot['agility'],
-                'vitality' => $this->afterSnapshot['vitality'],
-                'energy' => $this->afterSnapshot['energy'],
-            ],
+            'resultingStats' => $resultingStats,
             'statsCleared' => $this->statsCleared,
             'inventoryPolicy' => $this->inventoryPolicy->value,
         ];

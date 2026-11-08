@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
+use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemGrantRules;
 use App\Game\Versions\Contracts\GameVersionProfile;
-use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
-use App\Game\Versions\Version97d99i\ItemGrantRules97d99i;
 use App\Models\Administrator;
 use App\Shop\MysteryBoxRewardMode;
 use App\Shop\ShopClassScope;
@@ -39,6 +39,8 @@ class StoreShopOfferRequest extends FormRequest
      */
     public function rules(): array
     {
+        $itemGrantRules = app(ItemGrantRules::class);
+
         return [
             'type' => ['required', Rule::enum(ShopOfferType::class)],
             'mystery_box_reward_mode' => ['required', Rule::enum(MysteryBoxRewardMode::class)],
@@ -54,9 +56,9 @@ class StoreShopOfferRequest extends FormRequest
             'available_until' => ['nullable', 'date', 'after:available_from'],
             'items' => ['required', 'array', 'between:1,50'],
             'items.*.item_code' => ['required', 'string', 'regex:/\A(?:[0-9]|1[0-5]):(?:[0-9]|[12][0-9]|3[01])\z/'],
-            'items.*.level' => ['required', 'integer', 'between:0,'.ItemGrantRules97d99i::MAX_ITEM_LEVEL],
+            'items.*.level' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxItemLevel()],
             'items.*.durability' => ['required', 'integer', 'between:0,255'],
-            'items.*.option_level' => ['required', 'integer', 'between:0,'.ItemGrantRules97d99i::MAX_OPTION_LEVEL],
+            'items.*.option_level' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxOptionLevel()],
             'items.*.has_skill' => ['nullable', 'boolean'],
             'items.*.has_luck' => ['nullable', 'boolean'],
             'items.*.excellent_mask' => ['required', 'integer', 'between:0,63'],
@@ -90,7 +92,7 @@ class StoreShopOfferRequest extends FormRequest
                     return;
                 }
 
-                $catalog = app(ItemCatalog97d99i::class);
+                $catalog = app(ItemCatalog::class);
 
                 foreach ($items as $index => $item) {
                     if (! is_array($item) || ! isset($item['item_code'])) {
@@ -130,7 +132,7 @@ class StoreShopOfferRequest extends FormRequest
      */
     public function itemData(): array
     {
-        $catalog = app(ItemCatalog97d99i::class);
+        $catalog = app(ItemCatalog::class);
         $items = [];
 
         foreach ($this->validated('items') as $sortOrder => $item) {
