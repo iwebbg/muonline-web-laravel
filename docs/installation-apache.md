@@ -133,6 +133,18 @@ php artisan admin:create
 Keep fixture data and both write switches closed until the live SQL Server
 connection passes `php artisan game:doctor`.
 
+### Selecting the game and event profile
+
+Manual installations support the same two matched profile bundles as Docker:
+
+- `darksteam_97d99i` for [DarksTeam MuServer 97d+99i Beta 43.3](https://darksteam.net/threads/darksteam-muserver-97d-99i-beta-43-3.6440/);
+- `darksteam_1_0m` for [DarksTeam MuServer 0.99.60/62T (1.0M) Beta 15](https://darksteam.net/threads/darksteam-muserver-0-99-60-62t-1-0m-beta-15.21354/).
+
+Set `GAME_SERVER_PROFILE` and `GAME_EVENT_PROFILE` to the same key. A 1.0M
+installation also requires `GAME_ACCOUNT_PASSWORD_SCHEME=darksteam_md5`.
+Additional integrations are in preparation and custom compatibility work can
+be requested at [office@interweb.bg](mailto:office@interweb.bg).
+
 ### Provisioning MuOnline_Web on SQL Server
 
 A live manual installation should use the same SQL Server instance for two

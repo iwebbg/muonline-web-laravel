@@ -5,9 +5,11 @@ server owner can disable most player-facing modules independently from
 **Administration → Modules**. Disabled modules disappear from navigation and
 their player routes return `404`, while audit and recovery records are kept.
 
-The current implementation targets the DarksTeam 97d+99i compatibility
-profile. Availability for another MuOnline version depends on that version's
-profile and adapters.
+The current implementation supports the `darksteam_97d99i` and
+`darksteam_1_0m` game and event profiles. Availability for another MuOnline
+version depends on a dedicated, verified profile and adapter bundle. Additional
+integrations are in preparation and can also be requested at
+[office@interweb.bg](mailto:office@interweb.bg).
 
 ## Public website
 
@@ -52,7 +54,7 @@ profile and adapters.
 - Configurable VIP plans and Credits-funded purchases.
 - Vote links, cooldowns, automatic or reviewed rewards and player history.
 - Recoverable Zen Bank deposits and withdrawals.
-- Physical-item Jewel Bank for supported 97d+99i jewels.
+- Physical-item Jewel Bank for jewels declared by the active version profile.
 - Exact-item Web Vault deposits, withdrawals and recovery.
 - Fixed-price Market sales and purchases.
 - Timed Auctions with held bids, automatic settlement and seller payout.
