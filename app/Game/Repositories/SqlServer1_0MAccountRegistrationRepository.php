@@ -6,6 +6,7 @@ use App\AccountRegistration\AccountRegistrationBlockReason;
 use App\AccountRegistration\AccountRegistrationResult;
 use App\AccountRegistration\Exceptions\AccountRegistrationRejected;
 use App\Game\Contracts\AccountRegistrationRepository;
+use App\Game\Versions\Version1_0M\DarksTeamMd5PasswordCodec;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\QueryException;
@@ -23,10 +24,11 @@ final readonly class SqlServer1_0MAccountRegistrationRepository implements Accou
      */
     public function __construct(
         private DatabaseManager $database,
+        private DarksTeamMd5PasswordCodec $passwordCodec,
     ) {}
 
     /**
-     * Atomically inserts MEMB_INFO with a server-owned MD5 password hash.
+     * Atomically inserts MEMB_INFO with a GameServer-compatible MD5 password hash.
      */
     public function register(
         string $username,
@@ -34,12 +36,13 @@ final readonly class SqlServer1_0MAccountRegistrationRepository implements Accou
         string $email,
     ): AccountRegistrationResult {
         $connection = $this->database->connection('game');
+        $passwordHash = strtoupper(bin2hex($this->passwordCodec->encode($username, $password)));
 
         try {
             return $connection->transaction(function () use (
                 $connection,
                 $username,
-                $password,
+                $passwordHash,
                 $email,
             ): AccountRegistrationResult {
                 $this->rejectExistingAccount($connection, $username);
@@ -50,12 +53,11 @@ final readonly class SqlServer1_0MAccountRegistrationRepository implements Accou
                             [mail_addr], [bloc_code], [ctl1_code]
                         )
                         OUTPUT INSERTED.[memb_guid] AS [account_guid]
-                        VALUES (?, dbo.UFN_MD5_ENCODEVALUE(?, ?), ?, ?, ?, ?, ?)
+                        VALUES (?, CONVERT(binary(16), ?, 2), ?, ?, ?, ?, ?)
                     SQL,
                     [
                         $username,
-                        $password,
-                        $username,
+                        $passwordHash,
                         $username,
                         '1111111111111',
                         $email,

@@ -6,6 +6,7 @@ use App\AccountCredentials\AccountCredentialBlockReason;
 use App\AccountCredentials\AccountCredentialResult;
 use App\AccountCredentials\Exceptions\AccountCredentialUpdateRejected;
 use App\Game\Contracts\AccountCredentialRepository;
+use App\Game\Versions\Version1_0M\DarksTeamMd5PasswordCodec;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Str;
 use SensitiveParameter;
@@ -21,6 +22,7 @@ final readonly class SqlServer1_0MAccountCredentialRepository implements Account
      */
     public function __construct(
         private DatabaseManager $database,
+        private DarksTeamMd5PasswordCodec $passwordCodec,
     ) {}
 
     /**
@@ -45,11 +47,7 @@ final readonly class SqlServer1_0MAccountCredentialRepository implements Account
                 ->table('MEMB_INFO')
                 ->where('memb___id', $accountId)
                 ->lockForUpdate()
-                ->select('mail_addr')
-                ->selectRaw(
-                    'dbo.UFN_MD5_CHECKVALUE(?, memb___id, memb__pwd) as credential_valid',
-                    [$currentPassword],
-                )
+                ->select(['mail_addr', 'memb__pwd'])
                 ->first();
 
             if (! $account instanceof stdClass) {
@@ -59,7 +57,11 @@ final readonly class SqlServer1_0MAccountCredentialRepository implements Account
                 );
             }
 
-            if ((int) $account->credential_valid !== 1) {
+            if (! $this->passwordCodec->verify(
+                $accountId,
+                $currentPassword,
+                (string) $account->memb__pwd,
+            )) {
                 throw new AccountCredentialUpdateRejected(
                     AccountCredentialBlockReason::CurrentPasswordInvalid,
                 );
@@ -79,14 +81,17 @@ final readonly class SqlServer1_0MAccountCredentialRepository implements Account
             }
 
             if ($passwordChanged && $newPassword !== null) {
+                $passwordHash = strtoupper(bin2hex(
+                    $this->passwordCodec->encode($accountId, $newPassword),
+                ));
                 $updatedRows = $emailChanged
                     ? $connection->update(
-                        'UPDATE [MEMB_INFO] SET [mail_addr] = ?, [memb__pwd] = dbo.UFN_MD5_ENCODEVALUE(?, ?) WHERE [memb___id] = ?',
-                        [$email, $newPassword, $accountId, $accountId],
+                        'UPDATE [MEMB_INFO] SET [mail_addr] = ?, [memb__pwd] = CONVERT(binary(16), ?, 2) WHERE [memb___id] = ?',
+                        [$email, $passwordHash, $accountId],
                     )
                     : $connection->update(
-                        'UPDATE [MEMB_INFO] SET [memb__pwd] = dbo.UFN_MD5_ENCODEVALUE(?, ?) WHERE [memb___id] = ?',
-                        [$newPassword, $accountId, $accountId],
+                        'UPDATE [MEMB_INFO] SET [memb__pwd] = CONVERT(binary(16), ?, 2) WHERE [memb___id] = ?',
+                        [$passwordHash, $accountId],
                     );
             } else {
                 $updatedRows = $connection

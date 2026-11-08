@@ -4,6 +4,7 @@ namespace App\Auth;
 
 use App\Game\GameAccountPasswordScheme;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\Version1_0M\DarksTeamMd5PasswordCodec;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Database\DatabaseManager;
@@ -20,6 +21,7 @@ final readonly class GameAccountUserProvider implements UserProvider
     public function __construct(
         private DatabaseManager $database,
         private GameVersionProfile $versionProfile,
+        private DarksTeamMd5PasswordCodec $darksTeamMd5PasswordCodec,
     ) {}
 
     /**
@@ -137,22 +139,16 @@ final readonly class GameAccountUserProvider implements UserProvider
     }
 
     /**
-     * Verifies one DarksTeam MD5 credential through the server-owned SQL function.
+     * Verifies one DarksTeam MD5 credential without a legacy SQL extended procedure.
      */
     private function validatesDarksTeamMd5(
         GameAccount $account,
         #[SensitiveParameter] string $password,
     ): bool {
-        $result = $this->database
-            ->connection('game')
-            ->table('MEMB_INFO')
-            ->where('memb___id', $account->username)
-            ->selectRaw(
-                'dbo.UFN_MD5_CHECKVALUE(?, memb___id, memb__pwd) as credential_valid',
-                [$password],
-            )
-            ->value('credential_valid');
-
-        return (int) $result === 1;
+        return $this->darksTeamMd5PasswordCodec->verify(
+            $account->username,
+            $password,
+            $account->getAuthPassword(),
+        );
     }
 }

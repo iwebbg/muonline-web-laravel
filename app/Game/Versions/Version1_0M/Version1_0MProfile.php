@@ -93,8 +93,6 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             'dbo.Guild' => ['SELECT'],
             'dbo.GuildMember' => ['SELECT'],
             'dbo.GameServerInfo' => ['SELECT'],
-            'dbo.UFN_MD5_CHECKVALUE' => ['EXECUTE'],
-            'dbo.UFN_MD5_ENCODEVALUE' => ['EXECUTE'],
             'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
         ];
     }

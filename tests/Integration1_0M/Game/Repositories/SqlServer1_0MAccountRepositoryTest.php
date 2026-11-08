@@ -6,6 +6,7 @@ use App\Game\Repositories\SqlServer1_0MAccountCredentialRepository;
 use App\Game\Repositories\SqlServer1_0MAccountPasswordRecoveryRepository;
 use App\Game\Repositories\SqlServer1_0MAccountReadRepository;
 use App\Game\Repositories\SqlServer1_0MAccountRegistrationRepository;
+use App\Game\Versions\Version1_0M\DarksTeamMd5PasswordCodec;
 use App\Game\Versions\Version1_0M\MapNameMapper1_0M;
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use Illuminate\Database\ConnectionInterface;
@@ -102,10 +103,11 @@ final class SqlServer1_0MAccountRepositoryTest extends TestCase
     /**
      * Confirms registration stores a 16-byte account-bound hash without VI_CURR_INFO.
      */
-    public function test_registers_account_with_darksteam_md5_function(): void
+    public function test_registers_account_with_game_server_compatible_hash(): void
     {
         $repository = new SqlServer1_0MAccountRegistrationRepository(
             database: $this->app->make(DatabaseManager::class),
+            passwordCodec: $this->passwordCodec(),
         );
 
         $result = $repository->register(
@@ -117,21 +119,20 @@ final class SqlServer1_0MAccountRepositoryTest extends TestCase
             ->table('MEMB_INFO')
             ->where('memb___id', self::ACCOUNT_ID)
             ->first(['memb__pwd']);
-        $passwordMatches = $this->gameConnection()->selectOne(
-            'SELECT dbo.UFN_MD5_CHECKVALUE(?, [memb___id], [memb__pwd]) AS matches FROM [MEMB_INFO] WHERE [memb___id] = ?',
-            ['Password1', self::ACCOUNT_ID],
-        );
 
         $this->assertSame(self::ACCOUNT_ID, $result->accountId);
         $this->assertFalse($result->billingRecordCreated);
         $this->assertSame(16, strlen($account->memb__pwd));
-        $this->assertSame(1, (int) $passwordMatches->matches);
+        $this->assertSame(
+            'EB2A61335FDAEDE4C5105E6ACED47FC7',
+            strtoupper(bin2hex((string) $account->memb__pwd)),
+        );
     }
 
     /**
      * Confirms credential changes keep binary hashes inside SQL Server.
      */
-    public function test_updates_email_and_password_with_server_side_hashing(): void
+    public function test_updates_email_and_password_with_adapter_hashing(): void
     {
         $this->registrationRepository()->register(
             username: self::ACCOUNT_ID,
@@ -140,6 +141,7 @@ final class SqlServer1_0MAccountRepositoryTest extends TestCase
         );
         $repository = new SqlServer1_0MAccountCredentialRepository(
             database: $this->app->make(DatabaseManager::class),
+            passwordCodec: $this->passwordCodec(),
         );
 
         $result = $repository->update(
@@ -148,21 +150,24 @@ final class SqlServer1_0MAccountRepositoryTest extends TestCase
             email: 'after@example.test',
             newPassword: 'Password2',
         );
-        $account = $this->gameConnection()->selectOne(
-            'SELECT [mail_addr], dbo.UFN_MD5_CHECKVALUE(?, [memb___id], [memb__pwd]) AS matches FROM [MEMB_INFO] WHERE [memb___id] = ?',
-            ['Password2', self::ACCOUNT_ID],
-        );
+        $account = $this->gameConnection()
+            ->table('MEMB_INFO')
+            ->where('memb___id', self::ACCOUNT_ID)
+            ->first(['mail_addr', 'memb__pwd']);
 
         $this->assertTrue($result->emailChanged);
         $this->assertTrue($result->passwordChanged);
         $this->assertSame('after@example.test', (string) $account->mail_addr);
-        $this->assertSame(1, (int) $account->matches);
+        $this->assertSame(
+            '6121E72B66CF48766EFF6015B79377A2',
+            strtoupper(bin2hex((string) $account->memb__pwd)),
+        );
     }
 
     /**
      * Confirms password recovery also writes the binary hash inside SQL Server.
      */
-    public function test_recovers_password_with_server_side_hashing(): void
+    public function test_recovers_password_with_adapter_hashing(): void
     {
         $this->registrationRepository()->register(
             username: self::ACCOUNT_ID,
@@ -171,15 +176,19 @@ final class SqlServer1_0MAccountRepositoryTest extends TestCase
         );
         $repository = new SqlServer1_0MAccountPasswordRecoveryRepository(
             database: $this->app->make(DatabaseManager::class),
+            passwordCodec: $this->passwordCodec(),
         );
 
         $repository->replacePassword(self::ACCOUNT_ID, 'Recovered1');
-        $account = $this->gameConnection()->selectOne(
-            'SELECT dbo.UFN_MD5_CHECKVALUE(?, [memb___id], [memb__pwd]) AS matches FROM [MEMB_INFO] WHERE [memb___id] = ?',
-            ['Recovered1', self::ACCOUNT_ID],
-        );
+        $passwordHash = $this->gameConnection()
+            ->table('MEMB_INFO')
+            ->where('memb___id', self::ACCOUNT_ID)
+            ->value('memb__pwd');
 
-        $this->assertSame(1, (int) $account->matches);
+        $this->assertSame(
+            '178789E2508D346610A5F7F5FA2B5657',
+            strtoupper(bin2hex((string) $passwordHash)),
+        );
     }
 
     /**
@@ -189,7 +198,16 @@ final class SqlServer1_0MAccountRepositoryTest extends TestCase
     {
         return new SqlServer1_0MAccountRegistrationRepository(
             database: $this->app->make(DatabaseManager::class),
+            passwordCodec: $this->passwordCodec(),
         );
+    }
+
+    /**
+     * Creates the exact DarksTeam password codec used by production adapters.
+     */
+    private function passwordCodec(): DarksTeamMd5PasswordCodec
+    {
+        return new DarksTeamMd5PasswordCodec;
     }
 
     /**

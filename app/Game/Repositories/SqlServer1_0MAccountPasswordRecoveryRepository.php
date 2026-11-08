@@ -6,20 +6,24 @@ use App\AccountRecovery\Exceptions\PasswordRecoveryRejected;
 use App\AccountRecovery\PasswordRecoveryBlockReason;
 use App\AccountRecovery\PasswordResetRecipient;
 use App\Game\Contracts\AccountPasswordRecoveryRepository;
+use App\Game\Versions\Version1_0M\DarksTeamMd5PasswordCodec;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Support\Str;
 use SensitiveParameter;
 use stdClass;
 
 /**
- * Recovers plaintext passwords in the verified DarksTeam 1.0M MEMB_INFO schema.
+ * Replaces account-bound password hashes in the verified DarksTeam 1.0M schema.
  */
 final readonly class SqlServer1_0MAccountPasswordRecoveryRepository implements AccountPasswordRecoveryRepository
 {
     /**
      * Creates the adapter with Laravel's game connection manager.
      */
-    public function __construct(private DatabaseManager $database) {}
+    public function __construct(
+        private DatabaseManager $database,
+        private DarksTeamMd5PasswordCodec $passwordCodec,
+    ) {}
 
     /**
      * Finds an exact account and email pair without returning password data.
@@ -47,7 +51,7 @@ final readonly class SqlServer1_0MAccountPasswordRecoveryRepository implements A
     }
 
     /**
-     * Locks the account row and replaces its plaintext legacy password once.
+     * Locks the account row and replaces its account-bound legacy password once.
      */
     public function replacePassword(
         string $accountId,
@@ -73,9 +77,12 @@ final readonly class SqlServer1_0MAccountPasswordRecoveryRepository implements A
                 );
             }
 
+            $passwordHash = strtoupper(bin2hex(
+                $this->passwordCodec->encode($accountId, $newPassword),
+            ));
             $updatedRows = $connection->update(
-                'UPDATE [MEMB_INFO] SET [memb__pwd] = dbo.UFN_MD5_ENCODEVALUE(?, ?) WHERE [memb___id] = ?',
-                [$newPassword, $accountId, $accountId],
+                'UPDATE [MEMB_INFO] SET [memb__pwd] = CONVERT(binary(16), ?, 2) WHERE [memb___id] = ?',
+                [$passwordHash, $accountId],
             );
 
             if ($updatedRows !== 1) {

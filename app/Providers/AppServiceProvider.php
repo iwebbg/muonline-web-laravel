@@ -15,6 +15,7 @@ use App\Game\Status\FixtureGameServerStatus;
 use App\Game\Status\TcpGameServerStatus;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\Version1_0M\DarksTeamMd5PasswordCodec;
 use App\Installation\Contracts\ApplicationDatabaseInstaller;
 use App\Installation\Contracts\GameDatabaseInstaller;
 use App\Installation\SqlServerApplicationDatabaseInstaller;
@@ -152,6 +153,7 @@ class AppServiceProvider extends ServiceProvider
             return new GameAccountUserProvider(
                 database: $application->make(DatabaseManager::class),
                 versionProfile: $application->make(GameVersionProfile::class),
+                darksTeamMd5PasswordCodec: $application->make(DarksTeamMd5PasswordCodec::class),
             );
         });
 

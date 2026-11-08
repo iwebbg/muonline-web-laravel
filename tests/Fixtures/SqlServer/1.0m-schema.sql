@@ -191,38 +191,6 @@ CREATE TABLE [dbo].[T_PetItem_Info] (
 );
 GO
 
-/*
-    Deterministic test substitutes for the server-owned XP_MD5 functions.
-    Production keeps using the original DarksTeam functions from the server database.
-*/
-CREATE FUNCTION [dbo].[UFN_MD5_ENCODEVALUE]
-(
-    @btInStr varchar(10),
-    @btInStrIndex varchar(10)
-)
-RETURNS binary(16)
-AS
-BEGIN
-    RETURN CONVERT(binary(16), HASHBYTES('MD5', @btInStr + @btInStrIndex));
-END;
-GO
-
-CREATE FUNCTION [dbo].[UFN_MD5_CHECKVALUE]
-(
-    @btInStr varchar(10),
-    @btInStrIndex varchar(10),
-    @btInVal binary(16)
-)
-RETURNS tinyint
-AS
-BEGIN
-    RETURN CASE
-        WHEN [dbo].[UFN_MD5_ENCODEVALUE](@btInStr, @btInStrIndex) = @btInVal THEN 1
-        ELSE 0
-    END;
-END;
-GO
-
 CREATE PROCEDURE [dbo].[WZ_GetItemSerial]
 AS
 BEGIN
