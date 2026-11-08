@@ -62,15 +62,16 @@ final class ItemCatalog1_0MTest extends TestCase
     }
 
     /**
-     * Confirms missing legacy artwork does not remove valid server items.
+     * Confirms the Dark Lord cape uses its verified 1.0M artwork.
      */
-    public function test_keeps_items_without_matching_artwork(): void
+    public function test_returns_cape_of_lord_artwork(): void
     {
         $definition = $this->catalog()->definitionFor(13, 30);
 
         $this->assertNotNull($definition);
         $this->assertSame('Cape of Lord', $definition->name);
-        $this->assertNull($definition->image);
+        $this->assertSame('/images/items/1_0m/130030.gif', $definition->image);
+        $this->assertFileExists(dirname(__DIR__, 2).'/public'.$definition->image);
     }
 
     /**
