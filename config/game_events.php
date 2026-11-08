@@ -92,5 +92,23 @@ return [
                 ],
             ],
         ],
+        'darksteam_1_0m' => [
+            'name' => 'DarksTeam MuServer 0.99.60/62T (1.0M)',
+            'reference' => 'Data/MuCastleData.dat and dbo.MuCastle_DATA',
+            'events' => [],
+            'castle_siege' => [
+                'key' => 'castle-siege',
+                'name' => 'Castle Siege',
+                'location' => 'Valley of Loren',
+                'accent' => 'amber',
+                'enabled' => true,
+                'map_server_group' => 0,
+                'cycle_days' => 14,
+                'battle_day' => 6,
+                'battle_time' => '15:00',
+                'duration_minutes' => 120,
+                'source' => 'Data/MuCastleData.dat states 7 and 8; cycle anchor from dbo.MuCastle_DATA',
+            ],
+        ],
     ],
 ];

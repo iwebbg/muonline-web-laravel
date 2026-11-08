@@ -511,6 +511,7 @@ return [
         'daily_schedule' => 'График на сървърните събития',
         'schedule_timezone' => 'Сървърно време · :timezone',
         'every_minutes' => 'На всеки :count минути',
+        'every_days' => 'На всеки :count дни',
         'every_day' => 'Всеки ден',
         'duration_minutes' => 'Продължителност :count мин',
         'weekdays' => [

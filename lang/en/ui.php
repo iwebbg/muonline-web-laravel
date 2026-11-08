@@ -511,6 +511,7 @@ return [
         'daily_schedule' => 'Server event schedule',
         'schedule_timezone' => 'Server time · :timezone',
         'every_minutes' => 'Every :count minutes',
+        'every_days' => 'Every :count days',
         'every_day' => 'Every day',
         'duration_minutes' => ':count min duration',
         'weekdays' => [

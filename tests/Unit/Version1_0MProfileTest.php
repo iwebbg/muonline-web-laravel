@@ -37,6 +37,7 @@ final class Version1_0MProfileTest extends TestCase
         $this->assertFalse($capabilities->characterVip);
         $this->assertFalse($capabilities->billingRecord);
         $this->assertTrue($capabilities->itemGenerator);
+        $this->assertTrue($capabilities->castleSiege);
     }
 
     /**

@@ -106,6 +106,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             characterVip: false,
             billingRecord: false,
             itemGenerator: true,
+            castleSiege: true,
         );
     }
 
