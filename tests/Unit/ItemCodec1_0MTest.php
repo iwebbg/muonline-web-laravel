@@ -81,6 +81,55 @@ final class ItemCodec1_0MTest extends TestCase
     }
 
     /**
+     * Confirms DarksTeam 1.0M creates and decodes the version-specific +13 level.
+     */
+    public function test_creates_a_level_thirteen_item(): void
+    {
+        $codec = new ItemCodec1_0M;
+
+        $binary = $codec->create(
+            group: 0,
+            index: 0,
+            level: 13,
+            durability: 255,
+            optionLevel: 0,
+            hasSkill: false,
+            hasLuck: false,
+            excellentMask: 0,
+            ancientOption: 0,
+            serial: 1,
+        );
+        $item = $codec->decode($binary, 1)[0];
+
+        self::assertSame('0068FF00000001000000', strtoupper(bin2hex($binary)));
+        self::assertSame(13, $item->level);
+    }
+
+    /**
+     * Confirms levels above the DarksTeam 1.0M maximum are rejected.
+     */
+    public function test_rejects_item_levels_above_thirteen(): void
+    {
+        $codec = new ItemCodec1_0M;
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The item level or durability is outside the DarksTeam 1.0M format.');
+
+        $codec->create(
+            group: 0,
+            index: 0,
+            level: 14,
+            durability: 255,
+            optionLevel: 0,
+            hasSkill: false,
+            hasLuck: false,
+            excellentMask: 0,
+            ancientOption: 0,
+            serial: 1,
+        );
+    }
+
+    /**
      * Confirms malformed storage is rejected before partial decoding occurs.
      */
     public function test_rejects_a_blob_with_the_wrong_slot_count(): void

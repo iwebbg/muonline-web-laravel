@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Admin\Audit\AuditLogReader;
 use App\Admin\Authorization\AdministratorPermission;
 use App\Game\Contracts\ItemEscrowRepository;
+use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ModerationRepository;
 use App\Game\Operations\CharacterOperationStatus;
+use App\Game\Versions\Version1_0M\ItemGrantRules1_0M;
 use App\Game\Versions\Version97d99i\ItemCodec97d99i;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketEscrowResult;
@@ -86,6 +88,23 @@ final class AdminItemGrantTest extends TestCase
             ->assertSee('Excellent damage rate +10%')
             ->assertSee('Type at least 2 characters. Up to 10 matching accounts are loaded.')
             ->assertSee('Game writes are disabled');
+    }
+
+    /**
+     * Confirms the 1.0M grant form exposes every supported item level through +13.
+     */
+    public function test_darksteam_1_0m_item_grant_page_exposes_level_thirteen(): void
+    {
+        $this->app->instance(ItemGrantRules::class, new ItemGrantRules1_0M);
+        $gameMaster = $this->itemGrantAdministrator();
+
+        $response = $this
+            ->actingAs($gameMaster, 'admin')
+            ->get(route('admin.item-grants.index'));
+
+        $response
+            ->assertOk()
+            ->assertViewHas('itemLevels', range(0, 13));
     }
 
     /**

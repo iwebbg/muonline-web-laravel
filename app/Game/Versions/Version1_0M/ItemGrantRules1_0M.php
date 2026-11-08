@@ -9,7 +9,7 @@ use App\Game\Contracts\ItemGrantRules;
  */
 final readonly class ItemGrantRules1_0M implements ItemGrantRules
 {
-    public const MAX_ITEM_LEVEL = 11;
+    public const MAX_ITEM_LEVEL = 13;
 
     public const MAX_OPTION_LEVEL = 7;
 
