@@ -33,10 +33,10 @@
         <x-account-navigation
             class="mt-6"
             :vip-active-count="$activeVipEntitlementCount"
-            :vip-modal-available="true"
+            :vip-modal-available="$vipEnabled"
         />
 
-        @if ($moduleManager->enabled(\App\Modules\ServerModule::Vip))
+        @if ($vipEnabled)
             <x-account-vip-modal
                 :characters="$characters"
                 :plans="$vipPlans"

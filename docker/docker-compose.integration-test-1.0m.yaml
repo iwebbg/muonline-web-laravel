@@ -1,0 +1,97 @@
+services:
+    sqlserver-test:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        restart: "no"
+        environment:
+            ACCEPT_EULA: "Y"
+            MSSQL_PID: Developer
+            MSSQL_SA_PASSWORD: Integration-only_Password123
+        healthcheck:
+            test:
+                - CMD-SHELL
+                - /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${MSSQL_SA_PASSWORD}" -C -Q "SELECT 1" -b -o /dev/null || exit 1
+            start_period: 30s
+            interval: 5s
+            timeout: 5s
+            retries: 30
+        networks:
+            - integration
+        volumes:
+            - sqlserver-test-data:/var/opt/mssql
+
+    sqlserver-schema:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        restart: "no"
+        entrypoint: ["/bin/bash", "-c"]
+        environment:
+            MSSQL_SA_PASSWORD: Integration-only_Password123
+        command:
+            - |
+                set -euo pipefail
+                sqlcmd=/opt/mssql-tools18/bin/sqlcmd
+                "$${sqlcmd}" -S sqlserver-test -U sa -P "$${MSSQL_SA_PASSWORD}" -C -b -Q "CREATE DATABASE [MuOnline_1_0M]"
+                "$${sqlcmd}" -S sqlserver-test -U sa -P "$${MSSQL_SA_PASSWORD}" -C -b -d MuOnline_1_0M -i /fixtures/1.0m-schema.sql
+        depends_on:
+            sqlserver-test:
+                condition: service_healthy
+        networks:
+            - integration
+        volumes:
+            - ../tests/Fixtures/SqlServer/1.0m-schema.sql:/fixtures/1.0m-schema.sql:ro
+
+    integration-test:
+        build:
+            context: ..
+            dockerfile: docker/php/Dockerfile
+            target: integration-testing
+        restart: "no"
+        working_dir: /var/www/html
+        cap_drop:
+            - ALL
+        security_opt:
+            - no-new-privileges:true
+        environment:
+            APP_CONFIG_CACHE: /tmp/muonline-web-laravel-integration-1-0m-config.php
+            APP_DEBUG: "false"
+            APP_ENV: testing
+            APP_KEY: ${APP_KEY}
+            APP_NAME: ${APP_NAME}
+            CACHE_STORE: array
+            COMPOSER_ROOT_VERSION: dev-main
+            CONTAINER_ROLE: test
+            DB_CONNECTION: sqlite
+            DB_DATABASE: ":memory:"
+            DB_URL: ""
+            GAME_DATA_SOURCE: database
+            GAME_DB_CONNECTION: sqlsrv
+            GAME_DB_ENCRYPT: "no"
+            GAME_DB_HOST: sqlserver-test
+            GAME_DB_MUONLINE: MuOnline_1_0M
+            GAME_DB_PASSWORD: Integration-only_Password123
+            GAME_DB_PORT: "1433"
+            GAME_DB_RANKING: MuOnline_1_0M
+            GAME_DB_TRUST_SERVER_CERTIFICATE: "true"
+            GAME_DB_USERNAME: sa
+            GAME_WRITES_ENABLED: "false"
+            INTEGRATION_GAME_DATABASE: MuOnline_1_0M
+            INTEGRATION_GAME_PASSWORD_SCHEME: darksteam_md5
+            INTEGRATION_GAME_PROFILE: darksteam_1_0m
+            MAIL_MAILER: array
+            QUEUE_CONNECTION: sync
+            SESSION_DRIVER: array
+        depends_on:
+            sqlserver-schema:
+                condition: service_completed_successfully
+        networks:
+            - integration
+        tmpfs:
+            - /var/www/html/bootstrap/cache
+            - /var/www/html/storage
+        command: ["composer", "test:integration-1.0m"]
+
+networks:
+    integration:
+        internal: true
+
+volumes:
+    sqlserver-test-data:

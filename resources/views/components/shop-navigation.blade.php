@@ -1,6 +1,7 @@
 @props(['active'])
 
 @inject('moduleManager', 'App\Modules\ModuleManager')
+@inject('versionProfile', 'App\Game\Versions\Contracts\GameVersionProfile')
 
 <nav {{ $attributes->class('flex flex-wrap gap-3') }} aria-label="{{ __('ui.navigation.shop') }}">
     @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop))
@@ -13,7 +14,7 @@
             {{ __('ui.shop.boxes_heading') }}
         </a>
     @endif
-    @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop))
+    @if ($moduleManager->enabled(\App\Modules\ServerModule::WebShop) && $versionProfile->capabilities()->itemGenerator)
         <a href="{{ route('account.item-generator.index') }}" class="button {{ $active === 'item-generator' ? 'button-primary' : 'button-ghost' }}">
             {{ __('ui.shop.generator_heading') }}
         </a>

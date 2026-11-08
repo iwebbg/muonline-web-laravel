@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Game\Versions\Contracts\GameDatabaseProfile;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -13,42 +14,9 @@ use Throwable;
 /**
  * Performs read-only connection, schema and least-privilege diagnostics.
  */
-#[Description('Verify the 97d+99i game database connection, schema and SQL permissions.')]
+#[Description('Verify the active game database profile, connection and SQL permissions.')]
 final class DiagnoseGameDatabase extends Command
 {
-    /**
-     * Lists the minimum legacy columns required by the active application profile.
-     *
-     * @var array<string, list<string>>
-     */
-    private const REQUIRED_SCHEMA = [
-        'MEMB_INFO' => ['memb_guid', 'memb___id', 'memb__pwd', 'mail_addr', 'bloc_code', 'ctl1_code'],
-        'Character' => ['AccountID', 'Name', 'cLevel', 'Class', 'Money', 'Resets', 'GrandResets'],
-        'warehouse' => ['AccountID', 'Items', 'Money'],
-        'MEMB_STAT' => ['memb___id', 'ConnectStat'],
-        'Guild' => ['G_Name', 'G_Master', 'G_Score'],
-        'GuildMember' => ['Name', 'G_Name'],
-        'GameServerInfo' => ['ItemCount'],
-        'VI_CURR_INFO' => ['memb___id', 'memb_guid'],
-    ];
-
-    /**
-     * Lists every object permission required by enabled 97d+99i write adapters.
-     *
-     * @var array<string, list<string>>
-     */
-    private const REQUIRED_OBJECT_PERMISSIONS = [
-        'dbo.MEMB_INFO' => ['SELECT', 'INSERT', 'UPDATE'],
-        'dbo.MEMB_STAT' => ['SELECT'],
-        'dbo.Character' => ['SELECT', 'UPDATE'],
-        'dbo.warehouse' => ['SELECT', 'UPDATE'],
-        'dbo.Guild' => ['SELECT'],
-        'dbo.GuildMember' => ['SELECT'],
-        'dbo.VI_CURR_INFO' => ['SELECT', 'INSERT'],
-        'dbo.GameServerInfo' => ['SELECT'],
-        'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
-    ];
-
     /**
      * Lists object capabilities that the web identity must never inherit.
      *
@@ -88,8 +56,10 @@ final class DiagnoseGameDatabase extends Command
     /**
      * Executes read-only diagnostics and fails on unsafe production boundaries.
      */
-    public function handle(DatabaseManager $database): int
-    {
+    public function handle(
+        DatabaseManager $database,
+        GameDatabaseProfile $profile,
+    ): int {
         try {
             $connection = $database->connection('game');
             $connection->selectOne('SELECT CURRENT_TIMESTAMP AS server_time');
@@ -100,11 +70,11 @@ final class DiagnoseGameDatabase extends Command
         }
 
         $this->components->info('Game database connection is available.');
-        $schemaIsValid = $this->verifySchema($connection);
+        $schemaIsValid = $this->verifySchema($connection, $profile);
         $permissionsAreSafe = $this->verifyPermissions($connection);
         $scopePermissionsAreSafe = $this->verifyScopePermissions($connection);
         $itemSerialSourceIsAvailable = $this->verifyItemSerialSource($connection);
-        $objectPermissionsAreAvailable = $this->verifyObjectPermissions($connection);
+        $objectPermissionsAreAvailable = $this->verifyObjectPermissions($connection, $profile);
         $configurationIsSafe = $this->verifySafetyConfiguration();
 
         if (
@@ -163,8 +133,10 @@ final class DiagnoseGameDatabase extends Command
     /**
      * Confirms the SQL identity has the exact read and write capabilities used by adapters.
      */
-    private function verifyObjectPermissions(Connection $connection): bool
-    {
+    private function verifyObjectPermissions(
+        Connection $connection,
+        GameDatabaseProfile $profile,
+    ): bool {
         if ($connection->getDriverName() !== 'sqlsrv') {
             $this->components->warn('Object permission verification skipped for a non-SQL Server test connection.');
 
@@ -173,7 +145,7 @@ final class DiagnoseGameDatabase extends Command
 
         $valid = true;
 
-        foreach (self::REQUIRED_OBJECT_PERMISSIONS as $object => $permissions) {
+        foreach ($profile->databaseObjectPermissions() as $object => $permissions) {
             foreach ($permissions as $permission) {
                 $result = $connection->selectOne(
                     'SELECT HAS_PERMS_BY_NAME(?, ?, ?) AS has_permission',
@@ -238,12 +210,14 @@ final class DiagnoseGameDatabase extends Command
     /**
      * Verifies required tables and columns without reading player records.
      */
-    private function verifySchema(Connection $connection): bool
-    {
+    private function verifySchema(
+        Connection $connection,
+        GameDatabaseProfile $profile,
+    ): bool {
         $schema = $connection->getSchemaBuilder();
         $valid = true;
 
-        foreach (self::REQUIRED_SCHEMA as $table => $requiredColumns) {
+        foreach ($profile->requiredDatabaseSchema() as $table => $requiredColumns) {
             if (! $schema->hasTable($table)) {
                 $this->components->error("Missing required game table: {$table}");
                 $valid = false;
@@ -265,7 +239,7 @@ final class DiagnoseGameDatabase extends Command
         }
 
         if ($valid) {
-            $this->components->info('Required 97d+99i schema is available.');
+            $this->components->info('Required game profile schema is available.');
         }
 
         return $valid;

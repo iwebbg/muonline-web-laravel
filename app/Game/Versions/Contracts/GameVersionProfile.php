@@ -4,6 +4,7 @@ namespace App\Game\Versions\Contracts;
 
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
+use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
 use App\Stats\CharacterStats;
 
@@ -12,6 +13,11 @@ use App\Stats\CharacterStats;
  */
 interface GameVersionProfile
 {
+    /**
+     * Returns optional persistence features implemented by this game schema.
+     */
+    public function capabilities(): GameVersionCapabilities;
+
     /**
      * Returns the stable configuration key used to select this profile.
      */
@@ -59,6 +65,13 @@ interface GameVersionProfile
      * Returns the level-one attributes for one class family.
      */
     public function baseStatsForClass(int $classCode): CharacterStats;
+
+    /**
+     * Returns item-service bindings owned by this version.
+     *
+     * @return array<class-string, class-string>
+     */
+    public function itemServiceBindings(): array;
 
     /**
      * Returns contract-to-adapter bindings owned by this version.

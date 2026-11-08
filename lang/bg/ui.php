@@ -511,6 +511,7 @@ return [
         'daily_schedule' => 'График на сървърните събития',
         'schedule_timezone' => 'Сървърно време · :timezone',
         'every_minutes' => 'На всеки :count минути',
+        'every_days' => 'На всеки :count дни',
         'every_day' => 'Всеки ден',
         'duration_minutes' => 'Продължителност :count мин',
         'weekdays' => [
@@ -1049,6 +1050,8 @@ return [
         'pk' => 'Топ PK',
         'top_pk' => 'Топ убийци',
         'guilds' => 'Гилдии',
+        'castle_siege' => 'Castle Siege',
+        'castle_siege_owner' => 'Собственик на Castle Siege',
         'leaderboard' => 'Класация на сървъра',
         'search' => 'Търси в класациите',
         'search_placeholder' => 'Герой, гилдия или master…',
@@ -1077,6 +1080,7 @@ return [
         'retry' => 'Опитай отново',
         'no_players' => 'Няма играч, който отговаря на текущите филтри.',
         'no_guilds' => 'Няма гилдия, която отговаря на търсенето.',
+        'no_castle_owner' => 'Все още няма записан собственик на замъка.',
     ],
     'profiles' => [
         'character_title' => ':name · Профил на герой',

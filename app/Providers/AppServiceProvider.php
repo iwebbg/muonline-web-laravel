@@ -5,17 +5,23 @@ namespace App\Providers;
 use App\Auth\GameAccountUserProvider;
 use App\Game\Clocks\SqlServerRealmClock;
 use App\Game\Clocks\SystemRealmClock;
+use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\GameServerStatus;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
 use App\Game\Repositories\LegacyGameAccountLookupRepository;
+use App\Game\Repositories\UnavailableCastleSiegeReadRepository;
 use App\Game\Status\FixtureGameServerStatus;
 use App\Game\Status\TcpGameServerStatus;
+use App\Game\Versions\Contracts\GameDatabaseProfile;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\Version1_0M\DarksTeamMd5PasswordCodec;
 use App\Installation\Contracts\ApplicationDatabaseInstaller;
+use App\Installation\Contracts\GameDatabaseInstaller;
 use App\Installation\SqlServerApplicationDatabaseInstaller;
+use App\Installation\SqlServerGameDatabaseInstaller;
 use App\Modules\ModuleManager;
 use App\Website\WebsiteSettings;
 use App\Website\WebsiteSettingsManager;
@@ -54,15 +60,37 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->app->singleton(GameVersionProfile::class, $profileClass);
+        $this->app->singleton(GameDatabaseProfile::class, function (Application $application): GameDatabaseProfile {
+            $profile = $application->make(GameVersionProfile::class);
+
+            if (! $profile instanceof GameDatabaseProfile) {
+                throw new LogicException('The selected game version does not define database provisioning rules.');
+            }
+
+            return $profile;
+        });
 
         $versionProfile = $this->app->make(GameVersionProfile::class);
+
+        $this->app->bind(
+            CastleSiegeReadRepository::class,
+            UnavailableCastleSiegeReadRepository::class,
+        );
 
         foreach ($versionProfile->repositoryBindings() as $contract => $adapter) {
             $this->app->bind($contract, $adapter);
         }
 
+        foreach ($versionProfile->itemServiceBindings() as $contract => $adapter) {
+            $this->app->bind($contract, $adapter);
+        }
+
         if (config('game.data_source') !== 'database') {
             $this->app->bind(RealmReadRepository::class, FixtureRealmReadRepository::class);
+            $this->app->bind(
+                CastleSiegeReadRepository::class,
+                UnavailableCastleSiegeReadRepository::class,
+            );
         }
 
         $clockClass = config('game.data_source') === 'database'
@@ -78,6 +106,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ModuleManager::class);
         $this->app->singleton(WebsiteSettingsManager::class);
         $this->app->bind(ApplicationDatabaseInstaller::class, SqlServerApplicationDatabaseInstaller::class);
+        $this->app->bind(GameDatabaseInstaller::class, SqlServerGameDatabaseInstaller::class);
     }
 
     /**
@@ -132,7 +161,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Auth::provider('game_accounts', function (Application $application): GameAccountUserProvider {
-            return new GameAccountUserProvider($application->make(DatabaseManager::class));
+            return new GameAccountUserProvider(
+                database: $application->make(DatabaseManager::class),
+                versionProfile: $application->make(GameVersionProfile::class),
+                darksTeamMd5PasswordCodec: $application->make(DarksTeamMd5PasswordCodec::class),
+            );
         });
 
         RateLimiter::for('login', function (Request $request): Limit {

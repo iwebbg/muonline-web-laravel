@@ -27,6 +27,7 @@ final readonly class UpcomingEvent
         public array $daysOfWeek,
         public ?int $intervalMinutes,
         public int $durationMinutes,
+        public ?int $cycleDays = null,
     ) {}
 
     /**
@@ -40,7 +41,7 @@ final readonly class UpcomingEvent
     /**
      * Converts the event to the stable client shape used by the live timers.
      *
-     * @return array{key: string, name: string, location: string, accent: string, previousOccurrence: string, occurrences: list<string>, dailyTimes: list<string>, daysOfWeek: list<int>, intervalMinutes: int|null, durationMinutes: int}
+     * @return array{key: string, name: string, location: string, accent: string, previousOccurrence: string, occurrences: list<string>, dailyTimes: list<string>, daysOfWeek: list<int>, intervalMinutes: int|null, durationMinutes: int, cycleDays: int|null}
      */
     public function toClientArray(): array
     {
@@ -61,6 +62,7 @@ final readonly class UpcomingEvent
             'daysOfWeek' => $this->daysOfWeek,
             'intervalMinutes' => $this->intervalMinutes,
             'durationMinutes' => $this->durationMinutes,
+            'cycleDays' => $this->cycleDays,
         ];
     }
 }

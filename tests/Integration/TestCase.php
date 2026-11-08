@@ -19,11 +19,12 @@ abstract class TestCase extends BaseTestCase
     {
         $application = parent::createApplication();
         $configuration = $application['config']->get('database.connections.game', []);
+        $expectedDatabase = getenv('INTEGRATION_GAME_DATABASE') ?: 'MuOnline';
 
         if (
             ($configuration['driver'] ?? null) !== 'sqlsrv'
             || ($configuration['host'] ?? null) !== 'sqlserver-test'
-            || ($configuration['database'] ?? null) !== 'MuOnline'
+            || ($configuration['database'] ?? null) !== $expectedDatabase
             || ($configuration['username'] ?? null) !== 'sa'
         ) {
             throw new RuntimeException('Refusing to run integration tests outside the disposable SQL Server service.');
@@ -31,8 +32,11 @@ abstract class TestCase extends BaseTestCase
 
         $connection = $application->make(DatabaseManager::class)->connection('game');
 
-        if ($connection->getDriverName() !== 'sqlsrv' || $connection->getDatabaseName() !== 'MuOnline') {
-            throw new RuntimeException('The disposable integration database did not resolve to SQL Server MuOnline.');
+        if ($connection->getDriverName() !== 'sqlsrv' || $connection->getDatabaseName() !== $expectedDatabase) {
+            throw new RuntimeException(sprintf(
+                'The disposable integration database did not resolve to SQL Server %s.',
+                $expectedDatabase,
+            ));
         }
 
         return $application;

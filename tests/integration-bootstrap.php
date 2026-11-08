@@ -22,6 +22,10 @@ function forceIntegrationEnvironmentVariable(string $name, string $value): void
     $_SERVER[$name] = $value;
 }
 
+$integrationGameDatabase = getenv('INTEGRATION_GAME_DATABASE') ?: 'MuOnline';
+$integrationGameProfile = getenv('INTEGRATION_GAME_PROFILE') ?: 'darksteam_97d99i';
+$integrationPasswordScheme = getenv('INTEGRATION_GAME_PASSWORD_SCHEME') ?: 'plaintext';
+
 $integrationEnvironment = [
     'APP_CONFIG_CACHE' => sys_get_temp_dir().'/muonline-web-laravel-integration-'.getmypid().'-config.php',
     'APP_ENV' => 'testing',
@@ -35,12 +39,14 @@ $integrationEnvironment = [
     'GAME_DB_CONNECTION' => 'sqlsrv',
     'GAME_DB_ENCRYPT' => 'no',
     'GAME_DB_HOST' => 'sqlserver-test',
-    'GAME_DB_MUONLINE' => 'MuOnline',
+    'GAME_DB_MUONLINE' => $integrationGameDatabase,
     'GAME_DB_PASSWORD' => 'Integration-only_Password123',
     'GAME_DB_PORT' => '1433',
-    'GAME_DB_RANKING' => 'MuOnline',
+    'GAME_DB_RANKING' => $integrationGameDatabase,
     'GAME_DB_TRUST_SERVER_CERTIFICATE' => 'true',
     'GAME_DB_USERNAME' => 'sa',
+    'GAME_ACCOUNT_PASSWORD_SCHEME' => $integrationPasswordScheme,
+    'GAME_SERVER_PROFILE' => $integrationGameProfile,
     'GAME_WRITES_ENABLED' => 'false',
     'MAIL_MAILER' => 'array',
     'QUEUE_CONNECTION' => 'sync',

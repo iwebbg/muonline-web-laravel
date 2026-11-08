@@ -1,7 +1,8 @@
 # Testing
 
-MuOnline Web has two automated test environments. Both are disposable and are
-separate from the long-running application containers and configured databases.
+MuOnline Web has a disposable main test environment plus one isolated SQL
+Server integration environment for each supported adapter. All are separate
+from the long-running application containers and configured databases.
 
 ## Prerequisites
 
@@ -73,24 +74,33 @@ restrictions are present.
 ## SQL Server integration tests
 
 SQLite verifies most application behavior quickly, but it cannot prove SQL
-Server syntax, metadata, types or driver behavior. Run the adapter integration
-suite separately:
+Server syntax, metadata, types or driver behavior. Run the integration suite
+matching the changed adapter:
 
 ```bash
+# darksteam_97d99i
 ./docker/compose test-integration
+
+# darksteam_1_0m
+./docker/compose test-integration-1.0m
 ```
 
-The integration workflow:
+Both integration workflows:
 
-1. Creates a separate internal-only Docker project.
-2. Starts SQL Server 2022 Developer without publishing a host port.
-3. Creates a temporary `MuOnline` database.
-4. Converts the committed UTF-16LE
-   `tests/Fixtures/SqlServer/97d99i-schema.sql` export to UTF-8.
-5. Loads its 97d+99i objects through `sqlcmd`.
-6. Runs only the tests in `tests/Integration` through `phpunit.integration.xml`.
-7. Removes the containers, internal network and database volume after the run,
+1. Create a separate internal-only Docker project.
+2. Start SQL Server 2022 Developer without publishing a host port.
+3. Create a temporary `MuOnline` database.
+4. Load only the matching sanitized schema fixture through `sqlcmd`.
+5. Run only the matching adapter test directory and PHPUnit configuration.
+6. Remove the containers, internal network and database volume after the run,
    including after a failed test command.
+
+The exact profile mapping is:
+
+| Profile | Schema fixture | Test directory | PHPUnit configuration |
+| --- | --- | --- | --- |
+| `darksteam_97d99i` | `tests/Fixtures/SqlServer/97d99i-schema.sql` | `tests/Integration` | `phpunit.integration.xml` |
+| `darksteam_1_0m` | `tests/Fixtures/SqlServer/1.0m-schema.sql` | `tests/Integration1_0M` | `phpunit.integration-1.0m.xml` |
 
 The first integration run downloads the official SQL Server image and is much
 slower than later runs. The image remains cached locally, but the database
@@ -109,18 +119,22 @@ Run one integration file or method with the same argument style:
 
 ./docker/compose test-integration \
     --filter=test_repository_reads_owned_character_from_sql_server
+
+./docker/compose test-integration-1.0m \
+    tests/Integration1_0M/Game/Repositories/SqlServer1_0MAccountRepositoryTest.php
 ```
 
 ## Using the legacy schema fixture
 
-`tests/Fixtures/SqlServer/97d99i-schema.sql` is the committed compatibility
-reference for the DarksTeam 97d+99i database schema. It contains database
-settings, tables, constraints, views and stored procedures, but no reusable
-fixture accounts or characters.
+The committed `97d99i-schema.sql` and `1.0m-schema.sql` files are compatibility
+references for their matching DarksTeam database schemas. They contain the
+required database settings, tables, constraints, views and stored procedures,
+but no reusable fixture accounts or characters.
 
-Never execute it against a configured development, demonstration or production
-game database. The automated integration workflow is its only automatic
-consumer and loads it exclusively into a newly created disposable database.
+Never execute either fixture against a configured development, demonstration
+or production game database. The matching automated integration workflow is
+its only automatic consumer and loads it exclusively into a newly created
+disposable database.
 
 Integration tests insert their own sanitized records with reserved test names
 and remove them during teardown. The complete database volume is then deleted.
@@ -132,8 +146,9 @@ For an application change:
 1. Run the narrowest affected unit or feature test.
 2. Rerun that test after every change made to it.
 3. Run `./docker/compose test` before committing.
-4. Run `./docker/compose test-integration` when changing a game repository,
-   database mapping, version profile or legacy schema fixture.
+4. Run the matching `test-integration` or `test-integration-1.0m` workflow when
+   changing a game repository, database mapping, version profile or legacy
+   schema fixture.
 5. Perform manual browser testing separately for the affected user workflow.
 
 Automated tests do not replace manual verification against dedicated test
@@ -144,8 +159,8 @@ accounts when enabling live game writes, payment callbacks or external mail.
 First identify which environment failed:
 
 - Main-suite failures mention `phpunit.xml`, SQLite and usually `:memory:`.
-- Integration failures mention `phpunit.integration.xml`, `sqlsrv` and the
-  `sqlserver-test` host.
+- Integration failures mention the matching `phpunit.integration*.xml`,
+  `sqlsrv` and the `sqlserver-test` host.
 
 A missing legacy table in the main suite normally means the test did not create
 its portable fixture schema or did not replace a repository that is outside the

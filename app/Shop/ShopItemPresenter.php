@@ -2,7 +2,7 @@
 
 namespace App\Shop;
 
-use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
+use App\Game\Contracts\ItemCatalog;
 
 /**
  * Normalizes immutable shop snapshots for the shared decoded-item tooltip.
@@ -12,7 +12,7 @@ final readonly class ShopItemPresenter
     /**
      * Creates the presenter with the trusted version-specific item catalog.
      */
-    public function __construct(private ItemCatalog97d99i $itemCatalog) {}
+    public function __construct(private ItemCatalog $itemCatalog) {}
 
     /**
      * Builds one client-safe tooltip payload from a purchased item snapshot.

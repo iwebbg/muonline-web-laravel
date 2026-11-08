@@ -2,6 +2,7 @@
 
 namespace App\Game\Versions\Version97d99i;
 
+use App\Game\Contracts\ItemCatalog;
 use App\Game\Data\ItemDefinition;
 use JsonException;
 use RuntimeException;
@@ -9,7 +10,7 @@ use RuntimeException;
 /**
  * Reads reusable 97d+99i item names, dimensions and image paths.
  */
-final class ItemCatalog97d99i
+final class ItemCatalog97d99i implements ItemCatalog
 {
     private string $catalogPath;
 

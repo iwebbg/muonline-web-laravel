@@ -6,6 +6,7 @@ use App\AccountCredentials\AccountCredentialStatus;
 use App\AccountRecovery\Exceptions\PasswordRecoveryRejected;
 use App\AccountRecovery\PasswordRecoveryBlockReason;
 use App\Game\Contracts\AccountPasswordRecoveryRepository;
+use App\Game\GameAccountPasswordScheme;
 use App\Models\AccountPasswordRecoveryOperation;
 use App\Models\GameAccountPasswordReset;
 use SensitiveParameter;
@@ -109,7 +110,7 @@ final readonly class ResetGameAccountPassword
             );
         }
 
-        if (config('game.account_password_scheme') !== 'plaintext') {
+        if (GameAccountPasswordScheme::tryFrom((string) config('game.account_password_scheme')) === null) {
             throw new PasswordRecoveryRejected(
                 PasswordRecoveryBlockReason::PasswordSchemeUnsupported,
                 503,

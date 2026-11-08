@@ -222,7 +222,9 @@
                         <p class="kicker">{{ $event['location'] }}</p>
                         <h4 class="mt-2 font-semibold text-white">{{ $event['name'] }}</h4>
                         <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-steel">
-                            @if ($event['intervalMinutes'] !== null)
+                            @if ($event['cycleDays'] !== null)
+                                <span>{{ __('ui.home.every_days', ['count' => $event['cycleDays']]) }}</span>
+                            @elseif ($event['intervalMinutes'] !== null)
                                 <span>{{ __('ui.home.every_minutes', ['count' => $event['intervalMinutes']]) }}</span>
                             @elseif ($event['daysOfWeek'] === [])
                                 <span>{{ __('ui.home.every_day') }}</span>

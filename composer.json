@@ -51,6 +51,9 @@
         "test:integration": [
             "@php vendor/bin/phpunit --configuration phpunit.integration.xml --do-not-cache-result"
         ],
+        "test:integration-1.0m": [
+            "@php vendor/bin/phpunit --configuration phpunit.integration-1.0m.xml --do-not-cache-result"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

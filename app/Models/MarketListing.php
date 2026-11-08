@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Stores one original 97d+99i item blob in recoverable market escrow.
+ * Stores one adapter-owned item blob in recoverable market escrow.
  */
 #[Fillable([
     'public_id',

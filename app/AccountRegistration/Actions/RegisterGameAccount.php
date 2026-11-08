@@ -7,6 +7,8 @@ use App\AccountRegistration\AccountRegistrationResult;
 use App\AccountRegistration\AccountRegistrationStatus;
 use App\AccountRegistration\Exceptions\AccountRegistrationRejected;
 use App\Game\Contracts\AccountRegistrationRepository;
+use App\Game\GameAccountPasswordScheme;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\AccountRegistrationOperation;
 use SensitiveParameter;
 use Throwable;
@@ -21,6 +23,7 @@ final readonly class RegisterGameAccount
      */
     public function __construct(
         private AccountRegistrationRepository $accountRegistrationRepository,
+        private GameVersionProfile $versionProfile,
     ) {}
 
     /**
@@ -33,13 +36,16 @@ final readonly class RegisterGameAccount
     ): AccountRegistrationResult {
         $this->ensureRegistrationIsSupported();
 
+        $requiredTables = ['MEMB_INFO'];
+
+        if ($this->versionProfile->capabilities()->billingRecord) {
+            $requiredTables[] = 'VI_CURR_INFO';
+        }
+
         $settingsSnapshot = [
             'game_profile' => (string) config('game.profile.version'),
             'password_scheme' => (string) config('game.account_password_scheme'),
-            'required_tables' => [
-                'MEMB_INFO',
-                'VI_CURR_INFO',
-            ],
+            'required_tables' => $requiredTables,
         ];
         $operation = AccountRegistrationOperation::query()->create([
             'account_id' => $username,
@@ -95,7 +101,7 @@ final readonly class RegisterGameAccount
             );
         }
 
-        if (config('game.account_password_scheme') !== 'plaintext') {
+        if (GameAccountPasswordScheme::tryFrom((string) config('game.account_password_scheme')) === null) {
             throw new AccountRegistrationRejected(
                 AccountRegistrationBlockReason::PasswordSchemeUnsupported,
                 503,

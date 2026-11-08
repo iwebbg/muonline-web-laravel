@@ -3,8 +3,9 @@
 namespace App\Http\Requests\Account;
 
 use App\Auth\GameAccount;
-use App\Game\Versions\Version97d99i\ItemGeneratorCatalog97d99i;
-use App\Game\Versions\Version97d99i\ItemGrantRules97d99i;
+use App\Game\Contracts\ItemGeneratorCatalog;
+use App\Game\Contracts\ItemGrantRules;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
@@ -19,7 +20,8 @@ final class PurchaseGeneratedItemRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() instanceof GameAccount;
+        return $this->user() instanceof GameAccount
+            && app(GameVersionProfile::class)->capabilities()->itemGenerator;
     }
 
     /**
@@ -29,13 +31,15 @@ final class PurchaseGeneratedItemRequest extends FormRequest
      */
     public function rules(): array
     {
+        $itemGrantRules = app(ItemGrantRules::class);
+
         return [
             'item_code' => ['required', 'string', 'regex:/\A(?:[0-9]|1[0-5]):(?:[0-9]|[12][0-9]|3[01])\z/'],
             'group' => ['required', 'integer', 'between:0,15'],
             'index' => ['required', 'integer', 'between:0,31'],
-            'level' => ['required', 'integer', 'between:0,'.ItemGrantRules97d99i::MAX_ITEM_LEVEL],
+            'level' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxItemLevel()],
             'durability' => ['required', 'integer', 'between:0,255'],
-            'option_level' => ['required', 'integer', 'between:0,'.ItemGrantRules97d99i::MAX_OPTION_LEVEL],
+            'option_level' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxOptionLevel()],
             'has_skill' => ['nullable', 'boolean'],
             'has_luck' => ['nullable', 'boolean'],
             'excellent_mask' => ['required', 'integer', 'between:0,63'],
@@ -57,7 +61,7 @@ final class PurchaseGeneratedItemRequest extends FormRequest
                     return;
                 }
 
-                $quote = app(ItemGeneratorCatalog97d99i::class)->quote($this->itemOptions());
+                $quote = app(ItemGeneratorCatalog::class)->quote($this->itemOptions());
 
                 if ($quote === null) {
                     $validator->errors()->add('item_code', __('ui.shop.generator_invalid_item'));
