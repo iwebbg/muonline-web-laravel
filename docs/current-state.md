@@ -6,10 +6,10 @@ together with `AGENTS.md`, `docs/coding-standards.md`, `docs/product-ux.md` and
 
 ## Product baseline
 
-MuOnline Web is a Laravel 13 monolith running on PHP 8.5. The first supported
-game profile is DarksTeam MuServer 97d+99i. The frontend is server-rendered
-Blade enhanced with Alpine.js and Tailwind CSS v4; it is intentionally not a
-separate SPA or Next.js application.
+MuOnline Web is a Laravel 13 monolith running on PHP 8.5. It supports the
+DarksTeam `darksteam_97d99i` and `darksteam_1_0m` game and event profiles. The
+frontend is server-rendered Blade enhanced with Alpine.js and Tailwind CSS v4;
+it is intentionally not a separate SPA or Next.js application.
 
 English is the default and fallback locale. Every player-facing or
 administrator-facing string must also have a Bulgarian translation. Do not
@@ -75,6 +75,13 @@ then removes its containers and database volume:
 ./docker/compose test-integration
 ```
 
+The 1.0M adapter has an equivalent isolated workflow backed by
+`tests/Fixtures/SqlServer/1.0m-schema.sql` and `tests/Integration1_0M`:
+
+```bash
+./docker/compose test-integration-1.0m
+```
+
 ## Database ownership and write safety
 
 The application database and MuOnline database have separate ownership. A live
@@ -85,8 +92,9 @@ and **MuOnline**, with distinct restricted logins:
 - A one-time **APP_DB_BOOTSTRAP=true** container start may use temporary
   administrator credentials to create **MuOnline_Web** and its runtime login.
   Those credentials are removed immediately after provisioning.
-- The exported `tests/Fixtures/SqlServer/97d99i-schema.sql` and live MuOnline
-  schema are external legacy contracts and are never migrated by Laravel.
+- The exported `tests/Fixtures/SqlServer/97d99i-schema.sql` and
+  `tests/Fixtures/SqlServer/1.0m-schema.sql` files, plus every live MuOnline
+  schema, are external legacy contracts and are never migrated by Laravel.
 - Version adapters under `app/Game/Versions` and repositories under
   `app/Game/Repositories` isolate legacy table and binary-layout details.
 - All game mutations pass through typed actions and repository contracts.
@@ -106,9 +114,9 @@ and **MuOnline**, with distinct restricted logins:
 
 Character classes, class progressions, base stats, supported attributes, item
 catalogs and legacy mappings belong to a `GameVersionProfile`. Controllers and
-views consume profile contracts and must not spread 97d+99i class codes or
-schema names across the application. A future version adds a new profile and
-adapter implementation without rewriting existing 97d+99i behavior.
+views consume profile contracts and must not spread 97d+99i or 1.0M class codes
+and schema names across the application. Every future version adds a new profile
+and adapter implementation without rewriting existing profile behavior.
 
 ### Actions and previews
 
@@ -132,9 +140,9 @@ Web Shop, Mystery Boxes and Rewards.
 
 ### Exact-item custody
 
-Market, Auction, Web Vault and Jewel Bank preserve the original 10-byte 97d+99i
-item, including serial and option bytes. Items are never recreated from a name
-when an original item is in custody.
+Market, Auction, Web Vault and Jewel Bank preserve the original adapter-owned
+item bytes, including serial and option bytes. Items are never recreated from a
+name when an original item is in custody.
 
 `web_storage_items.storage_context` separates module ownership:
 
@@ -276,8 +284,8 @@ components under `resources/views/components`, and Alpine modules under
 
 ## Current next priorities
 
-1. Continue manual end-to-end testing against the dedicated 97d+99i SQL Server
-   and test game server, one player operation at a time.
+1. Continue manual end-to-end testing against the dedicated 97d+99i and 1.0M
+   SQL Server databases and test game servers, one player operation at a time.
 2. Finish UI polish and responsive review after functional defects are closed.
 3. Add real vote-provider callbacks; the current workflow supports controlled
    administrator verification.

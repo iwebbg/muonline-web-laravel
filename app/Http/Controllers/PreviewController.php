@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Content\NewsPostStatus;
 use App\Content\NewsPostType;
+use App\EventSchedules\RealmEventSchedule;
 use App\Game\Contracts\GameServerStatus;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Events\EventProfileReader;
-use App\Game\Events\EventSchedule;
 use App\Models\NewsPost;
 use App\Servers\GameServerDirectory;
 use DateTimeZone;
@@ -29,7 +29,7 @@ class PreviewController extends Controller
         private readonly RealmReadRepository $realmReadRepository,
         private readonly RealmClock $realmClock,
         private readonly EventProfileReader $eventProfileReader,
-        private readonly EventSchedule $eventSchedule,
+        private readonly RealmEventSchedule $eventSchedule,
         private readonly GameServerStatus $gameServerStatus,
         private readonly GameServerDirectory $gameServerDirectory,
     ) {}

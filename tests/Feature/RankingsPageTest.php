@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
@@ -34,6 +36,24 @@ final class RankingsPageTest extends TestCase
                 return $rankingPage['items'][0]['image'] === '/images/characters/blade-knight.png'
                     && $rankingPage['items'][0]['class_abbreviation'] === 'BK';
             });
+    }
+
+    /**
+     * Confirms the 1.0M explorer excludes the Season 3 Lord Emperor evolution.
+     */
+    public function test_1_0m_rankings_expose_dark_lord_without_lord_emperor(): void
+    {
+        $this->app->instance(GameVersionProfile::class, new Version1_0MProfile);
+
+        $response = $this->get('/rankings');
+
+        $response
+            ->assertOk()
+            ->assertSee('Dark Lord')
+            ->assertSee('DL')
+            ->assertSee('Castle Siege')
+            ->assertDontSee('Lord Emperor')
+            ->assertDontSee('>LE<', escape: false);
     }
 
     /**

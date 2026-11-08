@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Data\CharacterRankingPage;
 use App\Game\Data\GuildRankingPage;
 use App\Game\Rankings\RankingBoard;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\Requests\RankingDataRequest;
+use DateTimeZone;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 
@@ -29,10 +31,16 @@ final class RankingsController extends Controller
     public function __invoke(
         RankingDataRequest $request,
         RealmReadRepository $realmReadRepository,
+        CastleSiegeReadRepository $castleSiegeReadRepository,
     ): View {
         return view('rankings', [
-            'rankingPage' => $this->payload($request, $realmReadRepository),
+            'rankingPage' => $this->payload(
+                $request,
+                $realmReadRepository,
+                $castleSiegeReadRepository,
+            ),
             'rankingDataUrl' => route('rankings.data'),
+            'rankingBoards' => $this->rankingBoards(),
             'classFilters' => $this->classFilters(),
         ]);
     }
@@ -43,8 +51,13 @@ final class RankingsController extends Controller
     public function data(
         RankingDataRequest $request,
         RealmReadRepository $realmReadRepository,
+        CastleSiegeReadRepository $castleSiegeReadRepository,
     ): JsonResponse {
-        return response()->json($this->payload($request, $realmReadRepository));
+        return response()->json($this->payload(
+            $request,
+            $realmReadRepository,
+            $castleSiegeReadRepository,
+        ));
     }
 
     /**
@@ -55,8 +68,17 @@ final class RankingsController extends Controller
     private function payload(
         RankingDataRequest $request,
         RealmReadRepository $realmReadRepository,
+        CastleSiegeReadRepository $castleSiegeReadRepository,
     ): array {
         $board = $request->board();
+
+        if ($board === RankingBoard::CastleSiege) {
+            return $this->castleSiegePayload(
+                $request,
+                $realmReadRepository,
+                $castleSiegeReadRepository,
+            );
+        }
 
         if ($board === RankingBoard::Guilds) {
             return $this->guildPayload(
@@ -71,6 +93,63 @@ final class RankingsController extends Controller
             $realmReadRepository->characterRankings($request->characterQuery()),
             $request,
         );
+    }
+
+    /**
+     * Serializes the authoritative current Castle Siege owner as one guild result.
+     *
+     * @return array<string, mixed>
+     */
+    private function castleSiegePayload(
+        RankingDataRequest $request,
+        RealmReadRepository $realmReadRepository,
+        CastleSiegeReadRepository $castleSiegeReadRepository,
+    ): array {
+        $configuration = config('game_events.profiles.'.config('game.event_profile').'.castle_siege', []);
+        $mapServerGroup = is_array($configuration)
+            ? (int) ($configuration['map_server_group'] ?? 0)
+            : 0;
+        $timezone = new DateTimeZone((string) config('game.event_timezone', 'Europe/Sofia'));
+        $state = $castleSiegeReadRepository->state($mapServerGroup, $timezone);
+        $search = trim((string) $request->input('search', ''));
+        $ownerGuild = $state?->castleOccupied === true ? $state->ownerGuild : null;
+        $guild = $ownerGuild === null
+            ? null
+            : $realmReadRepository->publicGuild($ownerGuild);
+        $matchesSearch = $ownerGuild !== null && ($search === ''
+            || str_contains(mb_strtolower($ownerGuild), mb_strtolower($search))
+            || ($guild !== null && str_contains(mb_strtolower($guild->master), mb_strtolower($search))));
+        $items = [];
+
+        if ($ownerGuild !== null && $matchesSearch) {
+            $items[] = [
+                'rank' => 1,
+                'name' => $ownerGuild,
+                'master' => $guild?->master ?? '',
+                'score' => $guild?->score ?? 0,
+                'members' => $guild === null ? 0 : count($guild->members),
+                'mark_colors' => $guild?->markColors ?? [],
+                'profile_url' => route('guilds.show', $ownerGuild),
+            ];
+        }
+
+        $total = count($items);
+
+        return [
+            'board' => RankingBoard::CastleSiege->value,
+            'class_filter' => '',
+            'search' => $search,
+            'online_only' => false,
+            'items' => $items,
+            'meta' => [
+                'current_page' => 1,
+                'last_page' => 1,
+                'per_page' => 1,
+                'total' => $total,
+                'from' => $total,
+                'to' => $total,
+            ],
+        ];
     }
 
     /**
@@ -168,5 +247,25 @@ final class RankingsController extends Controller
         }
 
         return $filters;
+    }
+
+    /**
+     * Returns the public boards supported by the active version profile.
+     *
+     * @return list<string>
+     */
+    private function rankingBoards(): array
+    {
+        $boards = [
+            RankingBoard::Overall->value,
+            RankingBoard::PlayerKillers->value,
+            RankingBoard::Guilds->value,
+        ];
+
+        if ($this->versionProfile->capabilities()->castleSiege) {
+            $boards[] = RankingBoard::CastleSiege->value;
+        }
+
+        return $boards;
     }
 }

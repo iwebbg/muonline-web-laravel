@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\CharacterGrandResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
 use App\Game\Contracts\ItemCatalog;
@@ -9,6 +10,7 @@ use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemGeneratorCatalog;
 use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\RealmReadRepository;
+use App\Game\Repositories\SqlServer1_0MCastleSiegeReadRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterGrandResetRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterVipRepository;
 use App\Game\Repositories\SqlServer1_0MRealmReadRepository;
@@ -37,6 +39,7 @@ final class Version1_0MProfileTest extends TestCase
         $this->assertFalse($capabilities->characterVip);
         $this->assertFalse($capabilities->billingRecord);
         $this->assertTrue($capabilities->itemGenerator);
+        $this->assertTrue($capabilities->castleSiege);
     }
 
     /**
@@ -60,6 +63,10 @@ final class Version1_0MProfileTest extends TestCase
             'dbo.UFN_MD5_ENCODEVALUE',
             $profile->databaseObjectPermissions(),
         );
+        $this->assertSame(
+            ['SELECT'],
+            $profile->databaseObjectPermissions()['dbo.MuCastle_DATA'],
+        );
     }
 
     /**
@@ -76,7 +83,7 @@ final class Version1_0MProfileTest extends TestCase
     /**
      * Confirms only the Dark Lord family exposes the Command attribute.
      */
-    public function test_exposes_command_only_for_dark_lord_evolutions(): void
+    public function test_exposes_command_only_for_dark_lord(): void
     {
         $profile = new Version1_0MProfile;
 
@@ -92,7 +99,7 @@ final class Version1_0MProfileTest extends TestCase
      */
     public function test_returns_dark_lord_base_stats_with_command(): void
     {
-        $baseStats = (new Version1_0MProfile)->baseStatsForClass(65);
+        $baseStats = (new Version1_0MProfile)->baseStatsForClass(64);
 
         $this->assertSame([
             'strength' => 26,
@@ -104,15 +111,28 @@ final class Version1_0MProfileTest extends TestCase
     }
 
     /**
-     * Confirms both Dark Lord evolutions use their dedicated portrait asset.
+     * Confirms the 1.0M Dark Lord uses its dedicated portrait without a future evolution.
      */
-    public function test_returns_dark_lord_artwork_for_both_evolutions(): void
+    public function test_returns_dark_lord_artwork_without_lord_emperor(): void
     {
         $profile = new Version1_0MProfile;
 
         $this->assertSame('/images/characters/dark-lord.png', $profile->classForCode(64)?->image);
-        $this->assertSame('/images/characters/dark-lord.png', $profile->classForCode(65)?->image);
+        $this->assertNull($profile->classForCode(65));
+        $this->assertNull($profile->classForKey('le'));
         $this->assertFileExists(dirname(__DIR__, 2).'/public/images/characters/dark-lord.png');
+    }
+
+    /**
+     * Confirms stored Dark Lord shop offers keep their stable legacy scope key.
+     */
+    public function test_keeps_dark_lord_shop_scope_compatible_without_lord_emperor_label(): void
+    {
+        $darkLordScope = collect((new Version1_0MProfile)->shopClassScopes())
+            ->firstWhere('value', 'dl_le');
+
+        $this->assertNotNull($darkLordScope);
+        $this->assertSame('Dark Lord (DL)', $darkLordScope->label);
     }
 
     /**
@@ -121,9 +141,9 @@ final class Version1_0MProfileTest extends TestCase
     public function test_rejects_unsupported_class_codes(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Unsupported 1.0M character class code: 66.');
+        $this->expectExceptionMessage('Unsupported 1.0M character class code: 65.');
 
-        (new Version1_0MProfile)->statsForClass(66);
+        (new Version1_0MProfile)->statsForClass(65);
     }
 
     /**
@@ -133,7 +153,7 @@ final class Version1_0MProfileTest extends TestCase
     {
         $bindings = (new Version1_0MProfile)->repositoryBindings();
 
-        $this->assertCount(20, $bindings);
+        $this->assertCount(21, $bindings);
         $this->assertSame(SqlServer1_0MRealmReadRepository::class, $bindings[RealmReadRepository::class]);
         $this->assertSame(
             SqlServer1_0MCharacterGrandResetRepository::class,
@@ -142,6 +162,10 @@ final class Version1_0MProfileTest extends TestCase
         $this->assertSame(
             SqlServer1_0MCharacterVipRepository::class,
             $bindings[CharacterVipRepository::class],
+        );
+        $this->assertSame(
+            SqlServer1_0MCastleSiegeReadRepository::class,
+            $bindings[CastleSiegeReadRepository::class],
         );
 
         foreach ($bindings as $adapter) {
@@ -183,7 +207,6 @@ final class Version1_0MProfileTest extends TestCase
             'muse elf' => [33, 'Muse Elf'],
             'magic gladiator' => [48, 'Magic Gladiator'],
             'dark lord' => [64, 'Dark Lord'],
-            'lord emperor' => [65, 'Lord Emperor'],
         ];
     }
 }

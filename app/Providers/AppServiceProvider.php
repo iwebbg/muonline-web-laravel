@@ -5,12 +5,14 @@ namespace App\Providers;
 use App\Auth\GameAccountUserProvider;
 use App\Game\Clocks\SqlServerRealmClock;
 use App\Game\Clocks\SystemRealmClock;
+use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\GameServerStatus;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
 use App\Game\Repositories\LegacyGameAccountLookupRepository;
+use App\Game\Repositories\UnavailableCastleSiegeReadRepository;
 use App\Game\Status\FixtureGameServerStatus;
 use App\Game\Status\TcpGameServerStatus;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
@@ -70,6 +72,11 @@ class AppServiceProvider extends ServiceProvider
 
         $versionProfile = $this->app->make(GameVersionProfile::class);
 
+        $this->app->bind(
+            CastleSiegeReadRepository::class,
+            UnavailableCastleSiegeReadRepository::class,
+        );
+
         foreach ($versionProfile->repositoryBindings() as $contract => $adapter) {
             $this->app->bind($contract, $adapter);
         }
@@ -80,6 +87,10 @@ class AppServiceProvider extends ServiceProvider
 
         if (config('game.data_source') !== 'database') {
             $this->app->bind(RealmReadRepository::class, FixtureRealmReadRepository::class);
+            $this->app->bind(
+                CastleSiegeReadRepository::class,
+                UnavailableCastleSiegeReadRepository::class,
+            );
         }
 
         $clockClass = config('game.data_source') === 'database'

@@ -2,6 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Game\Contracts\CastleSiegeReadRepository;
+use App\Game\Data\CastleSiegeState;
+use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\Version1_0M\Version1_0MProfile;
+use DateTimeImmutable;
+use DateTimeZone;
 use Tests\TestCase;
 
 /**
@@ -79,6 +85,42 @@ final class RankingDataEndpointTest extends TestCase
     }
 
     /**
+     * Confirms the 1.0M board exposes the authoritative current castle owner.
+     */
+    public function test_castle_siege_board_returns_current_owner_for_supported_profile(): void
+    {
+        $this->app->instance(GameVersionProfile::class, new Version1_0MProfile);
+        $this->app->instance(CastleSiegeReadRepository::class, new class implements CastleSiegeReadRepository
+        {
+            /**
+             * Returns one occupied cycle for the public ranking response.
+             */
+            public function state(int $mapServerGroup, DateTimeZone $timezone): ?CastleSiegeState
+            {
+                return new CastleSiegeState(
+                    mapServerGroup: $mapServerGroup,
+                    cycleStartsAt: new DateTimeImmutable('2026-11-01 00:00:00', $timezone),
+                    cycleEndsAt: new DateTimeImmutable('2026-11-15 00:00:00', $timezone),
+                    siegeEnded: false,
+                    castleOccupied: true,
+                    ownerGuild: 'Legends',
+                );
+            }
+        });
+
+        $response = $this->getJson(route('rankings.data', [
+            'board' => 'castle_siege',
+        ]));
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('board', 'castle_siege')
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('items.0.name', 'Legends')
+            ->assertJsonPath('items.0.master', 'KoPeH');
+    }
+
+    /**
      * Confirms unsupported boards and class values never reach repositories.
      */
     public function test_invalid_ranking_filters_are_rejected(): void
@@ -86,6 +128,16 @@ final class RankingDataEndpointTest extends TestCase
         $this->getJson(route('rankings.data', [
             'board' => 'arena',
             'class' => 'summoner',
+        ]))->assertUnprocessable();
+    }
+
+    /**
+     * Confirms Castle Siege cannot be queried through profiles without that subsystem.
+     */
+    public function test_castle_siege_board_is_rejected_for_unsupported_profile(): void
+    {
+        $this->getJson(route('rankings.data', [
+            'board' => 'castle_siege',
         ]))->assertUnprocessable();
     }
 }

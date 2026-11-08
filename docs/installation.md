@@ -114,19 +114,42 @@ container. Pass a file path or PHPUnit filter after the command for a narrow run
 ./docker/compose test --filter=test_authenticated_market_page
 ```
 
-SQL Server adapter tests use a second disposable environment initialized from
-the committed `tests/Fixtures/SqlServer/97d99i-schema.sql` legacy schema. This
-environment has an internal-only Docker network, fixed test credentials and a
-temporary database volume that is removed after every run:
+SQL Server adapter tests use separate disposable environments initialized from
+the matching `97d99i-schema.sql` or `1.0m-schema.sql` legacy fixture. Each has
+an internal-only Docker network, fixed test credentials and a temporary
+database volume that is removed after every run:
 
 ```bash
 ./docker/compose test-integration
+./docker/compose test-integration-1.0m
 ```
 
 See the dedicated [testing guide](testing.md) for isolation guarantees, narrow
 test commands, legacy schema handling and failure diagnosis.
 
-### Automatic SQL Server database first start
+## Selecting a supported game and event profile
+
+MuOnline Web currently supports two matched profile bundles:
+
+| Profile key | Compatible server files |
+| --- | --- |
+| `darksteam_97d99i` | [DarksTeam MuServer 97d+99i Beta 43.3](https://darksteam.net/threads/darksteam-muserver-97d-99i-beta-43-3.6440/) |
+| `darksteam_1_0m` | [DarksTeam MuServer 0.99.60/62T (1.0M) Beta 15](https://darksteam.net/threads/darksteam-muserver-0-99-60-62t-1-0m-beta-15.21354/) |
+
+Set both selectors to the same supported key before bootstrap:
+
+```dotenv
+GAME_SERVER_PROFILE=darksteam_97d99i
+GAME_EVENT_PROFILE=darksteam_97d99i
+```
+
+For a 1.0M installation use `darksteam_1_0m` for both values and set
+`GAME_ACCOUNT_PASSWORD_SCHEME=darksteam_md5`. Do not mix game and event profiles
+from different versions. More integrations are in preparation; another server
+distribution or custom profile can be requested at
+[office@interweb.bg](mailto:office@interweb.bg).
+
+## Automatic SQL Server database first start
 
 SQLite remains convenient for a fixture-only evaluation. A live or production
 installation should keep Laravel-owned tables in **MuOnline_Web** on the same

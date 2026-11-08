@@ -3,8 +3,9 @@
 ## Product goal
 
 Build a secure, modern and version-aware MuOnline server web application. The
-first supported profile is 97d+99i, but feature code must not hard-code that
-schema throughout controllers or views.
+supported `darksteam_97d99i` and `darksteam_1_0m` profiles prove the adapter
+boundary; feature code must not hard-code either schema throughout controllers
+or views.
 
 The application is an interactive product, not a collection of old-style PHP
 forms. Every important action must provide immediate feedback while preserving

@@ -7,6 +7,7 @@ use App\Game\Contracts\AccountCredentialRepository;
 use App\Game\Contracts\AccountPasswordRecoveryRepository;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\AccountRegistrationRepository;
+use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\CharacterGrandResetRepository;
 use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Contracts\CharacterMoveRepository;
@@ -31,6 +32,7 @@ use App\Game\Repositories\SqlServer1_0MAccountCredentialRepository;
 use App\Game\Repositories\SqlServer1_0MAccountPasswordRecoveryRepository;
 use App\Game\Repositories\SqlServer1_0MAccountReadRepository;
 use App\Game\Repositories\SqlServer1_0MAccountRegistrationRepository;
+use App\Game\Repositories\SqlServer1_0MCastleSiegeReadRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterGrandResetRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterInventoryEscrowRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterMoveRepository;
@@ -74,6 +76,14 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             'Guild' => ['G_Name', 'G_Master', 'G_Score'],
             'GuildMember' => ['Name', 'G_Name'],
             'GameServerInfo' => ['ItemCount'],
+            'MuCastle_DATA' => [
+                'MAP_SVR_GROUP',
+                'SIEGE_START_DATE',
+                'SIEGE_END_DATE',
+                'SIEGE_ENDED',
+                'CASTLE_OCCUPY',
+                'OWNER_GUILD',
+            ],
         ];
     }
 
@@ -92,6 +102,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             'dbo.Guild' => ['SELECT'],
             'dbo.GuildMember' => ['SELECT'],
             'dbo.GameServerInfo' => ['SELECT'],
+            'dbo.MuCastle_DATA' => ['SELECT'],
             'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
         ];
     }
@@ -106,6 +117,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             characterVip: false,
             billingRecord: false,
             itemGenerator: true,
+            castleSiege: true,
         );
     }
 
@@ -133,7 +145,6 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             new CharacterClassDefinition(33, 'me', 'ME', 'Muse Elf', '/images/characters/muse-elf.png', 'elf', 2, 32),
             new CharacterClassDefinition(48, 'mg', 'MG', 'Magic Gladiator', '/images/characters/magic-gladiator.png', 'magic-gladiator', 1),
             new CharacterClassDefinition(64, 'dl', 'DL', 'Dark Lord', '/images/characters/dark-lord.png', 'dark-lord', 1),
-            new CharacterClassDefinition(65, 'le', 'LE', 'Lord Emperor', '/images/characters/dark-lord.png', 'dark-lord', 2, 64),
         ];
     }
 
@@ -178,7 +189,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             new ShopClassScopeDefinition('dk_bk', 'DK / BK'),
             new ShopClassScopeDefinition('elf_me', 'Elf / ME'),
             new ShopClassScopeDefinition('mg', 'Magic Gladiator (MG)'),
-            new ShopClassScopeDefinition('dl_le', 'DL / LE'),
+            new ShopClassScopeDefinition('dl_le', 'Dark Lord (DL)'),
         ];
     }
 
@@ -253,7 +264,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
                 'vitality' => 26,
                 'energy' => 26,
             ]),
-            64, 65 => CharacterStats::fromArray([
+            64 => CharacterStats::fromArray([
                 'strength' => 26,
                 'agility' => 20,
                 'vitality' => 20,
@@ -290,6 +301,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
     {
         return [
             RealmReadRepository::class => SqlServer1_0MRealmReadRepository::class,
+            CastleSiegeReadRepository::class => SqlServer1_0MCastleSiegeReadRepository::class,
             AccountActivationRepository::class => SqlServer1_0MAccountActivationRepository::class,
             AccountCredentialRepository::class => SqlServer1_0MAccountCredentialRepository::class,
             AccountPasswordRecoveryRepository::class => SqlServer1_0MAccountPasswordRecoveryRepository::class,

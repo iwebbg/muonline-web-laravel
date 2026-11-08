@@ -30,6 +30,10 @@ final class Demo97d99iSeederTest extends TestCase
     {
         $this->travelTo('2026-11-06 15:00:00');
         config()->set('demo.account_ids', ['demo01']);
+        $websiteSettingsIdBeforeInsert = null;
+        WebsiteSetting::creating(function (WebsiteSetting $websiteSettings) use (&$websiteSettingsIdBeforeInsert): void {
+            $websiteSettingsIdBeforeInsert = $websiteSettings->getAttribute('id');
+        });
 
         $this->seed(Demo97d99iSeeder::class);
 
@@ -57,6 +61,7 @@ final class Demo97d99iSeederTest extends TestCase
         ]);
 
         $websiteSettings = WebsiteSetting::query()->sole();
+        $this->assertNull($websiteSettingsIdBeforeInsert);
         $this->assertSame('DreamMU', $websiteSettings->brand_title);
         $this->assertSame('97d + 99i', $websiteSettings->brand_subtitle);
 

@@ -108,11 +108,15 @@ final class SqlServerGameDatabaseInstallerTest extends TestCase
             .'HAS_PERMS_BY_NAME(?, ?, ?) AS can_read_characters, '
             .'HAS_PERMS_BY_NAME(?, ?, ?) AS can_update_characters, '
             .'HAS_PERMS_BY_NAME(?, ?, ?) AS can_update_status, '
+            .'HAS_PERMS_BY_NAME(?, ?, ?) AS can_read_castle, '
+            .'HAS_PERMS_BY_NAME(?, ?, ?) AS can_update_castle, '
             .'HAS_PERMS_BY_NAME(?, ?, ?) AS can_execute_serial',
             [
                 'dbo.Character', 'OBJECT', 'SELECT',
                 'dbo.Character', 'OBJECT', 'UPDATE',
                 'dbo.MEMB_STAT', 'OBJECT', 'UPDATE',
+                'dbo.MuCastle_DATA', 'OBJECT', 'SELECT',
+                'dbo.MuCastle_DATA', 'OBJECT', 'UPDATE',
                 'dbo.WZ_GetItemSerial', 'OBJECT', 'EXECUTE',
             ],
         );
@@ -121,6 +125,8 @@ final class SqlServerGameDatabaseInstallerTest extends TestCase
         $this->assertSame(1, (int) $permissions->can_read_characters);
         $this->assertSame(1, (int) $permissions->can_update_characters);
         $this->assertSame(0, (int) $permissions->can_update_status);
+        $this->assertSame(1, (int) $permissions->can_read_castle);
+        $this->assertSame(0, (int) $permissions->can_update_castle);
         $this->assertSame(1, (int) $permissions->can_execute_serial);
     }
 
