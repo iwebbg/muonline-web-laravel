@@ -88,25 +88,24 @@ final class Demo1_0MSeeder extends Seeder
      */
     private function seedWebsiteIdentity(): void
     {
-        WebsiteSetting::query()->updateOrCreate(
-            ['id' => 1],
-            [
-                'brand_title' => 'DreamMU',
-                'brand_subtitle' => '1.0M',
-                'logo_path' => null,
-                'home_title_en' => 'DreamMU',
-                'home_title_bg' => 'DreamMU',
-                'page_title_suffix' => 'DreamMU',
-                'meta_description_en' => 'DreamMU 1.0M',
-                'meta_description_bg' => 'DreamMU 1.0M',
-                'meta_keywords_en' => 'DreamMU, MuOnline, 1.0M',
-                'meta_keywords_bg' => 'DreamMU, MuOnline, 1.0M',
-                'og_image_path' => null,
-                'copyright_holder' => 'DreamMU',
-                'revision' => 1,
-                'updated_by_administrator_id' => null,
-            ],
-        );
+        $websiteSettings = WebsiteSetting::query()->firstOrNew();
+        $websiteSettings->fill([
+            'brand_title' => 'DreamMU',
+            'brand_subtitle' => '1.0M',
+            'logo_path' => null,
+            'home_title_en' => 'DreamMU',
+            'home_title_bg' => 'DreamMU',
+            'page_title_suffix' => 'DreamMU',
+            'meta_description_en' => 'DreamMU 1.0M',
+            'meta_description_bg' => 'DreamMU 1.0M',
+            'meta_keywords_en' => 'DreamMU, MuOnline, 1.0M',
+            'meta_keywords_bg' => 'DreamMU, MuOnline, 1.0M',
+            'og_image_path' => null,
+            'copyright_holder' => 'DreamMU',
+            'revision' => 1,
+            'updated_by_administrator_id' => null,
+        ]);
+        $websiteSettings->save();
     }
 
     /**

@@ -32,6 +32,10 @@ final class Demo1_0MSeederTest extends TestCase
         $this->travelTo('2026-11-08 15:00:00');
         config()->set('game.profile.key', 'darksteam_1_0m');
         config()->set('demo.account_ids', ['demo01']);
+        $websiteSettingsIdBeforeInsert = null;
+        WebsiteSetting::creating(function (WebsiteSetting $websiteSettings) use (&$websiteSettingsIdBeforeInsert): void {
+            $websiteSettingsIdBeforeInsert = $websiteSettings->getAttribute('id');
+        });
 
         $this->seed(Demo1_0MSeeder::class);
 
@@ -59,6 +63,7 @@ final class Demo1_0MSeederTest extends TestCase
         ]);
 
         $websiteSettings = WebsiteSetting::query()->sole();
+        $this->assertNull($websiteSettingsIdBeforeInsert);
         $this->assertSame('DreamMU', $websiteSettings->brand_title);
         $this->assertSame('1.0M', $websiteSettings->brand_subtitle);
 
