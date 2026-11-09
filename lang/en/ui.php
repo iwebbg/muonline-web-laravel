@@ -33,7 +33,7 @@ return [
         'title' => 'Player market · MuOnline Web',
         'eyebrow' => 'Original item escrow',
         'heading' => 'Player market',
-        'intro' => 'Browse original 97d+99i items held in recoverable escrow. Seller items retain their exact serial and option bytes.',
+        'intro' => 'Browse original :version items held in recoverable escrow. Seller items retain their exact serial and option bytes.',
         'sell_item' => 'Sell an item',
         'sign_in_to_sell' => 'Sign in to sell',
         'sign_in_to_buy' => 'Sign in to buy',
