@@ -838,6 +838,8 @@ return [
         'gens_rank' => 'Family rank',
         'gens_unranked' => 'Unranked',
         'gens_families' => ['duprian' => 'Duprian', 'vanert' => 'Vanert'],
+        'lucky_coin_balance' => 'Lucky Coin balance',
+        'lucky_coins' => 'Lucky Coins',
         'strength' => 'Strength',
         'agility' => 'Agility',
         'vitality' => 'Vitality',

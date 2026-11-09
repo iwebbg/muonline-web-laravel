@@ -25,6 +25,7 @@ use App\Game\Contracts\ItemGeneratorCatalog;
 use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ItemStorageRepository;
+use App\Game\Contracts\LuckyCoinBalanceRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Contracts\ModerationRepository;
@@ -49,6 +50,7 @@ use App\Game\Repositories\SqlServerMuEmuSeason6CharacterVipRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6GensMembershipRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6ItemSerialRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6ItemStorageRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6LuckyCoinBalanceRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6MarketItemEscrowRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6MasterProgressionRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6ModerationRepository;
@@ -105,6 +107,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
                 'Name', 'MasterLevel', 'MasterPoint', 'MasterExperience', 'MasterSkill',
             ],
             'Gens_Rank' => ['Name', 'Family', 'Contribution'],
+            'LuckyCoin' => ['AccountID', 'LuckyCoin'],
         ];
     }
 
@@ -128,6 +131,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
             'dbo.MuCastle_DATA' => ['SELECT'],
             'dbo.MasterSkillTree' => ['SELECT'],
             'dbo.Gens_Rank' => ['SELECT'],
+            'dbo.LuckyCoin' => ['SELECT'],
             'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
         ];
     }
@@ -145,6 +149,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
             castleSiege: true,
             masterProgression: true,
             gens: true,
+            luckyCoin: true,
         );
     }
 
@@ -332,6 +337,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
             RealmReadRepository::class => SqlServerMuEmuSeason6RealmReadRepository::class,
             CastleSiegeReadRepository::class => SqlServerMuEmuSeason6CastleSiegeReadRepository::class,
             GensMembershipRepository::class => SqlServerMuEmuSeason6GensMembershipRepository::class,
+            LuckyCoinBalanceRepository::class => SqlServerMuEmuSeason6LuckyCoinBalanceRepository::class,
             AccountActivationRepository::class => SqlServerMuEmuSeason6AccountActivationRepository::class,
             AccountCredentialRepository::class => SqlServerMuEmuSeason6AccountCredentialRepository::class,
             AccountPasswordRecoveryRepository::class => SqlServerMuEmuSeason6AccountPasswordRecoveryRepository::class,

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Auth\GameAccount;
 use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Contracts\LuckyCoinBalanceRepository;
 use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Data\GensFamily;
 use App\Game\Data\GensMembership;
@@ -166,6 +167,28 @@ final class AccountDashboardTest extends TestCase
                 'familyName' => 'Duprian',
             ];
         });
+    }
+
+    /**
+     * Confirms a profile-supported Lucky Coin balance is shown account-wide.
+     */
+    public function test_dashboard_displays_lucky_coin_balance(): void
+    {
+        $luckyCoinRepository = $this->mock(LuckyCoinBalanceRepository::class);
+        $luckyCoinRepository
+            ->shouldReceive('balanceFor')
+            ->once()
+            ->with('owner')
+            ->andReturn(42);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account');
+
+        $response
+            ->assertOk()
+            ->assertSee('Lucky Coin balance')
+            ->assertSee('42 Lucky Coins');
     }
 
     /**

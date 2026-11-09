@@ -18,5 +18,6 @@ final readonly class GameVersionCapabilities
         public bool $castleSiege = false,
         public bool $masterProgression = false,
         public bool $gens = false,
+        public bool $luckyCoin = false,
     ) {}
 }

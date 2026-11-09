@@ -7,6 +7,7 @@ use App\CharacterServices\CharacterClassChangeResolver;
 use App\Economy\WalletCurrency;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Contracts\LuckyCoinBalanceRepository;
 use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
@@ -43,6 +44,7 @@ final class AccountDashboardController extends Controller
         private readonly EconomySettingReader $economySettingReader,
         private readonly MasterProgressionRepository $masterProgressionRepository,
         private readonly GensMembershipRepository $gensMembershipRepository,
+        private readonly LuckyCoinBalanceRepository $luckyCoinBalanceRepository,
     ) {}
 
     /**
@@ -61,6 +63,7 @@ final class AccountDashboardController extends Controller
         $gensMembershipByCharacter = $this->gensMembershipRepository->forAccount(
             $account->username,
         );
+        $luckyCoinBalance = $this->luckyCoinBalanceRepository->balanceFor($account->username);
         $characters = [];
         $characterNames = [];
 
@@ -248,6 +251,7 @@ final class AccountDashboardController extends Controller
             'account' => $account,
             'characters' => $characters,
             'walletBalance' => $wallet?->balance ?? 0,
+            'luckyCoinBalance' => $luckyCoinBalance,
             'vipPlans' => $vipPlans,
             'vipEntitlements' => $vipEntitlements,
             'activeVipEntitlementCount' => $activeVipEntitlementCount,

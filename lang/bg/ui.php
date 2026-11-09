@@ -838,6 +838,8 @@ return [
         'gens_rank' => 'Ранг във фракцията',
         'gens_unranked' => 'Без ранг',
         'gens_families' => ['duprian' => 'Duprian', 'vanert' => 'Vanert'],
+        'lucky_coin_balance' => 'Lucky Coin баланс',
+        'lucky_coins' => 'Lucky Coins',
         'strength' => 'Сила',
         'agility' => 'Ловкост',
         'vitality' => 'Жизненост',
