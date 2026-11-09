@@ -1,5 +1,6 @@
 <?php
 
+use App\Game\Versions\MuEmuSeason6\MuEmuSeason6Profile;
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use App\Game\Versions\Version97d99i\Version97d99iProfile;
 
@@ -8,6 +9,10 @@ $serverProfileDefaults = match ($serverProfileKey) {
     'darksteam_1_0m' => [
         'name' => 'MuOnline DarksTeam 1.0M',
         'version' => '0.99.60/62T (1.0M)',
+    ],
+    'muemu_season_6' => [
+        'name' => 'MuOnline MuEMU Season 6',
+        'version' => 'Season 6 Episode 3 Update 32',
     ],
     default => [
         'name' => 'MuOnline 97d+99i',
@@ -49,7 +54,7 @@ return [
         env('GAME_EVENT_TIMEZONE', 'Europe/Sofia'),
     ),
 
-    'event_profile' => env('GAME_EVENT_PROFILE', 'darksteam_97d99i'),
+    'event_profile' => env('GAME_EVENT_PROFILE', $serverProfileKey),
 
     'event_home_limit' => (int) env('GAME_EVENT_HOME_LIMIT', 3),
 
@@ -83,5 +88,6 @@ return [
     'version_profiles' => [
         'darksteam_97d99i' => Version97d99iProfile::class,
         'darksteam_1_0m' => Version1_0MProfile::class,
+        'muemu_season_6' => MuEmuSeason6Profile::class,
     ],
 ];
