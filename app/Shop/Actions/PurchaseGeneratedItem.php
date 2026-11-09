@@ -12,6 +12,7 @@ use App\Models\AccountReward;
 use App\Models\ShopPurchase;
 use App\Shop\AccountRewardStatus;
 use App\Shop\Exceptions\ShopPurchaseRejected;
+use App\Shop\ItemGeneratorPriceAdjuster;
 use App\Shop\RewardSource;
 use App\Shop\ShopClassScope;
 use App\Shop\ShopOfferType;
@@ -31,6 +32,7 @@ final readonly class PurchaseGeneratedItem
      */
     public function __construct(
         private ItemGeneratorCatalog $catalog,
+        private ItemGeneratorPriceAdjuster $priceAdjuster,
         private AdjustWalletBalance $adjustWalletBalance,
         private FulfillAccountReward $fulfillAccountReward,
     ) {}
@@ -47,11 +49,13 @@ final readonly class PurchaseGeneratedItem
         array $options,
         string $idempotencyKey,
     ): AccountReward {
-        $quote = $this->catalog->quote($options);
+        $baseQuote = $this->catalog->quote($options);
 
-        if ($quote === null) {
+        if ($baseQuote === null) {
             throw new ShopPurchaseRejected(ShopPurchaseBlockReason::OfferUnavailable);
         }
+
+        $quote = $this->priceAdjuster->adjust($baseQuote);
 
         $requestHash = hash('sha256', $accountId.'|'.json_encode($options, JSON_THROW_ON_ERROR));
         $existingPurchase = ShopPurchase::query()

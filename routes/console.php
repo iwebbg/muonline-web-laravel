@@ -26,3 +26,11 @@ Schedule::command('web-storage:sync')
 Schedule::command('zen-bank:sync')
     ->everyMinute()
     ->withoutOverlapping();
+
+Schedule::command('credits:collect-online-time')
+    ->everyMinute()
+    ->withoutOverlapping();
+
+Schedule::command('credits:sync-item-exchanges')
+    ->everyMinute()
+    ->withoutOverlapping();

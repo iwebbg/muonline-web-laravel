@@ -75,9 +75,13 @@
                 <x-account-character-portrait x-show="activeSection !== 'vaults'" x-cloak />
 
                 <section class="min-w-0">
-                    <x-account-character-tabs x-show="activeSection !== 'vaults'" x-cloak />
+                    <x-account-character-tabs
+                        :character-services-enabled="$characterServicesEnabled"
+                        x-show="activeSection !== 'vaults'"
+                        x-cloak
+                    />
 
-                    <x-account-overview-panel />
+                    <x-account-overview-panel :economy-settings="$economySettings" :character-services-enabled="$characterServicesEnabled" />
                     <x-account-inventory-panel />
 
                     <x-account-vaults-panel />
@@ -93,8 +97,25 @@
                     <x-account-reset-panel />
 
                     <x-account-grand-reset-panel />
+
+                    @if ($characterServicesEnabled)
+                        <x-account-character-services-panel
+                            :economy-settings="$economySettings"
+                        />
+                    @endif
                 </section>
             </div>
+
+            @if ($characterServicesEnabled)
+                <x-account-character-service-modals
+                    :economy-settings="$economySettings"
+                    :wallet-balance="$walletBalance"
+                    :character-rename-idempotency-key="$characterRenameIdempotencyKey"
+                    :character-class-change-idempotency-key="$characterClassChangeIdempotencyKey"
+                    :character-reset-purchase-idempotency-key="$characterResetPurchaseIdempotencyKey"
+                    :character-level-up-points-purchase-idempotency-key="$characterLevelUpPointsPurchaseIdempotencyKey"
+                />
+            @endif
         @endif
 
     </div>

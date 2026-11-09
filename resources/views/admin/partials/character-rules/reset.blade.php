@@ -51,3 +51,7 @@
         </label>
     @endforeach
 </div>
+
+@include('admin.partials.character-rules.reward', [
+    'settingsPrefix' => 'resetReward',
+])

@@ -25,6 +25,9 @@ final readonly class ResetProfileSettings
         public PointsMode $pointsMode,
         public int $pointsPerReset,
         public InventoryPolicy $inventoryPolicy,
+        public ResetRewardType $resetRewardType = ResetRewardType::None,
+        public int $resetRewardCredits = 0,
+        public ?int $resetRewardShopOfferId = null,
         public bool $grandResetEnabled = true,
         public int $grandResetRequiredLevel = 350,
         public int $maximumGrandResets = 999,
@@ -35,6 +38,9 @@ final readonly class ResetProfileSettings
         public int $grandResetPoints = 500,
         public InventoryPolicy $grandResetInventoryPolicy = InventoryPolicy::KeepAll,
         public bool $grandResetConsumeRequiredResets = true,
+        public ResetRewardType $grandResetRewardType = ResetRewardType::None,
+        public int $grandResetRewardCredits = 0,
+        public ?int $grandResetRewardShopOfferId = null,
         public bool $statResetEnabled = true,
         public int $statResetRequiredLevel = 1,
         public int $statResetRequiredResets = 1,
@@ -67,6 +73,9 @@ final readonly class ResetProfileSettings
             pointsMode: PointsMode::Cumulative,
             pointsPerReset: 500,
             inventoryPolicy: InventoryPolicy::KeepAll,
+            resetRewardType: ResetRewardType::None,
+            resetRewardCredits: 0,
+            resetRewardShopOfferId: null,
             grandResetEnabled: true,
             grandResetRequiredLevel: 350,
             maximumGrandResets: 999,
@@ -77,6 +86,9 @@ final readonly class ResetProfileSettings
             grandResetPoints: 500,
             grandResetInventoryPolicy: InventoryPolicy::KeepAll,
             grandResetConsumeRequiredResets: true,
+            grandResetRewardType: ResetRewardType::None,
+            grandResetRewardCredits: 0,
+            grandResetRewardShopOfferId: null,
             statResetEnabled: true,
             statResetRequiredLevel: 1,
             statResetRequiredResets: 1,
@@ -170,7 +182,7 @@ final readonly class ResetProfileSettings
     /**
      * Converts the policy to the camel-case shape consumed by the admin interface.
      *
-     * @return array<string, bool|int|string>
+     * @return array<string, bool|int|string|null>
      */
     public function toClientArray(): array
     {
@@ -186,6 +198,9 @@ final readonly class ResetProfileSettings
             'pointsMode' => $this->pointsMode->value,
             'pointsPerReset' => $this->pointsPerReset,
             'inventoryPolicy' => $this->inventoryPolicy->value,
+            'resetRewardType' => $this->resetRewardType->value,
+            'resetRewardCredits' => $this->resetRewardCredits,
+            'resetRewardShopOfferId' => $this->resetRewardShopOfferId,
             'grandResetEnabled' => $this->grandResetEnabled,
             'grandResetRequiredLevel' => $this->grandResetRequiredLevel,
             'maximumGrandResets' => $this->maximumGrandResets,
@@ -196,6 +211,9 @@ final readonly class ResetProfileSettings
             'grandResetPoints' => $this->grandResetPoints,
             'grandResetInventoryPolicy' => $this->grandResetInventoryPolicy->value,
             'grandResetConsumeRequiredResets' => $this->grandResetConsumeRequiredResets,
+            'grandResetRewardType' => $this->grandResetRewardType->value,
+            'grandResetRewardCredits' => $this->grandResetRewardCredits,
+            'grandResetRewardShopOfferId' => $this->grandResetRewardShopOfferId,
             'statResetEnabled' => $this->statResetEnabled,
             'statResetRequiredLevel' => $this->statResetRequiredLevel,
             'statResetRequiredResets' => $this->statResetRequiredResets,
@@ -215,7 +233,7 @@ final readonly class ResetProfileSettings
     /**
      * Converts the policy to explicit database column values.
      *
-     * @return array<string, bool|int|string>
+     * @return array<string, bool|int|string|null>
      */
     public function toPersistenceArray(): array
     {
@@ -231,6 +249,9 @@ final readonly class ResetProfileSettings
             'points_mode' => $this->pointsMode->value,
             'points_per_reset' => $this->pointsPerReset,
             'inventory_policy' => $this->inventoryPolicy->value,
+            'reset_reward_type' => $this->resetRewardType->value,
+            'reset_reward_credits' => $this->resetRewardCredits,
+            'reset_reward_shop_offer_id' => $this->resetRewardShopOfferId,
             'grand_reset_enabled' => $this->grandResetEnabled,
             'grand_reset_required_level' => $this->grandResetRequiredLevel,
             'maximum_grand_resets' => $this->maximumGrandResets,
@@ -241,6 +262,9 @@ final readonly class ResetProfileSettings
             'grand_reset_points' => $this->grandResetPoints,
             'grand_reset_inventory_policy' => $this->grandResetInventoryPolicy->value,
             'grand_reset_consume_required_resets' => $this->grandResetConsumeRequiredResets,
+            'grand_reset_reward_type' => $this->grandResetRewardType->value,
+            'grand_reset_reward_credits' => $this->grandResetRewardCredits,
+            'grand_reset_reward_shop_offer_id' => $this->grandResetRewardShopOfferId,
             'stat_reset_enabled' => $this->statResetEnabled,
             'stat_reset_required_level' => $this->statResetRequiredLevel,
             'stat_reset_required_resets' => $this->statResetRequiredResets,

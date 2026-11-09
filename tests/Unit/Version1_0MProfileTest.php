@@ -9,11 +9,13 @@ use App\Game\Contracts\ItemCatalog;
 use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemGeneratorCatalog;
 use App\Game\Contracts\ItemGrantRules;
+use App\Game\Contracts\OnlineAccountRepository;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\SqlServer1_0MCastleSiegeReadRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterGrandResetRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterVipRepository;
 use App\Game\Repositories\SqlServer1_0MRealmReadRepository;
+use App\Game\Repositories\SqlServerOnlineAccountRepository;
 use App\Game\Versions\Version1_0M\ItemCatalog1_0M;
 use App\Game\Versions\Version1_0M\ItemCodec1_0M;
 use App\Game\Versions\Version1_0M\ItemGeneratorCatalog1_0M;
@@ -153,7 +155,7 @@ final class Version1_0MProfileTest extends TestCase
     {
         $bindings = (new Version1_0MProfile)->repositoryBindings();
 
-        $this->assertCount(21, $bindings);
+        $this->assertCount(23, $bindings);
         $this->assertSame(SqlServer1_0MRealmReadRepository::class, $bindings[RealmReadRepository::class]);
         $this->assertSame(
             SqlServer1_0MCharacterGrandResetRepository::class,
@@ -167,9 +169,16 @@ final class Version1_0MProfileTest extends TestCase
             SqlServer1_0MCastleSiegeReadRepository::class,
             $bindings[CastleSiegeReadRepository::class],
         );
+        $this->assertSame(
+            SqlServerOnlineAccountRepository::class,
+            $bindings[OnlineAccountRepository::class],
+        );
 
         foreach ($bindings as $adapter) {
-            $this->assertStringContainsString('1_0M', $adapter);
+            if ($adapter !== SqlServerOnlineAccountRepository::class) {
+                $this->assertStringContainsString('1_0M', $adapter);
+            }
+
             $this->assertStringNotContainsString('97d99i', $adapter);
         }
     }

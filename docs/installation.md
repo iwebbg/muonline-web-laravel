@@ -531,7 +531,11 @@ connection without exposing connection details.
 Do not add host cron entries for Laravel. The Compose stack runs
 `php artisan schedule:work` in a dedicated scheduler container. Production also
 runs `php artisan queue:work` in a dedicated queue container. These services
-handle expiring listings, auction settlement, VIP expiry and recovery retries.
+handle expiring listings, auction settlement, VIP expiry, online-time Credits
+collection and recovery retries. Do not enable Online Time Rewards without a
+healthy scheduler: `credits:collect-online-time` creates the bounded account
+checkpoints every minute, while `credits:sync-item-exchanges` safely resumes
+interrupted item exchanges.
 
 Check them after every deployment:
 

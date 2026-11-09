@@ -491,6 +491,51 @@ export function shopOfferEditor(configuration) {
 }
 
 /**
+ * Manages one exact item-exchange signature without duplicating catalog rules.
+ *
+ * @param {object} configuration Trusted catalog definitions and localized labels.
+ * @returns {object} Alpine component state.
+ */
+export function creditExchangeOfferEditor(configuration) {
+    return {
+        items: configuration.items,
+        itemOptionLabels: configuration.itemOptionLabels,
+        itemCode: configuration.itemCode ?? '',
+        excellentMask: Number(configuration.excellentMask ?? 0),
+
+        get selectedItem() {
+            return this.items[this.itemCode] ?? null;
+        },
+
+        get excellentOptions() {
+            const type = Number(this.selectedItem?.excellentType ?? 0);
+
+            if (type === 1) {
+                return this.itemOptionLabels.excellent.armor;
+            }
+
+            if (type === 4) {
+                return this.itemOptionLabels.excellent.wing;
+            }
+
+            return this.itemOptionLabels.excellent.weapon;
+        },
+
+        hasExcellentBit(index) {
+            return (this.excellentMask & (1 << index)) !== 0;
+        },
+
+        toggleExcellentBit(index) {
+            this.excellentMask ^= 1 << index;
+        },
+
+        clearExcellentOptions() {
+            this.excellentMask = 0;
+        },
+    };
+}
+
+/**
  * Creates the bilingual news editor and recoverable-delete confirmation state.
  *
  * @param {Array<object>} posts The administrator-visible article records.
@@ -868,6 +913,7 @@ export function itemGrantManager(configuration) {
         optionLevels: configuration.optionLevels,
         itemOptionLabels: configuration.itemOptionLabels,
         priceModifiers: configuration.priceModifiers ?? {},
+        markupPercentage: Number(configuration.markupPercentage) || 0,
         ui: configuration.ui,
         confirmationOpen: false,
         accountId: configuration.initialAccountId,
@@ -1089,12 +1135,14 @@ export function itemGrantManager(configuration) {
                 return 0;
             }
 
-            return Number(this.selectedItem.basePrice)
+            const basePrice = Number(this.selectedItem.basePrice)
                 + (this.level * Number(this.priceModifiers.level ?? 0))
                 + (this.optionLevel * Number(this.priceModifiers.additionalOption ?? 0))
                 + (this.hasSkill ? Number(this.priceModifiers.skill ?? 0) : 0)
                 + (this.hasLuck ? Number(this.priceModifiers.luck ?? 0) : 0)
                 + (this.excellentOptionBits.length * Number(this.priceModifiers.excellentOption ?? 0));
+
+            return basePrice + Math.ceil((basePrice * this.markupPercentage) / 100);
         },
 
         /**
@@ -2206,6 +2254,17 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         resetPreviewConfiguration,
         selectedCharacterIndex: initialCharacterIndex,
         activeSection: resetPreviewConfiguration?.initialSection ?? 'overview',
+        characterServiceModal: resetPreviewConfiguration?.initialCharacterService ?? null,
+        characterRenameNewName: resetPreviewConfiguration?.initialCharacterRenameName ?? '',
+        characterClassTargetFamily: resetPreviewConfiguration?.initialCharacterClassFamily ?? '',
+        characterResetPackageCount: String(
+            resetPreviewConfiguration?.initialCharacterResetPackageCount ?? 1,
+        ),
+        characterLevelUpPointsPackageCount: String(
+            resetPreviewConfiguration?.initialCharacterLevelUpPointsPackageCount ?? 1,
+        ),
+        characterServiceConfirmationOpen: false,
+        characterServiceSubmitting: false,
         resetPreview: null,
         resetPreviewLoading: false,
         resetPreviewError: null,
@@ -2281,7 +2340,89 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             }
 
             location.searchParams.set('tab', this.activeSection);
+
+            if (this.characterServiceModal === null) {
+                location.searchParams.delete('service');
+            } else {
+                location.searchParams.set('service', this.characterServiceModal);
+            }
+
             window.history.replaceState({}, '', location);
+        },
+
+        /**
+         * Opens a paid character service while preserving the current workspace URL.
+         *
+         * @param {string} service The enabled service identifier to display.
+         */
+        openCharacterService(service) {
+            this.characterServiceModal = service;
+            this.characterServiceConfirmationOpen = false;
+            this.characterServiceSubmitting = false;
+            this.synchronizeAccountLocation();
+        },
+
+        /**
+         * Closes the paid character service and removes its state from the URL.
+         */
+        closeCharacterService() {
+            this.characterServiceModal = null;
+            this.characterServiceConfirmationOpen = false;
+            this.characterServiceSubmitting = false;
+            this.synchronizeAccountLocation();
+        },
+
+        /**
+         * Returns the selected class-family option for the final purchase review.
+         *
+         * @returns {object|null}
+         */
+        get selectedCharacterClassOption() {
+            return this.selectedCharacter?.classChangeOptions.find(
+                (option) => option.family === this.characterClassTargetFamily,
+            ) ?? null;
+        },
+
+        /**
+         * Shows the final confirmation after the active service form is valid.
+         */
+        openCharacterServiceConfirmation() {
+            this.characterServiceConfirmationOpen = true;
+        },
+
+        /**
+         * Returns from the final confirmation to the editable service form.
+         */
+        closeCharacterServiceConfirmation() {
+            if (this.characterServiceSubmitting) {
+                return;
+            }
+
+            this.characterServiceConfirmationOpen = false;
+        },
+
+        /**
+         * Submits the already-reviewed service form through its Laravel endpoint.
+         */
+        submitCharacterService() {
+            if (this.characterServiceSubmitting) {
+                return;
+            }
+
+            const forms = {
+                rename: this.$refs.characterRenameForm,
+                'class-change': this.$refs.characterClassChangeForm,
+                'buy-resets': this.$refs.characterResetPurchaseForm,
+                'buy-level-up-points': this.$refs.characterLevelUpPointsPurchaseForm,
+            };
+            const form = forms[this.characterServiceModal];
+
+            if (form === undefined) {
+                return;
+            }
+
+            this.characterServiceSubmitting = true;
+            form.submit();
         },
 
         /**

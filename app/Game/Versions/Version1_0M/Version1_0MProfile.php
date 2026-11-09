@@ -13,6 +13,7 @@ use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Contracts\CharacterMoveRepository;
 use App\Game\Contracts\CharacterPkClearRepository;
 use App\Game\Contracts\CharacterResetRepository;
+use App\Game\Contracts\CharacterServiceRepository;
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
@@ -25,6 +26,7 @@ use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Game\Contracts\ModerationRepository;
+use App\Game\Contracts\OnlineAccountRepository;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Contracts\ZenBankRepository;
 use App\Game\Repositories\SqlServer1_0MAccountActivationRepository;
@@ -38,6 +40,7 @@ use App\Game\Repositories\SqlServer1_0MCharacterInventoryEscrowRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterMoveRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterPkClearRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterResetRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterServiceRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterStatAllocationRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterStatResetRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterVipRepository;
@@ -47,6 +50,7 @@ use App\Game\Repositories\SqlServer1_0MMarketItemEscrowRepository;
 use App\Game\Repositories\SqlServer1_0MModerationRepository;
 use App\Game\Repositories\SqlServer1_0MRealmReadRepository;
 use App\Game\Repositories\SqlServer1_0MZenBankRepository;
+use App\Game\Repositories\SqlServerOnlineAccountRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
@@ -70,9 +74,10 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
     {
         return [
             'MEMB_INFO' => ['memb_guid', 'memb___id', 'memb__pwd', 'mail_addr', 'bloc_code', 'ctl1_code'],
-            'Character' => ['AccountID', 'Name', 'cLevel', 'Class', 'Money', 'Resets', 'GrandResets', 'Leadership'],
+            'Character' => ['AccountID', 'Name', 'cLevel', 'Class', 'Money', 'Resets', 'GrandResets', 'Leadership', 'MarryName'],
             'warehouse' => ['AccountID', 'Items', 'Money'],
-            'MEMB_STAT' => ['memb___id', 'ConnectStat'],
+            'MEMB_STAT' => ['memb___id', 'ConnectStat', 'ConnectTM', 'DisConnectTM'],
+            'AccountCharacter' => ['Id', 'GameID1', 'GameID2', 'GameID3', 'GameID4', 'GameID5', 'GameIDC'],
             'Guild' => ['G_Name', 'G_Master', 'G_Score'],
             'GuildMember' => ['Name', 'G_Name'],
             'GameServerInfo' => ['ItemCount'],
@@ -97,10 +102,11 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
         return [
             'dbo.MEMB_INFO' => ['SELECT', 'INSERT', 'UPDATE'],
             'dbo.MEMB_STAT' => ['SELECT'],
+            'dbo.AccountCharacter' => ['SELECT', 'UPDATE'],
             'dbo.Character' => ['SELECT', 'UPDATE'],
             'dbo.warehouse' => ['SELECT', 'UPDATE'],
-            'dbo.Guild' => ['SELECT'],
-            'dbo.GuildMember' => ['SELECT'],
+            'dbo.Guild' => ['SELECT', 'UPDATE'],
+            'dbo.GuildMember' => ['SELECT', 'UPDATE'],
             'dbo.GameServerInfo' => ['SELECT'],
             'dbo.MuCastle_DATA' => ['SELECT'],
             'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
@@ -313,6 +319,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             CharacterPkClearRepository::class => SqlServer1_0MCharacterPkClearRepository::class,
             CharacterStatAllocationRepository::class => SqlServer1_0MCharacterStatAllocationRepository::class,
             CharacterStatResetRepository::class => SqlServer1_0MCharacterStatResetRepository::class,
+            CharacterServiceRepository::class => SqlServer1_0MCharacterServiceRepository::class,
             CharacterVipRepository::class => SqlServer1_0MCharacterVipRepository::class,
             CharacterInventoryEscrowRepository::class => SqlServer1_0MCharacterInventoryEscrowRepository::class,
             ItemStorageRepository::class => SqlServer1_0MItemStorageRepository::class,
@@ -320,6 +327,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             ItemSerialRepository::class => SqlServer1_0MItemSerialRepository::class,
             MarketItemEscrowRepository::class => SqlServer1_0MMarketItemEscrowRepository::class,
             ModerationRepository::class => SqlServer1_0MModerationRepository::class,
+            OnlineAccountRepository::class => SqlServerOnlineAccountRepository::class,
             ZenBankRepository::class => SqlServer1_0MZenBankRepository::class,
         ];
     }

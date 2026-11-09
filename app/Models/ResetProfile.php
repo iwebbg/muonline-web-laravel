@@ -6,6 +6,7 @@ use App\GrandReset\GrandResetPointsMode;
 use App\PkClear\PkClearPriceMode;
 use App\Reset\InventoryPolicy;
 use App\Reset\PointsMode;
+use App\Reset\ResetRewardType;
 use Database\Factories\ResetProfileFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Stores the currently active application-owned reset policy draft.
  */
-#[Fillable(['enabled', 'required_level', 'maximum_resets', 'maximum_stat', 'grand_reset_required_resets', 'base_zen_cost', 'multiply_cost_by_reset', 'clear_stats', 'points_mode', 'points_per_reset', 'inventory_policy', 'grand_reset_enabled', 'grand_reset_required_level', 'maximum_grand_resets', 'grand_reset_base_zen_cost', 'grand_reset_multiply_cost', 'grand_reset_clear_stats', 'grand_reset_points_mode', 'grand_reset_points', 'grand_reset_inventory_policy', 'grand_reset_consume_required_resets', 'stat_reset_enabled', 'stat_reset_required_level', 'stat_reset_required_resets', 'stat_reset_zen_cost', 'pk_clear_enabled', 'pk_clear_required_level', 'pk_clear_base_zen_cost', 'pk_clear_price_mode', 'move_to_town_enabled', 'move_to_town_map', 'move_to_town_x', 'move_to_town_y', 'move_to_town_zen_cost', 'revision', 'updated_by_administrator_id'])]
+#[Fillable(['enabled', 'required_level', 'maximum_resets', 'maximum_stat', 'grand_reset_required_resets', 'base_zen_cost', 'multiply_cost_by_reset', 'clear_stats', 'points_mode', 'points_per_reset', 'inventory_policy', 'reset_reward_type', 'reset_reward_credits', 'reset_reward_shop_offer_id', 'grand_reset_enabled', 'grand_reset_required_level', 'maximum_grand_resets', 'grand_reset_base_zen_cost', 'grand_reset_multiply_cost', 'grand_reset_clear_stats', 'grand_reset_points_mode', 'grand_reset_points', 'grand_reset_inventory_policy', 'grand_reset_consume_required_resets', 'grand_reset_reward_type', 'grand_reset_reward_credits', 'grand_reset_reward_shop_offer_id', 'stat_reset_enabled', 'stat_reset_required_level', 'stat_reset_required_resets', 'stat_reset_zen_cost', 'pk_clear_enabled', 'pk_clear_required_level', 'pk_clear_base_zen_cost', 'pk_clear_price_mode', 'move_to_town_enabled', 'move_to_town_map', 'move_to_town_x', 'move_to_town_y', 'move_to_town_zen_cost', 'revision', 'updated_by_administrator_id'])]
 final class ResetProfile extends Model
 {
     /** @use HasFactory<ResetProfileFactory> */
@@ -34,6 +35,9 @@ final class ResetProfile extends Model
             'maximum_stat' => 'integer',
             'grand_reset_required_resets' => 'integer',
             'grand_reset_enabled' => 'boolean',
+            'reset_reward_type' => ResetRewardType::class,
+            'reset_reward_credits' => 'integer',
+            'reset_reward_shop_offer_id' => 'integer',
             'grand_reset_required_level' => 'integer',
             'maximum_grand_resets' => 'integer',
             'grand_reset_base_zen_cost' => 'integer',
@@ -43,6 +47,9 @@ final class ResetProfile extends Model
             'grand_reset_points' => 'integer',
             'grand_reset_inventory_policy' => InventoryPolicy::class,
             'grand_reset_consume_required_resets' => 'boolean',
+            'grand_reset_reward_type' => ResetRewardType::class,
+            'grand_reset_reward_credits' => 'integer',
+            'grand_reset_reward_shop_offer_id' => 'integer',
             'stat_reset_enabled' => 'boolean',
             'stat_reset_required_level' => 'integer',
             'stat_reset_required_resets' => 'integer',
