@@ -22,6 +22,28 @@ function forceTestingEnvironmentVariable(string $name, string $value): void
     $_SERVER[$name] = $value;
 }
 
+$profileMatrixPath = __DIR__.'/profile-matrix.txt';
+$supportedTestProfiles = array_values(array_filter(
+    array_map('trim', file($profileMatrixPath, FILE_IGNORE_NEW_LINES) ?: []),
+    static fn (string $profile): bool => $profile !== '',
+));
+
+if ($supportedTestProfiles === []) {
+    throw new RuntimeException('The supported test profile matrix is empty.');
+}
+
+$requestedTestProfile = getenv('MUONLINE_TEST_PROFILE');
+$testProfile = is_string($requestedTestProfile) && $requestedTestProfile !== ''
+    ? $requestedTestProfile
+    : 'darksteam_97d99i';
+
+if (! in_array($testProfile, $supportedTestProfiles, true)) {
+    throw new RuntimeException(sprintf(
+        'Unsupported MUONLINE_TEST_PROFILE [%s].',
+        $testProfile,
+    ));
+}
+
 $testingEnvironment = [
     'APP_CONFIG_CACHE' => sys_get_temp_dir().'/muonline-web-laravel-phpunit-'.getmypid().'-config.php',
     'APP_ENV' => 'testing',
@@ -39,7 +61,8 @@ $testingEnvironment = [
     'GAME_DB_PASSWORD' => '',
     'GAME_DB_RANKING' => ':memory:',
     'GAME_DB_USERNAME' => '',
-    'GAME_SERVER_PROFILE' => 'darksteam_97d99i',
+    'GAME_EVENT_PROFILE' => $testProfile,
+    'GAME_SERVER_PROFILE' => $testProfile,
     'GAME_WRITES_ENABLED' => 'false',
     'MAIL_MAILER' => 'array',
     'NIGHTWATCH_ENABLED' => 'false',

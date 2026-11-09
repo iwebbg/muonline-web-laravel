@@ -341,7 +341,7 @@ VIP contract is character-scoped. Public profiles may display an active
 writing a semantically different field.
 
 Automated coverage uses exact real-item fixtures and portable adapter schemas.
-The full disposable suite passes with 770 tests and 3,934 assertions. Before a
+The full disposable suite passes with 774 tests and 3,967 assertions. Before a
 production rollout, complete `game:doctor` and disposable-account mutation
 checks against a cloned MuEMU database and dedicated test server. The main
 warehouse boundary is manually confirmed; creation and switching of every

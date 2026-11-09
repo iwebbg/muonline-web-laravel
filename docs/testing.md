@@ -48,6 +48,26 @@ and portable-adapter coverage for all three supported profiles. It is not a
 replacement for the dedicated 97d+99i and 1.0M SQL Server suites or manual
 MuEMU Season 6 commissioning against a cloned database and test server.
 
+## Local all-profile verification
+
+Run the complete isolated regression suite and then boot the application once
+for every supported game/event profile with:
+
+```bash
+./docker/compose test-all
+```
+
+The command builds the network-isolated test image once, runs the full unit and
+feature suite, and then runs the `profile-matrix` smoke group with each profile
+listed in `tests/profile-matrix.txt`. The smoke group verifies profile and event
+selection, resolves the selected adapter bundle, and renders public fixture
+pages. A test assertion keeps that manifest synchronized with every profile in
+`config/game.php`.
+
+This is an optional local confidence check and is not currently a required CI
+job. Normal PHPUnit arguments supplied to `test-all` constrain the full
+regression stage; the short profile matrix always runs in full.
+
 ### Run a specific file
 
 Prefer the narrowest file that covers the changed behavior:
