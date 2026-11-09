@@ -220,6 +220,13 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($limiterKey);
         });
 
+        RateLimiter::for('character-service', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(5)->by($limiterKey);
+        });
+
         RateLimiter::for('vote-claim', function (Request $request): Limit {
             $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
             $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
@@ -266,6 +273,12 @@ class AppServiceProvider extends ServiceProvider
             $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
 
             return Limit::perMinute(5)->by(Str::transliterate($accountId.'|'.$request->ip()));
+        });
+
+        RateLimiter::for('credit-earning', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+
+            return Limit::perMinute(10)->by(Str::transliterate($accountId.'|'.$request->ip()));
         });
 
         RateLimiter::for('auction-bid', function (Request $request): Limit {

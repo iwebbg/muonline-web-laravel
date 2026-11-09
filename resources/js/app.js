@@ -5,6 +5,7 @@ import {
     applicationNavigation,
     contentManager,
     creditPackageManager,
+    creditExchangeOfferEditor,
     downloadManager,
     eventSchedule,
     gameServerManager,
@@ -28,6 +29,7 @@ Alpine.data('accountPanel', accountPanel);
 Alpine.data('applicationNavigation', applicationNavigation);
 Alpine.data('contentManager', contentManager);
 Alpine.data('creditPackageManager', creditPackageManager);
+Alpine.data('creditExchangeOfferEditor', creditExchangeOfferEditor);
 Alpine.data('downloadManager', downloadManager);
 Alpine.data('eventSchedule', eventSchedule);
 Alpine.data('gameServerManager', gameServerManager);

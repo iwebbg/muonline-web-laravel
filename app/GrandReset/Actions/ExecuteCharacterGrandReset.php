@@ -8,6 +8,7 @@ use App\GrandReset\CharacterGrandResetResult;
 use App\GrandReset\Exceptions\CharacterGrandResetRejected;
 use App\GrandReset\GrandResetBlockReason;
 use App\Models\CharacterGrandResetOperation;
+use App\Reset\Actions\GrantResetReward;
 use App\Reset\ResetProfileReader;
 use App\Stats\CharacterStats;
 use Throwable;
@@ -23,6 +24,7 @@ final readonly class ExecuteCharacterGrandReset
     public function __construct(
         private ResetProfileReader $resetProfileReader,
         private CharacterGrandResetRepository $grandResetRepository,
+        private GrantResetReward $grantResetReward,
     ) {}
 
     /**
@@ -40,11 +42,14 @@ final readonly class ExecuteCharacterGrandReset
             ->first();
 
         if ($existingOperation !== null) {
-            return $this->resultFromExistingOperation(
+            $result = $this->resultFromExistingOperation(
                 operation: $existingOperation,
                 accountId: $accountId,
                 characterName: $characterName,
             );
+            $this->grantResetReward->forGrandReset($existingOperation);
+
+            return $result;
         }
 
         $settings = $this->resetProfileReader->current();
@@ -90,6 +95,7 @@ final readonly class ExecuteCharacterGrandReset
             'after_snapshot' => $result->afterSnapshot(),
             'completed_at' => now(),
         ]);
+        $this->grantResetReward->forGrandReset($operation->refresh());
 
         return $result;
     }

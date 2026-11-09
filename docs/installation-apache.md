@@ -387,6 +387,12 @@ Arguments: artisan schedule:run
 Start in: C:\xampp\htdocs\muonline-web-laravel
 ```
 
+The one-minute scheduler frequency is required for Online Time Rewards. It runs
+`credits:collect-online-time` to advance bounded session checkpoints and
+`credits:sync-item-exchanges` to finish interrupted item-to-Credits operations
+idempotently. If the scheduler is stopped, unknown elapsed time is deliberately
+not backfilled after it returns.
+
 When production uses `QUEUE_CONNECTION=database` or `redis`, run
 `php artisan queue:work` under Supervisor, systemd, NSSM or another process
 manager that restarts failed workers. A browser request must never be expected

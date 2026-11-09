@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Auth\GameAccount;
 use App\Models\AccountWallet;
+use App\Models\EconomySetting;
 use App\Models\ModuleProfile;
 use App\Models\WebStorageItem;
 use App\Modules\ServerModule;
@@ -157,6 +158,120 @@ final class AccountDashboardTest extends TestCase
             ->assertOk()
             ->assertSee('125 Credits')
             ->assertDontSee('999 Credits');
+    }
+
+    /**
+     * Confirms enabled paid services share one modal form between both trigger areas.
+     */
+    public function test_dashboard_displays_enabled_character_services(): void
+    {
+        $gameConnection = $this->app->make(DatabaseManager::class)->connection('game');
+        $gameConnection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $gameConnection->table('Character')->insert($this->characterRecord('owner', 'OwnedKnight'));
+        EconomySetting::factory()->create([
+            'character_rename_enabled' => true,
+            'character_rename_price_credits' => 250,
+            'character_class_change_enabled' => true,
+            'character_class_change_price_credits' => 500,
+            'character_reset_purchase_enabled' => true,
+            'character_reset_price_credits' => 100,
+            'character_level_up_points_purchase_enabled' => true,
+            'character_level_up_points_package_size' => 1_000,
+            'character_level_up_points_price_credits' => 100,
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account?character=OwnedKnight&tab=services');
+
+        $response
+            ->assertOk()
+            ->assertSee('Character services')
+            ->assertSee(route('account.character-rename'), false)
+            ->assertSee(route('account.character-class-change'), false)
+            ->assertSee(route('account.character-reset-purchases.store'), false)
+            ->assertSee(route('account.character-level-up-points-purchases.store'), false)
+            ->assertSee('250 Credits')
+            ->assertSee('500 Credits')
+            ->assertSee('Selected character')
+            ->assertSee('Current balance')
+            ->assertSee('Service price')
+            ->assertSee('x-model="characterRenameNewName"', false)
+            ->assertSee('x-model="characterClassTargetFamily"', false)
+            ->assertSee('@submit.prevent="openCharacterServiceConfirmation()"', false)
+            ->assertSee('Confirm character service')
+            ->assertSee('Confirm purchase')
+            ->assertSee('Buy resets')
+            ->assertSee('Buy LevelUpPoints')
+            ->assertSee('10 resets')
+            ->assertSee('10,000 points');
+        $this->assertSame(1, substr_count($response->getContent(), route('account.character-rename')));
+        $this->assertSame(1, substr_count($response->getContent(), route('account.character-class-change')));
+        $this->assertSame(1, substr_count($response->getContent(), route('account.character-reset-purchases.store')));
+        $this->assertSame(1, substr_count($response->getContent(), route('account.character-level-up-points-purchases.store')));
+        $this->assertSame(2, substr_count($response->getContent(), "openCharacterService('rename')"));
+        $this->assertSame(2, substr_count($response->getContent(), "openCharacterService('class-change')"));
+        $this->assertSame(2, substr_count($response->getContent(), "openCharacterService('buy-resets')"));
+        $this->assertSame(2, substr_count($response->getContent(), "openCharacterService('buy-level-up-points')"));
+        $this->assertMatchesRegularExpression('/initialSection.{0,80}services/', $response->getContent());
+    }
+
+    /**
+     * Confirms a direct workspace URL restores the requested enabled service modal.
+     */
+    public function test_dashboard_restores_character_service_modal_from_direct_url(): void
+    {
+        $gameConnection = $this->app->make(DatabaseManager::class)->connection('game');
+        $gameConnection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $gameConnection->table('Character')->insert($this->characterRecord('owner', 'OwnedKnight'));
+        EconomySetting::factory()->create([
+            'character_rename_enabled' => true,
+            'character_class_change_enabled' => false,
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account?character=OwnedKnight&tab=overview&service=rename');
+
+        $response->assertOk();
+        $this->assertMatchesRegularExpression(
+            '/initialCharacterService.{0,80}rename/',
+            $response->getContent(),
+        );
+        $this->assertMatchesRegularExpression(
+            '/initialCharacter.{0,80}OwnedKnight/',
+            $response->getContent(),
+        );
+    }
+
+    /**
+     * Confirms each administrative switch removes only its disabled service.
+     */
+    public function test_dashboard_hides_individually_disabled_character_services(): void
+    {
+        $gameConnection = $this->app->make(DatabaseManager::class)->connection('game');
+        $gameConnection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $gameConnection->table('Character')->insert($this->characterRecord('owner', 'OwnedKnight'));
+        EconomySetting::factory()->create([
+            'character_rename_enabled' => true,
+            'character_rename_price_credits' => 250,
+            'character_class_change_enabled' => false,
+            'character_class_change_price_credits' => 500,
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account?character=OwnedKnight&tab=services&service=class-change');
+
+        $response
+            ->assertOk()
+            ->assertSee(route('account.character-rename'), false)
+            ->assertDontSee(route('account.character-class-change'), false)
+            ->assertDontSee("openCharacterService('class-change')", false);
+        $this->assertDoesNotMatchRegularExpression(
+            '/initialCharacterService.{0,80}class-change/',
+            $response->getContent(),
+        );
     }
 
     /**

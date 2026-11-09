@@ -284,6 +284,75 @@ components under `resources/views/components`, and Alpine modules under
 
 ## Current next priorities
 
+### Character economy milestone
+
+The `feat/character-economy-improvements` branch completes the current
+character-economy milestone. In addition to Item Generator markup and
+reset/grand-reset rewards, it now provides:
+
+- compact Character Services and Overview Quick Actions for paid Rename and
+  Change Class operations, backed by shared teleported confirmation modals;
+- version-driven class-family choices: four families for 97d+99i and five for
+  1.0M, preserving an evolution tier only when the target family supports it;
+- administrator-enabled Buy Resets and Buy LevelUpPoints packages with exact
+  Credits calculations and player confirmation;
+- audited Paid Services settings and visible revision history;
+- administrator-defined exact item exchange offers based on the active item
+  catalog. An offer matches group/index, level, skill, luck, additional option,
+  exact excellent mask and ancient option before removing a batch from an
+  offline character inventory;
+- account-level Online Time Rewards with configurable minutes per unit,
+  Credits per unit and daily limit;
+- explicit online-time claims, per-offer exchange limits and immutable wallet
+  transactions;
+- durable item-exchange state which survives a crash between game inventory
+  extraction and the application Credits award;
+- one-minute scheduler commands `credits:collect-online-time` and
+  `credits:sync-item-exchanges` for bounded observation and recovery.
+
+The item exchange path intentionally ignores durability and serial when
+matching an offer, but it snapshots and verifies the complete original item
+bytes at the write boundary. This allows an offer such as Leather Pants +7 +
+Luck + Rate + Damage Decrease while preventing another option combination from
+being exchanged accidentally. Ownership, offline state, exact bytes, daily
+limits and idempotency are all checked server-side.
+
+Online-time accounting reads current `MEMB_STAT` sessions through the active
+version profile. The first observation establishes a checkpoint and never
+backfills unknown past time. Later observations accept at most a bounded gap,
+convert only complete configured units and preserve a small remainder. Stopping
+the scheduler therefore pauses earning instead of creating an unverified time
+windfall when it restarts.
+
+The branch includes these final focused commits:
+
+- `62dd337 refactor(account): move character services into modals`
+- `6306858 fix(account): confirm character service purchases`
+- `03e3b86 feat(account): add paid progression services`
+- `6662f2c feat(admin): show paid service revisions`
+- `5550bde feat(credits): add item and online time exchanges`
+- `6904ecf test(credits): update profile schema expectations`
+- `8221e53 fix(database): allow rename reference updates`
+
+The disposable main suite passes with 670 tests and 3,316 assertions. The
+97d+99i and 1.0M SQL Server integration suites pass. The least-privilege doctor
+allows the narrow `Guild` and `GuildMember` updates required to keep renamed
+character references consistent, while continuing to reject insert, delete,
+control, alter and ownership permissions. Pint, Blade compilation and the Vite
+production build pass, and the new application migrations have been applied
+locally.
+
+Before enabling either earning system, save the policy under **Admin → Economy
+→ Paid services**. Item Exchange additionally needs at least one enabled exact
+catalog offer. Online Time Rewards requires the scheduler to remain healthy.
+Both systems are disabled by default after migration.
+
+The untracked root files `script 1.0M.sql` and `script S6.sql` are external
+reference material supplied by the project owner. Do not add, edit, move or
+delete them unless explicitly requested.
+
+### Broader priorities
+
 1. Continue manual end-to-end testing against the dedicated 97d+99i and 1.0M
    SQL Server databases and test game servers, one player operation at a time.
 2. Finish UI polish and responsive review after functional defects are closed.

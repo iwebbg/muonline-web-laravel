@@ -43,6 +43,11 @@ PHPUnit and the Laravel base test case both verify the resolved environment,
 driver and database before database-refresh traits can run. Tests stop before
 migrations when any of those checks fail.
 
+The main suite contains profile-independent application tests plus direct unit
+coverage for both supported profiles. It is not a replacement for running both
+SQL Server adapter suites: feature tests that resolve the application container
+still use the active test profile derived from the normal project setup.
+
 ### Run a specific file
 
 Prefer the narrowest file that covers the changed behavior:
@@ -150,6 +155,15 @@ For an application change:
    changing a game repository, database mapping, version profile or legacy
    schema fixture.
 5. Perform manual browser testing separately for the affected user workflow.
+
+Before publishing a branch that changes shared game adapters or version
+profiles, run the complete supported-version matrix:
+
+```bash
+./docker/compose test
+./docker/compose test-integration
+./docker/compose test-integration-1.0m
+```
 
 Automated tests do not replace manual verification against dedicated test
 accounts when enabling live game writes, payment callbacks or external mail.

@@ -2,6 +2,7 @@
 
 namespace App\Game\Contracts;
 
+use App\Game\Data\ExpectedInventoryItem;
 use App\Market\MarketEscrowResult;
 
 /**
@@ -17,6 +18,17 @@ interface CharacterInventoryEscrowRepository
         string $characterName,
         int $slot,
         string $expectedBinary,
+    ): MarketEscrowResult;
+
+    /**
+     * Removes one exact batch from an offline owned character bag atomically.
+     *
+     * @param  list<ExpectedInventoryItem>  $expectedItems
+     */
+    public function extractMany(
+        string $accountId,
+        string $characterName,
+        array $expectedItems,
     ): MarketEscrowResult;
 
     /**

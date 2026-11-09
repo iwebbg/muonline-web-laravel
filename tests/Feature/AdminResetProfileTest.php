@@ -225,6 +225,9 @@ final class AdminResetProfileTest extends TestCase
             'pointsMode' => 'cumulative',
             'pointsPerReset' => 500,
             'inventoryPolicy' => 'clear_bag',
+            'resetRewardType' => 'none',
+            'resetRewardCredits' => null,
+            'resetRewardShopOfferId' => null,
         ];
     }
 
@@ -247,6 +250,9 @@ final class AdminResetProfileTest extends TestCase
             'grandResetPoints' => 1_000,
             'grandResetInventoryPolicy' => 'clear_all',
             'grandResetConsumeRequiredResets' => true,
+            'grandResetRewardType' => 'none',
+            'grandResetRewardCredits' => null,
+            'grandResetRewardShopOfferId' => null,
         ];
     }
 

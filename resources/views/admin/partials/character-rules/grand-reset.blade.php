@@ -28,3 +28,7 @@
         <label class="check-card"><input type="hidden" name="{{ $field }}" value="0"><input type="checkbox" name="{{ $field }}" value="1" @checked(old($field, $settings[$field]))><span><strong>{{ __('ui.admin.'.$label) }}</strong><small>{{ __('ui.admin.'.$help) }}</small></span></label>
     @endforeach
 </div>
+
+@include('admin.partials.character-rules.reward', [
+    'settingsPrefix' => 'grandResetReward',
+])

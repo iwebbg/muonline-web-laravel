@@ -33,6 +33,7 @@
                 'optionLevels' => $optionLevels,
                 'itemOptionLabels' => $itemOptionLabels,
                 'priceModifiers' => $priceModifiers,
+                'markupPercentage' => $markupPercentage,
                 'initialItemCode' => old('item_code', array_key_first($itemsByCode) ?? ''),
                 'initialLevel' => old('level', 0),
                 'initialDurability' => old('durability', 255),

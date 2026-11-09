@@ -13,6 +13,13 @@
 
         <x-account-navigation class="mt-6" />
 
+        @if (session('status'))
+            <div class="mt-6 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">{{ session('status') }}</div>
+        @endif
+        @if ($errors->any())
+            <div class="mt-6 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">{{ $errors->first() }}</div>
+        @endif
+
         <section class="mt-8 grid gap-5 lg:grid-cols-[22rem_minmax(0,1fr)]">
             <div class="panel-card p-6">
                 <p class="kicker">{{ __('ui.account.wallet_available') }}</p>
@@ -46,6 +53,45 @@
                 @endif
             </div>
         </section>
+
+        @if ($economySettings->onlineTimeRewardsEnabled || ($economySettings->itemExchangeEnabled && $exchangeOffers !== []))
+            <section id="earn" class="mt-10">
+                <p class="kicker">{{ __('ui.account.credit_earning_kicker') }}</p>
+                <h2 class="mt-2 text-2xl font-semibold text-white">{{ __('ui.account.credit_earning_heading') }}</h2>
+                <p class="mt-3 max-w-3xl text-sm leading-6 text-silver">{{ __('ui.account.credit_earning_help') }}</p>
+
+                <div class="mt-5 grid gap-5 xl:grid-cols-2">
+                    @if ($economySettings->onlineTimeRewardsEnabled)
+                        <article class="panel-card p-6">
+                            <p class="kicker">{{ __('ui.account.online_time_rewards') }}</p>
+                            <div class="mt-4 flex items-end justify-between gap-4"><div><p class="font-display text-4xl text-gold">{{ number_format($onlineTimeAccount?->claimable_credits ?? 0) }}</p><p class="text-sm text-steel">{{ __('ui.account.claimable_credits') }}</p></div><p class="text-right text-sm text-silver">{{ __('ui.account.online_time_rate', ['minutes' => $economySettings->onlineMinutesPerUnit, 'credits' => $economySettings->onlineCreditsPerUnit]) }}<br>{{ __('ui.account.online_time_daily_limit', ['credits' => number_format($economySettings->onlineDailyCreditLimit)]) }}</p></div>
+                            <div class="mt-5 h-2 overflow-hidden rounded-full bg-white/8"><div class="h-full bg-gold" style="width: {{ min(100, (($onlineTimeAccount?->rewarded_credits_today ?? 0) / max(1, $economySettings->onlineDailyCreditLimit)) * 100) }}%"></div></div>
+                            <p class="mt-2 text-xs text-steel">{{ __('ui.account.earned_today', ['credits' => number_format($onlineTimeAccount?->rewarded_credits_today ?? 0)]) }}</p>
+                            <form method="POST" action="{{ route('account.online-time-claims.store') }}" class="mt-5">@csrf<input type="hidden" name="idempotency_key" value="{{ $onlineTimeClaimIdempotencyKey }}"><button class="button button-primary" @disabled(($onlineTimeAccount?->claimable_credits ?? 0) < 1)>{{ __('ui.account.claim_online_time_credits') }}</button></form>
+                        </article>
+                    @endif
+
+                    @foreach ($exchangeOffers as $presentedOffer)
+                        @php($offer = $presentedOffer['model'])
+                        <article class="panel-card p-6" x-data="{ reviewing: false, quantity: 1, creditsPerItem: {{ $offer->credits_per_item }} }">
+                            <div class="flex gap-4">
+                                @if ($presentedOffer['item']['image'])<img src="{{ asset($presentedOffer['item']['image']) }}" alt="" class="h-16 w-16 rounded-xl border border-white/10 bg-black/30 object-contain p-2">@endif
+                                <div><p class="kicker">{{ __('ui.account.item_exchange') }}</p><h3 class="mt-2 text-lg font-semibold text-white">{{ $presentedOffer['item']['title'] }}</h3><p class="mt-1 text-xs text-emerald-200">{{ implode(' · ', $presentedOffer['item']['options']) ?: __('ui.account.no_item_options') }}</p></div>
+                            </div>
+                            <p class="mt-4 text-sm text-silver">{{ __('ui.account.item_exchange_rate', ['credits' => number_format($offer->credits_per_item)]) }}</p>
+                            <p class="mt-1 text-xs text-steel">{{ __('ui.account.item_exchange_daily', ['earned' => number_format($presentedOffer['awardedToday']), 'limit' => number_format($offer->daily_account_credit_limit)]) }}</p>
+                            <form method="POST" action="{{ route('account.credit-item-exchanges.store') }}" class="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1fr)_7rem_auto]" @submit="if (!reviewing) { $event.preventDefault(); reviewing = true }">@csrf
+                                <input type="hidden" name="offer_id" value="{{ $offer->public_id }}"><input type="hidden" name="idempotency_key" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
+                                <label class="field-group"><span>{{ __('ui.account.character') }}</span><select name="character_name" @change="reviewing = false" required><option value="">{{ __('ui.account.choose_character') }}</option>@foreach ($characterExchangeOptions as $character)<option value="{{ $character['name'] }}" @disabled($character['online'] || $character['offerCounts'][$offer->public_id] < 1)>{{ $character['name'] }} — {{ trans_choice('ui.account.matching_items', $character['offerCounts'][$offer->public_id], ['count' => $character['offerCounts'][$offer->public_id]]) }}{{ $character['online'] ? ' · '.__('ui.account.online') : '' }}</option>@endforeach</select></label>
+                                <label class="field-group"><span>{{ __('ui.account.quantity') }}</span><input type="number" name="quantity" x-model.number="quantity" @input="reviewing = false" min="1" max="{{ $offer->max_quantity_per_exchange }}" required></label>
+                                <div class="flex items-end"><button type="submit" class="button button-primary" x-text="reviewing ? @js(__('ui.account.confirm_exchange')) : @js(__('ui.account.review_exchange'))"></button></div>
+                                <div x-show="reviewing" x-cloak class="sm:col-span-3 rounded-xl border border-gold/25 bg-gold/5 p-4 text-sm text-silver"><p>{{ __('ui.account.exchange_confirmation') }}</p><p class="mt-2 text-white">{{ __('ui.account.exchange_total') }}: <strong class="text-gold" x-text="new Intl.NumberFormat().format(quantity * creditsPerItem)"></strong> Credits</p><button type="button" class="mt-2 text-steel underline" @click="reviewing = false">{{ __('ui.account.change_selection') }}</button></div>
+                            </form>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
 
         @if ($payments->isNotEmpty())
             <section class="mt-10 panel-card overflow-x-auto p-0">

@@ -23,6 +23,7 @@ final readonly class ExecuteCharacterReset
     public function __construct(
         private ResetProfileReader $resetProfileReader,
         private CharacterResetRepository $characterResetRepository,
+        private GrantResetReward $grantResetReward,
     ) {}
 
     /**
@@ -40,11 +41,14 @@ final readonly class ExecuteCharacterReset
             ->first();
 
         if ($existingOperation !== null) {
-            return $this->resultFromExistingOperation(
+            $result = $this->resultFromExistingOperation(
                 operation: $existingOperation,
                 accountId: $accountId,
                 characterName: $characterName,
             );
+            $this->grantResetReward->forReset($existingOperation);
+
+            return $result;
         }
 
         $settings = $this->resetProfileReader->current();
@@ -90,6 +94,7 @@ final readonly class ExecuteCharacterReset
             'after_snapshot' => $result->afterSnapshot,
             'completed_at' => now(),
         ]);
+        $this->grantResetReward->forReset($operation->refresh());
 
         return $result;
     }
