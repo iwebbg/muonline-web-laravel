@@ -22,8 +22,8 @@ return new class extends Migration
             $table->unsignedTinyInteger('target_class_code')->nullable();
             $table->string('status', 24)->index();
             $table->unsignedBigInteger('price_credits');
-            $table->foreignId('wallet_transaction_id')->nullable()->constrained('wallet_transactions')->nullOnDelete();
-            $table->foreignId('refund_wallet_transaction_id')->nullable()->constrained('wallet_transactions')->nullOnDelete();
+            $table->foreignId('wallet_transaction_id')->nullable()->constrained('wallet_transactions')->noActionOnDelete();
+            $table->foreignId('refund_wallet_transaction_id')->nullable()->constrained('wallet_transactions')->noActionOnDelete();
             $table->json('settings_snapshot');
             $table->json('before_snapshot')->nullable();
             $table->json('after_snapshot')->nullable();

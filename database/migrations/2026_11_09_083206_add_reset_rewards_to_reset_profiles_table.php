@@ -18,7 +18,7 @@ return new class extends Migration
                 ->nullable()
                 ->after('reset_reward_credits')
                 ->constrained('shop_offers')
-                ->nullOnDelete();
+                ->noActionOnDelete();
             $table->string('grand_reset_reward_type', 32)
                 ->default('none')
                 ->after('grand_reset_consume_required_resets');
@@ -29,7 +29,7 @@ return new class extends Migration
                 ->nullable()
                 ->after('grand_reset_reward_credits')
                 ->constrained('shop_offers')
-                ->nullOnDelete();
+                ->noActionOnDelete();
         });
     }
 
