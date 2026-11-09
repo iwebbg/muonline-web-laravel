@@ -2209,6 +2209,9 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         resetPreviewConfiguration,
         selectedCharacterIndex: initialCharacterIndex,
         activeSection: resetPreviewConfiguration?.initialSection ?? 'overview',
+        characterServiceModal: resetPreviewConfiguration?.initialCharacterService ?? null,
+        characterRenameNewName: resetPreviewConfiguration?.initialCharacterRenameName ?? '',
+        characterClassTargetFamily: resetPreviewConfiguration?.initialCharacterClassFamily ?? '',
         resetPreview: null,
         resetPreviewLoading: false,
         resetPreviewError: null,
@@ -2284,7 +2287,32 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
             }
 
             location.searchParams.set('tab', this.activeSection);
+
+            if (this.characterServiceModal === null) {
+                location.searchParams.delete('service');
+            } else {
+                location.searchParams.set('service', this.characterServiceModal);
+            }
+
             window.history.replaceState({}, '', location);
+        },
+
+        /**
+         * Opens a paid character service while preserving the current workspace URL.
+         *
+         * @param {string} service The enabled service identifier to display.
+         */
+        openCharacterService(service) {
+            this.characterServiceModal = service;
+            this.synchronizeAccountLocation();
+        },
+
+        /**
+         * Closes the paid character service and removes its state from the URL.
+         */
+        closeCharacterService() {
+            this.characterServiceModal = null;
+            this.synchronizeAccountLocation();
         },
 
         /**

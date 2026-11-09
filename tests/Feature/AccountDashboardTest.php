@@ -161,7 +161,7 @@ final class AccountDashboardTest extends TestCase
     }
 
     /**
-     * Confirms enabled paid services render their profile-aware forms and prices.
+     * Confirms enabled paid services share one modal form between both trigger areas.
      */
     public function test_dashboard_displays_enabled_character_services(): void
     {
@@ -185,8 +185,75 @@ final class AccountDashboardTest extends TestCase
             ->assertSee(route('account.character-rename'), false)
             ->assertSee(route('account.character-class-change'), false)
             ->assertSee('250 Credits')
-            ->assertSee('500 Credits');
+            ->assertSee('500 Credits')
+            ->assertSee('Selected character')
+            ->assertSee('Current balance')
+            ->assertSee('Service price')
+            ->assertSee('x-model="characterRenameNewName"', false)
+            ->assertSee('x-model="characterClassTargetFamily"', false);
+        $this->assertSame(1, substr_count($response->getContent(), route('account.character-rename')));
+        $this->assertSame(1, substr_count($response->getContent(), route('account.character-class-change')));
+        $this->assertSame(2, substr_count($response->getContent(), "openCharacterService('rename')"));
+        $this->assertSame(2, substr_count($response->getContent(), "openCharacterService('class-change')"));
         $this->assertMatchesRegularExpression('/initialSection.{0,80}services/', $response->getContent());
+    }
+
+    /**
+     * Confirms a direct workspace URL restores the requested enabled service modal.
+     */
+    public function test_dashboard_restores_character_service_modal_from_direct_url(): void
+    {
+        $gameConnection = $this->app->make(DatabaseManager::class)->connection('game');
+        $gameConnection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $gameConnection->table('Character')->insert($this->characterRecord('owner', 'OwnedKnight'));
+        EconomySetting::factory()->create([
+            'character_rename_enabled' => true,
+            'character_class_change_enabled' => false,
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account?character=OwnedKnight&tab=overview&service=rename');
+
+        $response->assertOk();
+        $this->assertMatchesRegularExpression(
+            '/initialCharacterService.{0,80}rename/',
+            $response->getContent(),
+        );
+        $this->assertMatchesRegularExpression(
+            '/initialCharacter.{0,80}OwnedKnight/',
+            $response->getContent(),
+        );
+    }
+
+    /**
+     * Confirms each administrative switch removes only its disabled service.
+     */
+    public function test_dashboard_hides_individually_disabled_character_services(): void
+    {
+        $gameConnection = $this->app->make(DatabaseManager::class)->connection('game');
+        $gameConnection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $gameConnection->table('Character')->insert($this->characterRecord('owner', 'OwnedKnight'));
+        EconomySetting::factory()->create([
+            'character_rename_enabled' => true,
+            'character_rename_price_credits' => 250,
+            'character_class_change_enabled' => false,
+            'character_class_change_price_credits' => 500,
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account?character=OwnedKnight&tab=services&service=class-change');
+
+        $response
+            ->assertOk()
+            ->assertSee(route('account.character-rename'), false)
+            ->assertDontSee(route('account.character-class-change'), false)
+            ->assertDontSee("openCharacterService('class-change')", false);
+        $this->assertDoesNotMatchRegularExpression(
+            '/initialCharacterService.{0,80}class-change/',
+            $response->getContent(),
+        );
     }
 
     /**

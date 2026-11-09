@@ -1,3 +1,7 @@
+@props([
+    'economySettings',
+])
+
 <div class="mt-5" x-show="activeSection === 'services'" x-cloak>
     <article class="panel-card">
         <div>
@@ -6,85 +10,32 @@
             <p class="mt-2 max-w-3xl text-sm leading-6 text-silver">{{ __('ui.account.character_services_help') }}</p>
         </div>
 
-        @error('character_service')
-            <div class="mt-6 rounded-2xl border border-red-300/20 bg-red-400/8 p-4 text-sm text-red-100" role="alert">
-                {{ $message }}
-            </div>
-        @enderror
-
-        <div class="mt-7 grid gap-5 lg:grid-cols-2">
-            <section class="rounded-2xl border border-white/10 bg-white/3 p-5">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div>
+        <div class="mt-7 grid gap-3">
+            @if ($economySettings->characterRenameEnabled)
+                <section class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/3 p-5 sm:flex-row sm:items-center">
+                    <div class="min-w-0 flex-1">
                         <h4 class="font-semibold text-white">{{ __('ui.account.character_rename') }}</h4>
-                        <p class="mt-2 text-sm leading-6 text-silver">{{ __('ui.account.character_rename_help') }}</p>
+                        <p class="mt-1 text-sm leading-6 text-silver">{{ __('ui.account.character_rename_help') }}</p>
                     </div>
-                    <span class="preview-badge">{{ number_format($economySettings->characterRenamePriceCredits) }} {{ __('ui.account.wallet_credits') }}</span>
-                </div>
+                    <strong class="shrink-0 text-sm text-gold">{{ number_format($economySettings->characterRenamePriceCredits) }} {{ __('ui.account.wallet_credits') }}</strong>
+                    <button type="button" class="button button-primary shrink-0 justify-center" @click="openCharacterService('rename')">
+                        {{ __('ui.account.character_rename_open') }}
+                    </button>
+                </section>
+            @endif
 
-                @if ($economySettings->characterRenameEnabled)
-                    <form method="POST" action="{{ route('account.character-rename') }}" class="mt-5 grid gap-4">
-                        @csrf
-                        <input type="hidden" name="character_name" :value="selectedCharacter.name">
-                        <input type="hidden" name="idempotency_key" value="{{ $characterRenameIdempotencyKey }}">
-                        <label class="field-group">
-                            {{ __('ui.account.character_new_name') }}
-                            <input
-                                type="text"
-                                name="new_name"
-                                value="{{ old('new_name') }}"
-                                minlength="4"
-                                maxlength="10"
-                                pattern="[A-Za-z0-9_]+"
-                                required
-                            >
-                        </label>
-                        <p class="text-xs leading-5 text-silver">{{ __('ui.account.character_name_rules') }}</p>
-                        <button
-                            type="submit"
-                            class="button button-primary justify-center"
-                            :disabled="!resetPreviewConfiguration.writesEnabled || selectedCharacter.online || {{ $walletBalance }} < {{ $economySettings->characterRenamePriceCredits }}"
-                        >{{ __('ui.account.character_rename_action') }}</button>
-                    </form>
-                @else
-                    <p class="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4 text-sm text-silver">{{ __('ui.account.character_service_disabled') }}</p>
-                @endif
-            </section>
-
-            <section class="rounded-2xl border border-white/10 bg-white/3 p-5">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div>
+            @if ($economySettings->characterClassChangeEnabled)
+                <section class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/3 p-5 sm:flex-row sm:items-center">
+                    <div class="min-w-0 flex-1">
                         <h4 class="font-semibold text-white">{{ __('ui.account.character_class_change') }}</h4>
-                        <p class="mt-2 text-sm leading-6 text-silver">{{ __('ui.account.character_class_change_help') }}</p>
+                        <p class="mt-1 text-sm leading-6 text-silver">{{ __('ui.account.character_class_change_help') }}</p>
                     </div>
-                    <span class="preview-badge">{{ number_format($economySettings->characterClassChangePriceCredits) }} {{ __('ui.account.wallet_credits') }}</span>
-                </div>
-
-                @if ($economySettings->characterClassChangeEnabled)
-                    <form method="POST" action="{{ route('account.character-class-change') }}" class="mt-5 grid gap-4">
-                        @csrf
-                        <input type="hidden" name="character_name" :value="selectedCharacter.name">
-                        <input type="hidden" name="idempotency_key" value="{{ $characterClassChangeIdempotencyKey }}">
-                        <label class="field-group">
-                            {{ __('ui.account.character_target_class') }}
-                            <select name="target_family" required>
-                                <option value="">{{ __('ui.account.character_choose_class') }}</option>
-                                <template x-for="option in selectedCharacter.classChangeOptions" :key="option.family">
-                                    <option :value="option.family" x-text="option.name"></option>
-                                </template>
-                            </select>
-                        </label>
-                        <p class="text-xs leading-5 text-silver">{{ __('ui.account.character_class_tier_notice') }}</p>
-                        <button
-                            type="submit"
-                            class="button button-primary justify-center"
-                            :disabled="!resetPreviewConfiguration.writesEnabled || selectedCharacter.online || {{ $walletBalance }} < {{ $economySettings->characterClassChangePriceCredits }}"
-                        >{{ __('ui.account.character_class_change_action') }}</button>
-                    </form>
-                @else
-                    <p class="mt-5 rounded-2xl border border-white/10 bg-black/15 p-4 text-sm text-silver">{{ __('ui.account.character_service_disabled') }}</p>
-                @endif
-            </section>
+                    <strong class="shrink-0 text-sm text-gold">{{ number_format($economySettings->characterClassChangePriceCredits) }} {{ __('ui.account.wallet_credits') }}</strong>
+                    <button type="button" class="button button-primary shrink-0 justify-center" @click="openCharacterService('class-change')">
+                        {{ __('ui.account.character_class_change_open') }}
+                    </button>
+                </section>
+            @endif
         </div>
 
         <p class="mt-6 text-sm leading-6 text-silver">{{ __('ui.account.character_services_offline_notice') }}</p>

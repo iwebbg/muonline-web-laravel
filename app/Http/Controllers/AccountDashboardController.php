@@ -173,9 +173,19 @@ final class AccountDashboardController extends Controller
         }
         $requestedSection = $request->string('tab')->toString();
         $requestedCharacter = $request->string('character')->toString();
+        $requestedCharacterService = $request->string('service')->toString();
         $initialSection = in_array($requestedSection, $allowedSections, true)
             ? $requestedSection
             : 'overview';
+        $availableCharacterServices = [];
+
+        if ($creditsEnabled && $economySettings->characterRenameEnabled) {
+            $availableCharacterServices[] = 'rename';
+        }
+
+        if ($creditsEnabled && $economySettings->characterClassChangeEnabled) {
+            $availableCharacterServices[] = 'class-change';
+        }
 
         if ($characterNames === []) {
             $initialSection = 'vaults';
@@ -185,6 +195,13 @@ final class AccountDashboardController extends Controller
         $accountPanelConfiguration['initialCharacter'] = in_array($requestedCharacter, $characterNames, true)
             ? $requestedCharacter
             : ($characterNames[0] ?? null);
+        $accountPanelConfiguration['initialCharacterService'] = in_array(
+            $requestedCharacterService,
+            $availableCharacterServices,
+            true,
+        ) ? $requestedCharacterService : null;
+        $accountPanelConfiguration['initialCharacterRenameName'] = $request->old('new_name', '');
+        $accountPanelConfiguration['initialCharacterClassFamily'] = $request->old('target_family', '');
         $accountPanelConfiguration['webStorageEnabled'] = $webStorageEnabled;
         $accountPanelConfiguration['marketEnabled'] = $marketEnabled;
         $accountPanelConfiguration['auctionEnabled'] = $auctionEnabled;

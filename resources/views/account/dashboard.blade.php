@@ -81,7 +81,7 @@
                         x-cloak
                     />
 
-                    <x-account-overview-panel />
+                    <x-account-overview-panel :economy-settings="$economySettings" :character-services-enabled="$characterServicesEnabled" />
                     <x-account-inventory-panel />
 
                     <x-account-vaults-panel />
@@ -101,13 +101,19 @@
                     @if ($characterServicesEnabled)
                         <x-account-character-services-panel
                             :economy-settings="$economySettings"
-                            :wallet-balance="$walletBalance"
-                            :character-rename-idempotency-key="$characterRenameIdempotencyKey"
-                            :character-class-change-idempotency-key="$characterClassChangeIdempotencyKey"
                         />
                     @endif
                 </section>
             </div>
+
+            @if ($characterServicesEnabled)
+                <x-account-character-service-modals
+                    :economy-settings="$economySettings"
+                    :wallet-balance="$walletBalance"
+                    :character-rename-idempotency-key="$characterRenameIdempotencyKey"
+                    :character-class-change-idempotency-key="$characterClassChangeIdempotencyKey"
+                />
+            @endif
         @endif
 
     </div>
