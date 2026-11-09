@@ -190,7 +190,10 @@ final class AccountDashboardTest extends TestCase
             ->assertSee('Current balance')
             ->assertSee('Service price')
             ->assertSee('x-model="characterRenameNewName"', false)
-            ->assertSee('x-model="characterClassTargetFamily"', false);
+            ->assertSee('x-model="characterClassTargetFamily"', false)
+            ->assertSee('@submit.prevent="openCharacterServiceConfirmation()"', false)
+            ->assertSee('Confirm character service')
+            ->assertSee('Confirm purchase');
         $this->assertSame(1, substr_count($response->getContent(), route('account.character-rename')));
         $this->assertSame(1, substr_count($response->getContent(), route('account.character-class-change')));
         $this->assertSame(2, substr_count($response->getContent(), "openCharacterService('rename')"));

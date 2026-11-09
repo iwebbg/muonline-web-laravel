@@ -2212,6 +2212,8 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         characterServiceModal: resetPreviewConfiguration?.initialCharacterService ?? null,
         characterRenameNewName: resetPreviewConfiguration?.initialCharacterRenameName ?? '',
         characterClassTargetFamily: resetPreviewConfiguration?.initialCharacterClassFamily ?? '',
+        characterServiceConfirmationOpen: false,
+        characterServiceSubmitting: false,
         resetPreview: null,
         resetPreviewLoading: false,
         resetPreviewError: null,
@@ -2304,6 +2306,8 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
          */
         openCharacterService(service) {
             this.characterServiceModal = service;
+            this.characterServiceConfirmationOpen = false;
+            this.characterServiceSubmitting = false;
             this.synchronizeAccountLocation();
         },
 
@@ -2312,7 +2316,58 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
          */
         closeCharacterService() {
             this.characterServiceModal = null;
+            this.characterServiceConfirmationOpen = false;
+            this.characterServiceSubmitting = false;
             this.synchronizeAccountLocation();
+        },
+
+        /**
+         * Returns the selected class-family option for the final purchase review.
+         *
+         * @returns {object|null}
+         */
+        get selectedCharacterClassOption() {
+            return this.selectedCharacter?.classChangeOptions.find(
+                (option) => option.family === this.characterClassTargetFamily,
+            ) ?? null;
+        },
+
+        /**
+         * Shows the final confirmation after the active service form is valid.
+         */
+        openCharacterServiceConfirmation() {
+            this.characterServiceConfirmationOpen = true;
+        },
+
+        /**
+         * Returns from the final confirmation to the editable service form.
+         */
+        closeCharacterServiceConfirmation() {
+            if (this.characterServiceSubmitting) {
+                return;
+            }
+
+            this.characterServiceConfirmationOpen = false;
+        },
+
+        /**
+         * Submits the already-reviewed service form through its Laravel endpoint.
+         */
+        submitCharacterService() {
+            if (this.characterServiceSubmitting) {
+                return;
+            }
+
+            const form = this.characterServiceModal === 'rename'
+                ? this.$refs.characterRenameForm
+                : this.$refs.characterClassChangeForm;
+
+            if (form === undefined) {
+                return;
+            }
+
+            this.characterServiceSubmitting = true;
+            form.submit();
         },
 
         /**

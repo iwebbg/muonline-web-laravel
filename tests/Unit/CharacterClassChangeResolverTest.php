@@ -15,6 +15,26 @@ use PHPUnit\Framework\TestCase;
 final class CharacterClassChangeResolverTest extends TestCase
 {
     /**
+     * Confirms each profile exposes only its supported alternative class families.
+     */
+    public function test_returns_only_version_supported_alternative_class_families(): void
+    {
+        $version97d99iOptions = (new CharacterClassChangeResolver(new Version97d99iProfile))
+            ->optionsFor(17);
+        $version1_0MOptions = (new CharacterClassChangeResolver(new Version1_0MProfile))
+            ->optionsFor(17);
+
+        $this->assertSame(
+            ['wizard', 'elf', 'magic-gladiator'],
+            array_column($version97d99iOptions, 'family'),
+        );
+        $this->assertSame(
+            ['wizard', 'elf', 'magic-gladiator', 'dark-lord'],
+            array_column($version1_0MOptions, 'family'),
+        );
+    }
+
+    /**
      * Confirms both profiles preserve the highest already-earned evolution tier.
      *
      * @param  class-string<GameVersionProfile>  $profileClass

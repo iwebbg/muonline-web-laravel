@@ -12,7 +12,7 @@
         x-transition.opacity
         x-cloak
         @click.self="closeCharacterService()"
-        @keydown.escape.window="closeCharacterService()"
+        @keydown.escape.window="characterServiceConfirmationOpen ? closeCharacterServiceConfirmation() : closeCharacterService()"
     >
         <section
             class="panel-card my-auto w-full max-w-2xl shadow-2xl shadow-black/60"
@@ -71,6 +71,8 @@
                     action="{{ route('account.character-rename') }}"
                     class="mt-6 grid gap-5"
                     x-show="characterServiceModal === 'rename'"
+                    x-ref="characterRenameForm"
+                    @submit.prevent="openCharacterServiceConfirmation()"
                 >
                     @csrf
                     <input type="hidden" name="character_name" :value="selectedCharacter.name">
@@ -101,8 +103,9 @@
                         <button
                             type="submit"
                             class="button button-primary shrink-0 justify-center"
+                            x-show="!characterServiceConfirmationOpen"
                             :disabled="!resetPreviewConfiguration.writesEnabled || selectedCharacter.online || {{ $walletBalance }} < {{ $economySettings->characterRenamePriceCredits }}"
-                        >{{ __('ui.account.character_rename_action') }}</button>
+                        >{{ __('ui.account.character_rename_review') }}</button>
                     </div>
                 </form>
             @endif
@@ -113,6 +116,8 @@
                     action="{{ route('account.character-class-change') }}"
                     class="mt-6 grid gap-5"
                     x-show="characterServiceModal === 'class-change'"
+                    x-ref="characterClassChangeForm"
+                    @submit.prevent="openCharacterServiceConfirmation()"
                 >
                     @csrf
                     <input type="hidden" name="character_name" :value="selectedCharacter.name">
@@ -140,11 +145,55 @@
                         <button
                             type="submit"
                             class="button button-primary shrink-0 justify-center"
+                            x-show="!characterServiceConfirmationOpen"
                             :disabled="!resetPreviewConfiguration.writesEnabled || selectedCharacter.online || {{ $walletBalance }} < {{ $economySettings->characterClassChangePriceCredits }}"
-                        >{{ __('ui.account.character_class_change_action') }}</button>
+                        >{{ __('ui.account.character_class_change_review') }}</button>
                     </div>
                 </form>
             @endif
+
+            <div
+                class="mt-6 rounded-2xl border border-gold/20 bg-gold/5 p-5"
+                x-show="characterServiceConfirmationOpen"
+                x-cloak
+            >
+                <strong class="block text-white">{{ __('ui.account.character_service_confirm') }}</strong>
+                <p class="mt-2 text-sm leading-6 text-silver">{{ __('ui.account.character_service_confirm_help') }}</p>
+
+                <dl class="mt-5 grid gap-3 sm:grid-cols-3">
+                    <div class="outcome-card">
+                        <dt>{{ __('ui.account.character_selected') }}</dt>
+                        <dd x-text="selectedCharacter.name"></dd>
+                    </div>
+                    <div class="outcome-card" x-show="characterServiceModal === 'rename'">
+                        <dt>{{ __('ui.account.character_new_name') }}</dt>
+                        <dd x-text="characterRenameNewName"></dd>
+                    </div>
+                    <div class="outcome-card" x-show="characterServiceModal === 'class-change'">
+                        <dt>{{ __('ui.account.character_target_class') }}</dt>
+                        <dd x-text="selectedCharacterClassOption?.name ?? ''"></dd>
+                    </div>
+                    <div class="outcome-card">
+                        <dt>{{ __('ui.account.character_service_price') }}</dt>
+                        @if ($economySettings->characterRenameEnabled)
+                            <dd x-show="characterServiceModal === 'rename'">{{ number_format($economySettings->characterRenamePriceCredits) }} <small class="outcome-unit">{{ __('ui.account.wallet_credits') }}</small></dd>
+                        @endif
+                        @if ($economySettings->characterClassChangeEnabled)
+                            <dd x-show="characterServiceModal === 'class-change'">{{ number_format($economySettings->characterClassChangePriceCredits) }} <small class="outcome-unit">{{ __('ui.account.wallet_credits') }}</small></dd>
+                        @endif
+                    </div>
+                </dl>
+
+                <div class="mt-5 flex flex-wrap justify-end gap-3">
+                    <button type="button" class="button button-ghost" :disabled="characterServiceSubmitting" @click="closeCharacterServiceConfirmation()">
+                        {{ __('ui.account.reset_cancel') }}
+                    </button>
+                    <button type="button" class="button button-primary" :disabled="characterServiceSubmitting" @click="submitCharacterService()">
+                        <span x-show="!characterServiceSubmitting">{{ __('ui.account.character_service_confirm_action') }}</span>
+                        <span x-show="characterServiceSubmitting">{{ __('ui.account.character_service_submitting') }}</span>
+                    </button>
+                </div>
+            </div>
         </section>
     </div>
 </template>
