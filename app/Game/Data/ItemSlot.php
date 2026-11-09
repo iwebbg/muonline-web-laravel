@@ -5,12 +5,14 @@ namespace App\Game\Data;
 use InvalidArgumentException;
 
 /**
- * Represents one decoded legacy 10-byte item slot while retaining its original bytes.
+ * Represents one decoded version-owned item slot while retaining its original bytes.
  */
 final readonly class ItemSlot
 {
     /**
-     * Creates an immutable item slot decoded by one version-owned ten-byte codec.
+     * Creates an immutable item slot decoded by one version-owned codec.
+     *
+     * @param  list<int>  $socketOptions
      */
     public function __construct(
         public int $slot,
@@ -31,9 +33,13 @@ final readonly class ItemSlot
         public ?string $image = null,
         public int $excellentType = 0,
         public int $optionType = 0,
+        public int $harmonyOption = 0,
+        public ?int $socketBonus = null,
+        public array $socketOptions = [],
+        public bool $has380Option = false,
     ) {
-        if (strlen($this->binary) !== 10) {
-            throw new InvalidArgumentException('An item slot must contain exactly 10 bytes.');
+        if (! in_array(strlen($this->binary), [10, 16], true)) {
+            throw new InvalidArgumentException('An item slot must contain exactly 10 or 16 bytes.');
         }
     }
 
@@ -77,6 +83,10 @@ final readonly class ItemSlot
             image: $this->image,
             excellentType: $this->excellentType,
             optionType: $this->optionType,
+            harmonyOption: $this->harmonyOption,
+            socketBonus: $this->socketBonus,
+            socketOptions: $this->socketOptions,
+            has380Option: $this->has380Option,
         );
     }
 
@@ -104,6 +114,10 @@ final readonly class ItemSlot
             image: $definition->image,
             excellentType: $definition->excellentType,
             optionType: $definition->optionType,
+            harmonyOption: $this->harmonyOption,
+            socketBonus: $this->socketBonus,
+            socketOptions: $this->socketOptions,
+            has380Option: $this->has380Option,
         );
     }
 
@@ -142,7 +156,7 @@ final readonly class ItemSlot
     /**
      * Serializes an occupied slot for the authenticated account interface.
      *
-     * @return array{slot: int, code: string, name: string, width: int, height: int, image: string|null, excellentType: int, optionType: int, rarity: string, level: int, durability: int, optionLevel: int, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int}
+     * @return array{slot: int, code: string, name: string, width: int, height: int, image: string|null, excellentType: int, optionType: int, rarity: string, level: int, durability: int, optionLevel: int, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int, harmonyOption: int, socketBonus: int|null, socketOptions: list<int>, has380Option: bool}
      */
     public function toArray(): array
     {
@@ -163,6 +177,10 @@ final readonly class ItemSlot
             'hasLuck' => $this->hasLuck,
             'excellentMask' => $this->excellentMask,
             'ancientOption' => $this->ancientOption,
+            'harmonyOption' => $this->harmonyOption,
+            'socketBonus' => $this->socketBonus,
+            'socketOptions' => $this->socketOptions,
+            'has380Option' => $this->has380Option,
         ];
     }
 }
