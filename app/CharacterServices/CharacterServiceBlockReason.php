@@ -15,6 +15,10 @@ enum CharacterServiceBlockReason: string
     case SameName = 'same_name';
     case InvalidClass = 'invalid_class';
     case SameClassFamily = 'same_class_family';
+    case InvalidQuantity = 'invalid_quantity';
+    case MaximumResetsReached = 'maximum_resets_reached';
+    case PointLimitExceeded = 'point_limit_exceeded';
+    case ResetPolicyUnsupported = 'reset_policy_unsupported';
     case InsufficientCredits = 'insufficient_credits';
     case IdempotencyConflict = 'idempotency_conflict';
     case OperationInProgress = 'operation_in_progress';

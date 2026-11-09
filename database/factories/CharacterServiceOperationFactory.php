@@ -26,6 +26,7 @@ final class CharacterServiceOperationFactory extends Factory
             'service_type' => CharacterServiceType::Rename,
             'character_name' => fake()->regexify('[A-Za-z0-9]{10}'),
             'requested_name' => fake()->regexify('[A-Za-z0-9]{10}'),
+            'requested_amount' => null,
             'status' => CharacterOperationStatus::Pending,
             'price_credits' => 100,
             'settings_snapshot' => [],

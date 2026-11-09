@@ -26,6 +26,11 @@ final class EconomySettingReader
             characterRenamePriceCredits: $settings->character_rename_price_credits,
             characterClassChangeEnabled: $settings->character_class_change_enabled,
             characterClassChangePriceCredits: $settings->character_class_change_price_credits,
+            characterResetPurchaseEnabled: $settings->character_reset_purchase_enabled,
+            characterResetPriceCredits: $settings->character_reset_price_credits,
+            characterLevelUpPointsPurchaseEnabled: $settings->character_level_up_points_purchase_enabled,
+            characterLevelUpPointsPackageSize: $settings->character_level_up_points_package_size,
+            characterLevelUpPointsPriceCredits: $settings->character_level_up_points_price_credits,
         );
     }
 

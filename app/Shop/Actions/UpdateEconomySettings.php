@@ -34,6 +34,11 @@ final readonly class UpdateEconomySettings
                     characterRenamePriceCredits: $model->character_rename_price_credits,
                     characterClassChangeEnabled: $model->character_class_change_enabled,
                     characterClassChangePriceCredits: $model->character_class_change_price_credits,
+                    characterResetPurchaseEnabled: $model->character_reset_purchase_enabled,
+                    characterResetPriceCredits: $model->character_reset_price_credits,
+                    characterLevelUpPointsPurchaseEnabled: $model->character_level_up_points_purchase_enabled,
+                    characterLevelUpPointsPackageSize: $model->character_level_up_points_package_size,
+                    characterLevelUpPointsPriceCredits: $model->character_level_up_points_price_credits,
                 )
                 : EconomySettings::defaults();
             $revision = ($model?->revision ?? 0) + 1;

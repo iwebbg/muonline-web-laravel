@@ -55,6 +55,18 @@
                         <span aria-hidden="true">→</span>
                     </button>
                 @endif
+                @if ($characterServicesEnabled && $economySettings->characterResetPurchaseEnabled)
+                    <button type="button" class="action-row" @click="openCharacterService('buy-resets')">
+                        <span><strong>{{ __('ui.account.character_buy_resets') }}</strong><small>{{ number_format($economySettings->characterResetPriceCredits) }} {{ __('ui.account.wallet_credits') }} / {{ __('ui.account.character_one_reset') }} · {{ __('ui.account.offline_only') }}</small></span>
+                        <span aria-hidden="true">→</span>
+                    </button>
+                @endif
+                @if ($characterServicesEnabled && $economySettings->characterLevelUpPointsPurchaseEnabled)
+                    <button type="button" class="action-row" @click="openCharacterService('buy-level-up-points')">
+                        <span><strong>{{ __('ui.account.character_buy_level_up_points') }}</strong><small>{{ number_format($economySettings->characterLevelUpPointsPackageSize) }} {{ __('ui.account.character_points') }} = {{ number_format($economySettings->characterLevelUpPointsPriceCredits) }} {{ __('ui.account.wallet_credits') }}</small></span>
+                        <span aria-hidden="true">→</span>
+                    </button>
+                @endif
             </div>
         </article>
     </div>

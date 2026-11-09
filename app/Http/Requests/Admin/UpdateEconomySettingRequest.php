@@ -32,6 +32,11 @@ final class UpdateEconomySettingRequest extends FormRequest
             'characterRenamePriceCredits' => ['required', 'integer', 'min:0', 'max:9000000000000000'],
             'characterClassChangeEnabled' => ['required', 'boolean'],
             'characterClassChangePriceCredits' => ['required', 'integer', 'min:0', 'max:9000000000000000'],
+            'characterResetPurchaseEnabled' => ['required', 'boolean'],
+            'characterResetPriceCredits' => ['required', 'integer', 'min:0', 'max:9000000000000000'],
+            'characterLevelUpPointsPurchaseEnabled' => ['required', 'boolean'],
+            'characterLevelUpPointsPackageSize' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'characterLevelUpPointsPriceCredits' => ['required', 'integer', 'min:0', 'max:9000000000000000'],
         ];
     }
 
@@ -48,6 +53,11 @@ final class UpdateEconomySettingRequest extends FormRequest
             characterRenamePriceCredits: (int) $validated['characterRenamePriceCredits'],
             characterClassChangeEnabled: (bool) $validated['characterClassChangeEnabled'],
             characterClassChangePriceCredits: (int) $validated['characterClassChangePriceCredits'],
+            characterResetPurchaseEnabled: (bool) $validated['characterResetPurchaseEnabled'],
+            characterResetPriceCredits: (int) $validated['characterResetPriceCredits'],
+            characterLevelUpPointsPurchaseEnabled: (bool) $validated['characterLevelUpPointsPurchaseEnabled'],
+            characterLevelUpPointsPackageSize: (int) $validated['characterLevelUpPointsPackageSize'],
+            characterLevelUpPointsPriceCredits: (int) $validated['characterLevelUpPointsPriceCredits'],
         );
     }
 }

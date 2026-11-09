@@ -7,10 +7,12 @@ use App\Http\Controllers\Account\AccountSecurityController;
 use App\Http\Controllers\Account\AuctionBidController;
 use App\Http\Controllers\Account\CharacterClassChangeController;
 use App\Http\Controllers\Account\CharacterGrandResetController;
+use App\Http\Controllers\Account\CharacterLevelUpPointsPurchaseController;
 use App\Http\Controllers\Account\CharacterMoveController;
 use App\Http\Controllers\Account\CharacterPkClearController;
 use App\Http\Controllers\Account\CharacterRenameController;
 use App\Http\Controllers\Account\CharacterResetController;
+use App\Http\Controllers\Account\CharacterResetPurchaseController;
 use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\CreditController;
@@ -344,6 +346,20 @@ Route::middleware(['auth', 'demo:account'])->group(function (): void {
             'throttle:character-service',
         ])
         ->name('account.character-class-change');
+    Route::post('/account/character-reset-purchases', CharacterResetPurchaseController::class)
+        ->middleware([
+            'demo:blocked',
+            'module.enabled:'.ServerModule::Credits->value,
+            'throttle:character-service',
+        ])
+        ->name('account.character-reset-purchases.store');
+    Route::post('/account/character-level-up-points-purchases', CharacterLevelUpPointsPurchaseController::class)
+        ->middleware([
+            'demo:blocked',
+            'module.enabled:'.ServerModule::Credits->value,
+            'throttle:character-service',
+        ])
+        ->name('account.character-level-up-points-purchases.store');
     Route::post('/account/item-storage', ItemStorageController::class)
         ->middleware('throttle:item-storage')
         ->name('account.item-storage');

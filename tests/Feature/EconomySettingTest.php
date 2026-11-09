@@ -44,6 +44,11 @@ final class EconomySettingTest extends TestCase
                 'characterRenamePriceCredits' => 500,
                 'characterClassChangeEnabled' => true,
                 'characterClassChangePriceCredits' => 1_000,
+                'characterResetPurchaseEnabled' => true,
+                'characterResetPriceCredits' => 100,
+                'characterLevelUpPointsPurchaseEnabled' => true,
+                'characterLevelUpPointsPackageSize' => 1_000,
+                'characterLevelUpPointsPriceCredits' => 100,
             ]);
 
         $response
@@ -53,6 +58,8 @@ final class EconomySettingTest extends TestCase
         $revision = EconomySettingRevision::query()->sole();
         $this->assertSame(20, $settings->item_generator_markup_percentage);
         $this->assertSame(500, $settings->character_rename_price_credits);
+        $this->assertSame(100, $settings->character_reset_price_credits);
+        $this->assertSame(1_000, $settings->character_level_up_points_package_size);
         $this->assertSame(1, $revision->revision);
         $this->assertSame($administrator->getKey(), $revision->changed_by_administrator_id);
     }

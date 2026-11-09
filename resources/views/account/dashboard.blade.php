@@ -112,6 +112,8 @@
                     :wallet-balance="$walletBalance"
                     :character-rename-idempotency-key="$characterRenameIdempotencyKey"
                     :character-class-change-idempotency-key="$characterClassChangeIdempotencyKey"
+                    :character-reset-purchase-idempotency-key="$characterResetPurchaseIdempotencyKey"
+                    :character-level-up-points-purchase-idempotency-key="$characterLevelUpPointsPurchaseIdempotencyKey"
                 />
             @endif
         @endif

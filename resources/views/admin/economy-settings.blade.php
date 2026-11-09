@@ -39,22 +39,41 @@
                         <p class="kicker">{{ __('ui.admin.character_paid_services') }}</p>
                         <div class="mt-5 grid gap-6 md:grid-cols-2">
                             @foreach ([
-                                'characterRename' => ['character_rename', 'character_rename_help'],
-                                'characterClassChange' => ['character_class_change', 'character_class_change_help'],
-                            ] as $prefix => [$label, $help])
+                                ['characterRenameEnabled', 'characterRenamePriceCredits', 'character_rename', 'character_rename_help'],
+                                ['characterClassChangeEnabled', 'characterClassChangePriceCredits', 'character_class_change', 'character_class_change_help'],
+                                ['characterResetPurchaseEnabled', 'characterResetPriceCredits', 'character_reset_purchase', 'character_reset_purchase_help'],
+                            ] as [$enabledKey, $priceKey, $label, $help])
                                 <div class="rounded-2xl border border-white/8 bg-black/15 p-4">
                                     <label class="toggle-control">
-                                        <input type="hidden" name="{{ $prefix }}Enabled" value="0">
-                                        <input type="checkbox" name="{{ $prefix }}Enabled" value="1" @checked(old($prefix.'Enabled', $settings[$prefix.'Enabled']))>
+                                        <input type="hidden" name="{{ $enabledKey }}" value="0">
+                                        <input type="checkbox" name="{{ $enabledKey }}" value="1" @checked(old($enabledKey, $settings[$enabledKey]))>
                                         <span aria-hidden="true"></span><span>{{ __('ui.admin.'.$label) }}</span>
                                     </label>
                                     <label class="field-group mt-4">
                                         <span>{{ __('ui.admin.price_credits') }}</span>
-                                        <input type="number" name="{{ $prefix }}PriceCredits" value="{{ old($prefix.'PriceCredits', $settings[$prefix.'PriceCredits']) }}" min="0" max="9000000000000000" required>
+                                        <input type="number" name="{{ $priceKey }}" value="{{ old($priceKey, $settings[$priceKey]) }}" min="0" max="9000000000000000" required>
                                         <small>{{ __('ui.admin.'.$help) }}</small>
                                     </label>
                                 </div>
                             @endforeach
+                            <div class="rounded-2xl border border-white/8 bg-black/15 p-4">
+                                <label class="toggle-control">
+                                    <input type="hidden" name="characterLevelUpPointsPurchaseEnabled" value="0">
+                                    <input type="checkbox" name="characterLevelUpPointsPurchaseEnabled" value="1" @checked(old('characterLevelUpPointsPurchaseEnabled', $settings['characterLevelUpPointsPurchaseEnabled']))>
+                                    <span aria-hidden="true"></span><span>{{ __('ui.admin.character_level_up_points_purchase') }}</span>
+                                </label>
+                                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                                    <label class="field-group">
+                                        <span>{{ __('ui.admin.points_per_package') }}</span>
+                                        <input type="number" name="characterLevelUpPointsPackageSize" value="{{ old('characterLevelUpPointsPackageSize', $settings['characterLevelUpPointsPackageSize']) }}" min="1" max="1000000" required>
+                                    </label>
+                                    <label class="field-group">
+                                        <span>{{ __('ui.admin.price_credits') }}</span>
+                                        <input type="number" name="characterLevelUpPointsPriceCredits" value="{{ old('characterLevelUpPointsPriceCredits', $settings['characterLevelUpPointsPriceCredits']) }}" min="0" max="9000000000000000" required>
+                                    </label>
+                                </div>
+                                <p class="mt-3 text-xs leading-5 text-steel">{{ __('ui.admin.character_level_up_points_purchase_help') }}</p>
+                            </div>
                         </div>
                     </section>
 

@@ -16,6 +16,11 @@ use Illuminate\Database\Eloquent\Model;
     'character_rename_price_credits',
     'character_class_change_enabled',
     'character_class_change_price_credits',
+    'character_reset_purchase_enabled',
+    'character_reset_price_credits',
+    'character_level_up_points_purchase_enabled',
+    'character_level_up_points_package_size',
+    'character_level_up_points_price_credits',
     'revision',
     'updated_by_administrator_id',
 ])]
@@ -37,6 +42,11 @@ final class EconomySetting extends Model
             'character_rename_price_credits' => 'integer',
             'character_class_change_enabled' => 'boolean',
             'character_class_change_price_credits' => 'integer',
+            'character_reset_purchase_enabled' => 'boolean',
+            'character_reset_price_credits' => 'integer',
+            'character_level_up_points_purchase_enabled' => 'boolean',
+            'character_level_up_points_package_size' => 'integer',
+            'character_level_up_points_price_credits' => 'integer',
             'revision' => 'integer',
             'updated_by_administrator_id' => 'integer',
         ];

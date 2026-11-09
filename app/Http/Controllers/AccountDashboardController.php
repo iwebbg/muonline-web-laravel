@@ -128,7 +128,12 @@ final class AccountDashboardController extends Controller
             && ! (bool) config('database.connections.game.readonly', true);
         $economySettings = $this->economySettingReader->current();
         $characterServicesEnabled = $creditsEnabled
-            && ($economySettings->characterRenameEnabled || $economySettings->characterClassChangeEnabled);
+            && (
+                $economySettings->characterRenameEnabled
+                || $economySettings->characterClassChangeEnabled
+                || $economySettings->characterResetPurchaseEnabled
+                || $economySettings->characterLevelUpPointsPurchaseEnabled
+            );
         $accountPanelConfiguration = $this->accountPanelConfiguration->toArray(
             writesEnabled: $gameWritesEnabled,
             csrfToken: $request->session()->token(),
@@ -187,6 +192,14 @@ final class AccountDashboardController extends Controller
             $availableCharacterServices[] = 'class-change';
         }
 
+        if ($creditsEnabled && $economySettings->characterResetPurchaseEnabled) {
+            $availableCharacterServices[] = 'buy-resets';
+        }
+
+        if ($creditsEnabled && $economySettings->characterLevelUpPointsPurchaseEnabled) {
+            $availableCharacterServices[] = 'buy-level-up-points';
+        }
+
         if ($characterNames === []) {
             $initialSection = 'vaults';
         }
@@ -202,6 +215,8 @@ final class AccountDashboardController extends Controller
         ) ? $requestedCharacterService : null;
         $accountPanelConfiguration['initialCharacterRenameName'] = $request->old('new_name', '');
         $accountPanelConfiguration['initialCharacterClassFamily'] = $request->old('target_family', '');
+        $accountPanelConfiguration['initialCharacterResetPackageCount'] = $request->old('package_count', 1);
+        $accountPanelConfiguration['initialCharacterLevelUpPointsPackageCount'] = $request->old('package_count', 1);
         $accountPanelConfiguration['webStorageEnabled'] = $webStorageEnabled;
         $accountPanelConfiguration['marketEnabled'] = $marketEnabled;
         $accountPanelConfiguration['auctionEnabled'] = $auctionEnabled;
@@ -225,6 +240,8 @@ final class AccountDashboardController extends Controller
             'characterServicesEnabled' => $characterServicesEnabled,
             'characterRenameIdempotencyKey' => (string) Str::uuid(),
             'characterClassChangeIdempotencyKey' => (string) Str::uuid(),
+            'characterResetPurchaseIdempotencyKey' => (string) Str::uuid(),
+            'characterLevelUpPointsPurchaseIdempotencyKey' => (string) Str::uuid(),
         ]);
     }
 }

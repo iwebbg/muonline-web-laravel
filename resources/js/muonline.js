@@ -2212,6 +2212,12 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
         characterServiceModal: resetPreviewConfiguration?.initialCharacterService ?? null,
         characterRenameNewName: resetPreviewConfiguration?.initialCharacterRenameName ?? '',
         characterClassTargetFamily: resetPreviewConfiguration?.initialCharacterClassFamily ?? '',
+        characterResetPackageCount: String(
+            resetPreviewConfiguration?.initialCharacterResetPackageCount ?? 1,
+        ),
+        characterLevelUpPointsPackageCount: String(
+            resetPreviewConfiguration?.initialCharacterLevelUpPointsPackageCount ?? 1,
+        ),
         characterServiceConfirmationOpen: false,
         characterServiceSubmitting: false,
         resetPreview: null,
@@ -2358,9 +2364,13 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
                 return;
             }
 
-            const form = this.characterServiceModal === 'rename'
-                ? this.$refs.characterRenameForm
-                : this.$refs.characterClassChangeForm;
+            const forms = {
+                rename: this.$refs.characterRenameForm,
+                'class-change': this.$refs.characterClassChangeForm,
+                'buy-resets': this.$refs.characterResetPurchaseForm,
+                'buy-level-up-points': this.$refs.characterLevelUpPointsPurchaseForm,
+            };
+            const form = forms[this.characterServiceModal];
 
             if (form === undefined) {
                 return;

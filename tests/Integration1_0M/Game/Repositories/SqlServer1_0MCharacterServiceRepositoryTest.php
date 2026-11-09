@@ -2,7 +2,10 @@
 
 namespace Tests\Integration1_0M\Game\Repositories;
 
+use App\CharacterServices\PurchasedResetPolicy;
 use App\Game\Repositories\SqlServer1_0MCharacterServiceRepository;
+use App\Game\Versions\Version1_0M\Version1_0MProfile;
+use App\Reset\ResetProfileSettings;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
 use Tests\Integration\TestCase;
@@ -54,17 +57,29 @@ final class SqlServer1_0MCharacterServiceRepositoryTest extends TestCase
         $connection->table('GuildMember')->insert(['Name' => 'Old1MHero', 'G_Name' => 'Svc1M']);
         $repository = new SqlServer1_0MCharacterServiceRepository(
             $this->app->make(DatabaseManager::class),
+            new Version1_0MProfile,
         );
 
         $rename = $repository->rename(self::ACCOUNT_ID, 'Old1MHero', 'New1MHero');
         $classChange = $repository->changeClass(self::ACCOUNT_ID, 'New1MHero', 64);
+        $resetPurchase = $repository->purchaseResets(
+            self::ACCOUNT_ID,
+            'New1MHero',
+            5,
+            PurchasedResetPolicy::fromResetSettings(ResetProfileSettings::defaults()),
+        );
+        $pointsPurchase = $repository->purchaseLevelUpPoints(self::ACCOUNT_ID, 'New1MHero', 1_000);
 
         $this->assertSame('New1MHero', $rename->after['name']);
         $this->assertSame(64, $classChange->after['class_code']);
+        $this->assertSame(5, $resetPurchase->after['resets']);
+        $this->assertSame(3_500, $pointsPurchase->after['points']);
         $this->assertSame('New1MHero', $connection->table('AccountCharacter')->where('Id', self::ACCOUNT_ID)->value('GameID1'));
         $this->assertSame('New1MHero', $connection->table('Guild')->where('G_Name', 'Svc1M')->value('G_Master'));
         $this->assertTrue($connection->table('GuildMember')->where('Name', 'New1MHero')->exists());
         $this->assertSame(64, (int) $connection->table('Character')->where('Name', 'New1MHero')->value('Class'));
+        $this->assertSame(5, (int) $connection->table('Character')->where('Name', 'New1MHero')->value('Resets'));
+        $this->assertSame(3_500, (int) $connection->table('Character')->where('Name', 'New1MHero')->value('LevelUpPoint'));
     }
 
     /**

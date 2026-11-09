@@ -9,4 +9,6 @@ enum CharacterServiceType: string
 {
     case Rename = 'rename';
     case ClassChange = 'class_change';
+    case ResetPurchase = 'reset_purchase';
+    case LevelUpPointsPurchase = 'level_up_points_purchase';
 }

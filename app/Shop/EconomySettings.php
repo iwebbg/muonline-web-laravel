@@ -16,6 +16,11 @@ final readonly class EconomySettings
         public int $characterRenamePriceCredits,
         public bool $characterClassChangeEnabled,
         public int $characterClassChangePriceCredits,
+        public bool $characterResetPurchaseEnabled,
+        public int $characterResetPriceCredits,
+        public bool $characterLevelUpPointsPurchaseEnabled,
+        public int $characterLevelUpPointsPackageSize,
+        public int $characterLevelUpPointsPriceCredits,
     ) {}
 
     /**
@@ -29,6 +34,11 @@ final readonly class EconomySettings
             characterRenamePriceCredits: 0,
             characterClassChangeEnabled: false,
             characterClassChangePriceCredits: 0,
+            characterResetPurchaseEnabled: false,
+            characterResetPriceCredits: 100,
+            characterLevelUpPointsPurchaseEnabled: false,
+            characterLevelUpPointsPackageSize: 1_000,
+            characterLevelUpPointsPriceCredits: 100,
         );
     }
 
@@ -66,6 +76,11 @@ final readonly class EconomySettings
             'characterRenamePriceCredits' => $this->characterRenamePriceCredits,
             'characterClassChangeEnabled' => $this->characterClassChangeEnabled,
             'characterClassChangePriceCredits' => $this->characterClassChangePriceCredits,
+            'characterResetPurchaseEnabled' => $this->characterResetPurchaseEnabled,
+            'characterResetPriceCredits' => $this->characterResetPriceCredits,
+            'characterLevelUpPointsPurchaseEnabled' => $this->characterLevelUpPointsPurchaseEnabled,
+            'characterLevelUpPointsPackageSize' => $this->characterLevelUpPointsPackageSize,
+            'characterLevelUpPointsPriceCredits' => $this->characterLevelUpPointsPriceCredits,
         ];
     }
 
@@ -82,6 +97,35 @@ final readonly class EconomySettings
             'character_rename_price_credits' => $this->characterRenamePriceCredits,
             'character_class_change_enabled' => $this->characterClassChangeEnabled,
             'character_class_change_price_credits' => $this->characterClassChangePriceCredits,
+            'character_reset_purchase_enabled' => $this->characterResetPurchaseEnabled,
+            'character_reset_price_credits' => $this->characterResetPriceCredits,
+            'character_level_up_points_purchase_enabled' => $this->characterLevelUpPointsPurchaseEnabled,
+            'character_level_up_points_package_size' => $this->characterLevelUpPointsPackageSize,
+            'character_level_up_points_price_credits' => $this->characterLevelUpPointsPriceCredits,
         ];
+    }
+
+    /**
+     * Calculates the exact Credits price for a supported reset package.
+     */
+    public function resetPurchasePrice(int $resetCount): int
+    {
+        return $this->characterResetPriceCredits * $resetCount;
+    }
+
+    /**
+     * Calculates the exact points granted by a supported package multiplier.
+     */
+    public function levelUpPointsPurchaseAmount(int $packageCount): int
+    {
+        return $this->characterLevelUpPointsPackageSize * $packageCount;
+    }
+
+    /**
+     * Calculates the exact Credits price for a supported points package multiplier.
+     */
+    public function levelUpPointsPurchasePrice(int $packageCount): int
+    {
+        return $this->characterLevelUpPointsPriceCredits * $packageCount;
     }
 }

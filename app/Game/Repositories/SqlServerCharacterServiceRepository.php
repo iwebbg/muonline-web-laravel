@@ -5,10 +5,14 @@ namespace App\Game\Repositories;
 use App\CharacterServices\CharacterServiceBlockReason;
 use App\CharacterServices\CharacterServiceResult;
 use App\CharacterServices\Exceptions\CharacterServiceRejected;
+use App\CharacterServices\PurchasedResetPolicy;
 use App\Game\Contracts\CharacterServiceRepository;
 use App\Game\GameAccountWriteStatus;
+use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Reset\InventoryPolicy;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
+use InvalidArgumentException;
 use stdClass;
 
 /**
@@ -16,10 +20,15 @@ use stdClass;
  */
 abstract readonly class SqlServerCharacterServiceRepository implements CharacterServiceRepository
 {
+    private const MAXIMUM_LEVEL_UP_POINTS = 2_147_483_647;
+
     /**
      * Creates the repository with the isolated game database manager.
      */
-    public function __construct(private DatabaseManager $database) {}
+    public function __construct(
+        private DatabaseManager $database,
+        private GameVersionProfile $versionProfile,
+    ) {}
 
     /**
      * Renames one owned offline character and all verified core name references atomically.
@@ -117,6 +126,149 @@ abstract readonly class SqlServerCharacterServiceRepository implements Character
     }
 
     /**
+     * Applies purchased resets using the captured profile rules without Zen or rewards.
+     */
+    public function purchaseResets(
+        string $accountId,
+        string $characterName,
+        int $resetCount,
+        PurchasedResetPolicy $policy,
+    ): CharacterServiceResult {
+        $connection = $this->database->connection('game');
+
+        return $connection->transaction(function () use (
+            $connection,
+            $accountId,
+            $characterName,
+            $resetCount,
+            $policy,
+        ): CharacterServiceResult {
+            $this->ensureAccountIsOffline($connection, $accountId);
+            $character = $this->lockedProgressionCharacter($connection, $accountId, $characterName);
+
+            if (! $character instanceof stdClass) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::CharacterNotFound, 404);
+            }
+
+            if ($resetCount < 1) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::InvalidQuantity);
+            }
+
+            if ($policy->inventoryPolicy !== InventoryPolicy::KeepAll) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::ResetPolicyUnsupported);
+            }
+
+            $resultingResets = (int) $character->Resets + $resetCount;
+
+            if ($resultingResets > $policy->maximumResets) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::MaximumResetsReached);
+            }
+
+            $resultingPoints = $policy->pointsFor($resultingResets);
+
+            if ($resultingPoints > self::MAXIMUM_LEVEL_UP_POINTS) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::PointLimitExceeded);
+            }
+
+            $before = $this->progressionSnapshot($character);
+            $updates = [
+                'cLevel' => 1,
+                'Experience' => 0,
+                'LevelUpPoint' => $resultingPoints,
+                'Resets' => $resultingResets,
+            ];
+            $afterStats = $this->statsFromRow($character);
+
+            if ($policy->clearStats) {
+                try {
+                    $afterStats = $this->versionProfile
+                        ->baseStatsForClass((int) $character->Class)
+                        ->toArray();
+                } catch (InvalidArgumentException) {
+                    throw new CharacterServiceRejected(CharacterServiceBlockReason::InvalidClass);
+                }
+
+                foreach ($this->versionProfile->statsForClass((int) $character->Class) as $statDefinition) {
+                    $updates[$statDefinition->databaseColumn] = $afterStats[$statDefinition->key];
+                }
+            }
+
+            $updatedRows = $connection->table('Character')
+                ->where('AccountID', $accountId)
+                ->where('Name', $characterName)
+                ->update($updates);
+
+            if ($updatedRows !== 1) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::OperationInProgress, 409);
+            }
+
+            return new CharacterServiceResult(
+                before: $before,
+                after: [
+                    'level' => 1,
+                    'resets' => $resultingResets,
+                    'points' => $resultingPoints,
+                    'zen' => (int) $character->Money,
+                    ...$afterStats,
+                ],
+            );
+        }, 3);
+    }
+
+    /**
+     * Adds purchased unallocated points after rechecking ownership and offline state.
+     */
+    public function purchaseLevelUpPoints(
+        string $accountId,
+        string $characterName,
+        int $pointCount,
+    ): CharacterServiceResult {
+        $connection = $this->database->connection('game');
+
+        return $connection->transaction(function () use (
+            $connection,
+            $accountId,
+            $characterName,
+            $pointCount,
+        ): CharacterServiceResult {
+            $this->ensureAccountIsOffline($connection, $accountId);
+            $character = $this->lockedProgressionCharacter($connection, $accountId, $characterName);
+
+            if (! $character instanceof stdClass) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::CharacterNotFound, 404);
+            }
+
+            if ($pointCount < 1) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::InvalidQuantity);
+            }
+
+            $resultingPoints = (int) $character->LevelUpPoint + $pointCount;
+
+            if ($resultingPoints > self::MAXIMUM_LEVEL_UP_POINTS) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::PointLimitExceeded);
+            }
+
+            $before = $this->progressionSnapshot($character);
+            $updatedRows = $connection->table('Character')
+                ->where('AccountID', $accountId)
+                ->where('Name', $characterName)
+                ->update(['LevelUpPoint' => $resultingPoints]);
+
+            if ($updatedRows !== 1) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::OperationInProgress, 409);
+            }
+
+            return new CharacterServiceResult(
+                before: $before,
+                after: [
+                    ...$before,
+                    'points' => $resultingPoints,
+                ],
+            );
+        }, 3);
+    }
+
+    /**
      * Locks and returns one ownership-scoped character identity.
      */
     private function lockedCharacter(
@@ -131,6 +283,75 @@ abstract readonly class SqlServerCharacterServiceRepository implements Character
             ->first(['Name', 'Class']);
 
         return $character instanceof stdClass ? $character : null;
+    }
+
+    /**
+     * Locks and returns the complete profile-aware progression snapshot.
+     */
+    private function lockedProgressionCharacter(
+        ConnectionInterface $connection,
+        string $accountId,
+        string $characterName,
+    ): ?stdClass {
+        $columns = [
+            'Name',
+            'Class',
+            'cLevel',
+            'LevelUpPoint',
+            'Money',
+            'Resets',
+        ];
+
+        foreach ($this->versionProfile->stats() as $statDefinition) {
+            $columns[] = $statDefinition->databaseColumn;
+        }
+
+        $character = $connection->table('Character')
+            ->where('AccountID', $accountId)
+            ->where('Name', $characterName)
+            ->lockForUpdate()
+            ->first(array_values(array_unique($columns)));
+
+        return $character instanceof stdClass ? $character : null;
+    }
+
+    /**
+     * Converts a locked character row to the normalized progression audit shape.
+     *
+     * @return array<string, int>
+     */
+    private function progressionSnapshot(stdClass $character): array
+    {
+        return [
+            'level' => (int) $character->cLevel,
+            'resets' => (int) $character->Resets,
+            'points' => (int) $character->LevelUpPoint,
+            'zen' => (int) $character->Money,
+            ...$this->statsFromRow($character),
+        ];
+    }
+
+    /**
+     * Reads every stat supported by the character's current class.
+     *
+     * @return array<string, int>
+     */
+    private function statsFromRow(stdClass $character): array
+    {
+        $stats = [];
+
+        try {
+            $statDefinitions = $this->versionProfile->statsForClass((int) $character->Class);
+        } catch (InvalidArgumentException) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::InvalidClass);
+        }
+
+        foreach ($statDefinitions as $statDefinition) {
+            $databaseColumn = $statDefinition->databaseColumn;
+            $stats[$statDefinition->key] = (int) $character->{$databaseColumn};
+        }
+
+        return $stats;
     }
 
     /**

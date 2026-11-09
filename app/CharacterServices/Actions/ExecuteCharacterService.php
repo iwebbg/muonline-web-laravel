@@ -6,6 +6,7 @@ use App\CharacterServices\CharacterClassChangeResolver;
 use App\CharacterServices\CharacterServiceBlockReason;
 use App\CharacterServices\CharacterServiceType;
 use App\CharacterServices\Exceptions\CharacterServiceRejected;
+use App\CharacterServices\PurchasedResetPolicy;
 use App\Economy\Actions\AdjustWalletBalance;
 use App\Economy\Exceptions\WalletAdjustmentRejected;
 use App\Economy\WalletAdjustmentBlockReason;
@@ -16,6 +17,8 @@ use App\Game\Contracts\CharacterServiceRepository;
 use App\Game\Operations\CharacterOperationStatus;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\CharacterServiceOperation;
+use App\Reset\InventoryPolicy;
+use App\Reset\ResetProfileReader;
 use App\Shop\EconomySettingReader;
 use Ramsey\Uuid\Uuid;
 use Throwable;
@@ -25,6 +28,9 @@ use Throwable;
  */
 final readonly class ExecuteCharacterService
 {
+    /** @var list<int> */
+    private const PACKAGE_COUNTS = [1, 5, 10];
+
     /**
      * Creates the action with pricing, ownership, wallet and game write boundaries.
      */
@@ -35,6 +41,7 @@ final readonly class ExecuteCharacterService
         private GameVersionProfile $versionProfile,
         private CharacterServiceRepository $characterServiceRepository,
         private AdjustWalletBalance $adjustWalletBalance,
+        private ResetProfileReader $resetProfileReader,
     ) {}
 
     /**
@@ -57,6 +64,7 @@ final readonly class ExecuteCharacterService
                     CharacterServiceType::Rename,
                     $characterName,
                     $newName,
+                    null,
                     null,
                 ),
             ));
@@ -85,6 +93,7 @@ final readonly class ExecuteCharacterService
             characterName: $characterName,
             requestedName: $newName,
             targetClassCode: null,
+            requestedAmount: null,
             priceCredits: $settings->characterRenamePriceCredits,
             beforeSnapshot: ['name' => $characterName, 'class_code' => $character->classCode],
         );
@@ -119,6 +128,7 @@ final readonly class ExecuteCharacterService
                     $characterName,
                     null,
                     (int) $existing->target_class_code,
+                    null,
                 ),
             ));
         }
@@ -143,8 +153,152 @@ final readonly class ExecuteCharacterService
             characterName: $characterName,
             requestedName: null,
             targetClassCode: $targetClass->code,
+            requestedAmount: null,
             priceCredits: $settings->characterClassChangePriceCredits,
             beforeSnapshot: ['name' => $characterName, 'class_code' => $character->classCode],
+        );
+
+        return $this->perform($operation);
+    }
+
+    /**
+     * Purchases a supported reset package without Zen cost or reset rewards.
+     */
+    public function purchaseResets(
+        string $accountId,
+        string $characterName,
+        int $resetCount,
+        string $idempotencyKey,
+    ): CharacterServiceOperation {
+        $this->ensureWritesAreEnabled();
+        $this->ensurePackageCountIsSupported($resetCount);
+        $existing = CharacterServiceOperation::query()->where('idempotency_key', $idempotencyKey)->first();
+        $requestHash = $this->requestHash(
+            $accountId,
+            CharacterServiceType::ResetPurchase,
+            $characterName,
+            null,
+            null,
+            $resetCount,
+        );
+
+        if ($existing instanceof CharacterServiceOperation) {
+            return $this->perform($this->resolveExisting($existing, $requestHash));
+        }
+
+        $settings = $this->economySettingReader->current();
+
+        if (! $settings->characterResetPurchaseEnabled) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::ServiceDisabled);
+        }
+
+        $character = $this->accountReadRepository->characterFor($accountId, $characterName);
+
+        if ($character === null) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::CharacterNotFound, 404);
+        }
+
+        $resetSettings = $this->resetProfileReader->current();
+        $policy = PurchasedResetPolicy::fromResetSettings($resetSettings);
+
+        if ($policy->inventoryPolicy !== InventoryPolicy::KeepAll) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::ResetPolicyUnsupported);
+        }
+
+        if ($character->resets + $resetCount > $policy->maximumResets) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::MaximumResetsReached);
+        }
+
+        $operation = $this->operation(
+            idempotencyKey: $idempotencyKey,
+            accountId: $accountId,
+            type: CharacterServiceType::ResetPurchase,
+            characterName: $characterName,
+            requestedName: null,
+            targetClassCode: null,
+            requestedAmount: $resetCount,
+            priceCredits: $settings->resetPurchasePrice($resetCount),
+            beforeSnapshot: [
+                'name' => $characterName,
+                'class_code' => $character->classCode,
+                'level' => $character->level,
+                'resets' => $character->resets,
+                'points' => $character->points,
+            ],
+            additionalSettingsSnapshot: [
+                'reset_revision' => $this->resetProfileReader->revision(),
+                'purchased_reset_policy' => $policy->toSnapshot(),
+            ],
+        );
+
+        return $this->perform($operation);
+    }
+
+    /**
+     * Purchases one supported package of unallocated LevelUpPoints.
+     */
+    public function purchaseLevelUpPoints(
+        string $accountId,
+        string $characterName,
+        int $packageCount,
+        string $idempotencyKey,
+    ): CharacterServiceOperation {
+        $this->ensureWritesAreEnabled();
+        $this->ensurePackageCountIsSupported($packageCount);
+        $existing = CharacterServiceOperation::query()->where('idempotency_key', $idempotencyKey)->first();
+        $settings = $this->economySettingReader->current();
+        $pointCount = $existing instanceof CharacterServiceOperation
+            ? (int) $existing->requested_amount
+            : $settings->levelUpPointsPurchaseAmount($packageCount);
+        $requestHash = $this->requestHash(
+            $accountId,
+            CharacterServiceType::LevelUpPointsPurchase,
+            $characterName,
+            null,
+            null,
+            $pointCount,
+        );
+
+        if ($existing instanceof CharacterServiceOperation) {
+            if ((int) ($existing->settings_snapshot['package_count'] ?? 0) !== $packageCount) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::IdempotencyConflict, 409);
+            }
+
+            return $this->perform($this->resolveExisting($existing, $requestHash));
+        }
+
+        if (! $settings->characterLevelUpPointsPurchaseEnabled) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::ServiceDisabled);
+        }
+
+        $character = $this->accountReadRepository->characterFor($accountId, $characterName);
+
+        if ($character === null) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::CharacterNotFound, 404);
+        }
+
+        if ($character->points + $pointCount > 2_147_483_647) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::PointLimitExceeded);
+        }
+
+        $operation = $this->operation(
+            idempotencyKey: $idempotencyKey,
+            accountId: $accountId,
+            type: CharacterServiceType::LevelUpPointsPurchase,
+            characterName: $characterName,
+            requestedName: null,
+            targetClassCode: null,
+            requestedAmount: $pointCount,
+            priceCredits: $settings->levelUpPointsPurchasePrice($packageCount),
+            beforeSnapshot: [
+                'name' => $characterName,
+                'class_code' => $character->classCode,
+                'points' => $character->points,
+            ],
+            additionalSettingsSnapshot: [
+                'package_count' => $packageCount,
+                'package_size' => $settings->characterLevelUpPointsPackageSize,
+            ],
         );
 
         return $this->perform($operation);
@@ -154,6 +308,7 @@ final readonly class ExecuteCharacterService
      * Creates one pending operation or resolves a compatible replay.
      *
      * @param  array<string, int|string>  $beforeSnapshot
+     * @param  array<string, mixed>  $additionalSettingsSnapshot
      */
     private function operation(
         string $idempotencyKey,
@@ -162,10 +317,19 @@ final readonly class ExecuteCharacterService
         string $characterName,
         ?string $requestedName,
         ?int $targetClassCode,
+        ?int $requestedAmount,
         int $priceCredits,
         array $beforeSnapshot,
+        array $additionalSettingsSnapshot = [],
     ): CharacterServiceOperation {
-        $requestHash = $this->requestHash($accountId, $type, $characterName, $requestedName, $targetClassCode);
+        $requestHash = $this->requestHash(
+            $accountId,
+            $type,
+            $characterName,
+            $requestedName,
+            $targetClassCode,
+            $requestedAmount,
+        );
         $existing = CharacterServiceOperation::query()->where('idempotency_key', $idempotencyKey)->first();
 
         if ($existing instanceof CharacterServiceOperation) {
@@ -181,11 +345,13 @@ final readonly class ExecuteCharacterService
                 'character_name' => $characterName,
                 'requested_name' => $requestedName,
                 'target_class_code' => $targetClassCode,
+                'requested_amount' => $requestedAmount,
                 'status' => CharacterOperationStatus::Pending,
                 'price_credits' => $priceCredits,
                 'settings_snapshot' => [
                     'economy_revision' => $this->economySettingReader->revision(),
                     'game_profile' => (string) config('game.profile.key'),
+                    ...$additionalSettingsSnapshot,
                 ],
                 'before_snapshot' => $beforeSnapshot,
             ],
@@ -237,17 +403,31 @@ final readonly class ExecuteCharacterService
         }
 
         try {
-            $result = $operation->service_type === CharacterServiceType::Rename
-                ? $this->characterServiceRepository->rename(
+            $result = match ($operation->service_type) {
+                CharacterServiceType::Rename => $this->characterServiceRepository->rename(
                     $operation->account_id,
                     $operation->character_name,
                     (string) $operation->requested_name,
-                )
-                : $this->characterServiceRepository->changeClass(
+                ),
+                CharacterServiceType::ClassChange => $this->characterServiceRepository->changeClass(
                     $operation->account_id,
                     $operation->character_name,
                     (int) $operation->target_class_code,
-                );
+                ),
+                CharacterServiceType::ResetPurchase => $this->characterServiceRepository->purchaseResets(
+                    $operation->account_id,
+                    $operation->character_name,
+                    (int) $operation->requested_amount,
+                    PurchasedResetPolicy::fromSnapshot(
+                        (array) $operation->settings_snapshot['purchased_reset_policy'],
+                    ),
+                ),
+                CharacterServiceType::LevelUpPointsPurchase => $this->characterServiceRepository->purchaseLevelUpPoints(
+                    $operation->account_id,
+                    $operation->character_name,
+                    (int) $operation->requested_amount,
+                ),
+            };
         } catch (Throwable $exception) {
             $this->refund($operation);
             $reason = $exception instanceof CharacterServiceRejected
@@ -312,7 +492,7 @@ final readonly class ExecuteCharacterService
 
         return $this->perform($this->resolveExisting(
             $existing,
-            $this->requestHash($accountId, $type, $characterName, $requestedName, $targetClassCode),
+            $this->requestHash($accountId, $type, $characterName, $requestedName, $targetClassCode, null),
         ));
     }
 
@@ -347,6 +527,7 @@ final readonly class ExecuteCharacterService
         string $characterName,
         ?string $requestedName,
         ?int $targetClassCode,
+        ?int $requestedAmount,
     ): string {
         return hash('sha256', json_encode([
             'account_id' => $accountId,
@@ -354,7 +535,18 @@ final readonly class ExecuteCharacterService
             'character_name' => $characterName,
             'requested_name' => $requestedName,
             'target_class_code' => $targetClassCode,
+            'requested_amount' => $requestedAmount,
         ], JSON_THROW_ON_ERROR));
+    }
+
+    /**
+     * Rejects internal calls that do not use one of the public package sizes.
+     */
+    private function ensurePackageCountIsSupported(int $packageCount): void
+    {
+        if (! in_array($packageCount, self::PACKAGE_COUNTS, true)) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::InvalidQuantity);
+        }
     }
 
     /**
