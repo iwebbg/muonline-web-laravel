@@ -9,6 +9,8 @@ use App\Reset\InventoryPolicy;
 use App\Reset\PointsMode;
 use App\Reset\ResetProfileReader;
 use App\Reset\ResetProfileSettings;
+use App\Reset\ResetRewardType;
+use App\Shop\ShopOfferType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -46,6 +48,14 @@ final class UpdateCharacterRuleProfileRequest extends FormRequest
                 'pointsMode' => ['required', Rule::enum(PointsMode::class)],
                 'pointsPerReset' => ['required', 'integer', 'min:0', 'max:32767'],
                 'inventoryPolicy' => ['required', Rule::enum(InventoryPolicy::class)],
+                'resetRewardType' => ['required', Rule::enum(ResetRewardType::class)],
+                'resetRewardCredits' => ['nullable', 'required_if:resetRewardType,credits', 'integer', 'min:1', 'max:9000000000000000'],
+                'resetRewardShopOfferId' => [
+                    'nullable',
+                    'required_if:resetRewardType,mystery_box',
+                    'integer',
+                    Rule::exists('shop_offers', 'id')->where('type', ShopOfferType::MysteryBox->value),
+                ],
             ],
             'grand-reset' => [
                 'grandResetEnabled' => ['required', 'boolean'],
@@ -59,6 +69,14 @@ final class UpdateCharacterRuleProfileRequest extends FormRequest
                 'grandResetPoints' => ['required', 'integer', 'min:0', 'max:2000000000'],
                 'grandResetInventoryPolicy' => ['required', Rule::enum(InventoryPolicy::class)],
                 'grandResetConsumeRequiredResets' => ['required', 'boolean'],
+                'grandResetRewardType' => ['required', Rule::enum(ResetRewardType::class)],
+                'grandResetRewardCredits' => ['nullable', 'required_if:grandResetRewardType,credits', 'integer', 'min:1', 'max:9000000000000000'],
+                'grandResetRewardShopOfferId' => [
+                    'nullable',
+                    'required_if:grandResetRewardType,mystery_box',
+                    'integer',
+                    Rule::exists('shop_offers', 'id')->where('type', ShopOfferType::MysteryBox->value),
+                ],
             ],
             'stat-reset' => [
                 'statResetEnabled' => ['required', 'boolean'],
@@ -103,6 +121,9 @@ final class UpdateCharacterRuleProfileRequest extends FormRequest
             pointsMode: $profile === 'reset' ? PointsMode::from((string) $validated['pointsMode']) : $current->pointsMode,
             pointsPerReset: $profile === 'reset' ? (int) $validated['pointsPerReset'] : $current->pointsPerReset,
             inventoryPolicy: $profile === 'reset' ? InventoryPolicy::from((string) $validated['inventoryPolicy']) : $current->inventoryPolicy,
+            resetRewardType: $profile === 'reset' ? ResetRewardType::from((string) $validated['resetRewardType']) : $current->resetRewardType,
+            resetRewardCredits: $profile === 'reset' ? (int) ($validated['resetRewardCredits'] ?? 0) : $current->resetRewardCredits,
+            resetRewardShopOfferId: $profile === 'reset' ? $this->optionalInteger($validated, 'resetRewardShopOfferId') : $current->resetRewardShopOfferId,
             grandResetEnabled: $profile === 'grand-reset' ? (bool) $validated['grandResetEnabled'] : $current->grandResetEnabled,
             grandResetRequiredLevel: $profile === 'grand-reset' ? (int) $validated['grandResetRequiredLevel'] : $current->grandResetRequiredLevel,
             maximumGrandResets: $profile === 'grand-reset' ? (int) $validated['maximumGrandResets'] : $current->maximumGrandResets,
@@ -113,6 +134,9 @@ final class UpdateCharacterRuleProfileRequest extends FormRequest
             grandResetPoints: $profile === 'grand-reset' ? (int) $validated['grandResetPoints'] : $current->grandResetPoints,
             grandResetInventoryPolicy: $profile === 'grand-reset' ? InventoryPolicy::from((string) $validated['grandResetInventoryPolicy']) : $current->grandResetInventoryPolicy,
             grandResetConsumeRequiredResets: $profile === 'grand-reset' ? (bool) $validated['grandResetConsumeRequiredResets'] : $current->grandResetConsumeRequiredResets,
+            grandResetRewardType: $profile === 'grand-reset' ? ResetRewardType::from((string) $validated['grandResetRewardType']) : $current->grandResetRewardType,
+            grandResetRewardCredits: $profile === 'grand-reset' ? (int) ($validated['grandResetRewardCredits'] ?? 0) : $current->grandResetRewardCredits,
+            grandResetRewardShopOfferId: $profile === 'grand-reset' ? $this->optionalInteger($validated, 'grandResetRewardShopOfferId') : $current->grandResetRewardShopOfferId,
             statResetEnabled: $profile === 'stat-reset' ? (bool) $validated['statResetEnabled'] : $current->statResetEnabled,
             statResetRequiredLevel: $profile === 'stat-reset' ? (int) $validated['statResetRequiredLevel'] : $current->statResetRequiredLevel,
             statResetRequiredResets: $profile === 'stat-reset' ? (int) $validated['statResetRequiredResets'] : $current->statResetRequiredResets,
@@ -135,5 +159,15 @@ final class UpdateCharacterRuleProfileRequest extends FormRequest
     private function profile(): string
     {
         return (string) $this->route('profile');
+    }
+
+    /**
+     * Returns one optional validated integer without converting absence to zero.
+     *
+     * @param  array<string, mixed>  $validated
+     */
+    private function optionalInteger(array $validated, string $key): ?int
+    {
+        return isset($validated[$key]) ? (int) $validated[$key] : null;
     }
 }

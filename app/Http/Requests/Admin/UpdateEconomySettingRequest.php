@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Http\Requests\Admin;
+
+use App\Models\Administrator;
+use App\Shop\EconomySettings;
+use Illuminate\Foundation\Http\FormRequest;
+
+/**
+ * Validates administrator-controlled paid-service pricing and switches.
+ */
+final class UpdateEconomySettingRequest extends FormRequest
+{
+    /**
+     * Allows authenticated administrators through the request boundary.
+     */
+    public function authorize(): bool
+    {
+        return $this->user('admin') instanceof Administrator;
+    }
+
+    /**
+     * Returns bounded integer prices and explicit boolean feature switches.
+     *
+     * @return array<string, list<mixed>>
+     */
+    public function rules(): array
+    {
+        return [
+            'itemGeneratorMarkupPercentage' => ['required', 'integer', 'min:0', 'max:10000'],
+            'characterRenameEnabled' => ['required', 'boolean'],
+            'characterRenamePriceCredits' => ['required', 'integer', 'min:0', 'max:9000000000000000'],
+            'characterClassChangeEnabled' => ['required', 'boolean'],
+            'characterClassChangePriceCredits' => ['required', 'integer', 'min:0', 'max:9000000000000000'],
+        ];
+    }
+
+    /**
+     * Converts validated form values to the typed economy policy.
+     */
+    public function settings(): EconomySettings
+    {
+        $validated = $this->validated();
+
+        return new EconomySettings(
+            itemGeneratorMarkupPercentage: (int) $validated['itemGeneratorMarkupPercentage'],
+            characterRenameEnabled: (bool) $validated['characterRenameEnabled'],
+            characterRenamePriceCredits: (int) $validated['characterRenamePriceCredits'],
+            characterClassChangeEnabled: (bool) $validated['characterClassChangeEnabled'],
+            characterClassChangePriceCredits: (int) $validated['characterClassChangePriceCredits'],
+        );
+    }
+}

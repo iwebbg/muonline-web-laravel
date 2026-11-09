@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateCharacterRuleProfileRequest;
 use App\Models\Administrator;
+use App\Models\ShopOffer;
 use App\Reset\Actions\UpdateResetProfile;
 use App\Reset\ResetProfileReader;
 use App\Reset\ResetProfileRevisionPresenter;
+use App\Shop\ShopOfferType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -30,12 +32,20 @@ final class CharacterRuleProfileController extends Controller
     ): View {
         $this->abortUnlessKnownProfile($profile);
         $recentRevisions = $resetProfileReader->recentRevisions();
+        $mysteryBoxes = in_array($profile, ['reset', 'grand-reset'], true)
+            ? ShopOffer::query()
+                ->where('type', ShopOfferType::MysteryBox)
+                ->orderBy('title_en')
+                ->orderBy('id')
+                ->get(['id', 'title_en', 'title_bg', 'status'])
+            : collect();
 
         return view('admin.character-rules', [
             'profile' => $profile,
             'settings' => $resetProfileReader->current()->toClientArray(),
             'revision' => $resetProfileReader->revision(),
             'revisions' => $revisionPresenter->present($recentRevisions),
+            'mysteryBoxes' => $mysteryBoxes,
         ]);
     }
 

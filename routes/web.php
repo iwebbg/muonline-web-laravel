@@ -42,6 +42,7 @@ use App\Http\Controllers\Admin\CreditPaymentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
 use App\Http\Controllers\Admin\EconomyRecoveryController;
+use App\Http\Controllers\Admin\EconomySettingController;
 use App\Http\Controllers\Admin\EventScheduleController;
 use App\Http\Controllers\Admin\GameMasterController;
 use App\Http\Controllers\Admin\GameServerController;
@@ -438,6 +439,10 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('wallet.store');
         Route::middleware('admin.permission:'.AdministratorPermission::ManageEconomy->value)
             ->group(function (): void {
+                Route::get('/economy/settings', [EconomySettingController::class, 'edit'])
+                    ->name('economy-settings.edit');
+                Route::put('/economy/settings', [EconomySettingController::class, 'update'])
+                    ->name('economy-settings.update');
                 Route::get('/economy/vip-plans', [VipPlanController::class, 'index'])
                     ->name('vip-plans.index');
                 Route::post('/economy/vip-plans', [VipPlanController::class, 'store'])

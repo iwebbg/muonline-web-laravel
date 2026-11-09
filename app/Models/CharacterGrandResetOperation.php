@@ -20,6 +20,9 @@ use Illuminate\Database\Eloquent\Model;
     'before_snapshot',
     'after_snapshot',
     'failure_code',
+    'reward_wallet_transaction_id',
+    'account_reward_id',
+    'reward_failure_code',
     'completed_at',
 ])]
 final class CharacterGrandResetOperation extends Model
@@ -40,6 +43,8 @@ final class CharacterGrandResetOperation extends Model
             'before_snapshot' => 'array',
             'after_snapshot' => 'array',
             'completed_at' => 'immutable_datetime',
+            'reward_wallet_transaction_id' => 'integer',
+            'account_reward_id' => 'integer',
         ];
     }
 }

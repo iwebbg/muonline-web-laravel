@@ -75,6 +75,9 @@
                     <span>◈</span>{{ __('ui.admin.economy') }}
                 </p>
                 <div class="grid gap-1 pl-4">
+                    <a href="{{ route('admin.economy-settings.edit') }}" class="admin-nav-link {{ $active === 'economy-settings' ? 'admin-nav-link-active' : '' }}">
+                        <span>⚙</span>{{ __('ui.admin.economy_settings_nav') }}
+                    </a>
                     <a href="{{ route('admin.wallet.index') }}" class="admin-nav-link {{ $active === 'economy' ? 'admin-nav-link-active' : '' }}">
                         <span>¤</span>{{ __('ui.admin.wallet_nav') }}
                     </a>

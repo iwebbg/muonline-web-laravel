@@ -868,6 +868,7 @@ export function itemGrantManager(configuration) {
         optionLevels: configuration.optionLevels,
         itemOptionLabels: configuration.itemOptionLabels,
         priceModifiers: configuration.priceModifiers ?? {},
+        markupPercentage: Number(configuration.markupPercentage) || 0,
         ui: configuration.ui,
         confirmationOpen: false,
         accountId: configuration.initialAccountId,
@@ -1089,12 +1090,14 @@ export function itemGrantManager(configuration) {
                 return 0;
             }
 
-            return Number(this.selectedItem.basePrice)
+            const basePrice = Number(this.selectedItem.basePrice)
                 + (this.level * Number(this.priceModifiers.level ?? 0))
                 + (this.optionLevel * Number(this.priceModifiers.additionalOption ?? 0))
                 + (this.hasSkill ? Number(this.priceModifiers.skill ?? 0) : 0)
                 + (this.hasLuck ? Number(this.priceModifiers.luck ?? 0) : 0)
                 + (this.excellentOptionBits.length * Number(this.priceModifiers.excellentOption ?? 0));
+
+            return basePrice + Math.ceil((basePrice * this.markupPercentage) / 100);
         },
 
         /**

@@ -10,6 +10,7 @@ use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\AccountPanelConfiguration;
 use App\Http\Controllers\Controller;
 use App\Models\AccountWallet;
+use App\Shop\EconomySettingReader;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -28,6 +29,7 @@ final class ItemGeneratorController extends Controller
         ItemGrantRules $rules,
         AccountPanelConfiguration $configuration,
         GameVersionProfile $versionProfile,
+        EconomySettingReader $economySettingReader,
     ): View {
         $account = $request->user();
 
@@ -51,6 +53,7 @@ final class ItemGeneratorController extends Controller
             'optionLevels' => $rules->optionLevels(),
             'itemOptionLabels' => $configuration->itemOptionLabels(),
             'priceModifiers' => $catalog->priceModifiers(),
+            'markupPercentage' => $economySettingReader->current()->itemGeneratorMarkupPercentage,
             'balance' => (int) $balance,
             'idempotencyKey' => (string) Str::uuid(),
         ]);
