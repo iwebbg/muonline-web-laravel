@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Auth\GameAccount;
+use App\CharacterServices\CharacterClassChangeResolver;
 use App\Economy\WalletCurrency;
 use App\Game\Contracts\AccountReadRepository;
+use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\AccountPanelConfiguration;
 use App\Models\AccountWallet;
@@ -14,6 +16,7 @@ use App\Models\VipPurchase;
 use App\Models\WebStorageItem;
 use App\Modules\ModuleManager;
 use App\Modules\ServerModule;
+use App\Shop\EconomySettingReader;
 use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Http\Request;
@@ -34,6 +37,8 @@ final class AccountDashboardController extends Controller
         private readonly ModuleManager $moduleManager,
         private readonly AccountPanelConfiguration $accountPanelConfiguration,
         private readonly GameVersionProfile $versionProfile,
+        private readonly CharacterClassChangeResolver $classChangeResolver,
+        private readonly EconomySettingReader $economySettingReader,
     ) {}
 
     /**
@@ -58,6 +63,14 @@ final class AccountDashboardController extends Controller
             }
 
             $character['statDefinitions'] = $statDefinitions;
+            $character['classChangeOptions'] = array_map(
+                static fn (CharacterClassDefinition $definition): array => [
+                    'family' => $definition->family,
+                    'name' => $definition->name,
+                    'classCode' => $definition->code,
+                ],
+                $this->classChangeResolver->optionsFor($characterEntry->classCode),
+            );
             $characters[] = $character;
             $characterNames[] = $characterEntry->name;
         }
@@ -113,6 +126,9 @@ final class AccountDashboardController extends Controller
             : collect();
         $gameWritesEnabled = (bool) config('game.writes_enabled', false)
             && ! (bool) config('database.connections.game.readonly', true);
+        $economySettings = $this->economySettingReader->current();
+        $characterServicesEnabled = $creditsEnabled
+            && ($economySettings->characterRenameEnabled || $economySettings->characterClassChangeEnabled);
         $accountPanelConfiguration = $this->accountPanelConfiguration->toArray(
             writesEnabled: $gameWritesEnabled,
             csrfToken: $request->session()->token(),
@@ -151,6 +167,10 @@ final class AccountDashboardController extends Controller
             'grand-reset',
             'vaults',
         ];
+
+        if ($characterServicesEnabled) {
+            $allowedSections[] = 'services';
+        }
         $requestedSection = $request->string('tab')->toString();
         $requestedCharacter = $request->string('character')->toString();
         $initialSection = in_array($requestedSection, $allowedSections, true)
@@ -184,6 +204,10 @@ final class AccountDashboardController extends Controller
             'vipEnabled' => $vipEnabled,
             'gameWritesEnabled' => $gameWritesEnabled,
             'accountPanelConfiguration' => $accountPanelConfiguration,
+            'economySettings' => $economySettings,
+            'characterServicesEnabled' => $characterServicesEnabled,
+            'characterRenameIdempotencyKey' => (string) Str::uuid(),
+            'characterClassChangeIdempotencyKey' => (string) Str::uuid(),
         ]);
     }
 }

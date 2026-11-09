@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Auth\GameAccount;
 use App\Models\AccountWallet;
+use App\Models\EconomySetting;
 use App\Models\ModuleProfile;
 use App\Models\WebStorageItem;
 use App\Modules\ServerModule;
@@ -157,6 +158,35 @@ final class AccountDashboardTest extends TestCase
             ->assertOk()
             ->assertSee('125 Credits')
             ->assertDontSee('999 Credits');
+    }
+
+    /**
+     * Confirms enabled paid services render their profile-aware forms and prices.
+     */
+    public function test_dashboard_displays_enabled_character_services(): void
+    {
+        $gameConnection = $this->app->make(DatabaseManager::class)->connection('game');
+        $gameConnection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $gameConnection->table('Character')->insert($this->characterRecord('owner', 'OwnedKnight'));
+        EconomySetting::factory()->create([
+            'character_rename_enabled' => true,
+            'character_rename_price_credits' => 250,
+            'character_class_change_enabled' => true,
+            'character_class_change_price_credits' => 500,
+        ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account?character=OwnedKnight&tab=services');
+
+        $response
+            ->assertOk()
+            ->assertSee('Character services')
+            ->assertSee(route('account.character-rename'), false)
+            ->assertSee(route('account.character-class-change'), false)
+            ->assertSee('250 Credits')
+            ->assertSee('500 Credits');
+        $this->assertMatchesRegularExpression('/initialSection.{0,80}services/', $response->getContent());
     }
 
     /**

@@ -5,9 +5,11 @@ use App\Http\Controllers\Account\AccountCredentialController;
 use App\Http\Controllers\Account\AccountDeletionRequestController;
 use App\Http\Controllers\Account\AccountSecurityController;
 use App\Http\Controllers\Account\AuctionBidController;
+use App\Http\Controllers\Account\CharacterClassChangeController;
 use App\Http\Controllers\Account\CharacterGrandResetController;
 use App\Http\Controllers\Account\CharacterMoveController;
 use App\Http\Controllers\Account\CharacterPkClearController;
+use App\Http\Controllers\Account\CharacterRenameController;
 use App\Http\Controllers\Account\CharacterResetController;
 use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
@@ -328,6 +330,20 @@ Route::middleware(['auth', 'demo:account'])->group(function (): void {
     Route::post('/account/character-move', CharacterMoveController::class)
         ->middleware('throttle:move-to-town')
         ->name('account.character-move');
+    Route::post('/account/character-rename', CharacterRenameController::class)
+        ->middleware([
+            'demo:blocked',
+            'module.enabled:'.ServerModule::Credits->value,
+            'throttle:character-service',
+        ])
+        ->name('account.character-rename');
+    Route::post('/account/character-class-change', CharacterClassChangeController::class)
+        ->middleware([
+            'demo:blocked',
+            'module.enabled:'.ServerModule::Credits->value,
+            'throttle:character-service',
+        ])
+        ->name('account.character-class-change');
     Route::post('/account/item-storage', ItemStorageController::class)
         ->middleware('throttle:item-storage')
         ->name('account.item-storage');

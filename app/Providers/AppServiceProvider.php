@@ -220,6 +220,13 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($limiterKey);
         });
 
+        RateLimiter::for('character-service', function (Request $request): Limit {
+            $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
+            $limiterKey = Str::transliterate($accountId.'|'.$request->ip());
+
+            return Limit::perMinute(5)->by($limiterKey);
+        });
+
         RateLimiter::for('vote-claim', function (Request $request): Limit {
             $accountId = (string) ($request->user()?->getAuthIdentifier() ?? 'guest');
             $limiterKey = Str::transliterate($accountId.'|'.$request->ip());

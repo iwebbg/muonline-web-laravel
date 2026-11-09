@@ -13,6 +13,7 @@ use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Contracts\CharacterMoveRepository;
 use App\Game\Contracts\CharacterPkClearRepository;
 use App\Game\Contracts\CharacterResetRepository;
+use App\Game\Contracts\CharacterServiceRepository;
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
@@ -38,6 +39,7 @@ use App\Game\Repositories\SqlServer1_0MCharacterInventoryEscrowRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterMoveRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterPkClearRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterResetRepository;
+use App\Game\Repositories\SqlServer1_0MCharacterServiceRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterStatAllocationRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterStatResetRepository;
 use App\Game\Repositories\SqlServer1_0MCharacterVipRepository;
@@ -70,9 +72,10 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
     {
         return [
             'MEMB_INFO' => ['memb_guid', 'memb___id', 'memb__pwd', 'mail_addr', 'bloc_code', 'ctl1_code'],
-            'Character' => ['AccountID', 'Name', 'cLevel', 'Class', 'Money', 'Resets', 'GrandResets', 'Leadership'],
+            'Character' => ['AccountID', 'Name', 'cLevel', 'Class', 'Money', 'Resets', 'GrandResets', 'Leadership', 'MarryName'],
             'warehouse' => ['AccountID', 'Items', 'Money'],
             'MEMB_STAT' => ['memb___id', 'ConnectStat'],
+            'AccountCharacter' => ['Id', 'GameID1', 'GameID2', 'GameID3', 'GameID4', 'GameID5', 'GameIDC'],
             'Guild' => ['G_Name', 'G_Master', 'G_Score'],
             'GuildMember' => ['Name', 'G_Name'],
             'GameServerInfo' => ['ItemCount'],
@@ -97,10 +100,11 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
         return [
             'dbo.MEMB_INFO' => ['SELECT', 'INSERT', 'UPDATE'],
             'dbo.MEMB_STAT' => ['SELECT'],
+            'dbo.AccountCharacter' => ['SELECT', 'UPDATE'],
             'dbo.Character' => ['SELECT', 'UPDATE'],
             'dbo.warehouse' => ['SELECT', 'UPDATE'],
-            'dbo.Guild' => ['SELECT'],
-            'dbo.GuildMember' => ['SELECT'],
+            'dbo.Guild' => ['SELECT', 'UPDATE'],
+            'dbo.GuildMember' => ['SELECT', 'UPDATE'],
             'dbo.GameServerInfo' => ['SELECT'],
             'dbo.MuCastle_DATA' => ['SELECT'],
             'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
@@ -313,6 +317,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             CharacterPkClearRepository::class => SqlServer1_0MCharacterPkClearRepository::class,
             CharacterStatAllocationRepository::class => SqlServer1_0MCharacterStatAllocationRepository::class,
             CharacterStatResetRepository::class => SqlServer1_0MCharacterStatResetRepository::class,
+            CharacterServiceRepository::class => SqlServer1_0MCharacterServiceRepository::class,
             CharacterVipRepository::class => SqlServer1_0MCharacterVipRepository::class,
             CharacterInventoryEscrowRepository::class => SqlServer1_0MCharacterInventoryEscrowRepository::class,
             ItemStorageRepository::class => SqlServer1_0MItemStorageRepository::class,

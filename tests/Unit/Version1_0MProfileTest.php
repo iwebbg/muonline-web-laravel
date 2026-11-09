@@ -153,7 +153,7 @@ final class Version1_0MProfileTest extends TestCase
     {
         $bindings = (new Version1_0MProfile)->repositoryBindings();
 
-        $this->assertCount(21, $bindings);
+        $this->assertCount(22, $bindings);
         $this->assertSame(SqlServer1_0MRealmReadRepository::class, $bindings[RealmReadRepository::class]);
         $this->assertSame(
             SqlServer1_0MCharacterGrandResetRepository::class,
