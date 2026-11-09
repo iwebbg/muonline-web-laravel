@@ -144,6 +144,75 @@ final class ItemCodecMuEmuSeason6Test extends TestCase
     }
 
     /**
+     * Confirms generated items preserve every supported Season 6 option byte.
+     */
+    public function test_creates_native_item_with_advanced_options(): void
+    {
+        $codec = new ItemCodecMuEmuSeason6;
+        $harmonyBinary = $codec->create(
+            group: 0,
+            index: 0,
+            level: 13,
+            durability: 90,
+            optionLevel: 7,
+            hasSkill: true,
+            hasLuck: true,
+            excellentMask: 63,
+            ancientOption: 0,
+            serial: 0x01020304,
+            harmonyOption: 0x5D,
+            has380Option: true,
+        );
+        $socketBinary = $codec->create(
+            group: 0,
+            index: 26,
+            level: 13,
+            durability: 90,
+            optionLevel: 7,
+            hasSkill: true,
+            hasLuck: true,
+            excellentMask: 63,
+            ancientOption: 0,
+            serial: 0x01020304,
+            socketBonus: 255,
+            socketOptions: [201, 254, 155],
+        );
+        $harmonyItem = $codec->decode($harmonyBinary, 1)[0];
+        $socketItem = $codec->decode($socketBinary, 1)[0];
+
+        $this->assertSame(0x5D, $harmonyItem->harmonyOption);
+        $this->assertTrue($harmonyItem->has380Option);
+        $this->assertNull($harmonyItem->socketBonus);
+        $this->assertSame(255, $socketItem->socketBonus);
+        $this->assertSame([201, 254, 155, 255, 255], $socketItem->socketOptions);
+        $this->assertSame(0, $socketItem->harmonyOption);
+    }
+
+    /**
+     * Confirms Harmony and socket payloads cannot overwrite their shared byte.
+     */
+    public function test_rejects_harmony_combined_with_socket_data(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Harmony and socket data share the same MuEMU Season 6 item byte.');
+
+        (new ItemCodecMuEmuSeason6)->create(
+            group: 0,
+            index: 26,
+            level: 0,
+            durability: 90,
+            optionLevel: 0,
+            hasSkill: false,
+            hasLuck: false,
+            excellentMask: 0,
+            ancientOption: 0,
+            serial: 1,
+            harmonyOption: 1,
+            socketOptions: [254],
+        );
+    }
+
+    /**
      * Confirms invalid native blob lengths fail before any partial decode.
      */
     public function test_rejects_invalid_blob_length(): void

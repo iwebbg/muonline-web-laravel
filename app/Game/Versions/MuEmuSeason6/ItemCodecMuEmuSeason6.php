@@ -63,7 +63,9 @@ final readonly class ItemCodecMuEmuSeason6 implements ItemCodec
     }
 
     /**
-     * Creates one basic MuEMU item while leaving advanced Season 6 bytes unset.
+     * Creates one MuEMU item with validated native Season 6 option bytes.
+     *
+     * @param  list<int>  $socketOptions
      */
     public function create(
         int $group,
@@ -76,6 +78,10 @@ final readonly class ItemCodecMuEmuSeason6 implements ItemCodec
         int $excellentMask,
         int $ancientOption,
         int $serial,
+        int $harmonyOption = 0,
+        ?int $socketBonus = null,
+        array $socketOptions = [],
+        bool $has380Option = false,
     ): string {
         if ($group < 0 || $group > 15 || $index < 0 || $index > 255) {
             throw new InvalidArgumentException('The item group or index is outside the MuEMU Season 6 format.');
@@ -91,6 +97,28 @@ final readonly class ItemCodecMuEmuSeason6 implements ItemCodec
 
         if ($ancientOption < 0 || $ancientOption > 255 || $serial < 1 || $serial > 2_147_483_647) {
             throw new InvalidArgumentException('The item ancient option or serial is outside the supported range.');
+        }
+
+        if ($harmonyOption < 0 || $harmonyOption > 254) {
+            throw new InvalidArgumentException('The Harmony option is outside the MuEMU Season 6 format.');
+        }
+
+        if ($socketBonus !== null && ($socketBonus < 0 || $socketBonus > 255)) {
+            throw new InvalidArgumentException('The socket bonus is outside the MuEMU Season 6 format.');
+        }
+
+        if (count($socketOptions) > 5) {
+            throw new InvalidArgumentException('A MuEMU Season 6 item accepts at most five socket values.');
+        }
+
+        foreach ($socketOptions as $socketOption) {
+            if (! is_int($socketOption) || $socketOption < 0 || $socketOption > 255) {
+                throw new InvalidArgumentException('A socket value is outside the MuEMU Season 6 format.');
+            }
+        }
+
+        if ($harmonyOption !== 0 && ($socketBonus !== null || $socketOptions !== [])) {
+            throw new InvalidArgumentException('Harmony and socket data share the same MuEMU Season 6 item byte.');
         }
 
         $packedOptions = ($level << 3) | ($optionLevel & 0x03);
@@ -109,6 +137,23 @@ final readonly class ItemCodecMuEmuSeason6 implements ItemCodec
             $extendedOptions |= 0x40;
         }
 
+        $groupAnd380Option = $group << 4;
+
+        if ($has380Option) {
+            $groupAnd380Option |= 0x08;
+        }
+
+        $advancedOption = $harmonyOption;
+        $normalizedSocketOptions = array_fill(0, 5, 255);
+
+        if ($socketBonus !== null || $socketOptions !== []) {
+            $advancedOption = $socketBonus ?? 255;
+
+            foreach ($socketOptions as $position => $socketOption) {
+                $normalizedSocketOptions[$position] = $socketOption;
+            }
+        }
+
         return pack(
             'CCCNC*',
             $index,
@@ -117,13 +162,9 @@ final readonly class ItemCodecMuEmuSeason6 implements ItemCodec
             $serial,
             $extendedOptions,
             $ancientOption,
-            $group << 4,
-            0,
-            255,
-            255,
-            255,
-            255,
-            255,
+            $groupAnd380Option,
+            $advancedOption,
+            ...$normalizedSocketOptions,
         );
     }
 
