@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Auth\GameAccount;
+use App\Game\Contracts\GensMembershipRepository;
 use App\Game\Contracts\MasterProgressionRepository;
+use App\Game\Data\GensFamily;
+use App\Game\Data\GensMembership;
 use App\Game\Data\MasterProgression;
 use App\Models\AccountWallet;
 use App\Models\EconomySetting;
@@ -123,6 +126,44 @@ final class AccountDashboardTest extends TestCase
                 'level' => 125,
                 'availablePoints' => 17,
                 'experience' => 9_876_543,
+            ];
+        });
+    }
+
+    /**
+     * Confirms standard Gens membership is attached to its owned character only.
+     */
+    public function test_dashboard_displays_owned_gens_membership(): void
+    {
+        $connection = $this->app->make(DatabaseManager::class)->connection('game');
+        $connection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $connection->table('Character')->insert($this->characterRecord('owner', 'OwnedKnight'));
+        $gensMembershipRepository = $this->mock(GensMembershipRepository::class);
+        $gensMembershipRepository
+            ->shouldReceive('forAccount')
+            ->once()
+            ->with('owner')
+            ->andReturn([
+                'OwnedKnight' => new GensMembership(
+                    characterName: 'OwnedKnight',
+                    family: GensFamily::Duprian,
+                    contribution: 15_000,
+                    rank: 2,
+                ),
+            ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account');
+
+        $response->assertOk();
+        $response->assertSee('Gens progression');
+        $response->assertViewHas('characters', function (array $characters): bool {
+            return $characters[0]['gensMembership'] === [
+                'family' => 'duprian',
+                'contribution' => 15_000,
+                'rank' => 2,
+                'familyName' => 'Duprian',
             ];
         });
     }

@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\CharacterGrandResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
+use App\Game\Contracts\GensMembershipRepository;
 use App\Game\Contracts\ItemCatalog;
 use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemGeneratorCatalog;
@@ -15,6 +16,7 @@ use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6CastleSiegeReadRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6CharacterGrandResetRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6CharacterVipRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6GensMembershipRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6MasterProgressionRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6RealmReadRepository;
 use App\Game\Repositories\SqlServerOnlineAccountRepository;
@@ -45,6 +47,7 @@ final class MuEmuSeason6ProfileTest extends TestCase
         $this->assertTrue($profile->capabilities()->itemGenerator);
         $this->assertTrue($profile->capabilities()->castleSiege);
         $this->assertTrue($profile->capabilities()->masterProgression);
+        $this->assertTrue($profile->capabilities()->gens);
         $this->assertFalse($profile->capabilities()->billingRecord);
     }
 
@@ -133,6 +136,7 @@ final class MuEmuSeason6ProfileTest extends TestCase
             ['Name', 'MasterLevel', 'MasterPoint', 'MasterExperience', 'MasterSkill'],
             $schema['MasterSkillTree'],
         );
+        $this->assertSame(['Name', 'Family', 'Contribution'], $schema['Gens_Rank']);
         $this->assertSame(['AccountID', 'Items', 'Money', 'Number'], $schema['ExtWarehouse']);
     }
 
@@ -154,7 +158,7 @@ final class MuEmuSeason6ProfileTest extends TestCase
     {
         $bindings = (new MuEmuSeason6Profile)->repositoryBindings();
 
-        $this->assertCount(24, $bindings);
+        $this->assertCount(25, $bindings);
         $this->assertSame(
             SqlServerMuEmuSeason6RealmReadRepository::class,
             $bindings[RealmReadRepository::class],
@@ -174,6 +178,10 @@ final class MuEmuSeason6ProfileTest extends TestCase
         $this->assertSame(
             SqlServerMuEmuSeason6MasterProgressionRepository::class,
             $bindings[MasterProgressionRepository::class],
+        );
+        $this->assertSame(
+            SqlServerMuEmuSeason6GensMembershipRepository::class,
+            $bindings[GensMembershipRepository::class],
         );
         $this->assertSame(
             SqlServerOnlineAccountRepository::class,

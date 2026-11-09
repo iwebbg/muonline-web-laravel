@@ -91,5 +91,27 @@
                 </div>
             </dl>
         </article>
+        <article
+            class="panel-card sm:col-span-2"
+            x-show="selectedCharacter.gensMembership !== null"
+            x-cloak
+        >
+            <p class="kicker">{{ __('ui.account.gens_progression') }}</p>
+            <p class="mt-2 text-sm text-silver">{{ __('ui.account.gens_progression_help') }}</p>
+            <dl class="mt-6 grid gap-4 sm:grid-cols-3">
+                <div class="outcome-card">
+                    <dt>{{ __('ui.account.gens_family') }}</dt>
+                    <dd x-text="selectedCharacter.gensMembership?.familyName"></dd>
+                </div>
+                <div class="outcome-card">
+                    <dt>{{ __('ui.account.gens_contribution') }}</dt>
+                    <dd x-text="selectedCharacter.gensMembership?.contribution.toLocaleString()"></dd>
+                </div>
+                <div class="outcome-card">
+                    <dt>{{ __('ui.account.gens_rank') }}</dt>
+                    <dd x-text="selectedCharacter.gensMembership?.rank > 0 ? `#${selectedCharacter.gensMembership.rank.toLocaleString()}` : @js(__('ui.account.gens_unranked'))"></dd>
+                </div>
+            </dl>
+        </article>
     </div>
 </div>

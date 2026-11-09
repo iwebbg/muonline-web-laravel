@@ -6,6 +6,7 @@ use App\Auth\GameAccount;
 use App\CharacterServices\CharacterClassChangeResolver;
 use App\Economy\WalletCurrency;
 use App\Game\Contracts\AccountReadRepository;
+use App\Game\Contracts\GensMembershipRepository;
 use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
@@ -41,6 +42,7 @@ final class AccountDashboardController extends Controller
         private readonly CharacterClassChangeResolver $classChangeResolver,
         private readonly EconomySettingReader $economySettingReader,
         private readonly MasterProgressionRepository $masterProgressionRepository,
+        private readonly GensMembershipRepository $gensMembershipRepository,
     ) {}
 
     /**
@@ -56,6 +58,9 @@ final class AccountDashboardController extends Controller
         $masterProgressionByCharacter = $this->masterProgressionRepository->forAccount(
             $account->username,
         );
+        $gensMembershipByCharacter = $this->gensMembershipRepository->forAccount(
+            $account->username,
+        );
         $characters = [];
         $characterNames = [];
 
@@ -63,6 +68,14 @@ final class AccountDashboardController extends Controller
             $character = $characterEntry->toArray();
             $masterProgression = $masterProgressionByCharacter[$characterEntry->name] ?? null;
             $character['masterProgression'] = $masterProgression?->toArray();
+            $gensMembership = $gensMembershipByCharacter[$characterEntry->name] ?? null;
+            $character['gensMembership'] = $gensMembership?->toArray();
+
+            if ($gensMembership !== null) {
+                $character['gensMembership']['familyName'] = __(
+                    'ui.account.gens_families.'.$gensMembership->family->value,
+                );
+            }
             $statDefinitions = [];
 
             foreach ($this->versionProfile->statsForClass($characterEntry->classCode) as $statDefinition) {

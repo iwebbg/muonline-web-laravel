@@ -17,6 +17,7 @@ use App\Game\Contracts\CharacterServiceRepository;
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
 use App\Game\Contracts\CharacterVipRepository;
+use App\Game\Contracts\GensMembershipRepository;
 use App\Game\Contracts\ItemCatalog;
 use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemEscrowRepository;
@@ -45,6 +46,7 @@ use App\Game\Repositories\SqlServerMuEmuSeason6CharacterServiceRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6CharacterStatAllocationRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6CharacterStatResetRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6CharacterVipRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6GensMembershipRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6ItemSerialRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6ItemStorageRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6MarketItemEscrowRepository;
@@ -102,6 +104,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
             'MasterSkillTree' => [
                 'Name', 'MasterLevel', 'MasterPoint', 'MasterExperience', 'MasterSkill',
             ],
+            'Gens_Rank' => ['Name', 'Family', 'Contribution'],
         ];
     }
 
@@ -124,6 +127,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
             'dbo.GameServerInfo' => ['SELECT'],
             'dbo.MuCastle_DATA' => ['SELECT'],
             'dbo.MasterSkillTree' => ['SELECT'],
+            'dbo.Gens_Rank' => ['SELECT'],
             'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
         ];
     }
@@ -140,6 +144,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
             itemGenerator: true,
             castleSiege: true,
             masterProgression: true,
+            gens: true,
         );
     }
 
@@ -326,6 +331,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
         return [
             RealmReadRepository::class => SqlServerMuEmuSeason6RealmReadRepository::class,
             CastleSiegeReadRepository::class => SqlServerMuEmuSeason6CastleSiegeReadRepository::class,
+            GensMembershipRepository::class => SqlServerMuEmuSeason6GensMembershipRepository::class,
             AccountActivationRepository::class => SqlServerMuEmuSeason6AccountActivationRepository::class,
             AccountCredentialRepository::class => SqlServerMuEmuSeason6AccountCredentialRepository::class,
             AccountPasswordRecoveryRepository::class => SqlServerMuEmuSeason6AccountPasswordRecoveryRepository::class,
