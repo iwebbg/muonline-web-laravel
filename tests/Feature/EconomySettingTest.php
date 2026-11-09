@@ -18,6 +18,57 @@ final class EconomySettingTest extends TestCase
     use LazilyRefreshDatabase;
 
     /**
+     * Confirms every new administrator earning label exists in both locales.
+     */
+    public function test_credit_earning_administrator_copy_is_translated(): void
+    {
+        $translationKeys = [
+            'credit_earning',
+            'item_exchange',
+            'item_exchange_help',
+            'item_exchange_availability',
+            'online_time_rewards',
+            'online_time_rewards_availability',
+            'online_minutes_per_unit',
+            'online_credits_per_unit',
+            'online_daily_credit_limit',
+            'minutes',
+            'reward_credits',
+            'daily_limit',
+            'item_exchange_offers',
+            'item_exchange_offers_help',
+            'catalog_item',
+            'choose_item',
+            'item_level',
+            'additional_option',
+            'excellent_mask',
+            'excellent_options',
+            'excellent_mask_help',
+            'item_skill',
+            'item_luck',
+            'ancient_option',
+            'credits_per_item',
+            'max_exchange_quantity',
+            'create_exchange_offer',
+            'no_item_options',
+            'enabled',
+            'save',
+            'archive',
+            'credit_exchange_offer_created',
+            'credit_exchange_offer_updated',
+            'credit_exchange_offer_archived',
+        ];
+
+        foreach (['en', 'bg'] as $locale) {
+            foreach ($translationKeys as $translationKey) {
+                $key = 'ui.admin.'.$translationKey;
+
+                $this->assertNotSame($key, __($key, [], $locale));
+            }
+        }
+    }
+
+    /**
      * Confirms unauthenticated visitors cannot read or update economy settings.
      */
     public function test_guest_cannot_access_economy_settings(): void
