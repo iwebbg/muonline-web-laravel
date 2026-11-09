@@ -13,8 +13,7 @@
         <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
             <x-admin-navigation active="economy-settings" />
 
-            <main class="grid min-w-0 content-start gap-6 2xl:grid-cols-[minmax(0,1fr)_20rem]">
-                <div class="grid content-start gap-6">
+            <main class="grid min-w-0 content-start gap-6">
                     @if (session('status'))
                         <div class="rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">{{ session('status') }}</div>
                     @endif
@@ -281,36 +280,64 @@
                         <div class="mt-6 grid gap-4">
                             @foreach ($exchangeOffers as $presentedOffer)
                                 @php($offer = $presentedOffer['model'])
-                                <article class="rounded-2xl border border-white/8 bg-black/15 p-4">
-                                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                                        <div><h3 class="font-semibold text-white">{{ $presentedOffer['item']['title'] }}</h3><p class="mt-1 text-xs text-emerald-200">{{ implode(' · ', $presentedOffer['item']['options']) ?: __('ui.admin.no_item_options') }}</p><p class="mt-2 text-xs text-steel">{{ __('ui.admin.current_revision', ['revision' => $offer->revision]) }}</p></div>
-                                        <form method="POST" action="{{ route('admin.credit-exchange-offers.update', $offer) }}" class="grid flex-1 gap-3 sm:grid-cols-4 lg:max-w-3xl">@csrf @method('PUT')
-                                            @foreach (['item_code' => $offer->item_group.':'.$offer->item_index, 'level' => $offer->level, 'option_level' => $offer->option_level, 'has_skill' => (int) $offer->has_skill, 'has_luck' => (int) $offer->has_luck, 'excellent_mask' => $offer->excellent_mask, 'ancient_option' => $offer->ancient_option, 'sort_order' => $offer->sort_order] as $name => $value)<input type="hidden" name="{{ $name }}" value="{{ $value }}">@endforeach
-                                            <label class="field-group"><span>{{ __('ui.admin.credits_per_item') }}</span><input type="number" name="credits_per_item" value="{{ $offer->credits_per_item }}" min="1" required></label>
-                                            <label class="field-group"><span>{{ __('ui.admin.max_exchange_quantity') }}</span><input type="number" name="max_quantity_per_exchange" value="{{ $offer->max_quantity_per_exchange }}" min="1" max="100" required></label>
-                                            <label class="field-group"><span>{{ __('ui.admin.daily_limit') }}</span><input type="number" name="daily_account_credit_limit" value="{{ $offer->daily_account_credit_limit }}" min="1" required></label>
-                                            <div class="flex items-end gap-3"><label class="toggle-control"><input type="hidden" name="enabled" value="0"><input type="checkbox" name="enabled" value="1" @checked($offer->enabled)><span aria-hidden="true"></span><span>{{ __('ui.admin.enabled') }}</span></label><button class="button button-ghost">{{ __('ui.admin.save') }}</button></div>
+                                <article class="grid gap-5 rounded-2xl border border-white/8 bg-black/15 p-4 xl:grid-cols-[minmax(12rem,1fr)_minmax(0,3fr)] xl:items-end">
+                                    <div>
+                                        <h3 class="font-semibold text-white">{{ $presentedOffer['item']['title'] }}</h3>
+                                        <p class="mt-1 text-xs text-emerald-200">{{ implode(' · ', $presentedOffer['item']['options']) ?: __('ui.admin.no_item_options') }}</p>
+                                        <p class="mt-2 text-xs text-steel">{{ __('ui.admin.current_revision', ['revision' => $offer->revision]) }}</p>
+                                    </div>
+
+                                    <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                                        <form method="POST" action="{{ route('admin.credit-exchange-offers.update', $offer) }}" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                            @csrf
+                                            @method('PUT')
+                                            @foreach (['item_code' => $offer->item_group.':'.$offer->item_index, 'level' => $offer->level, 'option_level' => $offer->option_level, 'has_skill' => (int) $offer->has_skill, 'has_luck' => (int) $offer->has_luck, 'excellent_mask' => $offer->excellent_mask, 'ancient_option' => $offer->ancient_option, 'sort_order' => $offer->sort_order] as $name => $value)
+                                                <input type="hidden" name="{{ $name }}" value="{{ $value }}">
+                                            @endforeach
+                                            <label class="field-group">
+                                                <span>{{ __('ui.admin.credits_per_item') }}</span>
+                                                <input type="number" name="credits_per_item" value="{{ $offer->credits_per_item }}" min="1" required>
+                                            </label>
+                                            <label class="field-group">
+                                                <span>{{ __('ui.admin.max_exchange_quantity') }}</span>
+                                                <input type="number" name="max_quantity_per_exchange" value="{{ $offer->max_quantity_per_exchange }}" min="1" max="100" required>
+                                            </label>
+                                            <label class="field-group">
+                                                <span>{{ __('ui.admin.daily_limit') }}</span>
+                                                <input type="number" name="daily_account_credit_limit" value="{{ $offer->daily_account_credit_limit }}" min="1" required>
+                                            </label>
+                                            <div class="flex items-end justify-between gap-3 lg:justify-end">
+                                                <label class="toggle-control">
+                                                    <input type="hidden" name="enabled" value="0">
+                                                    <input type="checkbox" name="enabled" value="1" @checked($offer->enabled)>
+                                                    <span aria-hidden="true"></span>
+                                                    <span>{{ __('ui.admin.enabled') }}</span>
+                                                </label>
+                                                <button class="button button-ghost">{{ __('ui.admin.save') }}</button>
+                                            </div>
                                         </form>
-                                        <form method="POST" action="{{ route('admin.credit-exchange-offers.destroy', $offer) }}">@csrf @method('DELETE')<button class="text-sm text-red-300">{{ __('ui.admin.archive') }}</button></form>
+
+                                        <form method="POST" action="{{ route('admin.credit-exchange-offers.destroy', $offer) }}" class="flex justify-end">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="px-3 py-2 text-sm text-red-300 transition hover:text-red-200">{{ __('ui.admin.archive') }}</button>
+                                        </form>
                                     </div>
                                 </article>
                             @endforeach
                         </div>
                     </section>
-                </div>
+                <section class="rounded-2xl border border-emerald-300/15 bg-emerald-300/6 p-4 text-sm leading-6 text-emerald-100">
+                    <strong class="block text-emerald-200">{{ __('ui.admin.active_configuration') }}</strong>
+                    {{ __('ui.admin.active_configuration_help') }}
+                </section>
 
-                <aside class="grid content-start gap-4">
-                    <section class="rounded-2xl border border-emerald-300/15 bg-emerald-300/6 p-4 text-sm leading-6 text-emerald-100">
-                        <strong class="block text-emerald-200">{{ __('ui.admin.active_configuration') }}</strong>
-                        {{ __('ui.admin.active_configuration_help') }}
-                    </section>
-
-                    <x-admin-revision-history
-                        :revisions="$recentRevisions"
-                        :title="__('ui.admin.revision_history')"
-                        :empty-message="__('ui.admin.no_revisions')"
-                    />
-                </aside>
+                <x-admin-revision-history
+                    :revisions="$recentRevisions"
+                    :title="__('ui.admin.revision_history')"
+                    :empty-message="__('ui.admin.no_revisions')"
+                    wide
+                />
             </main>
         </div>
     </div>
