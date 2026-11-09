@@ -76,7 +76,7 @@ final class GameDatabaseDoctorTest extends TestCase
         $connection->statement('CREATE TABLE MEMB_INFO (memb_guid INTEGER, memb___id TEXT, memb__pwd TEXT, mail_addr TEXT, bloc_code INTEGER, ctl1_code INTEGER)');
         $connection->statement('CREATE TABLE Character (AccountID TEXT, Name TEXT, cLevel INTEGER, Class INTEGER, Money INTEGER, Resets INTEGER, GrandResets INTEGER, MarryName TEXT)');
         $connection->statement('CREATE TABLE warehouse (AccountID TEXT, Items BLOB, Money INTEGER)');
-        $connection->statement('CREATE TABLE MEMB_STAT (memb___id TEXT, ConnectStat INTEGER)');
+        $connection->statement('CREATE TABLE MEMB_STAT (memb___id TEXT, ConnectStat INTEGER, ConnectTM TEXT, DisConnectTM TEXT)');
         $connection->statement('CREATE TABLE AccountCharacter (Id TEXT, GameID1 TEXT, GameID2 TEXT, GameID3 TEXT, GameID4 TEXT, GameID5 TEXT, GameIDC TEXT)');
         $connection->statement('CREATE TABLE Guild (G_Name TEXT, G_Master TEXT, G_Score INTEGER)');
         $connection->statement('CREATE TABLE OptionData (Name TEXT)');
