@@ -18,7 +18,7 @@ final readonly class ShopItemPresenter
      * Builds one client-safe tooltip payload from a purchased item snapshot.
      *
      * @param  array<string, mixed>  $item
-     * @return array{code: string, name: string, excellentType: int, optionType: int, rarity: string, level: int, durability: int, optionLevel: int, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int}
+     * @return array{code: string, name: string, excellentType: int, optionType: int, rarity: string, level: int, durability: int, optionLevel: int, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int, harmonyOption: int, socketCount: int, has380Option: bool}
      */
     public function present(array $item): array
     {
@@ -59,6 +59,9 @@ final readonly class ShopItemPresenter
             'hasLuck' => $hasLuck,
             'excellentMask' => $excellentMask,
             'ancientOption' => $ancientOption,
+            'harmonyOption' => (int) ($item['harmony_option'] ?? 0),
+            'socketCount' => (int) ($item['socket_count'] ?? 0),
+            'has380Option' => (bool) ($item['has_380_option'] ?? false),
         ];
     }
 }

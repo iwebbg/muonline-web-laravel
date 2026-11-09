@@ -5,7 +5,7 @@
 @section('content')
     <div
         class="shell py-10 lg:py-14"
-        x-data="gameServerManager(@js($servers), @js(route('admin.game-servers.store')))"
+        x-data="gameServerManager(@js($servers), @js(route('admin.game-servers.store')), @js($currentGameServerVersion))"
         x-on:keydown.escape.window="editorOpen ? closeEditor() : closeDelete()"
     >
         <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

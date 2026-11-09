@@ -21,6 +21,7 @@ docker_environment="$(sed -n 's/^DOCKER_ENV=//p' "$docker_environment_file" | ta
 compose_files=()
 compose_project_arguments=()
 integration_test=false
+test_all=false
 
 case "$docker_environment" in
     local)
@@ -52,6 +53,14 @@ if [ "${1:-}" = "test" ]; then
         "$docker_directory/docker-compose.test.yaml"
     )
     set -- run --rm --build --no-deps test composer test -- "${test_arguments[@]}"
+elif [ "${1:-}" = "test-all" ]; then
+    shift
+    test_arguments=("$@")
+    compose_files+=(
+        "$docker_directory/docker-compose.test.yaml"
+    )
+    test_all=true
+    set -- build test
 elif [ "${1:-}" = "test-integration" ]; then
     shift
     test_arguments=("$@")
@@ -129,6 +138,66 @@ if [ "$integration_test" = true ]; then
     test_exit_code=$?
     "${cleanup_command[@]}"
     exit "$test_exit_code"
+fi
+
+if [ "$test_all" = true ]; then
+    test_profiles=()
+
+    while IFS= read -r test_profile; do
+        if [ -n "$test_profile" ]; then
+            test_profiles+=("$test_profile")
+        fi
+    done < "$project_directory/tests/profile-matrix.txt"
+
+    if [ "${#test_profiles[@]}" -eq 0 ]; then
+        echo "The supported test profile matrix is empty." >&2
+        exit 1
+    fi
+
+    "${compose_command[@]}"
+
+    printf '\n[MuOnline Web Regression Tests]\n'
+    printf 'Full unit and feature suite\n\n'
+
+    full_test_command=(
+        docker compose
+        --project-directory "$docker_directory"
+        --env-file "$application_environment_file"
+        --env-file "$docker_environment_file"
+        "${compose_file_arguments[@]}"
+        run
+        --rm
+        --no-deps
+        test
+        composer test --
+        "${test_arguments[@]}"
+    )
+
+    "${full_test_command[@]}"
+
+    for test_profile in "${test_profiles[@]}"; do
+        printf '\n[MuOnline Web Profile Tests]\n'
+        printf 'Profile: %s\n\n' "$test_profile"
+
+        profile_test_command=(
+            docker compose
+            --project-directory "$docker_directory"
+            --env-file "$application_environment_file"
+            --env-file "$docker_environment_file"
+            "${compose_file_arguments[@]}"
+            run
+            --rm
+            --no-deps
+            --env "MUONLINE_TEST_PROFILE=$test_profile"
+            test
+            composer test --
+            --group=profile-matrix
+        )
+
+        "${profile_test_command[@]}"
+    done
+
+    exit 0
 fi
 
 exec "${compose_command[@]}"

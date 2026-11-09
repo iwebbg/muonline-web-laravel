@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Contracts\RealmReadRepository;
 use Illuminate\View\View;
 
@@ -16,11 +18,17 @@ class CharacterProfileController extends Controller
     public function __invoke(
         string $characterName,
         RealmReadRepository $realmReadRepository,
+        MasterProgressionRepository $masterProgressionRepository,
+        GensMembershipRepository $gensMembershipRepository,
     ): View {
         $character = $realmReadRepository->publicCharacter($characterName);
 
         abort_if($character === null, 404);
 
-        return view('profiles.character', ['character' => $character]);
+        return view('profiles.character', [
+            'character' => $character,
+            'masterProgression' => $masterProgressionRepository->forCharacter($characterName),
+            'gensMembership' => $gensMembershipRepository->forCharacter($characterName),
+        ]);
     }
 }

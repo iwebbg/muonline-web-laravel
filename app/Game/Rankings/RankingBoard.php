@@ -11,4 +11,5 @@ enum RankingBoard: string
     case PlayerKillers = 'pk';
     case Guilds = 'guilds';
     case CastleSiege = 'castle_siege';
+    case Gens = 'gens';
 }

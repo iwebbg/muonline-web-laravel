@@ -64,7 +64,7 @@ abstract readonly class SqlServerCharacterServiceRepository implements Character
                 throw new CharacterServiceRejected(CharacterServiceBlockReason::NameTaken);
             }
 
-            foreach (['GameID1', 'GameID2', 'GameID3', 'GameID4', 'GameID5', 'GameIDC'] as $slot) {
+            foreach ($this->accountCharacterSlots() as $slot) {
                 $connection->table('AccountCharacter')
                     ->where('Id', $accountId)
                     ->where($slot, $currentName)
@@ -158,7 +158,8 @@ abstract readonly class SqlServerCharacterServiceRepository implements Character
                 throw new CharacterServiceRejected(CharacterServiceBlockReason::ResetPolicyUnsupported);
             }
 
-            $resultingResets = (int) $character->Resets + $resetCount;
+            $resetColumn = $this->resetColumn();
+            $resultingResets = (int) $character->{$resetColumn} + $resetCount;
 
             if ($resultingResets > $policy->maximumResets) {
                 throw new CharacterServiceRejected(CharacterServiceBlockReason::MaximumResetsReached);
@@ -175,7 +176,7 @@ abstract readonly class SqlServerCharacterServiceRepository implements Character
                 'cLevel' => 1,
                 'Experience' => 0,
                 'LevelUpPoint' => $resultingPoints,
-                'Resets' => $resultingResets,
+                $resetColumn => $resultingResets,
             ];
             $afterStats = $this->statsFromRow($character);
 
@@ -299,7 +300,7 @@ abstract readonly class SqlServerCharacterServiceRepository implements Character
             'cLevel',
             'LevelUpPoint',
             'Money',
-            'Resets',
+            $this->resetColumn(),
         ];
 
         foreach ($this->versionProfile->stats() as $statDefinition) {
@@ -324,7 +325,7 @@ abstract readonly class SqlServerCharacterServiceRepository implements Character
     {
         return [
             'level' => (int) $character->cLevel,
-            'resets' => (int) $character->Resets,
+            'resets' => (int) $character->{$this->resetColumn()},
             'points' => (int) $character->LevelUpPoint,
             'zen' => (int) $character->Money,
             ...$this->statsFromRow($character),
@@ -388,4 +389,22 @@ abstract readonly class SqlServerCharacterServiceRepository implements Character
         string $currentName,
         string $newName,
     ): void {}
+
+    /**
+     * Returns character slots referenced by rename operations in the active schema.
+     *
+     * @return list<string>
+     */
+    protected function accountCharacterSlots(): array
+    {
+        return ['GameID1', 'GameID2', 'GameID3', 'GameID4', 'GameID5', 'GameIDC'];
+    }
+
+    /**
+     * Returns the native reset counter used by purchased reset packages.
+     */
+    protected function resetColumn(): string
+    {
+        return 'Resets';
+    }
 }

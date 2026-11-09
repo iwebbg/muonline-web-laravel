@@ -8,11 +8,17 @@ use App\Game\Clocks\SystemRealmClock;
 use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\GameServerStatus;
+use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Contracts\LuckyCoinBalanceRepository;
+use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
 use App\Game\Repositories\LegacyGameAccountLookupRepository;
 use App\Game\Repositories\UnavailableCastleSiegeReadRepository;
+use App\Game\Repositories\UnavailableGensMembershipRepository;
+use App\Game\Repositories\UnavailableLuckyCoinBalanceRepository;
+use App\Game\Repositories\UnavailableMasterProgressionRepository;
 use App\Game\Status\FixtureGameServerStatus;
 use App\Game\Status\TcpGameServerStatus;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
@@ -23,6 +29,7 @@ use App\Installation\Contracts\GameDatabaseInstaller;
 use App\Installation\SqlServerApplicationDatabaseInstaller;
 use App\Installation\SqlServerGameDatabaseInstaller;
 use App\Modules\ModuleManager;
+use App\Servers\CurrentGameServer;
 use App\Website\WebsiteSettings;
 use App\Website\WebsiteSettingsManager;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -76,6 +83,18 @@ class AppServiceProvider extends ServiceProvider
             CastleSiegeReadRepository::class,
             UnavailableCastleSiegeReadRepository::class,
         );
+        $this->app->bind(
+            MasterProgressionRepository::class,
+            UnavailableMasterProgressionRepository::class,
+        );
+        $this->app->bind(
+            GensMembershipRepository::class,
+            UnavailableGensMembershipRepository::class,
+        );
+        $this->app->bind(
+            LuckyCoinBalanceRepository::class,
+            UnavailableLuckyCoinBalanceRepository::class,
+        );
 
         foreach ($versionProfile->repositoryBindings() as $contract => $adapter) {
             $this->app->bind($contract, $adapter);
@@ -104,6 +123,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(GameServerStatus::class, $serverStatusClass);
         $this->app->bind(GameAccountLookupRepository::class, LegacyGameAccountLookupRepository::class);
         $this->app->singleton(ModuleManager::class);
+        $this->app->singleton(CurrentGameServer::class);
         $this->app->singleton(WebsiteSettingsManager::class);
         $this->app->bind(ApplicationDatabaseInstaller::class, SqlServerApplicationDatabaseInstaller::class);
         $this->app->bind(GameDatabaseInstaller::class, SqlServerGameDatabaseInstaller::class);
@@ -114,6 +134,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        View::composer('*', function (LaravelView $view): void {
+            $view->with(
+                'currentGameServerVersion',
+                $this->app->make(CurrentGameServer::class)->version(),
+            );
+        });
+
         View::composer(
             ['home', 'auth.login'],
             function (LaravelView $view): void {

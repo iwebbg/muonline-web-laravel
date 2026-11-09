@@ -31,11 +31,11 @@ final readonly class WebsiteSettings
     /**
      * Returns the reviewed values used when no administrator revision exists.
      */
-    public static function defaults(): self
+    public static function defaults(?string $serverVersion = null): self
     {
         return new self(
             brandTitle: 'MUONLINE',
-            brandSubtitle: '97d + 99i',
+            brandSubtitle: $serverVersion ?? (string) config('game.profile.version'),
             logoPath: null,
             homeTitleEn: null,
             homeTitleBg: null,
@@ -53,9 +53,9 @@ final readonly class WebsiteSettings
     /**
      * Resolves a persisted record while retaining safe fallbacks for blank fields.
      */
-    public static function fromModel(WebsiteSetting $setting): self
+    public static function fromModel(WebsiteSetting $setting, ?string $serverVersion = null): self
     {
-        $defaults = self::defaults();
+        $defaults = self::defaults($serverVersion);
 
         return new self(
             brandTitle: self::fallback($setting->brand_title, $defaults->brandTitle),

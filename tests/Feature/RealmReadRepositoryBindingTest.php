@@ -7,6 +7,8 @@ use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
 use App\Game\Repositories\SqlServer1_0MCastleSiegeReadRepository;
 use App\Game\Repositories\SqlServer97d99iRealmReadRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CastleSiegeReadRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6RealmReadRepository;
 use App\Game\Repositories\UnavailableCastleSiegeReadRepository;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Providers\AppServiceProvider;
@@ -73,5 +75,26 @@ final class RealmReadRepositoryBindingTest extends TestCase
         $repository = $this->app->make(CastleSiegeReadRepository::class);
 
         $this->assertInstanceOf(UnavailableCastleSiegeReadRepository::class, $repository);
+    }
+
+    /**
+     * Confirms database-backed MuEMU processes receive only their realm adapters.
+     */
+    public function test_database_muemu_profile_selects_its_realm_repositories(): void
+    {
+        config()->set('game.data_source', 'database');
+        config()->set('game.profile.key', 'muemu_season_6');
+        $this->app->forgetInstance(GameVersionProfile::class);
+
+        (new AppServiceProvider($this->app))->register();
+
+        $this->assertInstanceOf(
+            SqlServerMuEmuSeason6RealmReadRepository::class,
+            $this->app->make(RealmReadRepository::class),
+        );
+        $this->assertInstanceOf(
+            SqlServerMuEmuSeason6CastleSiegeReadRepository::class,
+            $this->app->make(CastleSiegeReadRepository::class),
+        );
     }
 }

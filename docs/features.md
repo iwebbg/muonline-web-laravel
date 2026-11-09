@@ -5,10 +5,10 @@ server owner can disable most player-facing modules independently from
 **Administration → Modules**. Disabled modules disappear from navigation and
 their player routes return `404`, while audit and recovery records are kept.
 
-The current implementation supports the `darksteam_97d99i` and
-`darksteam_1_0m` game and event profiles. Availability for another MuOnline
-version depends on a dedicated, verified profile and adapter bundle. Additional
-integrations are in preparation and can also be requested at
+The current implementation supports the `darksteam_97d99i`,
+`darksteam_1_0m` and `muemu_season_6` game and event profiles. Availability for
+another MuOnline version depends on a dedicated, verified profile and adapter
+bundle. Additional integrations are in preparation and can also be requested at
 [office@interweb.bg](mailto:office@interweb.bg).
 
 ## Public website
@@ -41,6 +41,10 @@ integrations are in preparation and can also be requested at
 
 - Account-owned character selector with persistent URL state.
 - Character class, progression, stats, guild, PK, map and online information.
+- Capability-gated Season 6 Master Level, available Master Points and Master
+  experience in both the private workspace and public character profiles.
+- Capability-gated Gens family, contribution and family rank in private/public
+  profiles, with searchable and paginated public Gens standings.
 - Equipment, inventory bag and multiple warehouse vaults.
 - Verified item images, dimensions, rarity and option tooltips.
 - Reset and grand-reset previews and execution.
@@ -50,13 +54,14 @@ integrations are in preparation and can also be requested at
   reset packages and LevelUpPoints packages. Rename and class change share the
   same teleported confirmation modals between Overview and Character Services.
 - Class-family choices come from the active game profile: four families for
-  97d+99i and five for 1.0M, with the current evolution tier preserved only
-  when the target family supports it.
+  97d+99i, five for 1.0M and seven for MuEMU Season 6, with the current
+  evolution tier preserved only when the target family supports it.
 - Version-aware limits and admin-managed character rule profiles.
 
 ### Economy and storage
 
 - Credits balance and immutable transaction history.
+- Read-only Lucky Coin balance for profiles with a verified standard adapter.
 - Claimable Credits earned from bounded online-session observations, with an
   administrator-defined time unit, reward amount and daily account cap.
 - Exact-item exchange offers which match catalog code, item level, skill,

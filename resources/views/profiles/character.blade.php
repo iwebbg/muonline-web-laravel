@@ -52,6 +52,34 @@
                     <strong class="mt-3 block text-2xl text-white">{{ is_int($value) ? number_format($value) : $value }}</strong>
                 </article>
             @endforeach
+            @if ($masterProgression !== null)
+                <article class="panel-card p-6">
+                    <span class="text-xs uppercase tracking-[0.16em] text-steel">{{ __('ui.account.master_level') }}</span>
+                    <strong class="mt-3 block text-2xl text-white">{{ number_format($masterProgression->level) }}</strong>
+                </article>
+                <article class="panel-card p-6">
+                    <span class="text-xs uppercase tracking-[0.16em] text-steel">{{ __('ui.account.master_points') }}</span>
+                    <strong class="mt-3 block text-2xl text-white">{{ number_format($masterProgression->availablePoints) }}</strong>
+                </article>
+                <article class="panel-card p-6">
+                    <span class="text-xs uppercase tracking-[0.16em] text-steel">{{ __('ui.account.master_experience') }}</span>
+                    <strong class="mt-3 block text-2xl text-white">{{ number_format($masterProgression->experience) }}</strong>
+                </article>
+            @endif
+            @if ($gensMembership !== null)
+                <article class="panel-card p-6">
+                    <span class="text-xs uppercase tracking-[0.16em] text-steel">{{ __('ui.account.gens_family') }}</span>
+                    <strong class="mt-3 block text-2xl text-white">{{ __('ui.account.gens_families.'.$gensMembership->family->value) }}</strong>
+                </article>
+                <article class="panel-card p-6">
+                    <span class="text-xs uppercase tracking-[0.16em] text-steel">{{ __('ui.account.gens_contribution') }}</span>
+                    <strong class="mt-3 block text-2xl text-white">{{ number_format($gensMembership->contribution) }}</strong>
+                </article>
+                <article class="panel-card p-6">
+                    <span class="text-xs uppercase tracking-[0.16em] text-steel">{{ __('ui.account.gens_rank') }}</span>
+                    <strong class="mt-3 block text-2xl text-white">{{ $gensMembership->rank > 0 ? '#'.number_format($gensMembership->rank) : __('ui.account.gens_unranked') }}</strong>
+                </article>
+            @endif
         </div>
         <div class="mt-8 rounded-2xl border border-white/8 bg-white/[0.025] p-5 text-sm text-steel">
             {{ __('ui.profiles.privacy_notice') }}

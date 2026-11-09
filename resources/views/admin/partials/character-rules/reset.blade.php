@@ -21,7 +21,7 @@
         <label class="field-group">
             <span>{{ __('ui.admin.'.$label) }}</span>
             <input type="number" name="{{ $field }}" value="{{ old($field, $settings[$field]) }}" min="{{ $minimum }}" max="{{ $maximum }}" step="{{ $step }}" required>
-            <small>{{ __('ui.admin.'.$help) }}</small>
+            <small>{{ __('ui.admin.'.$help, $help === 'maximum_stat_help' ? ['version' => $currentGameServerVersion] : []) }}</small>
         </label>
     @endforeach
     <label class="field-group">

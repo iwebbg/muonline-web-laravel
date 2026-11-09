@@ -12,7 +12,7 @@
             <div>
                 <div class="eyebrow mb-4">{{ __('ui.admin.eyebrow') }}</div>
                 <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.admin.moderation_heading') }}</h1>
-                <p class="mt-3 max-w-3xl text-silver">{{ __('ui.admin.moderation_intro') }}</p>
+                <p class="mt-3 max-w-3xl text-silver">{{ __('ui.admin.moderation_intro', ['version' => $currentGameServerVersion]) }}</p>
             </div>
             <div class="flex flex-wrap items-center gap-3">
                 <span @class([

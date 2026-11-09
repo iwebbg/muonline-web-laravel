@@ -20,7 +20,7 @@ class CreditExchangeOfferFactory extends Factory
     {
         return [
             'public_id' => (string) Str::uuid(),
-            'game_profile_key' => '97d99i',
+            'game_profile_key' => (string) config('game.profile.key'),
             'item_group' => 6,
             'item_index' => 0,
             'level' => 7,

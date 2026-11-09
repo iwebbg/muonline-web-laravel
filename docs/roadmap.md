@@ -10,7 +10,7 @@ not used for exploratory writes.
 | --- | --- | --- |
 | 0 — Foundation | Complete | Laravel 13/PHP 8.5 containers, SQL Server drivers, health checks and safety boundaries are established. |
 | 1 — Design system | Operational, polish ongoing | Public, account and admin shells plus reusable dialogs, forms, cards, tables and item grids are implemented with Tailwind CSS v4. |
-| 2 — Versioned read models | Implemented | Real accounts, characters, guilds, rankings, server status, inventory and warehouse reads use the tested 97d+99i and 1.0M adapters. |
+| 2 — Versioned read models | Implemented | Real accounts, characters, guilds, rankings, server status, inventory and warehouse reads use isolated 97d+99i, 1.0M and MuEMU Season 6 adapters. |
 | 3 — Authentication | Implemented, manual mail testing ongoing | Player/admin authentication, registration, activation, recovery, security and Game Master permissions are present. |
 | 4 — Character operations | Implemented, real-server validation ongoing | Preview and execute paths exist for resets, stats, PK clear and movement; paid rename, class change, resets and LevelUpPoints use admin-managed rules and confirmations. |
 | 5 — Inventory and warehouse | Implemented, UI polish ongoing | Item codec, item catalog, equipment, bags, multi-vault grids, tooltips and guarded exact-item mutations are present. |
@@ -122,7 +122,7 @@ database is never accessed using `sa` or `db_owner` credentials.
 ## Immediate continuation backlog
 
 1. Manually verify every character and economy mutation against dedicated test
-   accounts on the live 97d+99i and 1.0M test servers.
+   accounts on the live 97d+99i, 1.0M and MuEMU Season 6 test servers.
 2. Close remaining responsive and interaction defects without changing the
    established Blade/Alpine/Tailwind CSS v4 stack.
 3. Add automated vote-provider callbacks.

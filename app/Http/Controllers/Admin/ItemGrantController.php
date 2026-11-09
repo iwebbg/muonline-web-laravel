@@ -12,6 +12,7 @@ use App\ItemGrants\Actions\GrantItemToWarehouse;
 use App\ItemGrants\Exceptions\ItemGrantRejected;
 use App\Models\Administrator;
 use App\Models\ItemGrantOperation;
+use App\Servers\CurrentGameServer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
@@ -110,6 +111,7 @@ final class ItemGrantController extends Controller
     public function store(
         StoreItemGrantRequest $request,
         GrantItemToWarehouse $grantItemToWarehouse,
+        CurrentGameServer $currentGameServer,
     ): RedirectResponse {
         $administrator = $request->user('admin');
 
@@ -127,7 +129,9 @@ final class ItemGrantController extends Controller
             return back()
                 ->withInput($request->safe()->except(['idempotency_key']))
                 ->withErrors([
-                    'item_grant' => __('ui.admin.item_grant_reasons.'.$exception->reason->value),
+                    'item_grant' => __('ui.admin.item_grant_reasons.'.$exception->reason->value, [
+                        'version' => $currentGameServer->version(),
+                    ]),
                 ]);
         }
 

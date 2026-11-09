@@ -78,6 +78,17 @@ final class ItemGeneratorCatalog1_0MTest extends TestCase
     }
 
     /**
+     * Confirms Season 6-only bytes remain unavailable in the 1.0M generator.
+     */
+    public function test_rejects_season_six_advanced_options(): void
+    {
+        $options = $this->capeOptions();
+        $options['has_380_option'] = true;
+
+        $this->assertNull($this->catalog()->quote($options));
+    }
+
+    /**
      * Provides configurations that cannot be represented by the audited item.
      *
      * @return array<string, array{array{level?: int, option_level?: int, has_skill?: bool}}>

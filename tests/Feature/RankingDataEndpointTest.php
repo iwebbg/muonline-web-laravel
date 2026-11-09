@@ -3,8 +3,13 @@
 namespace Tests\Feature;
 
 use App\Game\Contracts\CastleSiegeReadRepository;
+use App\Game\Contracts\GensMembershipRepository;
 use App\Game\Data\CastleSiegeState;
+use App\Game\Data\GensFamily;
+use App\Game\Data\GensRankingEntry;
+use App\Game\Data\GensRankingPage;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\MuEmuSeason6\MuEmuSeason6Profile;
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -121,6 +126,46 @@ final class RankingDataEndpointTest extends TestCase
     }
 
     /**
+     * Confirms the Season 6 profile exposes normalized public Gens standings.
+     */
+    public function test_gens_board_returns_family_contribution_and_rank(): void
+    {
+        $this->app->instance(GameVersionProfile::class, new MuEmuSeason6Profile);
+        $gensRepository = $this->mock(GensMembershipRepository::class);
+        $gensRepository
+            ->shouldReceive('rankings')
+            ->once()
+            ->andReturn(new GensRankingPage(
+                entries: [new GensRankingEntry(
+                    name: 'GensHero',
+                    classCode: 17,
+                    className: 'Blade Knight',
+                    classAbbreviation: 'BK',
+                    image: '/images/characters/blade-knight.png',
+                    family: GensFamily::Duprian,
+                    contribution: 25_000,
+                    familyRank: 3,
+                    online: true,
+                )],
+                total: 1,
+                page: 1,
+                perPage: 12,
+                lastPage: 1,
+            ));
+
+        $response = $this->getJson(route('rankings.data', ['board' => 'gens']));
+
+        $response
+            ->assertOk()
+            ->assertJsonPath('board', 'gens')
+            ->assertJsonPath('items.0.name', 'GensHero')
+            ->assertJsonPath('items.0.family', 'duprian')
+            ->assertJsonPath('items.0.family_name', 'Duprian')
+            ->assertJsonPath('items.0.contribution', 25_000)
+            ->assertJsonPath('items.0.family_rank', 3);
+    }
+
+    /**
      * Confirms unsupported boards and class values never reach repositories.
      */
     public function test_invalid_ranking_filters_are_rejected(): void
@@ -138,6 +183,10 @@ final class RankingDataEndpointTest extends TestCase
     {
         $this->getJson(route('rankings.data', [
             'board' => 'castle_siege',
+        ]))->assertUnprocessable();
+
+        $this->getJson(route('rankings.data', [
+            'board' => 'gens',
         ]))->assertUnprocessable();
     }
 }

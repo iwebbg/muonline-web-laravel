@@ -157,7 +157,7 @@
     @if ($resetRevision !== null)
         <div class="mt-4 rounded-xl border border-white/8 bg-black/20 p-3">
             <p class="text-xs uppercase tracking-[0.18em] text-steel">{{ __('ui.admin.active_profile') }}</p>
-            <p class="mt-2 text-sm font-semibold text-white">{{ __('ui.admin.medium_reset') }}</p>
+            <p class="mt-2 text-sm font-semibold text-white">{{ __('ui.admin.medium_reset', ['version' => $currentGameServerVersion]) }}</p>
             <p class="mt-1 text-xs text-steel">
                 {{ __('ui.admin.current_revision', ['revision' => '']) }}
                 <span x-text="revision">{{ $resetRevision }}</span>

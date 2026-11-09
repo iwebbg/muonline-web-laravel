@@ -62,7 +62,7 @@ final readonly class GameAccountUserProvider implements UserProvider
     }
 
     /**
-     * Validates the configured plaintext 97d+99i password and account block state.
+     * Validates the configured password scheme and account block state.
      *
      * @param  array<string, mixed>  $credentials
      */

@@ -11,7 +11,7 @@ use SensitiveParameter;
 interface AccountRegistrationRepository
 {
     /**
-     * Atomically inserts the required 97d+99i account and billing records.
+     * Atomically inserts the records required by the active game profile.
      */
     public function register(
         string $username,

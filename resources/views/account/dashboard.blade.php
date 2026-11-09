@@ -27,6 +27,12 @@
                         @endif
                     </strong>
                 </div>
+                @if ($luckyCoinBalance !== null)
+                    <div class="resource-chip">
+                        <span>{{ __('ui.account.lucky_coin_balance') }}</span>
+                        <strong class="text-gold">{{ number_format($luckyCoinBalance) }} {{ __('ui.account.lucky_coins') }}</strong>
+                    </div>
+                @endif
             </div>
         </div>
 

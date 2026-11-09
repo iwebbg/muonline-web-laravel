@@ -3,6 +3,12 @@
 namespace Tests\Feature;
 
 use App\Auth\GameAccount;
+use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Contracts\LuckyCoinBalanceRepository;
+use App\Game\Contracts\MasterProgressionRepository;
+use App\Game\Data\GensFamily;
+use App\Game\Data\GensMembership;
+use App\Game\Data\MasterProgression;
 use App\Models\AccountWallet;
 use App\Models\EconomySetting;
 use App\Models\ModuleProfile;
@@ -86,6 +92,103 @@ final class AccountDashboardTest extends TestCase
         $response->assertSee(route('account.credits.index'), false);
         $response->assertSee('x-teleport="body"', false);
         $response->assertSee('aria-modal="true"', false);
+    }
+
+    /**
+     * Confirms standard Master progression is attached to its owned character only.
+     */
+    public function test_dashboard_displays_owned_master_progression(): void
+    {
+        $connection = $this->app->make(DatabaseManager::class)->connection('game');
+        $connection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $connection->table('Character')->insert($this->characterRecord('owner', 'OwnedKnight'));
+        $masterProgressionRepository = $this->mock(MasterProgressionRepository::class);
+        $masterProgressionRepository
+            ->shouldReceive('forAccount')
+            ->once()
+            ->with('owner')
+            ->andReturn([
+                'OwnedKnight' => new MasterProgression(
+                    characterName: 'OwnedKnight',
+                    level: 125,
+                    availablePoints: 17,
+                    experience: 9_876_543,
+                ),
+            ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account');
+
+        $response->assertOk();
+        $response->assertSee('Master progression');
+        $response->assertViewHas('characters', function (array $characters): bool {
+            return $characters[0]['masterProgression'] === [
+                'level' => 125,
+                'availablePoints' => 17,
+                'experience' => 9_876_543,
+            ];
+        });
+    }
+
+    /**
+     * Confirms standard Gens membership is attached to its owned character only.
+     */
+    public function test_dashboard_displays_owned_gens_membership(): void
+    {
+        $connection = $this->app->make(DatabaseManager::class)->connection('game');
+        $connection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $connection->table('Character')->insert($this->characterRecord('owner', 'OwnedKnight'));
+        $gensMembershipRepository = $this->mock(GensMembershipRepository::class);
+        $gensMembershipRepository
+            ->shouldReceive('forAccount')
+            ->once()
+            ->with('owner')
+            ->andReturn([
+                'OwnedKnight' => new GensMembership(
+                    characterName: 'OwnedKnight',
+                    family: GensFamily::Duprian,
+                    contribution: 15_000,
+                    rank: 2,
+                ),
+            ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account');
+
+        $response->assertOk();
+        $response->assertSee('Gens progression');
+        $response->assertViewHas('characters', function (array $characters): bool {
+            return $characters[0]['gensMembership'] === [
+                'family' => 'duprian',
+                'contribution' => 15_000,
+                'rank' => 2,
+                'familyName' => 'Duprian',
+            ];
+        });
+    }
+
+    /**
+     * Confirms a profile-supported Lucky Coin balance is shown account-wide.
+     */
+    public function test_dashboard_displays_lucky_coin_balance(): void
+    {
+        $luckyCoinRepository = $this->mock(LuckyCoinBalanceRepository::class);
+        $luckyCoinRepository
+            ->shouldReceive('balanceFor')
+            ->once()
+            ->with('owner')
+            ->andReturn(42);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account');
+
+        $response
+            ->assertOk()
+            ->assertSee('Lucky Coin balance')
+            ->assertSee('42 Lucky Coins');
     }
 
     /**

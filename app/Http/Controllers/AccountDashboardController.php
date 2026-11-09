@@ -6,6 +6,9 @@ use App\Auth\GameAccount;
 use App\CharacterServices\CharacterClassChangeResolver;
 use App\Economy\WalletCurrency;
 use App\Game\Contracts\AccountReadRepository;
+use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Contracts\LuckyCoinBalanceRepository;
+use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\AccountPanelConfiguration;
@@ -39,6 +42,9 @@ final class AccountDashboardController extends Controller
         private readonly GameVersionProfile $versionProfile,
         private readonly CharacterClassChangeResolver $classChangeResolver,
         private readonly EconomySettingReader $economySettingReader,
+        private readonly MasterProgressionRepository $masterProgressionRepository,
+        private readonly GensMembershipRepository $gensMembershipRepository,
+        private readonly LuckyCoinBalanceRepository $luckyCoinBalanceRepository,
     ) {}
 
     /**
@@ -51,11 +57,28 @@ final class AccountDashboardController extends Controller
         abort_unless($account instanceof GameAccount, 403);
 
         $characterEntries = $this->accountReadRepository->charactersFor($account->username);
+        $masterProgressionByCharacter = $this->masterProgressionRepository->forAccount(
+            $account->username,
+        );
+        $gensMembershipByCharacter = $this->gensMembershipRepository->forAccount(
+            $account->username,
+        );
+        $luckyCoinBalance = $this->luckyCoinBalanceRepository->balanceFor($account->username);
         $characters = [];
         $characterNames = [];
 
         foreach ($characterEntries as $characterEntry) {
             $character = $characterEntry->toArray();
+            $masterProgression = $masterProgressionByCharacter[$characterEntry->name] ?? null;
+            $character['masterProgression'] = $masterProgression?->toArray();
+            $gensMembership = $gensMembershipByCharacter[$characterEntry->name] ?? null;
+            $character['gensMembership'] = $gensMembership?->toArray();
+
+            if ($gensMembership !== null) {
+                $character['gensMembership']['familyName'] = __(
+                    'ui.account.gens_families.'.$gensMembership->family->value,
+                );
+            }
             $statDefinitions = [];
 
             foreach ($this->versionProfile->statsForClass($characterEntry->classCode) as $statDefinition) {
@@ -228,6 +251,7 @@ final class AccountDashboardController extends Controller
             'account' => $account,
             'characters' => $characters,
             'walletBalance' => $wallet?->balance ?? 0,
+            'luckyCoinBalance' => $luckyCoinBalance,
             'vipPlans' => $vipPlans,
             'vipEntitlements' => $vipEntitlements,
             'activeVipEntitlementCount' => $activeVipEntitlementCount,

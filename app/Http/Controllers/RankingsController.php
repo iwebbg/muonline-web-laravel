@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Game\Contracts\CastleSiegeReadRepository;
+use App\Game\Contracts\GensMembershipRepository;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Data\CharacterRankingPage;
+use App\Game\Data\GensRankingPage;
 use App\Game\Data\GuildRankingPage;
 use App\Game\Rankings\RankingBoard;
 use App\Game\Versions\Contracts\GameVersionProfile;
@@ -32,12 +34,14 @@ final class RankingsController extends Controller
         RankingDataRequest $request,
         RealmReadRepository $realmReadRepository,
         CastleSiegeReadRepository $castleSiegeReadRepository,
+        GensMembershipRepository $gensMembershipRepository,
     ): View {
         return view('rankings', [
             'rankingPage' => $this->payload(
                 $request,
                 $realmReadRepository,
                 $castleSiegeReadRepository,
+                $gensMembershipRepository,
             ),
             'rankingDataUrl' => route('rankings.data'),
             'rankingBoards' => $this->rankingBoards(),
@@ -52,11 +56,13 @@ final class RankingsController extends Controller
         RankingDataRequest $request,
         RealmReadRepository $realmReadRepository,
         CastleSiegeReadRepository $castleSiegeReadRepository,
+        GensMembershipRepository $gensMembershipRepository,
     ): JsonResponse {
         return response()->json($this->payload(
             $request,
             $realmReadRepository,
             $castleSiegeReadRepository,
+            $gensMembershipRepository,
         ));
     }
 
@@ -69,6 +75,7 @@ final class RankingsController extends Controller
         RankingDataRequest $request,
         RealmReadRepository $realmReadRepository,
         CastleSiegeReadRepository $castleSiegeReadRepository,
+        GensMembershipRepository $gensMembershipRepository,
     ): array {
         $board = $request->board();
 
@@ -84,6 +91,13 @@ final class RankingsController extends Controller
             return $this->guildPayload(
                 $board,
                 $realmReadRepository->guildRankings($request->guildQuery()),
+                $request,
+            );
+        }
+
+        if ($board === RankingBoard::Gens) {
+            return $this->gensPayload(
+                $gensMembershipRepository->rankings($request->gensQuery()),
                 $request,
             );
         }
@@ -201,6 +215,28 @@ final class RankingsController extends Controller
     }
 
     /**
+     * Serializes one public Gens ranking page with family labels.
+     *
+     * @return array<string, mixed>
+     */
+    private function gensPayload(GensRankingPage $page, RankingDataRequest $request): array
+    {
+        $items = [];
+        $offset = ($page->page - 1) * $page->perPage;
+
+        foreach ($page->entries as $index => $entry) {
+            $items[] = [
+                'rank' => $offset + $index + 1,
+                ...$entry->toArray(),
+                'family_name' => __('ui.account.gens_families.'.$entry->family->value),
+                'profile_url' => route('characters.show', $entry->name),
+            ];
+        }
+
+        return $this->basePayload(RankingBoard::Gens, $page, $items, $request);
+    }
+
+    /**
      * Adds query state and pagination metadata to a serialized ranking page.
      *
      * @param  list<array<string, mixed>>  $items
@@ -208,7 +244,7 @@ final class RankingsController extends Controller
      */
     private function basePayload(
         RankingBoard $board,
-        CharacterRankingPage|GuildRankingPage $page,
+        CharacterRankingPage|GuildRankingPage|GensRankingPage $page,
         array $items,
         RankingDataRequest $request,
     ): array {
@@ -216,11 +252,12 @@ final class RankingsController extends Controller
 
         return [
             'board' => $board->value,
-            'class_filter' => $board === RankingBoard::Guilds
+            'class_filter' => in_array($board, [RankingBoard::Guilds, RankingBoard::Gens], true)
                 ? ''
                 : (string) $request->input('class', ''),
             'search' => trim((string) $request->input('search', '')),
-            'online_only' => $board !== RankingBoard::Guilds && $request->boolean('online'),
+            'online_only' => ! in_array($board, [RankingBoard::Guilds, RankingBoard::Gens], true)
+                && $request->boolean('online'),
             'items' => $items,
             'meta' => [
                 'current_page' => $page->page,
@@ -264,6 +301,10 @@ final class RankingsController extends Controller
 
         if ($this->versionProfile->capabilities()->castleSiege) {
             $boards[] = RankingBoard::CastleSiege->value;
+        }
+
+        if ($this->versionProfile->capabilities()->gens) {
+            $boards[] = RankingBoard::Gens->value;
         }
 
         return $boards;

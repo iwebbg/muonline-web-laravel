@@ -53,7 +53,7 @@
                             </label>
                             <label class="field-group">
                                 <span>{{ __('ui.admin.website_brand_subtitle') }}</span>
-                                <input type="text" name="brand_subtitle" value="{{ old('brand_subtitle', $settings->brandSubtitle) }}" maxlength="120" placeholder="97d + 99i">
+                                <input type="text" name="brand_subtitle" value="{{ old('brand_subtitle', $settings->brandSubtitle) }}" maxlength="120" placeholder="{{ $currentGameServerVersion }}">
                             </label>
                             <label class="field-group lg:col-span-2">
                                 <span>{{ __('ui.admin.website_logo') }}</span>

@@ -22,7 +22,7 @@ final class AccountRegistrationOperationFactory extends Factory
             'account_id' => fake()->regexify('[A-Za-z0-9]{10}'),
             'status' => AccountRegistrationStatus::Pending,
             'settings_snapshot' => [
-                'game_profile' => '97d + 99i',
+                'game_profile' => (string) config('game.profile.version'),
                 'password_scheme' => 'plaintext',
                 'required_tables' => [
                     'MEMB_INFO',

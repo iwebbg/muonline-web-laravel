@@ -125,6 +125,10 @@ final readonly class FulfillAccountReward
                 excellentMask: (int) ($item['excellent_mask'] ?? 0),
                 ancientOption: (int) ($item['ancient_option'] ?? 0),
                 serial: $serial,
+                harmonyOption: (int) ($item['harmony_option'] ?? 0),
+                socketBonus: (int) ($item['socket_count'] ?? 0) > 0 ? 255 : null,
+                socketOptions: array_fill(0, (int) ($item['socket_count'] ?? 0), 254),
+                has380Option: (bool) ($item['has_380_option'] ?? false),
             );
 
             $lockedReward->update([
