@@ -62,5 +62,15 @@ final class EconomySettingTest extends TestCase
         $this->assertSame(1_000, $settings->character_level_up_points_package_size);
         $this->assertSame(1, $revision->revision);
         $this->assertSame($administrator->getKey(), $revision->changed_by_administrator_id);
+
+        $historyResponse = $this->get(route('admin.economy-settings.edit'));
+
+        $historyResponse
+            ->assertOk()
+            ->assertSee('aria-modal="true"', false)
+            ->assertSee(__('ui.admin.revision_history'))
+            ->assertSee(__('ui.admin.revision_changes'))
+            ->assertSee(__('ui.admin.character_rename_availability'))
+            ->assertSee(__('ui.admin.character_rename_price'));
     }
 }

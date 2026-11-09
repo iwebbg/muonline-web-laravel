@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\UpdateEconomySettingRequest;
 use App\Models\Administrator;
 use App\Shop\Actions\UpdateEconomySettings;
 use App\Shop\EconomySettingReader;
+use App\Shop\EconomySettingRevisionPresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -18,11 +19,14 @@ final class EconomySettingController extends Controller
     /**
      * Displays the current generator markup and character service pricing.
      */
-    public function edit(EconomySettingReader $settingReader): View
-    {
+    public function edit(
+        EconomySettingReader $settingReader,
+        EconomySettingRevisionPresenter $revisionPresenter,
+    ): View {
         return view('admin.economy-settings', [
             'settings' => $settingReader->current()->toClientArray(),
             'revision' => $settingReader->revision(),
+            'recentRevisions' => $revisionPresenter->present($settingReader->recentRevisions()),
         ]);
     }
 

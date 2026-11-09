@@ -13,16 +13,17 @@
         <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
             <x-admin-navigation active="economy-settings" />
 
-            <main class="min-w-0">
-                @if (session('status'))
-                    <div class="mb-6 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">{{ session('status') }}</div>
-                @endif
+            <main class="grid min-w-0 content-start gap-6 2xl:grid-cols-[minmax(0,1fr)_20rem]">
+                <div class="grid content-start gap-6">
+                    @if (session('status'))
+                        <div class="rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">{{ session('status') }}</div>
+                    @endif
 
-                @if ($errors->any())
-                    <div class="mb-6 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">{{ $errors->first() }}</div>
-                @endif
+                    @if ($errors->any())
+                        <div class="rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">{{ $errors->first() }}</div>
+                    @endif
 
-                <form method="POST" action="{{ route('admin.economy-settings.update') }}" class="panel-card p-5 sm:p-7">
+                    <form method="POST" action="{{ route('admin.economy-settings.update') }}" class="panel-card p-5 sm:p-7">
                     @csrf
                     @method('PUT')
 
@@ -81,7 +82,21 @@
                         <p class="text-sm text-steel">{{ __('ui.admin.current_revision', ['revision' => $revision]) }}</p>
                         <button type="submit" class="button button-primary">{{ __('ui.admin.save_and_apply') }}</button>
                     </div>
-                </form>
+                    </form>
+                </div>
+
+                <aside class="grid content-start gap-4">
+                    <section class="rounded-2xl border border-emerald-300/15 bg-emerald-300/6 p-4 text-sm leading-6 text-emerald-100">
+                        <strong class="block text-emerald-200">{{ __('ui.admin.active_configuration') }}</strong>
+                        {{ __('ui.admin.active_configuration_help') }}
+                    </section>
+
+                    <x-admin-revision-history
+                        :revisions="$recentRevisions"
+                        :title="__('ui.admin.revision_history')"
+                        :empty-message="__('ui.admin.no_revisions')"
+                    />
+                </aside>
             </main>
         </div>
     </div>

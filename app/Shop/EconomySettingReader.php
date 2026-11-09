@@ -3,6 +3,8 @@
 namespace App\Shop;
 
 use App\Models\EconomySetting;
+use App\Models\EconomySettingRevision;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Reads the active paid-service settings with safe pre-configuration defaults.
@@ -40,5 +42,18 @@ final class EconomySettingReader
     public function revision(): int
     {
         return (int) (EconomySetting::query()->value('revision') ?? 0);
+    }
+
+    /**
+     * Returns the newest immutable paid-service settings revisions.
+     *
+     * @return Collection<int, EconomySettingRevision>
+     */
+    public function recentRevisions(int $limit = 8): Collection
+    {
+        return EconomySettingRevision::query()
+            ->latest('revision')
+            ->limit(max(1, min($limit, 25)))
+            ->get();
     }
 }
