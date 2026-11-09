@@ -8,7 +8,7 @@
             <div>
                 <div class="eyebrow mb-4">{{ __('ui.market.eyebrow') }}</div>
                 <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.market.heading') }}</h1>
-                <p class="mt-3 max-w-3xl text-silver">{{ __('ui.market.intro', ['version' => $marketServerVersion]) }}</p>
+                <p class="mt-3 max-w-3xl text-silver">{{ __('ui.market.intro', ['version' => $currentGameServerVersion]) }}</p>
             </div>
             @auth
                 <a href="{{ route('account.dashboard', ['tab' => 'vaults']) }}" class="button button-primary">{{ __('ui.market.sell_item') }}</a>

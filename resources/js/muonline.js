@@ -940,9 +940,10 @@ export function serverSwitcher() {
  *
  * @param {Array<object>} servers The administrator-visible server records.
  * @param {string} createUrl The route used to create destinations.
+ * @param {string} defaultVersion The current website server version.
  * @returns {object}
  */
-export function gameServerManager(servers, createUrl) {
+export function gameServerManager(servers, createUrl, defaultVersion) {
     /**
      * Returns a fresh server form without shared mutable state.
      *
@@ -951,7 +952,7 @@ export function gameServerManager(servers, createUrl) {
     const emptyForm = () => ({
         slug: '',
         name: '',
-        version: '97d + 99i',
+        version: defaultVersion,
         experience: '9999x',
         drop: '60%',
         capacity: 500,
@@ -1877,7 +1878,7 @@ export function rankingExplorer(initialPage, dataUrl) {
         },
 
         /**
-         * Selects one exact 97d+99i character class.
+         * Selects one exact class from the active game profile.
          *
          * @param {string} selectedClass The class filter key or an empty value.
          * @returns {Promise<void>}
@@ -2307,7 +2308,7 @@ export function itemInspector(itemOptionLabels, item = null) {
         /**
          * Builds the item title with its level and excellent classification.
          *
-         * @param {object} inspectedItem A decoded 97d+99i item.
+         * @param {object} inspectedItem A decoded version-aware item.
          * @returns {string}
          */
         itemTitle(inspectedItem) {
@@ -2340,7 +2341,7 @@ export function itemInspector(itemOptionLabels, item = null) {
         /**
          * Formats the current durability value for an item tooltip.
          *
-         * @param {object} inspectedItem A decoded 97d+99i item.
+         * @param {object} inspectedItem A decoded version-aware item.
          * @returns {string}
          */
         itemDurabilityText(inspectedItem) {
@@ -2350,7 +2351,7 @@ export function itemInspector(itemOptionLabels, item = null) {
         /**
          * Formats the version-specific additional option encoded on an item.
          *
-         * @param {object} inspectedItem A decoded 97d+99i item.
+         * @param {object} inspectedItem A decoded version-aware item.
          * @returns {string|null}
          */
         itemAdditionalOption(inspectedItem) {
@@ -2376,7 +2377,7 @@ export function itemInspector(itemOptionLabels, item = null) {
         /**
          * Returns every excellent option enabled by the item's six-bit mask.
          *
-         * @param {object} inspectedItem A decoded 97d+99i item.
+         * @param {object} inspectedItem A decoded version-aware item.
          * @returns {Array<string>}
          */
         itemExcellentOptions(inspectedItem) {
@@ -2410,7 +2411,7 @@ export function itemInspector(itemOptionLabels, item = null) {
         /**
          * Formats the retained ancient option byte without guessing a set name.
          *
-         * @param {object} inspectedItem A decoded 97d+99i item.
+         * @param {object} inspectedItem A decoded version-aware item.
          * @returns {string}
          */
         itemAncientOption(inspectedItem) {

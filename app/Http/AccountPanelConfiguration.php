@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Servers\CurrentGameServer;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Contracts\Translation\Translator;
 
@@ -16,6 +17,7 @@ final class AccountPanelConfiguration
     public function __construct(
         private readonly UrlGenerator $urlGenerator,
         private readonly Translator $translator,
+        private readonly CurrentGameServer $currentGameServer,
     ) {}
 
     /**
@@ -185,10 +187,10 @@ final class AccountPanelConfiguration
     {
         return [
             'writes_disabled' => $this->translate('ui.account.reset_writes_disabled'),
-            'inventory_policy_unsupported' => $this->translate('ui.account.reset_inventory_policy_unsupported'),
+            'inventory_policy_unsupported' => $this->translate('ui.account.reset_inventory_policy_unsupported', $this->versionReplacement()),
             'operation_in_progress' => $this->translate('ui.account.reset_operation_in_progress'),
             'idempotency_conflict' => $this->translate('ui.account.reset_idempotency_conflict'),
-            'character_class_unsupported' => $this->translate('ui.account.reset_character_class_unsupported'),
+            'character_class_unsupported' => $this->translate('ui.account.reset_character_class_unsupported', $this->versionReplacement()),
             'character_online' => $this->translate('ui.account.reset_character_online'),
             'level_too_low' => $this->translate('ui.account.reset_level_too_low'),
             'maximum_resets_reached' => $this->translate('ui.account.reset_maximum_reached'),
@@ -211,8 +213,8 @@ final class AccountPanelConfiguration
             'maximum_grand_resets_reached' => $this->translate('ui.account.grand_reset_maximum_reached'),
             'insufficient_zen' => $this->translate('ui.account.grand_reset_insufficient_zen'),
             'point_limit_exceeded' => $this->translate('ui.account.grand_reset_point_limit'),
-            'inventory_policy_unsupported' => $this->translate('ui.account.reset_inventory_policy_unsupported'),
-            'character_class_unsupported' => $this->translate('ui.account.reset_character_class_unsupported'),
+            'inventory_policy_unsupported' => $this->translate('ui.account.reset_inventory_policy_unsupported', $this->versionReplacement()),
+            'character_class_unsupported' => $this->translate('ui.account.reset_character_class_unsupported', $this->versionReplacement()),
             'writes_disabled' => $this->translate('ui.account.reset_writes_disabled'),
             'operation_in_progress' => $this->translate('ui.account.grand_reset_operation_in_progress'),
             'idempotency_conflict' => $this->translate('ui.account.grand_reset_idempotency_conflict'),
@@ -235,7 +237,7 @@ final class AccountPanelConfiguration
             'no_allocated_stats' => $this->translate('ui.account.stat_reset_no_allocated_stats'),
             'character_stats_invalid' => $this->translate('ui.account.stat_reset_character_stats_invalid'),
             'point_limit_exceeded' => $this->translate('ui.account.stat_reset_point_limit'),
-            'character_class_unsupported' => $this->translate('ui.account.reset_character_class_unsupported'),
+            'character_class_unsupported' => $this->translate('ui.account.reset_character_class_unsupported', $this->versionReplacement()),
             'writes_disabled' => $this->translate('ui.account.reset_writes_disabled'),
             'operation_in_progress' => $this->translate('ui.account.stat_reset_operation_in_progress'),
             'idempotency_conflict' => $this->translate('ui.account.stat_reset_idempotency_conflict'),
@@ -307,7 +309,7 @@ final class AccountPanelConfiguration
             'invalid_allocation' => $this->translate('ui.account.allocation_invalid'),
             'insufficient_points' => $this->translate('ui.account.allocation_insufficient_points'),
             'stat_limit_exceeded' => $this->translate('ui.account.allocation_stat_limit'),
-            'character_class_unsupported' => $this->translate('ui.account.allocation_class_unsupported'),
+            'character_class_unsupported' => $this->translate('ui.account.allocation_class_unsupported', $this->versionReplacement()),
             'writes_disabled' => $this->translate('ui.account.reset_writes_disabled'),
             'operation_in_progress' => $this->translate('ui.account.reset_operation_in_progress'),
             'idempotency_conflict' => $this->translate('ui.account.reset_idempotency_conflict'),
@@ -317,10 +319,20 @@ final class AccountPanelConfiguration
     /**
      * Resolves one user-facing translation and fails safely to its key.
      */
-    private function translate(string $key): string
+    private function translate(string $key, array $replace = []): string
     {
-        $translation = $this->translator->get($key);
+        $translation = $this->translator->get($key, $replace);
 
         return is_string($translation) ? $translation : $key;
+    }
+
+    /**
+     * Returns the shared placeholder used by version-aware account messages.
+     *
+     * @return array{version: string}
+     */
+    private function versionReplacement(): array
+    {
+        return ['version' => $this->currentGameServer->version()];
     }
 }

@@ -22,6 +22,9 @@ final class DemoContentSeederTest extends TestCase
      */
     public function test_demo_content_populates_news_guides_and_three_download_mirrors(): void
     {
+        config()->set('game.profile.name', 'DreamMu Season 6');
+        config()->set('game.profile.version', 'Season 6');
+
         $this->seed(DemoContentSeeder::class);
 
         $this->assertSame(3, NewsPost::query()->where('type', NewsPostType::News)->count());
@@ -30,15 +33,18 @@ final class DemoContentSeederTest extends TestCase
 
         $this->get('/news')
             ->assertOk()
-            ->assertSee('Welcome to DreamMu 97d+99i');
+            ->assertSee('Welcome to DreamMu Season 6')
+            ->assertDontSee('97d+99i');
         $this->get('/guides')
             ->assertOk()
-            ->assertSee('Getting started on DreamMu');
+            ->assertSee('Getting started on DreamMu Season 6');
         $this->get('/downloads')
             ->assertOk()
             ->assertSee('Full Client — Mirror 1')
             ->assertSee('Full Client — Mirror 2')
-            ->assertSee('Full Client — Mirror 3');
+            ->assertSee('Full Client — Mirror 3')
+            ->assertSee('Season 6')
+            ->assertDontSee('97d+99i');
     }
 
     /**
@@ -46,6 +52,9 @@ final class DemoContentSeederTest extends TestCase
      */
     public function test_demo_seeder_is_idempotent_and_preserves_hidden_content(): void
     {
+        config()->set('game.profile.name', 'DreamMu Season 6');
+        config()->set('game.profile.version', 'Season 6');
+
         $this->seed(DemoContentSeeder::class);
 
         $post = NewsPost::query()
@@ -62,6 +71,6 @@ final class DemoContentSeederTest extends TestCase
         $this->assertSame(3, Download::query()->count());
         $this->assertSame(NewsPostStatus::Draft, $post->refresh()->status);
 
-        $this->get('/news')->assertDontSee('Welcome to DreamMu 97d+99i');
+        $this->get('/news')->assertDontSee('Welcome to DreamMu Season 6');
     }
 }

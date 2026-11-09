@@ -9,7 +9,6 @@ use App\Market\MarketItemCategory;
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
 use App\Models\AuctionBid;
-use App\Models\GameServer;
 use App\Models\MarketListing;
 use App\Modules\ModuleManager;
 use App\Modules\ServerModule;
@@ -145,22 +144,7 @@ final class MarketController extends Controller
             'marketSearchTerm' => $searchTerm,
             'selectedMarketCategory' => $category,
             'marketServerNow' => now()->toAtomString(),
-            'marketServerVersion' => $this->currentServerVersion(),
             'itemOptionLabels' => $this->accountPanelConfiguration->itemOptionLabels(),
         ]);
-    }
-
-    /**
-     * Resolves the administrator-managed version for the current website server.
-     */
-    private function currentServerVersion(): string
-    {
-        $currentServerVersion = GameServer::query()
-            ->where('is_current', true)
-            ->value('version');
-
-        return is_string($currentServerVersion) && trim($currentServerVersion) !== ''
-            ? $currentServerVersion
-            : (string) config('game.profile.version');
     }
 }

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Admin\Audit\AuditLogReader;
 use App\Admin\Authorization\AdministratorPermission;
 use App\Models\Administrator;
+use App\Models\GameServer;
 use App\Models\WebsiteSetting;
 use App\Models\WebsiteSettingRevision;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -48,13 +49,17 @@ final class AdminWebsiteSettingTest extends TestCase
     public function test_settings_administrator_can_view_website_fallbacks(): void
     {
         $administrator = Administrator::factory()->create();
+        GameServer::factory()->current()->create([
+            'version' => 'Season 6',
+        ]);
 
         $this->actingAs($administrator, 'admin')
             ->get(route('admin.website-settings.edit'))
             ->assertOk()
             ->assertSee('Website identity and SEO')
             ->assertSee('value="MUONLINE"', false)
-            ->assertSee('value="97d + 99i"', false);
+            ->assertSee('value="Season 6"', false)
+            ->assertDontSee('value="97d + 99i"', false);
     }
 
     /**

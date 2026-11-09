@@ -67,7 +67,7 @@
                             <h2 id="class-distribution-heading" class="mt-2 text-xl font-semibold text-white">
                                 {{ __('ui.admin.analytics_classes_heading') }}
                             </h2>
-                            <p class="mt-2 text-sm leading-6 text-steel">{{ __('ui.admin.analytics_classes_help') }}</p>
+                            <p class="mt-2 text-sm leading-6 text-steel">{{ __('ui.admin.analytics_classes_help', ['version' => $currentGameServerVersion]) }}</p>
 
                             <div class="mt-6 grid gap-4">
                                 @forelse ($realmAnalytics['classes'] as $classEntry)

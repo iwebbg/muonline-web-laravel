@@ -7,7 +7,7 @@
             <div>
                 <div class="eyebrow mb-4">{{ __('ui.shop.generator_eyebrow') }}</div>
                 <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.shop.generator_heading') }}</h1>
-                <p class="mt-3 max-w-3xl text-silver">{{ __('ui.shop.generator_intro') }}</p>
+                <p class="mt-3 max-w-3xl text-silver">{{ __('ui.shop.generator_intro', ['version' => $currentGameServerVersion]) }}</p>
             </div>
             <div class="panel-card px-5 py-4 text-right">
                 <p class="text-xs uppercase tracking-[0.16em] text-steel">{{ __('ui.shop.credits_balance') }}</p>

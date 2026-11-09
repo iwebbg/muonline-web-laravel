@@ -23,6 +23,7 @@ use App\Installation\Contracts\GameDatabaseInstaller;
 use App\Installation\SqlServerApplicationDatabaseInstaller;
 use App\Installation\SqlServerGameDatabaseInstaller;
 use App\Modules\ModuleManager;
+use App\Servers\CurrentGameServer;
 use App\Website\WebsiteSettings;
 use App\Website\WebsiteSettingsManager;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -104,6 +105,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(GameServerStatus::class, $serverStatusClass);
         $this->app->bind(GameAccountLookupRepository::class, LegacyGameAccountLookupRepository::class);
         $this->app->singleton(ModuleManager::class);
+        $this->app->singleton(CurrentGameServer::class);
         $this->app->singleton(WebsiteSettingsManager::class);
         $this->app->bind(ApplicationDatabaseInstaller::class, SqlServerApplicationDatabaseInstaller::class);
         $this->app->bind(GameDatabaseInstaller::class, SqlServerGameDatabaseInstaller::class);
@@ -114,6 +116,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        View::composer('*', function (LaravelView $view): void {
+            $view->with(
+                'currentGameServerVersion',
+                $this->app->make(CurrentGameServer::class)->version(),
+            );
+        });
+
         View::composer(
             ['home', 'auth.login'],
             function (LaravelView $view): void {
