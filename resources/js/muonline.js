@@ -2006,13 +2006,13 @@ export function rankingExplorer(initialPage, dataUrl) {
         /**
          * Selects an independently ordered leaderboard.
          *
-         * @param {string} selectedBoard The overall, PK, guild or Castle Siege board key.
+         * @param {string} selectedBoard The selected version-supported board key.
          * @returns {Promise<void>}
          */
         async selectBoard(selectedBoard) {
             this.board = selectedBoard;
 
-            if (['guilds', 'castle_siege'].includes(selectedBoard)) {
+            if (['guilds', 'castle_siege', 'gens'].includes(selectedBoard)) {
                 this.classFilter = '';
                 this.onlineOnly = false;
             }

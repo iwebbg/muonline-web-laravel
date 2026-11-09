@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Game\Data\CharacterRankingQuery;
+use App\Game\Data\GensRankingQuery;
 use App\Game\Data\GuildRankingQuery;
 use App\Game\Rankings\RankingBoard;
 use App\Game\Versions\Contracts\GameVersionProfile;
@@ -62,7 +63,7 @@ final class RankingDataRequest extends FormRequest
         );
         $board = $this->board();
 
-        if (in_array($board, [RankingBoard::Guilds, RankingBoard::CastleSiege], true)) {
+        if (in_array($board, [RankingBoard::Guilds, RankingBoard::CastleSiege, RankingBoard::Gens], true)) {
             $board = RankingBoard::Overall;
         }
 
@@ -82,6 +83,18 @@ final class RankingDataRequest extends FormRequest
     public function guildQuery(): GuildRankingQuery
     {
         return new GuildRankingQuery(
+            page: max(1, $this->integer('page', 1)),
+            perPage: max(2, min($this->integer('per_page', 12), 25)),
+            search: trim((string) $this->input('search', '')),
+        );
+    }
+
+    /**
+     * Creates the typed query used by version-specific Gens adapters.
+     */
+    public function gensQuery(): GensRankingQuery
+    {
+        return new GensRankingQuery(
             page: max(1, $this->integer('page', 1)),
             perPage: max(2, min($this->integer('per_page', 12), 25)),
             search: trim((string) $this->input('search', '')),
@@ -119,6 +132,10 @@ final class RankingDataRequest extends FormRequest
 
         if ($this->versionProfile()->capabilities()->castleSiege) {
             $boards[] = RankingBoard::CastleSiege->value;
+        }
+
+        if ($this->versionProfile()->capabilities()->gens) {
+            $boards[] = RankingBoard::Gens->value;
         }
 
         return $boards;

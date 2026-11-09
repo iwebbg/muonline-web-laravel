@@ -93,7 +93,7 @@
 
         <div class="mt-7 flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="eyebrow" x-text="board === 'castle_siege' ? @js(__('ui.rankings.castle_siege_owner')) : (board === 'guilds' ? @js(__('ui.rankings.guilds')) : (board === 'pk' ? @js(__('ui.rankings.top_pk')) : @js(__('ui.rankings.overall'))))"></p>
+                <p class="eyebrow" x-text="board === 'castle_siege' ? @js(__('ui.rankings.castle_siege_owner')) : (board === 'guilds' ? @js(__('ui.rankings.guilds')) : (board === 'gens' ? @js(__('ui.rankings.gens_standings')) : (board === 'pk' ? @js(__('ui.rankings.top_pk')) : @js(__('ui.rankings.overall')))))"></p>
                 <h2 class="mt-2 font-display text-4xl text-white">{{ __('ui.rankings.leaderboard') }}</h2>
             </div>
             <p class="text-sm text-steel">
@@ -146,6 +146,13 @@
                                                 <div class="rounded-xl border border-red-300/15 bg-red-400/[0.04] p-3"><strong class="block text-red-200" x-text="entry.pk_count"></strong><span class="mt-1 block text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.rankings.pk_kills') }}</span></div>
                                                 <div class="rounded-xl border border-white/8 bg-white/[0.025] p-3"><strong class="block text-white" x-text="entry.pk_level"></strong><span class="mt-1 block text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.rankings.pk_level') }}</span></div>
                                                 <div class="rounded-xl border border-white/8 bg-white/[0.025] p-3"><strong class="block text-white" x-text="entry.resets"></strong><span class="mt-1 block text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.home.resets') }}</span></div>
+                                            </div>
+                                        </template>
+                                        <template x-if="board === 'gens'">
+                                            <div class="contents">
+                                                <div class="rounded-xl border border-white/8 bg-white/[0.025] p-3"><strong class="block text-white" x-text="entry.contribution.toLocaleString()"></strong><span class="mt-1 block text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.rankings.contribution') }}</span></div>
+                                                <div class="rounded-xl border border-white/8 bg-white/[0.025] p-3"><strong class="block text-white" x-text="entry.family_name"></strong><span class="mt-1 block text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.account.gens_family') }}</span></div>
+                                                <div class="rounded-xl border border-white/8 bg-white/[0.025] p-3"><strong class="block text-white" x-text="entry.family_rank > 0 ? `#${entry.family_rank.toLocaleString()}` : @js(__('ui.account.gens_unranked'))"></strong><span class="mt-1 block text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.rankings.family_rank') }}</span></div>
                                             </div>
                                         </template>
                                     </div>
@@ -211,6 +218,13 @@
                                     <p class="text-right"><strong class="block text-white" x-text="entry.pk_level"></strong><span class="text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.rankings.pk_level') }}</span></p>
                                 </div>
                             </template>
+                            <template x-if="board === 'gens'">
+                                <div class="contents">
+                                    <p class="text-right"><strong class="block text-white" x-text="entry.contribution.toLocaleString()"></strong><span class="text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.rankings.contribution') }}</span></p>
+                                    <p class="text-right"><strong class="block text-white" x-text="entry.family_name"></strong><span class="text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.account.gens_family') }}</span></p>
+                                    <p class="text-right"><strong class="block text-white" x-text="entry.family_rank > 0 ? `#${entry.family_rank.toLocaleString()}` : @js(__('ui.account.gens_unranked'))"></strong><span class="text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.rankings.family_rank') }}</span></p>
+                                </div>
+                            </template>
                             <template x-if="['guilds', 'castle_siege'].includes(board)">
                                 <div class="contents">
                                     <p class="text-right"><strong class="block text-white" x-text="entry.score"></strong><span class="text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.rankings.score') }}</span></p>
@@ -223,7 +237,7 @@
             </div>
 
             <div class="panel-card p-10 text-center text-steel" x-show="!failed && pageData.items.length === 0">
-                <p x-text="board === 'castle_siege' ? @js(__('ui.rankings.no_castle_owner')) : (board === 'guilds' ? @js(__('ui.rankings.no_guilds')) : @js(__('ui.rankings.no_players')))"></p>
+                <p x-text="board === 'castle_siege' ? @js(__('ui.rankings.no_castle_owner')) : (board === 'guilds' ? @js(__('ui.rankings.no_guilds')) : (board === 'gens' ? @js(__('ui.rankings.no_gens_members')) : @js(__('ui.rankings.no_players'))))"></p>
             </div>
         </div>
 
