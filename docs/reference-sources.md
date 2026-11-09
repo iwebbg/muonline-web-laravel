@@ -45,6 +45,8 @@ The supplied server files and database provide the reference layout for:
   version-specific progression;
 - 16-byte item records, harmony, 380, ancient, excellent and socket options;
 - the 3,776-byte character inventory and 3,840-byte warehouse payloads;
+- standard Master progression, Gens family/contribution and Lucky Coin account
+  balance tables;
 - stock Blood Castle, Devil Square, Chaos Castle, Illusion Temple, Doppelganger,
   Imperial Guardian, Crywolf and Castle Siege schedules.
 
@@ -63,6 +65,11 @@ Compatibility claims are intentionally scoped to the tested MuEMU Season 6
 Episode 3 Update 32 distribution. Other Season 6 distributions require their
 own schema and item-storage verification even when their tables have similar
 names.
+
+The pack also contains custom `Ranking*` tables, including a Battle Royale
+board and weekly score columns. They are not treated as a portable Season 6
+contract. Future adapters may map standard event results when another server
+distribution provides a verified persistence source.
 
 MuOnline Web never edits or deploys those server files. Server configuration is
 translated into reviewed application profiles and administrator-managed

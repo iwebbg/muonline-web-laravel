@@ -41,6 +41,10 @@ bundle. Additional integrations are in preparation and can also be requested at
 
 - Account-owned character selector with persistent URL state.
 - Character class, progression, stats, guild, PK, map and online information.
+- Capability-gated Season 6 Master Level, available Master Points and Master
+  experience in both the private workspace and public character profiles.
+- Capability-gated Gens family, contribution and family rank in private/public
+  profiles, with searchable and paginated public Gens standings.
 - Equipment, inventory bag and multiple warehouse vaults.
 - Verified item images, dimensions, rarity and option tooltips.
 - Reset and grand-reset previews and execution.
@@ -57,6 +61,7 @@ bundle. Additional integrations are in preparation and can also be requested at
 ### Economy and storage
 
 - Credits balance and immutable transaction history.
+- Read-only Lucky Coin balance for profiles with a verified standard adapter.
 - Claimable Credits earned from bounded online-session observations, with an
   administrator-defined time unit, reward amount and daily account cap.
 - Exact-item exchange offers which match catalog code, item level, skill,

@@ -296,6 +296,13 @@ Verified profile behavior includes:
   Gladiator, Dark Lord, Summoner and Rage Fighter families;
 - base stats from `DefaultClassInfo.txt`, Season 6 map names, public rankings,
   guild marks, account-level VIP display and stock Castle Siege state;
+- standard `MasterSkillTree` progression in the private workspace and public
+  character profile, limited to Master Level, available points and experience;
+- standard Gens family, contribution and family rank in private/public profiles,
+  plus a capability-gated public Gens leaderboard. Family rank follows the
+  verified MuEMU dense-rank rule and leaves contributions below 10,000 unranked;
+- account-scoped Lucky Coin balances from `LuckyCoin`. The web currently treats
+  this as read-only because reward exchange rules remain server-configured;
 - 938 authoritative item definitions parsed from `Data/Item/Item.txt`, with 908
   supplied editor images and safe image fallbacks for the remaining definitions;
 - lossless 16-byte item decoding for level, skill, luck, additional, excellent,
@@ -317,11 +324,15 @@ Verified profile behavior includes:
 - 258 Item Generator entries with explicit prices imported from the supplied
   legacy webshop SQL. Unpriced newer Season 6 items remain available to audited
   administrator grants and configured offers but are not assigned invented
-  generator prices;
+  generator prices. The generator and administrator grant flows expose the
+  verified ancient/set, 380, Harmony and five-socket fields without changing
+  the older game profiles;
 - 12 stock schedules sourced from `Data/Event/*.dat`, plus the database-backed
   seven-day Castle Siege cycle. Pack-specific Battle Royale, GvG, TvT,
   Marathon, King of MU, Quickly, Hide and Seek, Russian Roulette, Kill All,
-  PvP Championship and Auction events are intentionally excluded.
+  PvP Championship and Auction events are intentionally excluded. The supplied
+  `Ranking*` tables are also not claimed as a portable Season 6 standard because
+  they belong to this pack's custom ranking module;
 
 MuEMU stores VIP entitlement at account level, while the product's purchasable
 VIP contract is character-scoped. Public profiles may display an active
@@ -329,7 +340,7 @@ VIP contract is character-scoped. Public profiles may display an active
 writing a semantically different field.
 
 Automated coverage uses exact real-item fixtures and portable adapter schemas.
-The full disposable suite passes with 742 tests and 3,795 assertions. Before a
+The full disposable suite passes with 770 tests and 3,934 assertions. Before a
 production rollout, complete `game:doctor` and disposable-account mutation
 checks against a cloned MuEMU database and dedicated test server. The main
 warehouse boundary is manually confirmed; creation and switching of every
