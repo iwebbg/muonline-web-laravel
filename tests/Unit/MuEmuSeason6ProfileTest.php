@@ -76,10 +76,10 @@ final class MuEmuSeason6ProfileTest extends TestCase
         $profile = new MuEmuSeason6Profile;
         $projectRoot = dirname(__DIR__, 2);
 
-        $this->assertSame('/images/characters/summoner.gif', $profile->classForCode(82)?->image);
-        $this->assertSame('/images/characters/rage-fighter.gif', $profile->classForCode(98)?->image);
-        $this->assertFileExists($projectRoot.'/public/images/characters/summoner.gif');
-        $this->assertFileExists($projectRoot.'/public/images/characters/rage-fighter.gif');
+        $this->assertSame('/images/characters/summoner.jpg', $profile->classForCode(82)?->image);
+        $this->assertSame('/images/characters/rage-fighter.jpg', $profile->classForCode(98)?->image);
+        $this->assertFileExists($projectRoot.'/public/images/characters/summoner.jpg');
+        $this->assertFileExists($projectRoot.'/public/images/characters/rage-fighter.jpg');
     }
 
     /**

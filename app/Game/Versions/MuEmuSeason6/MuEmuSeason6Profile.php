@@ -165,11 +165,11 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
             new CharacterClassDefinition(50, 'dm', 'DM', 'Duel Master', '/images/characters/magic-gladiator.png', 'magic-gladiator', 3, 48),
             new CharacterClassDefinition(64, 'dl', 'DL', 'Dark Lord', '/images/characters/dark-lord.png', 'dark-lord', 1),
             new CharacterClassDefinition(66, 'le', 'LE', 'Lord Emperor', '/images/characters/dark-lord.png', 'dark-lord', 3, 64),
-            new CharacterClassDefinition(80, 'su', 'SU', 'Summoner', '/images/characters/summoner.gif', 'summoner', 1),
-            new CharacterClassDefinition(81, 'bs', 'BS', 'Bloody Summoner', '/images/characters/summoner.gif', 'summoner', 2, 80),
-            new CharacterClassDefinition(82, 'di', 'DI', 'Dimension Master', '/images/characters/summoner.gif', 'summoner', 3, 81),
-            new CharacterClassDefinition(96, 'rf', 'RF', 'Rage Fighter', '/images/characters/rage-fighter.gif', 'rage-fighter', 1),
-            new CharacterClassDefinition(98, 'fm', 'FM', 'Fist Master', '/images/characters/rage-fighter.gif', 'rage-fighter', 3, 96),
+            new CharacterClassDefinition(80, 'su', 'SU', 'Summoner', '/images/characters/summoner.jpg', 'summoner', 1),
+            new CharacterClassDefinition(81, 'bs', 'BS', 'Bloody Summoner', '/images/characters/summoner.jpg', 'summoner', 2, 80),
+            new CharacterClassDefinition(82, 'di', 'DI', 'Dimension Master', '/images/characters/summoner.jpg', 'summoner', 3, 81),
+            new CharacterClassDefinition(96, 'rf', 'RF', 'Rage Fighter', '/images/characters/rage-fighter.jpg', 'rage-fighter', 1),
+            new CharacterClassDefinition(98, 'fm', 'FM', 'Fist Master', '/images/characters/rage-fighter.jpg', 'rage-fighter', 3, 96),
         ];
     }
 
