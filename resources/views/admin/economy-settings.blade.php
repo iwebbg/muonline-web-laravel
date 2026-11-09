@@ -114,20 +114,168 @@
                         <p class="kicker">{{ __('ui.admin.item_exchange_offers') }}</p>
                         <p class="mt-3 text-sm leading-6 text-silver">{{ __('ui.admin.item_exchange_offers_help') }}</p>
 
-                        <form method="POST" action="{{ route('admin.credit-exchange-offers.store') }}" class="mt-6 grid gap-4 rounded-2xl border border-white/8 bg-black/15 p-4 md:grid-cols-3" x-data="creditExchangeOfferEditor(@js(['items' => $itemDefinitions, 'itemOptionLabels' => $itemOptionLabels, 'itemCode' => old('item_code', ''), 'excellentMask' => old('excellent_mask', 0)]))">
+                        <form
+                            method="POST"
+                            action="{{ route('admin.credit-exchange-offers.store') }}"
+                            class="mt-6 grid gap-6 rounded-2xl border border-white/8 bg-black/15 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_14rem]"
+                            x-data="creditExchangeOfferEditor(@js([
+                                'items' => $itemDefinitions,
+                                'itemLevels' => $itemLevels,
+                                'optionLevels' => $optionLevels,
+                                'itemOptionLabels' => $itemOptionLabels,
+                                'itemCode' => old('item_code', ''),
+                                'level' => old('level', 0),
+                                'optionLevel' => old('option_level', 0),
+                                'hasSkill' => old('has_skill', false),
+                                'hasLuck' => old('has_luck', false),
+                                'excellentMask' => old('excellent_mask', 0),
+                                'ancientOption' => old('ancient_option', 0),
+                                'ui' => [
+                                    'skill' => __('ui.admin.item_skill'),
+                                    'luck' => __('ui.admin.item_luck'),
+                                    'ancient' => __('ui.admin.ancient_option'),
+                                    'itemRequired' => __('ui.admin.item_grant_item_required'),
+                                ],
+                            ]))"
+                            x-on:keydown.escape.window="closeItemSuggestions()"
+                            x-on:submit="validateSelection($event)"
+                        >
                             @csrf
-                            <label class="field-group md:col-span-3"><span>{{ __('ui.admin.catalog_item') }}</span><select name="item_code" x-model="itemCode" @change="clearExcellentOptions()" required><option value="">{{ __('ui.admin.choose_item') }}</option>@foreach ($itemDefinitions as $item)<option value="{{ $item['code'] }}">{{ $item['name'] }} ({{ $item['code'] }})</option>@endforeach</select></label>
-                            <label class="field-group"><span>{{ __('ui.admin.item_level') }}</span><select name="level">@foreach ($itemLevels as $level)<option value="{{ $level }}" @selected((int) old('level', 0) === $level)>+{{ $level }}</option>@endforeach</select></label>
-                            <label class="field-group"><span>{{ __('ui.admin.additional_option') }}</span><select name="option_level">@foreach ($optionLevels as $optionLevel)<option value="{{ $optionLevel }}" @selected((int) old('option_level', 0) === $optionLevel)>{{ $optionLevel }}</option>@endforeach</select></label>
-                            <fieldset class="field-group"><legend>{{ __('ui.admin.excellent_options') }}</legend><input type="hidden" name="excellent_mask" :value="excellentMask"><div class="mt-2 grid gap-2"><template x-for="(label, index) in excellentOptions" :key="index"><label x-show="label" class="flex items-start gap-2 text-xs text-silver"><input type="checkbox" :checked="hasExcellentBit(index)" @change="toggleExcellentBit(index)"><span x-text="label"></span></label></template></div><small>{{ __('ui.admin.excellent_mask_help') }}</small></fieldset>
-                            <label class="toggle-control"><input type="hidden" name="has_skill" value="0"><input type="checkbox" name="has_skill" value="1" @checked(old('has_skill'))><span aria-hidden="true"></span><span>{{ __('ui.admin.item_skill') }}</span></label>
-                            <label class="toggle-control"><input type="hidden" name="has_luck" value="0"><input type="checkbox" name="has_luck" value="1" @checked(old('has_luck'))><span aria-hidden="true"></span><span>{{ __('ui.admin.item_luck') }}</span></label>
-                            <label class="field-group"><span>{{ __('ui.admin.ancient_option') }}</span><input type="number" name="ancient_option" value="{{ old('ancient_option', 0) }}" min="0" max="255" required></label>
-                            <label class="field-group"><span>{{ __('ui.admin.credits_per_item') }}</span><input type="number" name="credits_per_item" value="{{ old('credits_per_item', 50) }}" min="1" required></label>
-                            <label class="field-group"><span>{{ __('ui.admin.max_exchange_quantity') }}</span><input type="number" name="max_quantity_per_exchange" value="{{ old('max_quantity_per_exchange', 10) }}" min="1" max="100" required></label>
-                            <label class="field-group"><span>{{ __('ui.admin.daily_limit') }}</span><input type="number" name="daily_account_credit_limit" value="{{ old('daily_account_credit_limit', 500) }}" min="1" required></label>
-                            <input type="hidden" name="sort_order" value="0"><input type="hidden" name="enabled" value="1">
-                            <div class="md:col-span-3"><button class="button button-primary">{{ __('ui.admin.create_exchange_offer') }}</button></div>
+                            <div class="grid gap-5 md:grid-cols-2">
+                                <div class="relative md:col-span-2" x-on:click.outside="closeItemSuggestions()">
+                                    <input type="hidden" name="item_code" x-bind:value="itemCode">
+                                    <label class="field-group">
+                                        <span>{{ __('ui.admin.catalog_item') }}</span>
+                                        <input
+                                            type="search"
+                                            x-ref="itemSearch"
+                                            x-model="itemSearch"
+                                            x-on:input="filterItems()"
+                                            x-on:focus="itemSuggestionsOpen = true"
+                                            x-on:keydown.down.prevent="moveItemSuggestion(1)"
+                                            x-on:keydown.up.prevent="moveItemSuggestion(-1)"
+                                            x-on:keydown.enter.prevent="selectActiveItemSuggestion()"
+                                            autocomplete="off"
+                                            role="combobox"
+                                            aria-autocomplete="list"
+                                            aria-controls="credit-exchange-item-suggestions"
+                                            x-bind:aria-expanded="itemSuggestionsOpen"
+                                            x-bind:aria-activedescendant="activeItemSuggestionIndex >= 0 ? `credit-exchange-item-${activeItemSuggestionIndex}` : ''"
+                                            placeholder="{{ __('ui.admin.item_exchange_search_placeholder') }}"
+                                            required
+                                        >
+                                    </label>
+
+                                    <div
+                                        id="credit-exchange-item-suggestions"
+                                        class="absolute inset-x-0 top-full z-30 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-white/10 bg-[#0d1016]/98 shadow-2xl backdrop-blur-xl"
+                                        x-cloak
+                                        x-show="itemSuggestionsOpen"
+                                        role="listbox"
+                                    >
+                                        <p x-show="itemSuggestions.length === 0" class="px-4 py-3 text-sm text-steel">{{ __('ui.admin.item_exchange_search_empty') }}</p>
+                                        <template x-for="(item, index) in itemSuggestions" :key="item.code">
+                                            <button
+                                                type="button"
+                                                class="flex w-full items-center gap-4 px-4 py-3 text-left transition hover:bg-white/[0.06]"
+                                                x-bind:id="`credit-exchange-item-${index}`"
+                                                x-bind:class="activeItemSuggestionIndex === index ? 'bg-white/[0.08]' : ''"
+                                                x-on:mouseenter="activeItemSuggestionIndex = index"
+                                                x-on:click="selectItem(item)"
+                                                role="option"
+                                                x-bind:aria-selected="itemCode === item.code"
+                                            >
+                                                <span class="grid size-11 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
+                                                    <img x-show="item.image" x-bind:src="item.image" alt="" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]">
+                                                </span>
+                                                <span>
+                                                    <strong class="block text-sm text-white" x-text="item.name"></strong>
+                                                    <small class="text-steel" x-text="item.code"></small>
+                                                </span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <label class="field-group">
+                                    <span>{{ __('ui.admin.item_level') }}</span>
+                                    <select name="level" x-model.number="level" required>
+                                        <template x-for="itemLevel in itemLevels" :key="itemLevel">
+                                            <option x-bind:value="itemLevel" x-text="itemLevel === 0 ? '0' : `+${itemLevel}`"></option>
+                                        </template>
+                                    </select>
+                                </label>
+                                <label class="field-group">
+                                    <span>{{ __('ui.admin.additional_option') }}</span>
+                                    <select name="option_level" x-model.number="optionLevel" required>
+                                        <template x-for="option in additionalOptionChoices" :key="option.value">
+                                            <option x-bind:value="option.value" x-text="option.label"></option>
+                                        </template>
+                                    </select>
+                                </label>
+
+                                <input type="hidden" name="excellent_mask" x-bind:value="excellentMask">
+                                <fieldset class="grid gap-3 md:col-span-2">
+                                    <legend class="text-sm font-semibold text-white">{{ __('ui.admin.excellent_options') }}</legend>
+                                    <div class="grid gap-3 sm:grid-cols-2">
+                                        <template x-for="option in excellentOptions" :key="option.bit">
+                                            <label class="flex items-start gap-3 rounded-xl border border-white/8 bg-black/15 p-3 text-sm text-silver">
+                                                <input type="checkbox" x-bind:checked="hasExcellentBit(option.bit)" x-on:change="toggleExcellentBit(option.bit)">
+                                                <span x-text="option.label"></span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </fieldset>
+
+                                <label class="flex items-center gap-3 text-sm text-silver">
+                                    <input type="hidden" name="has_skill" value="0">
+                                    <input type="checkbox" name="has_skill" value="1" x-model="hasSkill">
+                                    {{ __('ui.admin.item_skill') }}
+                                </label>
+                                <label class="flex items-center gap-3 text-sm text-silver">
+                                    <input type="hidden" name="has_luck" value="0">
+                                    <input type="checkbox" name="has_luck" value="1" x-model="hasLuck">
+                                    {{ __('ui.admin.item_luck') }}
+                                </label>
+
+                                <label class="field-group md:col-span-2">
+                                    <span>{{ __('ui.admin.ancient_option') }}</span>
+                                    <input type="number" name="ancient_option" x-model.number="ancientOption" min="0" max="255" required>
+                                </label>
+                                <label class="field-group">
+                                    <span>{{ __('ui.admin.credits_per_item') }}</span>
+                                    <input type="number" name="credits_per_item" value="{{ old('credits_per_item', 50) }}" min="1" required>
+                                </label>
+                                <label class="field-group">
+                                    <span>{{ __('ui.admin.max_exchange_quantity') }}</span>
+                                    <input type="number" name="max_quantity_per_exchange" value="{{ old('max_quantity_per_exchange', 10) }}" min="1" max="100" required>
+                                </label>
+                                <label class="field-group md:col-span-2">
+                                    <span>{{ __('ui.admin.daily_limit') }}</span>
+                                    <input type="number" name="daily_account_credit_limit" value="{{ old('daily_account_credit_limit', 500) }}" min="1" required>
+                                </label>
+                            </div>
+
+                            <aside class="rounded-2xl border border-white/8 bg-black/20 p-5 text-center">
+                                <p class="kicker">{{ __('ui.admin.item_exchange_preview') }}</p>
+                                <template x-if="selectedItem">
+                                    <div class="mt-5">
+                                        <img x-show="selectedItem.image" x-bind:src="selectedItem.image" x-bind:alt="selectedItem.name" class="mx-auto max-h-32 max-w-32 object-contain [image-rendering:pixelated]">
+                                        <p class="mt-4 font-semibold text-white" x-text="itemTitle"></p>
+                                        <ul x-show="fullItemOptions.length > 0" class="mt-4 grid gap-1 text-left text-xs text-emerald-200">
+                                            <template x-for="option in fullItemOptions" :key="option">
+                                                <li x-text="option"></li>
+                                            </template>
+                                        </ul>
+                                    </div>
+                                </template>
+                            </aside>
+
+                            <input type="hidden" name="sort_order" value="0">
+                            <input type="hidden" name="enabled" value="1">
+                            <div class="lg:col-span-2">
+                                <button class="button button-primary">{{ __('ui.admin.create_exchange_offer') }}</button>
+                            </div>
                         </form>
 
                         <div class="mt-6 grid gap-4">

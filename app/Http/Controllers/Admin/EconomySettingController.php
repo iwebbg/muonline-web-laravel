@@ -35,7 +35,9 @@ final class EconomySettingController extends Controller
         $itemDefinitions = array_map(static fn ($definition): array => [
             'code' => $definition->code(),
             'name' => $definition->name,
+            'image' => $definition->image,
             'excellentType' => $definition->excellentType,
+            'optionType' => $definition->optionType,
         ], $itemCatalog->allDefinitions());
         $exchangeOffers = CreditExchangeOffer::query()
             ->where('game_profile_key', (string) config('game.profile.key'))

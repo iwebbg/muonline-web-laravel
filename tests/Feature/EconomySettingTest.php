@@ -39,6 +39,9 @@ final class EconomySettingTest extends TestCase
             'item_exchange_offers_help',
             'catalog_item',
             'choose_item',
+            'item_exchange_search_placeholder',
+            'item_exchange_search_empty',
+            'item_exchange_preview',
             'item_level',
             'additional_option',
             'excellent_mask',
@@ -77,6 +80,26 @@ final class EconomySettingTest extends TestCase
 
         $this->put(route('admin.economy-settings.update'), [])->assertRedirect(route('admin.login'));
         $this->assertDatabaseCount('economy_settings', 0);
+    }
+
+    /**
+     * Confirms administrators select exchange items through the searchable catalog preview.
+     */
+    public function test_administrator_sees_searchable_item_exchange_offer_editor(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $this->actingAs($administrator, 'admin');
+
+        $response = $this->get(route('admin.economy-settings.edit'));
+
+        $response
+            ->assertOk()
+            ->assertSee('type="search"', false)
+            ->assertSee('role="combobox"', false)
+            ->assertSee('credit-exchange-item-suggestions')
+            ->assertSee(__('ui.admin.item_exchange_search_placeholder'))
+            ->assertSee(__('ui.admin.item_exchange_preview'))
+            ->assertDontSee('<select name="item_code"', false);
     }
 
     /**
