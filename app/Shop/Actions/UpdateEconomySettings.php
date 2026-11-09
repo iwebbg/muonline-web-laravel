@@ -39,6 +39,11 @@ final readonly class UpdateEconomySettings
                     characterLevelUpPointsPurchaseEnabled: $model->character_level_up_points_purchase_enabled,
                     characterLevelUpPointsPackageSize: $model->character_level_up_points_package_size,
                     characterLevelUpPointsPriceCredits: $model->character_level_up_points_price_credits,
+                    itemExchangeEnabled: $model->item_exchange_enabled,
+                    onlineTimeRewardsEnabled: $model->online_time_rewards_enabled,
+                    onlineMinutesPerUnit: $model->online_minutes_per_unit,
+                    onlineCreditsPerUnit: $model->online_credits_per_unit,
+                    onlineDailyCreditLimit: $model->online_daily_credit_limit,
                 )
                 : EconomySettings::defaults();
             $revision = ($model?->revision ?? 0) + 1;

@@ -21,6 +21,11 @@ use Illuminate\Database\Eloquent\Model;
     'character_level_up_points_purchase_enabled',
     'character_level_up_points_package_size',
     'character_level_up_points_price_credits',
+    'item_exchange_enabled',
+    'online_time_rewards_enabled',
+    'online_minutes_per_unit',
+    'online_credits_per_unit',
+    'online_daily_credit_limit',
     'revision',
     'updated_by_administrator_id',
 ])]
@@ -47,6 +52,11 @@ final class EconomySetting extends Model
             'character_level_up_points_purchase_enabled' => 'boolean',
             'character_level_up_points_package_size' => 'integer',
             'character_level_up_points_price_credits' => 'integer',
+            'item_exchange_enabled' => 'boolean',
+            'online_time_rewards_enabled' => 'boolean',
+            'online_minutes_per_unit' => 'integer',
+            'online_credits_per_unit' => 'integer',
+            'online_daily_credit_limit' => 'integer',
             'revision' => 'integer',
             'updated_by_administrator_id' => 'integer',
         ];

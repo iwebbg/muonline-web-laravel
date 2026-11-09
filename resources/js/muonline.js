@@ -491,6 +491,51 @@ export function shopOfferEditor(configuration) {
 }
 
 /**
+ * Manages one exact item-exchange signature without duplicating catalog rules.
+ *
+ * @param {object} configuration Trusted catalog definitions and localized labels.
+ * @returns {object} Alpine component state.
+ */
+export function creditExchangeOfferEditor(configuration) {
+    return {
+        items: configuration.items,
+        itemOptionLabels: configuration.itemOptionLabels,
+        itemCode: configuration.itemCode ?? '',
+        excellentMask: Number(configuration.excellentMask ?? 0),
+
+        get selectedItem() {
+            return this.items[this.itemCode] ?? null;
+        },
+
+        get excellentOptions() {
+            const type = Number(this.selectedItem?.excellentType ?? 0);
+
+            if (type === 1) {
+                return this.itemOptionLabels.excellent.armor;
+            }
+
+            if (type === 4) {
+                return this.itemOptionLabels.excellent.wing;
+            }
+
+            return this.itemOptionLabels.excellent.weapon;
+        },
+
+        hasExcellentBit(index) {
+            return (this.excellentMask & (1 << index)) !== 0;
+        },
+
+        toggleExcellentBit(index) {
+            this.excellentMask ^= 1 << index;
+        },
+
+        clearExcellentOptions() {
+            this.excellentMask = 0;
+        },
+    };
+}
+
+/**
  * Creates the bilingual news editor and recoverable-delete confirmation state.
  *
  * @param {Array<object>} posts The administrator-visible article records.

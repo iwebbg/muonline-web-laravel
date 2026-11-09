@@ -22,6 +22,11 @@ final class EconomySettingRevisionPresenter
         'characterLevelUpPointsPurchaseEnabled' => 'character_level_up_points_purchase_availability',
         'characterLevelUpPointsPackageSize' => 'character_level_up_points_package_size',
         'characterLevelUpPointsPriceCredits' => 'character_level_up_points_purchase_price',
+        'itemExchangeEnabled' => 'item_exchange_availability',
+        'onlineTimeRewardsEnabled' => 'online_time_rewards_availability',
+        'onlineMinutesPerUnit' => 'online_minutes_per_unit',
+        'onlineCreditsPerUnit' => 'online_credits_per_unit',
+        'onlineDailyCreditLimit' => 'online_daily_credit_limit',
     ];
 
     /**

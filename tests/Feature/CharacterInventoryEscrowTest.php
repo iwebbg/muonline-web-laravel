@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Game\Data\ExpectedInventoryItem;
 use App\Game\Repositories\SqlServer97d99iCharacterInventoryEscrowRepository;
 use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
 use App\Game\Versions\Version97d99i\ItemCodec97d99i;
@@ -56,6 +57,47 @@ final class CharacterInventoryEscrowTest extends TestCase
             str_repeat("\xFF", ItemCodec97d99i::SLOT_BYTES),
             substr($inventory, $this->itemOffset(), ItemCodec97d99i::SLOT_BYTES),
         );
+    }
+
+    /**
+     * Confirms an exact batch is removed in one write and supports safe replay.
+     */
+    public function test_offline_account_can_extract_an_exact_inventory_batch_atomically(): void
+    {
+        $database = $this->configureGameSchema(connectStatus: 0);
+        $connection = $database->connection('game');
+        $secondBinary = "\x01\x00\x20\x05\x06\x07\x08\x00\x00\x00";
+        $inventory = (string) $connection->table('Character')->value('Inventory');
+        $connection->table('Character')->update([
+            'Inventory' => substr_replace(
+                $inventory,
+                $secondBinary,
+                $this->itemOffset(6),
+                ItemCodec97d99i::SLOT_BYTES,
+            ),
+        ]);
+        $repository = $this->repository($database);
+        $expectedItems = [
+            new ExpectedInventoryItem(self::BAG_SLOT, $this->itemBinary),
+            new ExpectedInventoryItem(6, $secondBinary),
+        ];
+
+        $result = $repository->extractMany(
+            self::ACCOUNT_ID,
+            self::CHARACTER_NAME,
+            $expectedItems,
+        );
+        $replayResult = $repository->extractMany(
+            self::ACCOUNT_ID,
+            self::CHARACTER_NAME,
+            $expectedItems,
+        );
+        $updatedInventory = (string) $connection->table('Character')->value('Inventory');
+
+        $this->assertSame(MarketEscrowResult::Extracted, $result);
+        $this->assertSame(MarketEscrowResult::AlreadyExtracted, $replayResult);
+        $this->assertSame(str_repeat("\xFF", 10), substr($updatedInventory, $this->itemOffset(), 10));
+        $this->assertSame(str_repeat("\xFF", 10), substr($updatedInventory, $this->itemOffset(6), 10));
     }
 
     /**
@@ -147,9 +189,9 @@ final class CharacterInventoryEscrowTest extends TestCase
     /**
      * Resolves the byte offset for one bag slot after twelve equipment slots.
      */
-    private function itemOffset(): int
+    private function itemOffset(int $slot = self::BAG_SLOT): int
     {
-        return (12 + self::BAG_SLOT) * ItemCodec97d99i::SLOT_BYTES;
+        return (12 + $slot) * ItemCodec97d99i::SLOT_BYTES;
     }
 
     /**

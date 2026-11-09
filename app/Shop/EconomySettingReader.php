@@ -33,6 +33,11 @@ final class EconomySettingReader
             characterLevelUpPointsPurchaseEnabled: $settings->character_level_up_points_purchase_enabled,
             characterLevelUpPointsPackageSize: $settings->character_level_up_points_package_size,
             characterLevelUpPointsPriceCredits: $settings->character_level_up_points_price_credits,
+            itemExchangeEnabled: $settings->item_exchange_enabled,
+            onlineTimeRewardsEnabled: $settings->online_time_rewards_enabled,
+            onlineMinutesPerUnit: $settings->online_minutes_per_unit,
+            onlineCreditsPerUnit: $settings->online_credits_per_unit,
+            onlineDailyCreditLimit: $settings->online_daily_credit_limit,
         );
     }
 

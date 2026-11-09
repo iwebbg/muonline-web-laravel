@@ -37,6 +37,11 @@ final class UpdateEconomySettingRequest extends FormRequest
             'characterLevelUpPointsPurchaseEnabled' => ['required', 'boolean'],
             'characterLevelUpPointsPackageSize' => ['required', 'integer', 'min:1', 'max:1000000'],
             'characterLevelUpPointsPriceCredits' => ['required', 'integer', 'min:0', 'max:9000000000000000'],
+            'itemExchangeEnabled' => ['required', 'boolean'],
+            'onlineTimeRewardsEnabled' => ['required', 'boolean'],
+            'onlineMinutesPerUnit' => ['required', 'integer', 'min:1', 'max:1440'],
+            'onlineCreditsPerUnit' => ['required', 'integer', 'min:1', 'max:1000000'],
+            'onlineDailyCreditLimit' => ['required', 'integer', 'min:1', 'max:1000000000', 'gte:onlineCreditsPerUnit'],
         ];
     }
 
@@ -58,6 +63,11 @@ final class UpdateEconomySettingRequest extends FormRequest
             characterLevelUpPointsPurchaseEnabled: (bool) $validated['characterLevelUpPointsPurchaseEnabled'],
             characterLevelUpPointsPackageSize: (int) $validated['characterLevelUpPointsPackageSize'],
             characterLevelUpPointsPriceCredits: (int) $validated['characterLevelUpPointsPriceCredits'],
+            itemExchangeEnabled: (bool) $validated['itemExchangeEnabled'],
+            onlineTimeRewardsEnabled: (bool) $validated['onlineTimeRewardsEnabled'],
+            onlineMinutesPerUnit: (int) $validated['onlineMinutesPerUnit'],
+            onlineCreditsPerUnit: (int) $validated['onlineCreditsPerUnit'],
+            onlineDailyCreditLimit: (int) $validated['onlineDailyCreditLimit'],
         );
     }
 }

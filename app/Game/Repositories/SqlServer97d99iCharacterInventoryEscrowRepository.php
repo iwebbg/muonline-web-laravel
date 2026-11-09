@@ -3,6 +3,7 @@
 namespace App\Game\Repositories;
 
 use App\Game\Contracts\CharacterInventoryEscrowRepository;
+use App\Game\Data\ExpectedInventoryItem;
 use App\Game\Data\ItemSlot;
 use App\Game\GameAccountWriteStatus;
 use App\Game\Versions\Version97d99i\ItemCatalog97d99i;
@@ -89,6 +90,74 @@ final readonly class SqlServer97d99iCharacterInventoryEscrowRepository implement
                 characterName: $characterName,
                 inventory: $updatedInventory,
             );
+
+            return MarketEscrowResult::Extracted;
+        }, attempts: 3);
+    }
+
+    /**
+     * Removes an exact item batch in one locked inventory write.
+     *
+     * @param  list<ExpectedInventoryItem>  $expectedItems
+     */
+    public function extractMany(
+        string $accountId,
+        string $characterName,
+        array $expectedItems,
+    ): MarketEscrowResult {
+        $connection = $this->database->connection('game');
+
+        return $connection->transaction(function () use (
+            $connection,
+            $accountId,
+            $characterName,
+            $expectedItems,
+        ): MarketEscrowResult {
+            $this->assertOffline($connection, $accountId);
+            $character = $this->lockedCharacter($connection, $accountId, $characterName);
+            $inventory = $this->normalizeBinary($character->Inventory) ?? $this->emptyInventory();
+            $emptyItems = 0;
+            $seenSlots = [];
+
+            foreach ($expectedItems as $expectedItem) {
+                if (
+                    ! $expectedItem instanceof ExpectedInventoryItem
+                    || $expectedItem->slot < 0
+                    || $expectedItem->slot >= self::INVENTORY_SLOTS
+                    || isset($seenSlots[$expectedItem->slot])
+                ) {
+                    throw new MarketListingRejected(MarketListingBlockReason::ItemNotFound);
+                }
+
+                $seenSlots[$expectedItem->slot] = true;
+                $binaryOffset = (self::EQUIPMENT_SLOTS + $expectedItem->slot) * ItemCodec97d99i::SLOT_BYTES;
+                $currentBinary = substr($inventory, $binaryOffset, ItemCodec97d99i::SLOT_BYTES);
+
+                if ($currentBinary === $this->emptySlot()) {
+                    $emptyItems++;
+
+                    continue;
+                }
+
+                if (! hash_equals($expectedItem->binary, $currentBinary)) {
+                    throw new MarketListingRejected(MarketListingBlockReason::ItemChanged);
+                }
+            }
+
+            if ($emptyItems === count($expectedItems)) {
+                return MarketEscrowResult::AlreadyExtracted;
+            }
+
+            if ($emptyItems > 0) {
+                throw new MarketListingRejected(MarketListingBlockReason::ItemChanged);
+            }
+
+            foreach ($expectedItems as $expectedItem) {
+                $binaryOffset = (self::EQUIPMENT_SLOTS + $expectedItem->slot) * ItemCodec97d99i::SLOT_BYTES;
+                $inventory = substr_replace($inventory, $this->emptySlot(), $binaryOffset, ItemCodec97d99i::SLOT_BYTES);
+            }
+
+            $this->updateInventory($connection, $accountId, $characterName, $inventory);
 
             return MarketEscrowResult::Extracted;
         }, attempts: 3);

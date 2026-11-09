@@ -21,6 +21,11 @@ final readonly class EconomySettings
         public bool $characterLevelUpPointsPurchaseEnabled,
         public int $characterLevelUpPointsPackageSize,
         public int $characterLevelUpPointsPriceCredits,
+        public bool $itemExchangeEnabled = false,
+        public bool $onlineTimeRewardsEnabled = false,
+        public int $onlineMinutesPerUnit = 10,
+        public int $onlineCreditsPerUnit = 5,
+        public int $onlineDailyCreditLimit = 150,
     ) {}
 
     /**
@@ -39,6 +44,11 @@ final readonly class EconomySettings
             characterLevelUpPointsPurchaseEnabled: false,
             characterLevelUpPointsPackageSize: 1_000,
             characterLevelUpPointsPriceCredits: 100,
+            itemExchangeEnabled: false,
+            onlineTimeRewardsEnabled: false,
+            onlineMinutesPerUnit: 10,
+            onlineCreditsPerUnit: 5,
+            onlineDailyCreditLimit: 150,
         );
     }
 
@@ -81,6 +91,11 @@ final readonly class EconomySettings
             'characterLevelUpPointsPurchaseEnabled' => $this->characterLevelUpPointsPurchaseEnabled,
             'characterLevelUpPointsPackageSize' => $this->characterLevelUpPointsPackageSize,
             'characterLevelUpPointsPriceCredits' => $this->characterLevelUpPointsPriceCredits,
+            'itemExchangeEnabled' => $this->itemExchangeEnabled,
+            'onlineTimeRewardsEnabled' => $this->onlineTimeRewardsEnabled,
+            'onlineMinutesPerUnit' => $this->onlineMinutesPerUnit,
+            'onlineCreditsPerUnit' => $this->onlineCreditsPerUnit,
+            'onlineDailyCreditLimit' => $this->onlineDailyCreditLimit,
         ];
     }
 
@@ -102,7 +117,20 @@ final readonly class EconomySettings
             'character_level_up_points_purchase_enabled' => $this->characterLevelUpPointsPurchaseEnabled,
             'character_level_up_points_package_size' => $this->characterLevelUpPointsPackageSize,
             'character_level_up_points_price_credits' => $this->characterLevelUpPointsPriceCredits,
+            'item_exchange_enabled' => $this->itemExchangeEnabled,
+            'online_time_rewards_enabled' => $this->onlineTimeRewardsEnabled,
+            'online_minutes_per_unit' => $this->onlineMinutesPerUnit,
+            'online_credits_per_unit' => $this->onlineCreditsPerUnit,
+            'online_daily_credit_limit' => $this->onlineDailyCreditLimit,
         ];
+    }
+
+    /**
+     * Returns the configured online-time reward unit in seconds.
+     */
+    public function onlineSecondsPerUnit(): int
+    {
+        return $this->onlineMinutesPerUnit * 60;
     }
 
     /**

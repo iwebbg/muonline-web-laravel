@@ -26,6 +26,7 @@ use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Game\Contracts\ModerationRepository;
+use App\Game\Contracts\OnlineAccountRepository;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Contracts\ZenBankRepository;
 use App\Game\Repositories\SqlServer1_0MAccountActivationRepository;
@@ -49,6 +50,7 @@ use App\Game\Repositories\SqlServer1_0MMarketItemEscrowRepository;
 use App\Game\Repositories\SqlServer1_0MModerationRepository;
 use App\Game\Repositories\SqlServer1_0MRealmReadRepository;
 use App\Game\Repositories\SqlServer1_0MZenBankRepository;
+use App\Game\Repositories\SqlServerOnlineAccountRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
@@ -74,7 +76,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             'MEMB_INFO' => ['memb_guid', 'memb___id', 'memb__pwd', 'mail_addr', 'bloc_code', 'ctl1_code'],
             'Character' => ['AccountID', 'Name', 'cLevel', 'Class', 'Money', 'Resets', 'GrandResets', 'Leadership', 'MarryName'],
             'warehouse' => ['AccountID', 'Items', 'Money'],
-            'MEMB_STAT' => ['memb___id', 'ConnectStat'],
+            'MEMB_STAT' => ['memb___id', 'ConnectStat', 'ConnectTM', 'DisConnectTM'],
             'AccountCharacter' => ['Id', 'GameID1', 'GameID2', 'GameID3', 'GameID4', 'GameID5', 'GameIDC'],
             'Guild' => ['G_Name', 'G_Master', 'G_Score'],
             'GuildMember' => ['Name', 'G_Name'],
@@ -325,6 +327,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
             ItemSerialRepository::class => SqlServer1_0MItemSerialRepository::class,
             MarketItemEscrowRepository::class => SqlServer1_0MMarketItemEscrowRepository::class,
             ModerationRepository::class => SqlServer1_0MModerationRepository::class,
+            OnlineAccountRepository::class => SqlServerOnlineAccountRepository::class,
             ZenBankRepository::class => SqlServer1_0MZenBankRepository::class,
         ];
     }

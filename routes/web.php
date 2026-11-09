@@ -16,6 +16,7 @@ use App\Http\Controllers\Account\CharacterResetPurchaseController;
 use App\Http\Controllers\Account\CharacterStatAllocationController;
 use App\Http\Controllers\Account\CharacterStatResetController;
 use App\Http\Controllers\Account\CreditController;
+use App\Http\Controllers\Account\CreditItemExchangeController;
 use App\Http\Controllers\Account\CreditPaymentReturnController;
 use App\Http\Controllers\Account\CreditPurchaseController;
 use App\Http\Controllers\Account\GeneratedItemPurchaseController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Account\JewelBankWithdrawalController;
 use App\Http\Controllers\Account\MarketListingController;
 use App\Http\Controllers\Account\MarketPurchaseController;
 use App\Http\Controllers\Account\MoveToTownPreviewController;
+use App\Http\Controllers\Account\OnlineTimeClaimController;
 use App\Http\Controllers\Account\PkClearPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
 use App\Http\Controllers\Account\RewardController;
@@ -41,6 +43,7 @@ use App\Http\Controllers\AccountDashboardController;
 use App\Http\Controllers\Admin\AuditLogController as AdminAuditLogController;
 use App\Http\Controllers\Admin\AuthenticatedSessionController as AdminAuthenticatedSessionController;
 use App\Http\Controllers\Admin\CharacterRuleProfileController;
+use App\Http\Controllers\Admin\CreditExchangeOfferController;
 use App\Http\Controllers\Admin\CreditPackageController;
 use App\Http\Controllers\Admin\CreditPaymentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -211,6 +214,12 @@ Route::middleware(['auth', 'demo:account'])->group(function (): void {
     Route::get('/account/credits', CreditController::class)
         ->middleware('module.enabled:'.ServerModule::Credits->value)
         ->name('account.credits.index');
+    Route::post('/account/credits/item-exchanges', CreditItemExchangeController::class)
+        ->middleware(['demo:blocked', 'module.enabled:'.ServerModule::Credits->value, 'throttle:credit-earning'])
+        ->name('account.credit-item-exchanges.store');
+    Route::post('/account/credits/online-time-claims', OnlineTimeClaimController::class)
+        ->middleware(['demo:blocked', 'module.enabled:'.ServerModule::Credits->value, 'throttle:credit-earning'])
+        ->name('account.online-time-claims.store');
     Route::post('/account/credits/packages/{creditPackage}/purchase', CreditPurchaseController::class)
         ->middleware(['demo:blocked', 'module.enabled:'.ServerModule::Credits->value, 'throttle:credit-purchase'])
         ->name('account.credit-packages.purchase');
@@ -475,6 +484,12 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                     ->name('economy-settings.edit');
                 Route::put('/economy/settings', [EconomySettingController::class, 'update'])
                     ->name('economy-settings.update');
+                Route::post('/economy/credit-exchange-offers', [CreditExchangeOfferController::class, 'store'])
+                    ->name('credit-exchange-offers.store');
+                Route::put('/economy/credit-exchange-offers/{creditExchangeOffer}', [CreditExchangeOfferController::class, 'update'])
+                    ->name('credit-exchange-offers.update');
+                Route::delete('/economy/credit-exchange-offers/{creditExchangeOffer}', [CreditExchangeOfferController::class, 'destroy'])
+                    ->name('credit-exchange-offers.destroy');
                 Route::get('/economy/vip-plans', [VipPlanController::class, 'index'])
                     ->name('vip-plans.index');
                 Route::post('/economy/vip-plans', [VipPlanController::class, 'store'])
