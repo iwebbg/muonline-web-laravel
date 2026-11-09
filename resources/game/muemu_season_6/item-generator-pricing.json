@@ -219,6 +219,26 @@
         "max_level": 13,
         "max_excellent": 6
     },
+    "0:22": {
+        "base_price": 147,
+        "allows_luck": true,
+        "allows_skill": true,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "0:23": {
+        "base_price": 147,
+        "allows_luck": true,
+        "allows_skill": true,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
     "0:31": {
         "base_price": 100,
         "allows_luck": true,
@@ -629,6 +649,16 @@
         "max_level": 13,
         "max_excellent": 6
     },
+    "4:7": {
+        "base_price": 0,
+        "allows_luck": true,
+        "allows_skill": true,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
     "4:8": {
         "base_price": 4,
         "allows_luck": true,
@@ -699,6 +729,16 @@
         "max_level": 13,
         "max_excellent": 6
     },
+    "4:15": {
+        "base_price": 0,
+        "allows_luck": true,
+        "allows_skill": true,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
     "4:16": {
         "base_price": 84,
         "allows_luck": true,
@@ -741,6 +781,16 @@
     },
     "4:20": {
         "base_price": 135,
+        "allows_luck": true,
+        "allows_skill": true,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "4:21": {
+        "base_price": 147,
         "allows_luck": true,
         "allows_skill": true,
         "allows_level": true,
@@ -861,6 +911,46 @@
     },
     "5:11": {
         "base_price": 140,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "5:12": {
+        "base_price": 160,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "5:20": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "5:22": {
+        "base_price": 82,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "5:30": {
+        "base_price": 100,
         "allows_luck": true,
         "allows_skill": false,
         "allows_level": true,
@@ -1030,6 +1120,36 @@
         "max_excellent": 6
     },
     "6:16": {
+        "base_price": 66,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "6:18": {
+        "base_price": 66,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "6:19": {
+        "base_price": 66,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "6:20": {
         "base_price": 66,
         "allows_luck": true,
         "allows_skill": false,
@@ -1291,6 +1411,96 @@
     },
     "7:28": {
         "base_price": 106,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "7:29": {
+        "base_price": 130,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "7:30": {
+        "base_price": 126,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "7:40": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "7:41": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "7:44": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "7:45": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "7:46": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "7:49": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "7:52": {
+        "base_price": 100,
         "allows_luck": true,
         "allows_skill": false,
         "allows_level": true,
@@ -1589,6 +1799,76 @@
         "max_level": 13,
         "max_excellent": 6
     },
+    "8:29": {
+        "base_price": 140,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "8:30": {
+        "base_price": 146,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "8:32": {
+        "base_price": 147,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "8:33": {
+        "base_price": 147,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "8:40": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "8:41": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "8:44": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
     "9:0": {
         "base_price": 15,
         "allows_luck": true,
@@ -1871,6 +2151,76 @@
     },
     "9:28": {
         "base_price": 110,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "9:29": {
+        "base_price": 134,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "9:30": {
+        "base_price": 135,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "9:32": {
+        "base_price": 135,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "9:33": {
+        "base_price": 140,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "9:40": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "9:41": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "9:44": {
+        "base_price": 100,
         "allows_luck": true,
         "allows_skill": false,
         "allows_level": true,
@@ -2169,6 +2519,76 @@
         "max_level": 13,
         "max_excellent": 6
     },
+    "10:29": {
+        "base_price": 114,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "10:30": {
+        "base_price": 111,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "10:32": {
+        "base_price": 127,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "10:33": {
+        "base_price": 110,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "10:40": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "10:41": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "10:44": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
     "11:0": {
         "base_price": 12,
         "allows_luck": true,
@@ -2459,6 +2879,76 @@
         "max_level": 13,
         "max_excellent": 6
     },
+    "11:29": {
+        "base_price": 119,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "11:30": {
+        "base_price": 119,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "11:32": {
+        "base_price": 131,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "11:33": {
+        "base_price": 121,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "11:40": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "11:41": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "11:44": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
     "12:0": {
         "base_price": 45,
         "allows_luck": true,
@@ -2529,6 +3019,246 @@
         "max_level": 13,
         "max_excellent": 6
     },
+    "12:7": {
+        "base_price": 47,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:8": {
+        "base_price": 8,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:9": {
+        "base_price": 60,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:10": {
+        "base_price": 18,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:11": {
+        "base_price": 3,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:12": {
+        "base_price": 78,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:13": {
+        "base_price": 20,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:14": {
+        "base_price": 60,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:15": {
+        "base_price": 15,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:16": {
+        "base_price": 60,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:17": {
+        "base_price": 64,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:18": {
+        "base_price": 81,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:19": {
+        "base_price": 72,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:21": {
+        "base_price": 74,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:22": {
+        "base_price": 98,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:23": {
+        "base_price": 82,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:24": {
+        "base_price": 92,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "12:26": {
+        "base_price": 40,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "13:0": {
+        "base_price": 23,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:1": {
+        "base_price": 5,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "13:2": {
+        "base_price": 25,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:3": {
+        "base_price": 80,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "13:4": {
+        "base_price": 218,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "13:5": {
+        "base_price": 200,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
     "13:8": {
         "base_price": 20,
         "allows_luck": false,
@@ -2569,6 +3299,146 @@
         "max_level": 13,
         "max_excellent": 6
     },
+    "13:15": {
+        "base_price": 10,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:16": {
+        "base_price": 30,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:17": {
+        "base_price": 10,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:18": {
+        "base_price": 30,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "13:19": {
+        "base_price": 50,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:20": {
+        "base_price": 20,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:21": {
+        "base_price": 30,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:22": {
+        "base_price": 38,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:23": {
+        "base_price": 44,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:24": {
+        "base_price": 47,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:25": {
+        "base_price": 34,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:26": {
+        "base_price": 42,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:27": {
+        "base_price": 46,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:28": {
+        "base_price": 50,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
     "13:30": {
         "base_price": 180,
         "allows_luck": true,
@@ -2578,5 +3448,535 @@
         "max_option": 7,
         "max_level": 13,
         "max_excellent": 6
+    },
+    "13:31": {
+        "base_price": 50,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:32": {
+        "base_price": 100,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "13:33": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:34": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:36": {
+        "base_price": 100,
+        "allows_luck": true,
+        "allows_skill": false,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "13:37": {
+        "base_price": 450,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:0": {
+        "base_price": 5,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "14:1": {
+        "base_price": 10,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:2": {
+        "base_price": 20,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:3": {
+        "base_price": 30,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:4": {
+        "base_price": 10,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:5": {
+        "base_price": 20,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:6": {
+        "base_price": 30,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:7": {
+        "base_price": 30,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:8": {
+        "base_price": 10,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:9": {
+        "base_price": 15,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:11": {
+        "base_price": 25,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:13": {
+        "base_price": 50,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:14": {
+        "base_price": 1,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:16": {
+        "base_price": 50,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:20": {
+        "base_price": 10,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:21": {
+        "base_price": 30,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:22": {
+        "base_price": 50,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:23": {
+        "base_price": 20,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:24": {
+        "base_price": 20,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:25": {
+        "base_price": 20,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:28": {
+        "base_price": 20,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:29": {
+        "base_price": 20,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:31": {
+        "base_price": 75,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:35": {
+        "base_price": 50,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "14:41": {
+        "base_price": 150,
+        "allows_luck": true,
+        "allows_skill": true,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "14:42": {
+        "base_price": 150,
+        "allows_luck": true,
+        "allows_skill": true,
+        "allows_level": true,
+        "allows_option": true,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 6
+    },
+    "15:0": {
+        "base_price": 10,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:1": {
+        "base_price": 11,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:2": {
+        "base_price": 8,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:3": {
+        "base_price": 5,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:4": {
+        "base_price": 15,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:5": {
+        "base_price": 17,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:6": {
+        "base_price": 20,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:7": {
+        "base_price": 22,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:8": {
+        "base_price": 25,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:9": {
+        "base_price": 30,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:10": {
+        "base_price": 9,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:11": {
+        "base_price": 74,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:12": {
+        "base_price": 80,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:13": {
+        "base_price": 88,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:14": {
+        "base_price": 83,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:15": {
+        "base_price": 77,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:16": {
+        "base_price": 96,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:17": {
+        "base_price": 93,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:18": {
+        "base_price": 100,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:27": {
+        "base_price": 40,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
+    },
+    "15:29": {
+        "base_price": 40,
+        "allows_luck": false,
+        "allows_skill": false,
+        "allows_level": false,
+        "allows_option": false,
+        "max_option": 7,
+        "max_level": 13,
+        "max_excellent": 0
     }
 }

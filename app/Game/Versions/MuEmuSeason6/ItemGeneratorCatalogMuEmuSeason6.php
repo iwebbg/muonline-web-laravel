@@ -24,6 +24,8 @@ final class ItemGeneratorCatalogMuEmuSeason6 implements ItemGeneratorCatalog
 
     private string $pricingPath;
 
+    private ItemGeneratorOptionsMuEmuSeason6 $generatorOptions;
+
     /** @var array<string, array{base_price: int, allows_luck: bool, allows_skill: bool, allows_level: bool, allows_option: bool, max_option: int, max_level: int, max_excellent: int}>|null */
     private ?array $pricing = null;
 
@@ -33,9 +35,11 @@ final class ItemGeneratorCatalogMuEmuSeason6 implements ItemGeneratorCatalog
     public function __construct(
         private readonly ItemCatalogMuEmuSeason6 $itemCatalog,
         ?string $pricingPath = null,
+        ?ItemGeneratorOptionsMuEmuSeason6 $generatorOptions = null,
     ) {
         $this->pricingPath = $pricingPath
             ?? resource_path('game/muemu_season_6/item-generator-pricing.json');
+        $this->generatorOptions = $generatorOptions ?? new ItemGeneratorOptionsMuEmuSeason6;
     }
 
     /**
@@ -70,6 +74,7 @@ final class ItemGeneratorCatalogMuEmuSeason6 implements ItemGeneratorCatalog
                 'maxOption' => $pricing['max_option'],
                 'maxLevel' => $pricing['max_level'],
                 'maxExcellent' => $pricing['max_excellent'],
+                ...$this->generatorOptions->metadataFor($definition->group, $definition->index),
             ];
         }
 
@@ -79,7 +84,7 @@ final class ItemGeneratorCatalogMuEmuSeason6 implements ItemGeneratorCatalog
     /**
      * Returns the audited webshop option prices used by client-side previews.
      *
-     * @return array{level: int, additionalOption: int, skill: int, luck: int, excellentOption: int}
+     * @return array{level: int, additionalOption: int, skill: int, luck: int, excellentOption: int, ancientFive: int, ancientTen: int, option380: int, harmony: int, socket: int}
      */
     public function priceModifiers(): array
     {
@@ -89,13 +94,18 @@ final class ItemGeneratorCatalogMuEmuSeason6 implements ItemGeneratorCatalog
             'skill' => self::SKILL_PRICE,
             'luck' => self::LUCK_PRICE,
             'excellentOption' => self::EXCELLENT_OPTION_PRICE,
+            'ancientFive' => ItemGeneratorOptionsMuEmuSeason6::ANCIENT_FIVE_PRICE,
+            'ancientTen' => ItemGeneratorOptionsMuEmuSeason6::ANCIENT_TEN_PRICE,
+            'option380' => ItemGeneratorOptionsMuEmuSeason6::OPTION_380_PRICE,
+            'harmony' => ItemGeneratorOptionsMuEmuSeason6::HARMONY_PRICE,
+            'socket' => ItemGeneratorOptionsMuEmuSeason6::SOCKET_PRICE,
         ];
     }
 
     /**
      * Calculates a trusted MuEMU quote or rejects an unpriced configuration.
      *
-     * @param  array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int}  $options
+     * @param  array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int, harmony_option?: int, socket_count?: int, has_380_option?: bool}  $options
      */
     public function quote(array $options): ?ItemGeneratorQuote
     {
@@ -107,7 +117,9 @@ final class ItemGeneratorCatalogMuEmuSeason6 implements ItemGeneratorCatalog
 
         $pricing = $this->pricing()[$definition->code()] ?? null;
 
-        if (! is_array($pricing) || ! $this->optionsAreAllowed($options, $pricing)) {
+        $advancedOptions = $this->advancedOptions($options);
+
+        if (! is_array($pricing) || ! $this->optionsAreAllowed($options, $advancedOptions, $pricing)) {
             return null;
         }
 
@@ -119,6 +131,7 @@ final class ItemGeneratorCatalogMuEmuSeason6 implements ItemGeneratorCatalog
             'skill' => $options['has_skill'] ? self::SKILL_PRICE : 0,
             'luck' => $options['has_luck'] ? self::LUCK_PRICE : 0,
             'excellent_options' => $excellentCount * self::EXCELLENT_OPTION_PRICE,
+            ...$this->generatorOptions->priceBreakdown($advancedOptions),
         ];
 
         return new ItemGeneratorQuote(
@@ -136,6 +149,9 @@ final class ItemGeneratorCatalogMuEmuSeason6 implements ItemGeneratorCatalog
                 'has_luck' => $options['has_luck'],
                 'excellent_mask' => $options['excellent_mask'],
                 'ancient_option' => $options['ancient_option'],
+                'harmony_option' => $advancedOptions['harmony_option'],
+                'socket_count' => $advancedOptions['socket_count'],
+                'has_380_option' => $advancedOptions['has_380_option'],
                 'weight' => 1,
             ],
             priceBreakdown: $breakdown,
@@ -145,10 +161,11 @@ final class ItemGeneratorCatalogMuEmuSeason6 implements ItemGeneratorCatalog
     /**
      * Reports whether the selected item supports every requested binary option.
      *
-     * @param  array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int}  $options
+     * @param  array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int, harmony_option?: int, socket_count?: int, has_380_option?: bool}  $options
+     * @param  array{ancient_option: int, harmony_option: int, socket_count: int, has_380_option: bool}  $advancedOptions
      * @param  array{base_price: int, allows_luck: bool, allows_skill: bool, allows_level: bool, allows_option: bool, max_option: int, max_level: int, max_excellent: int}  $pricing
      */
-    private function optionsAreAllowed(array $options, array $pricing): bool
+    private function optionsAreAllowed(array $options, array $advancedOptions, array $pricing): bool
     {
         $excellentCount = substr_count(decbin($options['excellent_mask']), '1');
 
@@ -165,7 +182,28 @@ final class ItemGeneratorCatalogMuEmuSeason6 implements ItemGeneratorCatalog
             && $options['excellent_mask'] >= 0
             && $options['excellent_mask'] <= 63
             && $excellentCount <= $pricing['max_excellent']
-            && $options['ancient_option'] === 0;
+            && ($options['ancient_option'] === 0 || $options['excellent_mask'] === 0)
+            && $this->generatorOptions->optionsAreAllowed(
+                $options['group'],
+                $options['index'],
+                $advancedOptions,
+            );
+    }
+
+    /**
+     * Normalizes omitted advanced values from callers shared with older profiles.
+     *
+     * @param  array{ancient_option: int, harmony_option?: int, socket_count?: int, has_380_option?: bool}  $options
+     * @return array{ancient_option: int, harmony_option: int, socket_count: int, has_380_option: bool}
+     */
+    private function advancedOptions(array $options): array
+    {
+        return [
+            'ancient_option' => $options['ancient_option'],
+            'harmony_option' => (int) ($options['harmony_option'] ?? 0),
+            'socket_count' => (int) ($options['socket_count'] ?? 0),
+            'has_380_option' => (bool) ($options['has_380_option'] ?? false),
+        ];
     }
 
     /**

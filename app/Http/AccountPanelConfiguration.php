@@ -118,6 +118,9 @@ final class AccountPanelConfiguration
             'additionalDefenseRate' => $this->translate('ui.account.item_additional_defense_rate'),
             'automaticHpRecovery' => $this->translate('ui.account.item_automatic_hp_recovery'),
             'ancientOption' => $this->translate('ui.account.item_ancient_option'),
+            'harmonyOption' => $this->translate('ui.account.item_harmony_option'),
+            'socketSlots' => $this->translate('ui.account.item_socket_slots'),
+            'option380' => $this->translate('ui.account.item_380_option'),
             'excellentPrefix' => $this->translate('ui.account.item_excellent_prefix'),
             'excellent' => [
                 'weapon' => [

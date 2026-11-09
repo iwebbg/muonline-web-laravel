@@ -1090,6 +1090,7 @@ export function creditPackageManager(configuration) {
 export function itemGrantManager(configuration) {
     const excellentBits = [1, 2, 4, 8, 16, 32];
     const initialExcellentMask = Number(configuration.initialExcellentMask) || 0;
+    const initialHarmonyOption = Number(configuration.initialHarmonyOption) || 0;
     const initialItem = configuration.items[configuration.initialItemCode] ?? null;
 
     return {
@@ -1123,6 +1124,11 @@ export function itemGrantManager(configuration) {
         excellentOptionBits: excellentBits.filter(
             (bit) => (initialExcellentMask & bit) !== 0,
         ),
+        ancientOption: Number(configuration.initialAncientOption) || 0,
+        harmonyEffect: (initialHarmonyOption >> 4) & 0x0F,
+        harmonyLevel: initialHarmonyOption & 0x0F,
+        socketCount: Number(configuration.initialSocketCount) || 0,
+        has380Option: Boolean(configuration.initialHas380Option),
 
         /**
          * Loads an exact initial account after a completed grant redirect.
@@ -1152,6 +1158,48 @@ export function itemGrantManager(configuration) {
          */
         get selectedItem() {
             return this.items[this.itemCode] ?? null;
+        },
+
+        /**
+         * Reports whether the selected version-owned item exposes advanced controls.
+         *
+         * @returns {boolean}
+         */
+        get hasAdvancedOptions() {
+            return (this.selectedItem?.ancientOptions?.length ?? 0) > 0
+                || this.selectedItem?.allows380 === true
+                || (this.selectedItem?.harmonyOptions?.length ?? 0) > 0
+                || (this.selectedItem?.maxSockets ?? 0) > 0;
+        },
+
+        /**
+         * Returns the native Harmony byte represented by the visible controls.
+         *
+         * @returns {number}
+         */
+        get harmonyOption() {
+            if (this.harmonyEffect === 0) {
+                return 0;
+            }
+
+            return (this.harmonyEffect << 4) | this.harmonyLevel;
+        },
+
+        /**
+         * Returns Harmony levels accepted for the selected effect.
+         *
+         * @returns {Array<number>}
+         */
+        get availableHarmonyLevels() {
+            const option = this.selectedItem?.harmonyOptions?.find(
+                (candidate) => Number(candidate.value) === this.harmonyEffect,
+            );
+            const minimumLevel = Number(option?.minimumLevel ?? 0);
+
+            return Array.from(
+                { length: 16 - minimumLevel },
+                (_, index) => minimumLevel + index,
+            );
         },
 
         /**
@@ -1326,7 +1374,12 @@ export function itemGrantManager(configuration) {
                 + (this.optionLevel * Number(this.priceModifiers.additionalOption ?? 0))
                 + (this.hasSkill ? Number(this.priceModifiers.skill ?? 0) : 0)
                 + (this.hasLuck ? Number(this.priceModifiers.luck ?? 0) : 0)
-                + (this.excellentOptionBits.length * Number(this.priceModifiers.excellentOption ?? 0));
+                + (this.excellentOptionBits.length * Number(this.priceModifiers.excellentOption ?? 0))
+                + (this.ancientOption === 5 ? Number(this.priceModifiers.ancientFive ?? 0) : 0)
+                + (this.ancientOption === 10 ? Number(this.priceModifiers.ancientTen ?? 0) : 0)
+                + (this.has380Option ? Number(this.priceModifiers.option380 ?? 0) : 0)
+                + (this.harmonyOption > 0 ? Number(this.priceModifiers.harmony ?? 0) : 0)
+                + (this.socketCount * Number(this.priceModifiers.socket ?? 0));
 
             return basePrice + Math.ceil((basePrice * this.markupPercentage) / 100);
         },
@@ -1352,6 +1405,22 @@ export function itemGrantManager(configuration) {
             }
 
             options.push(...this.selectedExcellentOptions);
+
+            if (this.ancientOption > 0) {
+                options.push(this.ancientOption === 5 ? this.ui.ancientFive : this.ui.ancientTen);
+            }
+
+            if (this.has380Option) {
+                options.push(this.ui.option380);
+            }
+
+            if (this.harmonyOption > 0) {
+                options.push(`${this.ui.harmony}: ${this.harmonyOptionLabel(this.harmonyEffect)} +${this.harmonyLevel}`);
+            }
+
+            if (this.socketCount > 0) {
+                options.push(this.ui.socketCount.replace(':count', this.socketCount));
+            }
 
             return options;
         },
@@ -1402,9 +1471,83 @@ export function itemGrantManager(configuration) {
             this.excellentOptionBits = this.excellentOptionBits.filter(
                 (bit) => allowedBits.has(Number(bit)),
             ).slice(0, item.maxExcellent ?? excellentBits.length);
+            this.ancientOption = item.ancientOptions?.includes(this.ancientOption)
+                ? this.ancientOption
+                : 0;
+            this.has380Option = item.allows380 === true ? this.has380Option : false;
+            const harmonyOption = item.harmonyOptions?.find(
+                (option) => Number(option.value) === this.harmonyEffect,
+            );
+
+            if (harmonyOption === undefined) {
+                this.harmonyEffect = 0;
+                this.harmonyLevel = 0;
+            } else {
+                this.harmonyLevel = Math.max(
+                    this.harmonyLevel,
+                    Number(harmonyOption.minimumLevel),
+                );
+            }
+
+            this.socketCount = Math.min(this.socketCount, Number(item.maxSockets ?? 0));
             this.itemSuggestionsOpen = false;
             this.activeItemSuggestionIndex = -1;
             this.$refs.itemSearch.setCustomValidity('');
+        },
+
+        /**
+         * Returns the localized Harmony effect name for the selected item family.
+         *
+         * @param {number} value Native Harmony effect index.
+         * @returns {string}
+         */
+        harmonyOptionLabel(value) {
+            return this.ui.harmonyOptions?.[this.selectedItem?.harmonyType]?.[value] ?? String(value);
+        },
+
+        /**
+         * Enforces the Ancient and Excellent mutual-exclusion rule in the preview.
+         *
+         * @returns {void}
+         */
+        selectAncientOption() {
+            if (this.ancientOption > 0) {
+                this.excellentOptionBits = [];
+            }
+        },
+
+        /**
+         * Normalizes the Harmony level and clears mutually exclusive socket data.
+         *
+         * @returns {void}
+         */
+        selectHarmonyEffect() {
+            if (this.harmonyEffect === 0) {
+                this.harmonyLevel = 0;
+
+                return;
+            }
+
+            const option = this.selectedItem?.harmonyOptions?.find(
+                (candidate) => Number(candidate.value) === this.harmonyEffect,
+            );
+            this.harmonyLevel = Math.max(
+                this.harmonyLevel,
+                Number(option?.minimumLevel ?? 0),
+            );
+            this.socketCount = 0;
+        },
+
+        /**
+         * Clears Harmony when the selected item receives empty socket slots.
+         *
+         * @returns {void}
+         */
+        selectSocketCount() {
+            if (this.socketCount > 0) {
+                this.harmonyEffect = 0;
+                this.harmonyLevel = 0;
+            }
         },
 
         /**
@@ -2416,6 +2559,32 @@ export function itemInspector(itemOptionLabels, item = null) {
          */
         itemAncientOption(inspectedItem) {
             return `${this.itemOptionLabels.ancientOption}: ${inspectedItem.ancientOption}`;
+        },
+
+        /**
+         * Formats the raw Harmony byte retained by the active version adapter.
+         *
+         * @param {object} inspectedItem A decoded version-aware item.
+         * @returns {string}
+         */
+        itemHarmonyOption(inspectedItem) {
+            return `${this.itemOptionLabels.harmonyOption}: ${inspectedItem.harmonyOption}`;
+        },
+
+        /**
+         * Counts configured and empty socket slots without treating absent bytes as slots.
+         *
+         * @param {object} inspectedItem A decoded version-aware item.
+         * @returns {number}
+         */
+        itemSocketCount(inspectedItem) {
+            if (Number(inspectedItem.socketCount) > 0) {
+                return Number(inspectedItem.socketCount);
+            }
+
+            return (inspectedItem.socketOptions ?? []).filter(
+                (socketOption) => Number(socketOption) !== 255,
+            ).length;
         },
     };
 }

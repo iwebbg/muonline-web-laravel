@@ -41,10 +41,20 @@
                 'initialHasSkill' => old('has_skill', false),
                 'initialHasLuck' => old('has_luck', false),
                 'initialExcellentMask' => old('excellent_mask', 0),
+                'initialAncientOption' => old('ancient_option', 0),
+                'initialHarmonyOption' => old('harmony_option', 0),
+                'initialSocketCount' => old('socket_count', 0),
+                'initialHas380Option' => old('has_380_option', false),
                 'ui' => [
                     'skill' => __('ui.admin.item_grant_skill'),
                     'luck' => __('ui.admin.item_grant_luck'),
                     'itemRequired' => __('ui.admin.item_grant_item_required'),
+                    'ancientFive' => __('ui.shop.generator_ancient_five'),
+                    'ancientTen' => __('ui.shop.generator_ancient_ten'),
+                    'option380' => __('ui.shop.generator_380'),
+                    'harmony' => __('ui.shop.generator_harmony'),
+                    'harmonyOptions' => __('ui.shop.generator_harmony_options'),
+                    'socketCount' => __('ui.shop.generator_socket_count', ['count' => ':count']),
                 ],
             ]))"
             x-on:keydown.escape.window="closeItemSuggestions()"
@@ -54,7 +64,9 @@
                 <input type="hidden" name="idempotency_key" value="{{ $idempotencyKey }}">
                 <input type="hidden" name="item_code" x-bind:value="itemCode">
                 <input type="hidden" name="excellent_mask" x-bind:value="excellentMask">
-                <input type="hidden" name="ancient_option" value="0">
+                <input type="hidden" name="ancient_option" x-bind:value="ancientOption">
+                <input type="hidden" name="harmony_option" x-bind:value="harmonyOption">
+                <input type="hidden" name="socket_count" x-bind:value="socketCount">
 
                 <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
                     <div class="grid content-start gap-5 sm:grid-cols-2">
@@ -137,11 +149,59 @@
                             <div class="grid gap-3 sm:grid-cols-2">
                                 <template x-for="option in excellentOptions" :key="option.bit">
                                     <label class="flex items-start gap-3 rounded-xl border border-white/8 bg-black/15 p-3 text-sm text-silver">
-                                        <input type="checkbox" x-model.number="excellentOptionBits" x-bind:value="option.bit" x-bind:disabled="excellentOptionBits.length >= selectedItem?.maxExcellent && !excellentOptionBits.includes(option.bit)">
+                                        <input type="checkbox" x-model.number="excellentOptionBits" x-bind:value="option.bit" x-bind:disabled="ancientOption > 0 || (excellentOptionBits.length >= selectedItem?.maxExcellent && !excellentOptionBits.includes(option.bit))">
                                         <span x-text="option.label"></span>
                                     </label>
                                 </template>
                             </div>
+                        </fieldset>
+
+                        <fieldset x-show="hasAdvancedOptions" x-cloak class="grid gap-4 rounded-2xl border border-gold/20 bg-gold/[0.04] p-4 sm:col-span-2 sm:grid-cols-2">
+                            <legend class="px-2 text-sm font-semibold text-gold">{{ __('ui.shop.generator_advanced_options') }}</legend>
+
+                            <label x-show="selectedItem?.ancientOptions?.length > 0" class="field-group">
+                                <span>{{ __('ui.shop.generator_ancient') }}</span>
+                                <select x-model.number="ancientOption" x-on:change="selectAncientOption()">
+                                    <option value="0">{{ __('ui.shop.generator_ancient_none') }}</option>
+                                    <template x-for="option in selectedItem?.ancientOptions ?? []" :key="option">
+                                        <option x-bind:value="option" x-text="option === 5 ? ui.ancientFive : ui.ancientTen"></option>
+                                    </template>
+                                </select>
+                            </label>
+
+                            <label x-show="selectedItem?.allows380" class="flex min-h-11 items-center gap-3 self-end rounded-xl border border-white/8 px-4 py-3 text-sm text-silver">
+                                <input type="checkbox" name="has_380_option" value="1" x-model="has380Option">
+                                {{ __('ui.shop.generator_380') }}
+                            </label>
+
+                            <label x-show="selectedItem?.harmonyOptions?.length > 0" class="field-group">
+                                <span>{{ __('ui.shop.generator_harmony') }}</span>
+                                <select x-model.number="harmonyEffect" x-on:change="selectHarmonyEffect()">
+                                    <option value="0">{{ __('ui.shop.generator_harmony_none') }}</option>
+                                    <template x-for="option in selectedItem?.harmonyOptions ?? []" :key="option.value">
+                                        <option x-bind:value="option.value" x-text="harmonyOptionLabel(option.value)"></option>
+                                    </template>
+                                </select>
+                            </label>
+
+                            <label x-show="harmonyEffect > 0" class="field-group">
+                                <span>{{ __('ui.shop.generator_harmony_level') }}</span>
+                                <select x-model.number="harmonyLevel">
+                                    <template x-for="optionLevel in availableHarmonyLevels" :key="optionLevel">
+                                        <option x-bind:value="optionLevel" x-text="optionLevel"></option>
+                                    </template>
+                                </select>
+                            </label>
+
+                            <label x-show="selectedItem?.maxSockets > 0" class="field-group sm:col-span-2">
+                                <span>{{ __('ui.shop.generator_sockets') }}</span>
+                                <select x-model.number="socketCount" x-on:change="selectSocketCount()">
+                                    <option value="0">0</option>
+                                    <template x-for="count in selectedItem?.maxSockets ?? 0" :key="count">
+                                        <option x-bind:value="count" x-text="ui.socketCount.replace(':count', count)"></option>
+                                    </template>
+                                </select>
+                            </label>
                         </fieldset>
                     </div>
 

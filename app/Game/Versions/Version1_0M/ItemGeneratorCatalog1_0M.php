@@ -165,7 +165,10 @@ final class ItemGeneratorCatalog1_0M implements ItemGeneratorCatalog
             && $options['excellent_mask'] >= 0
             && $options['excellent_mask'] <= 63
             && $excellentCount <= $pricing['max_excellent']
-            && $options['ancient_option'] === 0;
+            && $options['ancient_option'] === 0
+            && (int) ($options['harmony_option'] ?? 0) === 0
+            && (int) ($options['socket_count'] ?? 0) === 0
+            && ! (bool) ($options['has_380_option'] ?? false);
     }
 
     /**

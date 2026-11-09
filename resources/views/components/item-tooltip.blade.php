@@ -41,4 +41,19 @@
         x-show="{{ $item }}.ancientOption > 0"
         x-text="itemAncientOption({{ $item }})"
     ></span>
+    <span
+        class="item-tooltip-line item-tooltip-option"
+        x-show="{{ $item }}.harmonyOption > 0"
+        x-text="itemHarmonyOption({{ $item }})"
+    ></span>
+    <span
+        class="item-tooltip-line item-tooltip-option"
+        x-show="itemSocketCount({{ $item }}) > 0"
+        x-text="`${itemOptionLabels.socketSlots}: ${itemSocketCount({{ $item }})}`"
+    ></span>
+    <span
+        class="item-tooltip-line item-tooltip-option"
+        x-show="{{ $item }}.has380Option"
+        x-text="itemOptionLabels.option380"
+    ></span>
 </span>

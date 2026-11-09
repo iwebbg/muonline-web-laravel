@@ -20,14 +20,17 @@ final class ItemGeneratorCatalogMuEmuSeason6Test extends TestCase
         $items = $this->catalog()->items();
         $itemsByCode = array_column($items, null, 'code');
 
-        $this->assertCount(258, $items);
+        $this->assertCount(398, $items);
         $this->assertSame('Battle Scepter', $itemsByCode['2:8']['name']);
         $this->assertSame(54, $itemsByCode['2:8']['basePrice']);
         $this->assertSame('Cape of Lord', $itemsByCode['13:30']['name']);
         $this->assertSame(13, $itemsByCode['13:30']['maxLevel']);
         $this->assertSame(7, $itemsByCode['13:30']['maxOption']);
+        $this->assertSame(147, $itemsByCode['0:22']['basePrice']);
+        $this->assertTrue($itemsByCode['0:22']['allows380']);
+        $this->assertSame(3, $itemsByCode['5:30']['maxSockets']);
         $this->assertArrayNotHasKey('0:32', $itemsByCode);
-        $this->assertArrayNotHasKey('14:0', $itemsByCode);
+        $this->assertSame('Apple', $itemsByCode['14:0']['name']);
     }
 
     /**
@@ -46,9 +49,35 @@ final class ItemGeneratorCatalogMuEmuSeason6Test extends TestCase
             'skill' => 0,
             'luck' => 15,
             'excellent_options' => 90,
+            'ancient' => 0,
+            'option_380' => 0,
+            'harmony' => 0,
+            'sockets' => 0,
         ], $quote->priceBreakdown);
         $this->assertSame(13, $quote->itemSnapshot['level']);
         $this->assertSame(7, $quote->itemSnapshot['option_level']);
+    }
+
+    /**
+     * Confirms trusted Season 6 option prices are included in the quote snapshot.
+     */
+    public function test_quotes_advanced_options_only_for_compatible_items(): void
+    {
+        $options = $this->capeOptions();
+        $options['group'] = 0;
+        $options['index'] = 22;
+        $options['has_380_option'] = true;
+        $options['excellent_mask'] = 0;
+        $options['has_skill'] = true;
+        $quote = $this->catalog()->quote($options);
+
+        $this->assertNotNull($quote);
+        $this->assertSame(15, $quote->priceBreakdown['option_380']);
+        $this->assertTrue($quote->itemSnapshot['has_380_option']);
+
+        $options['index'] = 21;
+
+        $this->assertNull($this->catalog()->quote($options));
     }
 
     /**
