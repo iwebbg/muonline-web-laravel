@@ -12,9 +12,9 @@ not used for exploratory writes.
 | 1 — Design system | Operational, polish ongoing | Public, account and admin shells plus reusable dialogs, forms, cards, tables and item grids are implemented with Tailwind CSS v4. |
 | 2 — Versioned read models | Implemented | Real accounts, characters, guilds, rankings, server status, inventory and warehouse reads use the tested 97d+99i and 1.0M adapters. |
 | 3 — Authentication | Implemented, manual mail testing ongoing | Player/admin authentication, registration, activation, recovery, security and Game Master permissions are present. |
-| 4 — Character operations | Implemented, real-server validation ongoing | Preview and execute paths exist for resets, stats, PK clear and movement with admin-managed rules. |
+| 4 — Character operations | Implemented, real-server validation ongoing | Preview and execute paths exist for resets, stats, PK clear and movement; paid rename, class change, resets and LevelUpPoints use admin-managed rules and confirmations. |
 | 5 — Inventory and warehouse | Implemented, UI polish ongoing | Item codec, item catalog, equipment, bags, multi-vault grids, tooltips and guarded exact-item mutations are present. |
-| 6 — Content/economy/community | Broad functional baseline | Content, Credits packages with Stripe, PayPal and Revolut Pay, VIP, Votes, Zen/Jewel banks, Web Vault, Market, Auction, Items Shop, Item Generator, Mystery Boxes and Rewards exist. |
+| 6 — Content/economy/community | Broad functional baseline | Content, Credits packages and earning, exact item exchange, online-time rewards, VIP, Votes, Zen/Jewel banks, Web Vault, Market, Auction, Items Shop, Item Generator, Mystery Boxes and Rewards exist. |
 | 7 — Production readiness | In progress | Docker/Nginx/TLS, readiness, scheduler, backup and least-privilege tooling exist; final rehearsal and security review remain. |
 
 For implementation details and mandatory continuation patterns, read
@@ -95,6 +95,8 @@ byte-for-byte stable when no change is requested.
 - Market, followed by auction as a separate high-risk milestone.
 - Items Shop, version-aware Item Generator, Mystery Boxes and durable Rewards
   inventory.
+- Administrator-priced character services plus exact-item and online-time
+  Credits earning with daily limits, revisions and idempotent recovery.
 - Add a separate Game Master role with granular permissions instead of sharing
   unrestricted administrator access.
 - Add audited moderation tools for account and character bans, blocks and
@@ -128,6 +130,6 @@ database is never accessed using `sa` or `db_owner` credentials.
    PayPal, Revolut Pay and Stripe Credits purchase integrations.
 5. Design the remaining optional Web Event capabilities around the established
    version and module boundaries.
-6. Stress concurrent bids, shop purchases, reward openings, storage moves and
-   scheduler retries.
+6. Stress concurrent bids, shop purchases, reward openings, item exchanges,
+   online-time claims, storage moves and scheduler retries.
 7. Complete backup/restore, rollback and least-privilege production rehearsals.

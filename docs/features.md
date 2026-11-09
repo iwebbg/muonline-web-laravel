@@ -46,11 +46,23 @@ integrations are in preparation and can also be requested at
 - Reset and grand-reset previews and execution.
 - Stat allocation and stat-reset previews and execution.
 - PK clear and move-to-town previews and execution.
+- Compact paid-service actions for character rename, class-family change,
+  reset packages and LevelUpPoints packages. Rename and class change share the
+  same teleported confirmation modals between Overview and Character Services.
+- Class-family choices come from the active game profile: four families for
+  97d+99i and five for 1.0M, with the current evolution tier preserved only
+  when the target family supports it.
 - Version-aware limits and admin-managed character rule profiles.
 
 ### Economy and storage
 
 - Credits balance and immutable transaction history.
+- Claimable Credits earned from bounded online-session observations, with an
+  administrator-defined time unit, reward amount and daily account cap.
+- Exact-item exchange offers which match catalog code, item level, skill,
+  luck, additional option, excellent-option mask and ancient option. Players
+  see eligible quantities per offline character and confirm the calculated
+  Credits award before the atomic exchange.
 - Configurable VIP plans and Credits-funded purchases.
 - Vote links, cooldowns, automatic or reviewed rewards and player history.
 - Recoverable Zen Bank deposits and withdrawals.
@@ -104,6 +116,11 @@ integrations are in preparation and can also be requested at
 ### Economy
 
 - Credits wallet adjustments with administrative reasons and ledger history.
+- Audited paid-service settings for Item Generator markup, character-service
+  availability and pricing, item exchange and online-time reward policy.
+- Version-catalog-backed item exchange offers with exact option selection,
+  per-item Credits value, maximum batch size, daily account cap, enable state
+  and immutable revisions.
 - VIP plan management.
 - Separate Vote Links and Vote History screens, filters and manual review.
 - Market and Auction operation inspection, return and retry tools.
@@ -130,6 +147,10 @@ integrations are in preparation and can also be requested at
   `GAME_WRITES_ENABLED=true` after the read-only commissioning checks pass.
 - Transactional and idempotent game mutations with ownership and offline-state
   checks repeated at the write boundary.
+- Durable item-to-Credits operations remove one exact inventory batch before
+  the wallet award and are retried safely after process or database failures.
+- Online-time collection observes `MEMB_STAT` every minute without backfilling
+  unknown past time; Credits are transferred only through an idempotent claim.
 - Exact preservation of legacy item bytes while an item is in escrow or web
   custody.
 - Read-only `game:doctor` checks for schema compatibility and unsafe SQL Server

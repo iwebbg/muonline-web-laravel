@@ -284,77 +284,68 @@ components under `resources/views/components`, and Alpine modules under
 
 ## Current next priorities
 
-### Active character economy handoff
+### Character economy milestone
 
-Development currently continues on `feat/character-economy-improvements`,
-based on `develop` at `5b43122`. The completed work is split into these focused
-commits:
+The `feat/character-economy-improvements` branch completes the current
+character-economy milestone. In addition to Item Generator markup and
+reset/grand-reset rewards, it now provides:
 
-- `61850ec feat(economy): add generator markup and reset rewards`
-- `0725b0e feat(account): add paid character services`
-- `425fc40 fix(database): support SQL Server reward constraints`
+- compact Character Services and Overview Quick Actions for paid Rename and
+  Change Class operations, backed by shared teleported confirmation modals;
+- version-driven class-family choices: four families for 97d+99i and five for
+  1.0M, preserving an evolution tier only when the target family supports it;
+- administrator-enabled Buy Resets and Buy LevelUpPoints packages with exact
+  Credits calculations and player confirmation;
+- audited Paid Services settings and visible revision history;
+- administrator-defined exact item exchange offers based on the active item
+  catalog. An offer matches group/index, level, skill, luck, additional option,
+  exact excellent mask and ancient option before removing a batch from an
+  offline character inventory;
+- account-level Online Time Rewards with configurable minutes per unit,
+  Credits per unit and daily limit;
+- explicit online-time claims, per-offer exchange limits and immutable wallet
+  transactions;
+- durable item-exchange state which survives a crash between game inventory
+  extraction and the application Credits award;
+- one-minute scheduler commands `credits:collect-online-time` and
+  `credits:sync-item-exchanges` for bounded observation and recovery.
 
-The branch now provides:
+The item exchange path intentionally ignores durability and serial when
+matching an offer, but it snapshots and verifies the complete original item
+bytes at the write boundary. This allows an offer such as Leather Pants +7 +
+Luck + Rate + Damage Decrease while preventing another option combination from
+being exchanged accidentally. Ownership, offline state, exact bytes, daily
+limits and idempotency are all checked server-side.
 
-- an administrator-controlled percentage markup over the Item Generator's
-  fully calculated Credits price, with matching server and browser previews;
-- independently configured reset and grand-reset rewards: none, a Credits
-  amount or a Mystery Box;
-- paid character rename and class-family change services, each with its own
-  enable switch and Credits price;
-- version-aware class changes which preserve the current evolution tier only
-  when that tier exists in the target family;
-- ownership and offline-state checks at the game database write boundary;
-- idempotent economy operations, compensating Credits refunds and immutable
-  operation records;
-- separate 97d+99i and 1.0M SQL Server repository implementations, including
-  the related account, guild and profile-specific character-name references.
+Online-time accounting reads current `MEMB_STAT` sessions through the active
+version profile. The first observation establishes a checkpoint and never
+backfills unknown past time. Later observations accept at most a bounded gap,
+convert only complete configured units and preserve a small remainder. Stopping
+the scheduler therefore pauses earning instead of creating an unverified time
+windfall when it restarts.
 
-The isolated PHPUnit suite passed with 654 tests and 3,224 assertions. The
-targeted 97d+99i and 1.0M SQL Server integration tests, frontend production
-build and Pint formatting also passed. The application migrations have been
-applied successfully to the local `MuOnline_1_0M_Web` database.
+The branch includes these final focused commits:
 
-Before manually executing a paid character service against a local game
-database, temporarily provide `GAME_DB_ADMIN_PASSWORD`, then refresh the
-profile-derived restricted grants with:
+- `62dd337 refactor(account): move character services into modals`
+- `6306858 fix(account): confirm character service purchases`
+- `03e3b86 feat(account): add paid progression services`
+- `6662f2c feat(admin): show paid service revisions`
+- `5550bde feat(credits): add item and online time exchanges`
+- `6904ecf test(credits): update profile schema expectations`
+- `8221e53 fix(database): allow rename reference updates`
 
-```bash
-./docker/compose exec app php artisan game:database:install --no-interaction
-```
+The disposable main suite passes with 670 tests and 3,316 assertions. The
+97d+99i and 1.0M SQL Server integration suites pass. The least-privilege doctor
+allows the narrow `Guild` and `GuildMember` updates required to keep renamed
+character references consistent, while continuing to reject insert, delete,
+control, alter and ownership permissions. Pint, Blade compilation and the Vite
+production build pass, and the new application migrations have been applied
+locally.
 
-Remove the administrator password immediately afterwards. The runtime game SQL
-identity needs the new profile-specific permissions for `AccountCharacter`,
-`Guild`, `GuildMember` and, for 97d+99i, `OptionData`. The installer is
-idempotent; do not grant broad database roles manually.
-
-The next task is a presentation refactor only. The existing Character services
-tab currently renders both purchase forms inline. Replace it with compact
-service rows consistent with the Overview Quick Actions:
-
-- show the service name, short player-facing description, exact Credits price
-  and an end-aligned action button;
-- open the rename or class-change workflow in a teleported modal instead of
-  expanding the form in the workspace;
-- include the selected character, wallet balance, price, offline requirement,
-  relevant input or class selector, validation feedback and confirmation in
-  the modal;
-- expose Rename character and Change character class in Overview Quick Actions
-  when their corresponding service is enabled;
-- route the tab and Quick Actions through the same modal component and backend
-  endpoints rather than duplicating forms or mutation logic;
-- reuse the existing account modal conventions and Alpine `accountPanel`
-  state, preserving direct URL and reload behavior;
-- retain the current backend actions, authorization, transactions and
-  idempotency unless the shared modal needs a minimal interface adjustment.
-
-The likely files in scope are
-`resources/views/components/account-character-services-panel.blade.php`,
-`resources/views/components/account-overview-panel.blade.php`, the shared
-account modal component or a new sibling component, `resources/js/muonline.js`
-and the related account dashboard tests. Verify the focused dashboard and
-character-service tests, run the frontend build, and create a focused commit
-such as `refactor(account): move character services into modals`.
+Before enabling either earning system, save the policy under **Admin → Economy
+→ Paid services**. Item Exchange additionally needs at least one enabled exact
+catalog offer. Online Time Rewards requires the scheduler to remain healthy.
+Both systems are disabled by default after migration.
 
 The untracked root files `script 1.0M.sql` and `script S6.sql` are external
 reference material supplied by the project owner. Do not add, edit, move or

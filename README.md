@@ -36,9 +36,13 @@ have been implemented and verified.
 - Responsive bilingual public website, account panel and administration.
 - Rankings, character and guild profiles, events, news, guides and downloads.
 - Character resets, grand resets, stats, PK clear and move-to-town with previews.
+- Paid character rename, class change, reset and LevelUpPoints services with
+  explicit confirmation and administrator-controlled Credits pricing.
 - Multi-vault inventory, Web Vault and physical-item Jewel Bank.
 - Credits packages with Stripe, PayPal and Revolut Pay, VIP, vote rewards,
   Zen Bank, Market and timed Auctions.
+- Credits earning through bounded online-time rewards and exact-option item
+  exchange offers configured from the verified version catalog.
 - Items Shop, version-aware Item Generator and configurable Mystery Boxes.
 - Mystery Boxes can release one hidden random item or every configured item.
 - Separate administrator identities, granular Game Master permissions and audit
