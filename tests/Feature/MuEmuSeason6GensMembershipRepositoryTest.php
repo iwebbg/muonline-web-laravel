@@ -125,6 +125,26 @@ final class MuEmuSeason6GensMembershipRepositoryTest extends TestCase
     }
 
     /**
+     * Confirms one public character receives its global family rank.
+     */
+    public function test_returns_public_gens_membership_by_character_name(): void
+    {
+        $connection = $this->app->make(DatabaseManager::class)->connection('game');
+        $connection->table('Gens_Rank')->insert([
+            ['Name' => 'FirstVanert', 'Family' => 2, 'Contribution' => 20_000],
+            ['Name' => 'PublicVanert', 'Family' => 2, 'Contribution' => 15_000],
+        ]);
+
+        $membership = $this->repository()->forCharacter('PublicVanert');
+
+        $this->assertNotNull($membership);
+        $this->assertSame(GensFamily::Vanert, $membership->family);
+        $this->assertSame(15_000, $membership->contribution);
+        $this->assertSame(2, $membership->rank);
+        $this->assertNull($this->repository()->forCharacter('MissingMember'));
+    }
+
+    /**
      * Builds the Gens adapter with the isolated game connection.
      */
     private function repository(): SqlServerMuEmuSeason6GensMembershipRepository

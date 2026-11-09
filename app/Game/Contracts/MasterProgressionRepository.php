@@ -15,4 +15,9 @@ interface MasterProgressionRepository
      * @return array<string, MasterProgression>
      */
     public function forAccount(string $accountId): array;
+
+    /**
+     * Returns one privacy-safe public progression snapshot when available.
+     */
+    public function forCharacter(string $characterName): ?MasterProgression;
 }

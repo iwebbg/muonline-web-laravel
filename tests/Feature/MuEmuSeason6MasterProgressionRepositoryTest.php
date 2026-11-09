@@ -93,6 +93,29 @@ final class MuEmuSeason6MasterProgressionRepositoryTest extends TestCase
     }
 
     /**
+     * Confirms one public character can expose only normalized progression data.
+     */
+    public function test_returns_public_master_progression_by_character_name(): void
+    {
+        $connection = $this->app->make(DatabaseManager::class)->connection('game');
+        $connection->table('MasterSkillTree')->insert([
+            'Name' => 'PublicMaster',
+            'MasterLevel' => 77,
+            'MasterPoint' => 8,
+            'MasterExperience' => 1_234_567,
+            'MasterSkill' => hex2bin(str_repeat('FF', 180)),
+        ]);
+
+        $progression = $this->repository()->forCharacter('PublicMaster');
+
+        $this->assertNotNull($progression);
+        $this->assertSame(77, $progression->level);
+        $this->assertSame(8, $progression->availablePoints);
+        $this->assertSame(1_234_567, $progression->experience);
+        $this->assertNull($this->repository()->forCharacter('MissingMaster'));
+    }
+
+    /**
      * Builds the adapter under test with the isolated game connection.
      */
     private function repository(): SqlServerMuEmuSeason6MasterProgressionRepository

@@ -2,6 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Contracts\MasterProgressionRepository;
+use App\Game\Data\GensFamily;
+use App\Game\Data\GensMembership;
+use App\Game\Data\MasterProgression;
 use Tests\TestCase;
 
 /**
@@ -24,6 +29,35 @@ final class PublicProfilePageTest extends TestCase
             ->assertSee('Legends')
             ->assertDontSee('AccountID')
             ->assertDontSee('Inventory');
+    }
+
+    /**
+     * Confirms standard Season 6 progression appears without exposing blobs.
+     */
+    public function test_public_character_profile_displays_master_and_gens_progression(): void
+    {
+        $masterRepository = $this->mock(MasterProgressionRepository::class);
+        $masterRepository
+            ->shouldReceive('forCharacter')
+            ->once()
+            ->with('KoPeH')
+            ->andReturn(new MasterProgression('KoPeH', 77, 8, 1_234_567));
+        $gensRepository = $this->mock(GensMembershipRepository::class);
+        $gensRepository
+            ->shouldReceive('forCharacter')
+            ->once()
+            ->with('KoPeH')
+            ->andReturn(new GensMembership('KoPeH', GensFamily::Duprian, 15_000, 2));
+
+        $response = $this->get(route('characters.show', 'KoPeH'));
+
+        $response
+            ->assertOk()
+            ->assertSee('Master level')
+            ->assertSee('77')
+            ->assertSee('Duprian')
+            ->assertSee('15,000')
+            ->assertDontSee('MasterSkill');
     }
 
     /**

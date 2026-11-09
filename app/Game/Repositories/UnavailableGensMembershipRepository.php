@@ -3,6 +3,7 @@
 namespace App\Game\Repositories;
 
 use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Data\GensMembership;
 use App\Game\Data\GensRankingPage;
 use App\Game\Data\GensRankingQuery;
 
@@ -19,6 +20,14 @@ final class UnavailableGensMembershipRepository implements GensMembershipReposit
     public function forAccount(string $accountId): array
     {
         return [];
+    }
+
+    /**
+     * Returns no public membership for an unsupported profile.
+     */
+    public function forCharacter(string $characterName): ?GensMembership
+    {
+        return null;
     }
 
     /**

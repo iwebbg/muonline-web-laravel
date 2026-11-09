@@ -11,6 +11,7 @@ use App\Game\Data\GensRankingQuery;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Query\Builder;
+use stdClass;
 
 /**
  * Reads standard Gens membership and contribution from the MuEMU Season 6 schema.
@@ -52,22 +53,32 @@ final readonly class SqlServerMuEmuSeason6GensMembershipRepository implements Ge
         $membershipsByCharacter = [];
 
         foreach ($rows as $row) {
-            $family = GensFamily::fromDatabaseValue((int) $row->family);
+            $membership = $this->membershipFromRow($row);
 
-            if ($family === null) {
+            if ($membership === null) {
                 continue;
             }
 
-            $characterName = (string) $row->character_name;
-            $membershipsByCharacter[$characterName] = new GensMembership(
-                characterName: $characterName,
-                family: $family,
-                contribution: max(0, (int) $row->contribution),
-                rank: max(0, (int) $row->gens_rank),
-            );
+            $membershipsByCharacter[$membership->characterName] = $membership;
         }
 
         return $membershipsByCharacter;
+    }
+
+    /**
+     * Returns one public Gens membership from the ranking database.
+     */
+    public function forCharacter(string $characterName): ?GensMembership
+    {
+        $connectionName = (string) config('game.database_connections.rankings', 'game');
+        $row = $this->database
+            ->connection($connectionName)
+            ->query()
+            ->fromSub($this->rankedMembershipQuery($connectionName), 'gens')
+            ->where('character_name', $characterName)
+            ->first();
+
+        return $row instanceof stdClass ? $this->membershipFromRow($row) : null;
     }
 
     /**
@@ -154,5 +165,24 @@ final readonly class SqlServerMuEmuSeason6GensMembershipRepository implements Ge
                 .'THEN DENSE_RANK() OVER (PARTITION BY Family ORDER BY Contribution DESC) '
                 .'ELSE 0 END as gens_rank',
             );
+    }
+
+    /**
+     * Maps one verified ranked row and rejects non-standard family codes.
+     */
+    private function membershipFromRow(stdClass $row): ?GensMembership
+    {
+        $family = GensFamily::fromDatabaseValue((int) $row->family);
+
+        if ($family === null) {
+            return null;
+        }
+
+        return new GensMembership(
+            characterName: (string) $row->character_name,
+            family: $family,
+            contribution: max(0, (int) $row->contribution),
+            rank: max(0, (int) $row->gens_rank),
+        );
     }
 }

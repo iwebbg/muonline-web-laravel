@@ -19,6 +19,11 @@ interface GensMembershipRepository
     public function forAccount(string $accountId): array;
 
     /**
+     * Returns one privacy-safe public Gens membership when available.
+     */
+    public function forCharacter(string $characterName): ?GensMembership;
+
+    /**
      * Returns one searched and paginated public Gens leaderboard.
      */
     public function rankings(GensRankingQuery $query): GensRankingPage;

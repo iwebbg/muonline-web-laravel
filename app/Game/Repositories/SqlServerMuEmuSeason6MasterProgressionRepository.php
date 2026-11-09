@@ -5,6 +5,7 @@ namespace App\Game\Repositories;
 use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Data\MasterProgression;
 use Illuminate\Database\DatabaseManager;
+use stdClass;
 
 /**
  * Reads standard Master Level progression from the MuEMU Season 6 schema.
@@ -39,14 +40,41 @@ final readonly class SqlServerMuEmuSeason6MasterProgressionRepository implements
 
         foreach ($rows as $row) {
             $characterName = (string) $row->character_name;
-            $progressionByCharacter[$characterName] = new MasterProgression(
-                characterName: $characterName,
-                level: max(0, (int) $row->master_level),
-                availablePoints: max(0, (int) $row->master_points),
-                experience: max(0, (int) $row->master_experience),
-            );
+            $progressionByCharacter[$characterName] = $this->progressionFromRow($row);
         }
 
         return $progressionByCharacter;
+    }
+
+    /**
+     * Returns one public Master progression snapshot from the ranking database.
+     */
+    public function forCharacter(string $characterName): ?MasterProgression
+    {
+        $row = $this->database
+            ->connection((string) config('game.database_connections.rankings', 'game'))
+            ->table('MasterSkillTree')
+            ->where('Name', $characterName)
+            ->first([
+                'Name as character_name',
+                'MasterLevel as master_level',
+                'MasterPoint as master_points',
+                'MasterExperience as master_experience',
+            ]);
+
+        return $row instanceof stdClass ? $this->progressionFromRow($row) : null;
+    }
+
+    /**
+     * Maps one verified database row into the normalized progression value.
+     */
+    private function progressionFromRow(stdClass $row): MasterProgression
+    {
+        return new MasterProgression(
+            characterName: (string) $row->character_name,
+            level: max(0, (int) $row->master_level),
+            availablePoints: max(0, (int) $row->master_points),
+            experience: max(0, (int) $row->master_experience),
+        );
     }
 }
