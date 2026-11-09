@@ -2,6 +2,55 @@
 
 namespace App\Game\Versions\MuEmuSeason6;
 
+use App\Game\Contracts\AccountActivationRepository;
+use App\Game\Contracts\AccountCredentialRepository;
+use App\Game\Contracts\AccountPasswordRecoveryRepository;
+use App\Game\Contracts\AccountReadRepository;
+use App\Game\Contracts\AccountRegistrationRepository;
+use App\Game\Contracts\CastleSiegeReadRepository;
+use App\Game\Contracts\CharacterGrandResetRepository;
+use App\Game\Contracts\CharacterInventoryEscrowRepository;
+use App\Game\Contracts\CharacterMoveRepository;
+use App\Game\Contracts\CharacterPkClearRepository;
+use App\Game\Contracts\CharacterResetRepository;
+use App\Game\Contracts\CharacterServiceRepository;
+use App\Game\Contracts\CharacterStatAllocationRepository;
+use App\Game\Contracts\CharacterStatResetRepository;
+use App\Game\Contracts\CharacterVipRepository;
+use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemCodec;
+use App\Game\Contracts\ItemEscrowRepository;
+use App\Game\Contracts\ItemGeneratorCatalog;
+use App\Game\Contracts\ItemGrantRules;
+use App\Game\Contracts\ItemSerialRepository;
+use App\Game\Contracts\ItemStorageRepository;
+use App\Game\Contracts\MarketItemEscrowRepository;
+use App\Game\Contracts\ModerationRepository;
+use App\Game\Contracts\OnlineAccountRepository;
+use App\Game\Contracts\RealmReadRepository;
+use App\Game\Contracts\ZenBankRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6AccountActivationRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6AccountCredentialRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6AccountPasswordRecoveryRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6AccountReadRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6AccountRegistrationRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CastleSiegeReadRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterGrandResetRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterInventoryEscrowRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterMoveRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterPkClearRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterResetRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterServiceRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterStatAllocationRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterStatResetRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterVipRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6ItemSerialRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6ItemStorageRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6MarketItemEscrowRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6ModerationRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6RealmReadRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6ZenBankRepository;
+use App\Game\Repositories\SqlServerOnlineAccountRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
@@ -25,12 +74,14 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
     {
         return [
             'MEMB_INFO' => [
-                'memb_guid', 'memb___id', 'memb__pwd', 'mail_addr', 'bloc_code', 'ctl1_code',
-                'AccountLevel', 'AccountExpireDate', 'WarehouseCount',
+                'memb_guid', 'memb___id', 'memb__pwd', 'memb_name', 'sno__numb', 'mail_addr',
+                'bloc_code', 'ctl1_code', 'AccountLevel', 'AccountExpireDate', 'WarehouseCount',
             ],
             'Character' => [
-                'AccountID', 'Name', 'cLevel', 'LevelUpPoint', 'Class', 'Money', 'Leadership',
-                'Inventory', 'ResetCount', 'MasterResetCount',
+                'AccountID', 'Name', 'cLevel', 'LevelUpPoint', 'Class', 'Experience', 'Strength',
+                'Dexterity', 'Vitality', 'Energy', 'Leadership', 'Inventory', 'Money', 'MapNumber',
+                'MapPosX', 'MapPosY', 'PkCount', 'PkLevel', 'PkTime', 'CtlCode', 'ResetCount',
+                'MasterResetCount', 'ExtInventory',
             ],
             'Warehouse' => ['AccountID', 'Items', 'Money'],
             'ExtWarehouse' => ['AccountID', 'Items', 'Money', 'Number'],
@@ -39,7 +90,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
                 'Id', 'GameID1', 'GameID2', 'GameID3', 'GameID4', 'GameID5', 'GameID6',
                 'GameID7', 'GameID8', 'GameID9', 'GameID10', 'GameIDC', 'ExtWarehouse',
             ],
-            'Guild' => ['G_Name', 'G_Mark', 'G_Master', 'G_Score'],
+            'Guild' => ['G_Name', 'G_Mark', 'G_Master', 'G_Score', 'G_Count', 'G_Notice'],
             'GuildMember' => ['Name', 'G_Name'],
             'GameServerInfo' => ['ItemCount'],
             'MuCastle_DATA' => [
@@ -244,22 +295,51 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
     }
 
     /**
-     * Returns no item services until the isolated MuEMU codec is installed.
+     * Returns the isolated MuEMU item services as one atomic bundle.
      *
      * @return array<class-string, class-string>
      */
     public function itemServiceBindings(): array
     {
-        return [];
+        return [
+            ItemCatalog::class => ItemCatalogMuEmuSeason6::class,
+            ItemCodec::class => ItemCodecMuEmuSeason6::class,
+            ItemGrantRules::class => ItemGrantRulesMuEmuSeason6::class,
+            ItemGeneratorCatalog::class => ItemGeneratorCatalogMuEmuSeason6::class,
+        ];
     }
 
     /**
-     * Returns no repositories until the isolated MuEMU adapters are installed.
+     * Returns every SQL adapter selected as one atomic MuEMU bundle.
      *
      * @return array<class-string, class-string>
      */
     public function repositoryBindings(): array
     {
-        return [];
+        return [
+            RealmReadRepository::class => SqlServerMuEmuSeason6RealmReadRepository::class,
+            CastleSiegeReadRepository::class => SqlServerMuEmuSeason6CastleSiegeReadRepository::class,
+            AccountActivationRepository::class => SqlServerMuEmuSeason6AccountActivationRepository::class,
+            AccountCredentialRepository::class => SqlServerMuEmuSeason6AccountCredentialRepository::class,
+            AccountPasswordRecoveryRepository::class => SqlServerMuEmuSeason6AccountPasswordRecoveryRepository::class,
+            AccountRegistrationRepository::class => SqlServerMuEmuSeason6AccountRegistrationRepository::class,
+            AccountReadRepository::class => SqlServerMuEmuSeason6AccountReadRepository::class,
+            CharacterResetRepository::class => SqlServerMuEmuSeason6CharacterResetRepository::class,
+            CharacterGrandResetRepository::class => SqlServerMuEmuSeason6CharacterGrandResetRepository::class,
+            CharacterMoveRepository::class => SqlServerMuEmuSeason6CharacterMoveRepository::class,
+            CharacterPkClearRepository::class => SqlServerMuEmuSeason6CharacterPkClearRepository::class,
+            CharacterStatAllocationRepository::class => SqlServerMuEmuSeason6CharacterStatAllocationRepository::class,
+            CharacterStatResetRepository::class => SqlServerMuEmuSeason6CharacterStatResetRepository::class,
+            CharacterServiceRepository::class => SqlServerMuEmuSeason6CharacterServiceRepository::class,
+            CharacterVipRepository::class => SqlServerMuEmuSeason6CharacterVipRepository::class,
+            CharacterInventoryEscrowRepository::class => SqlServerMuEmuSeason6CharacterInventoryEscrowRepository::class,
+            ItemStorageRepository::class => SqlServerMuEmuSeason6ItemStorageRepository::class,
+            ItemEscrowRepository::class => SqlServerMuEmuSeason6MarketItemEscrowRepository::class,
+            ItemSerialRepository::class => SqlServerMuEmuSeason6ItemSerialRepository::class,
+            MarketItemEscrowRepository::class => SqlServerMuEmuSeason6MarketItemEscrowRepository::class,
+            ModerationRepository::class => SqlServerMuEmuSeason6ModerationRepository::class,
+            OnlineAccountRepository::class => SqlServerOnlineAccountRepository::class,
+            ZenBankRepository::class => SqlServerMuEmuSeason6ZenBankRepository::class,
+        ];
     }
 }

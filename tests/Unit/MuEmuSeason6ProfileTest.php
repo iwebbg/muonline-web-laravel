@@ -2,6 +2,24 @@
 
 namespace Tests\Unit;
 
+use App\Game\Contracts\CastleSiegeReadRepository;
+use App\Game\Contracts\CharacterGrandResetRepository;
+use App\Game\Contracts\CharacterVipRepository;
+use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemCodec;
+use App\Game\Contracts\ItemGeneratorCatalog;
+use App\Game\Contracts\ItemGrantRules;
+use App\Game\Contracts\OnlineAccountRepository;
+use App\Game\Contracts\RealmReadRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CastleSiegeReadRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterGrandResetRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6CharacterVipRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6RealmReadRepository;
+use App\Game\Repositories\SqlServerOnlineAccountRepository;
+use App\Game\Versions\MuEmuSeason6\ItemCatalogMuEmuSeason6;
+use App\Game\Versions\MuEmuSeason6\ItemCodecMuEmuSeason6;
+use App\Game\Versions\MuEmuSeason6\ItemGeneratorCatalogMuEmuSeason6;
+use App\Game\Versions\MuEmuSeason6\ItemGrantRulesMuEmuSeason6;
 use App\Game\Versions\MuEmuSeason6\MuEmuSeason6Profile;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -106,6 +124,67 @@ final class MuEmuSeason6ProfileTest extends TestCase
         $this->expectExceptionMessage('Unsupported MuEMU Season 6 character class code: 97.');
 
         (new MuEmuSeason6Profile)->statsForClass(97);
+    }
+
+    /**
+     * Confirms the profile installs one complete adapter bundle without legacy fallbacks.
+     */
+    public function test_exposes_only_isolated_muemu_repository_bindings(): void
+    {
+        $bindings = (new MuEmuSeason6Profile)->repositoryBindings();
+
+        $this->assertCount(23, $bindings);
+        $this->assertSame(
+            SqlServerMuEmuSeason6RealmReadRepository::class,
+            $bindings[RealmReadRepository::class],
+        );
+        $this->assertSame(
+            SqlServerMuEmuSeason6CharacterGrandResetRepository::class,
+            $bindings[CharacterGrandResetRepository::class],
+        );
+        $this->assertSame(
+            SqlServerMuEmuSeason6CharacterVipRepository::class,
+            $bindings[CharacterVipRepository::class],
+        );
+        $this->assertSame(
+            SqlServerMuEmuSeason6CastleSiegeReadRepository::class,
+            $bindings[CastleSiegeReadRepository::class],
+        );
+        $this->assertSame(
+            SqlServerOnlineAccountRepository::class,
+            $bindings[OnlineAccountRepository::class],
+        );
+
+        foreach ($bindings as $adapter) {
+            if ($adapter !== SqlServerOnlineAccountRepository::class) {
+                $this->assertStringContainsString('MuEmuSeason6', $adapter);
+            }
+
+            $this->assertStringNotContainsString('97d99i', $adapter);
+            $this->assertStringNotContainsString('1_0M', $adapter);
+        }
+    }
+
+    /**
+     * Confirms every item service is owned by the MuEMU profile.
+     */
+    public function test_exposes_only_isolated_muemu_item_service_bindings(): void
+    {
+        $bindings = (new MuEmuSeason6Profile)->itemServiceBindings();
+
+        $this->assertSame(ItemCatalogMuEmuSeason6::class, $bindings[ItemCatalog::class]);
+        $this->assertSame(ItemCodecMuEmuSeason6::class, $bindings[ItemCodec::class]);
+        $this->assertSame(ItemGrantRulesMuEmuSeason6::class, $bindings[ItemGrantRules::class]);
+        $this->assertSame(
+            ItemGeneratorCatalogMuEmuSeason6::class,
+            $bindings[ItemGeneratorCatalog::class],
+        );
+
+        foreach ($bindings as $adapter) {
+            $this->assertStringContainsString('MuEmuSeason6', $adapter);
+            $this->assertStringNotContainsString('97d99i', $adapter);
+            $this->assertStringNotContainsString('1_0M', $adapter);
+        }
     }
 
     /**
