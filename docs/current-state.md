@@ -284,6 +284,84 @@ components under `resources/views/components`, and Alpine modules under
 
 ## Current next priorities
 
+### Active character economy handoff
+
+Development currently continues on `feat/character-economy-improvements`,
+based on `develop` at `5b43122`. The completed work is split into these focused
+commits:
+
+- `61850ec feat(economy): add generator markup and reset rewards`
+- `0725b0e feat(account): add paid character services`
+- `425fc40 fix(database): support SQL Server reward constraints`
+
+The branch now provides:
+
+- an administrator-controlled percentage markup over the Item Generator's
+  fully calculated Credits price, with matching server and browser previews;
+- independently configured reset and grand-reset rewards: none, a Credits
+  amount or a Mystery Box;
+- paid character rename and class-family change services, each with its own
+  enable switch and Credits price;
+- version-aware class changes which preserve the current evolution tier only
+  when that tier exists in the target family;
+- ownership and offline-state checks at the game database write boundary;
+- idempotent economy operations, compensating Credits refunds and immutable
+  operation records;
+- separate 97d+99i and 1.0M SQL Server repository implementations, including
+  the related account, guild and profile-specific character-name references.
+
+The isolated PHPUnit suite passed with 654 tests and 3,224 assertions. The
+targeted 97d+99i and 1.0M SQL Server integration tests, frontend production
+build and Pint formatting also passed. The application migrations have been
+applied successfully to the local `MuOnline_1_0M_Web` database.
+
+Before manually executing a paid character service against a local game
+database, temporarily provide `GAME_DB_ADMIN_PASSWORD`, then refresh the
+profile-derived restricted grants with:
+
+```bash
+./docker/compose exec app php artisan game:database:install --no-interaction
+```
+
+Remove the administrator password immediately afterwards. The runtime game SQL
+identity needs the new profile-specific permissions for `AccountCharacter`,
+`Guild`, `GuildMember` and, for 97d+99i, `OptionData`. The installer is
+idempotent; do not grant broad database roles manually.
+
+The next task is a presentation refactor only. The existing Character services
+tab currently renders both purchase forms inline. Replace it with compact
+service rows consistent with the Overview Quick Actions:
+
+- show the service name, short player-facing description, exact Credits price
+  and an end-aligned action button;
+- open the rename or class-change workflow in a teleported modal instead of
+  expanding the form in the workspace;
+- include the selected character, wallet balance, price, offline requirement,
+  relevant input or class selector, validation feedback and confirmation in
+  the modal;
+- expose Rename character and Change character class in Overview Quick Actions
+  when their corresponding service is enabled;
+- route the tab and Quick Actions through the same modal component and backend
+  endpoints rather than duplicating forms or mutation logic;
+- reuse the existing account modal conventions and Alpine `accountPanel`
+  state, preserving direct URL and reload behavior;
+- retain the current backend actions, authorization, transactions and
+  idempotency unless the shared modal needs a minimal interface adjustment.
+
+The likely files in scope are
+`resources/views/components/account-character-services-panel.blade.php`,
+`resources/views/components/account-overview-panel.blade.php`, the shared
+account modal component or a new sibling component, `resources/js/muonline.js`
+and the related account dashboard tests. Verify the focused dashboard and
+character-service tests, run the frontend build, and create a focused commit
+such as `refactor(account): move character services into modals`.
+
+The untracked root files `script 1.0M.sql` and `script S6.sql` are external
+reference material supplied by the project owner. Do not add, edit, move or
+delete them unless explicitly requested.
+
+### Broader priorities
+
 1. Continue manual end-to-end testing against the dedicated 97d+99i and 1.0M
    SQL Server databases and test game servers, one player operation at a time.
 2. Finish UI polish and responsive review after functional defects are closed.
