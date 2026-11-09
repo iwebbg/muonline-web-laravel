@@ -6,6 +6,7 @@ use App\Auth\GameAccount;
 use App\CharacterServices\CharacterClassChangeResolver;
 use App\Economy\WalletCurrency;
 use App\Game\Contracts\AccountReadRepository;
+use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\AccountPanelConfiguration;
@@ -39,6 +40,7 @@ final class AccountDashboardController extends Controller
         private readonly GameVersionProfile $versionProfile,
         private readonly CharacterClassChangeResolver $classChangeResolver,
         private readonly EconomySettingReader $economySettingReader,
+        private readonly MasterProgressionRepository $masterProgressionRepository,
     ) {}
 
     /**
@@ -51,11 +53,16 @@ final class AccountDashboardController extends Controller
         abort_unless($account instanceof GameAccount, 403);
 
         $characterEntries = $this->accountReadRepository->charactersFor($account->username);
+        $masterProgressionByCharacter = $this->masterProgressionRepository->forAccount(
+            $account->username,
+        );
         $characters = [];
         $characterNames = [];
 
         foreach ($characterEntries as $characterEntry) {
             $character = $characterEntry->toArray();
+            $masterProgression = $masterProgressionByCharacter[$characterEntry->name] ?? null;
+            $character['masterProgression'] = $masterProgression?->toArray();
             $statDefinitions = [];
 
             foreach ($this->versionProfile->statsForClass($characterEntry->classCode) as $statDefinition) {

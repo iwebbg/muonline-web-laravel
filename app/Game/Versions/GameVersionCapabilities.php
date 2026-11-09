@@ -16,5 +16,6 @@ final readonly class GameVersionCapabilities
         public bool $billingRecord,
         public bool $itemGenerator = true,
         public bool $castleSiege = false,
+        public bool $masterProgression = false,
     ) {}
 }

@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Auth\GameAccount;
+use App\Game\Contracts\MasterProgressionRepository;
+use App\Game\Data\MasterProgression;
 use App\Models\AccountWallet;
 use App\Models\EconomySetting;
 use App\Models\ModuleProfile;
@@ -86,6 +88,43 @@ final class AccountDashboardTest extends TestCase
         $response->assertSee(route('account.credits.index'), false);
         $response->assertSee('x-teleport="body"', false);
         $response->assertSee('aria-modal="true"', false);
+    }
+
+    /**
+     * Confirms standard Master progression is attached to its owned character only.
+     */
+    public function test_dashboard_displays_owned_master_progression(): void
+    {
+        $connection = $this->app->make(DatabaseManager::class)->connection('game');
+        $connection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $connection->table('Character')->insert($this->characterRecord('owner', 'OwnedKnight'));
+        $masterProgressionRepository = $this->mock(MasterProgressionRepository::class);
+        $masterProgressionRepository
+            ->shouldReceive('forAccount')
+            ->once()
+            ->with('owner')
+            ->andReturn([
+                'OwnedKnight' => new MasterProgression(
+                    characterName: 'OwnedKnight',
+                    level: 125,
+                    availablePoints: 17,
+                    experience: 9_876_543,
+                ),
+            ]);
+
+        $response = $this
+            ->actingAs($this->account('owner'))
+            ->get('/account');
+
+        $response->assertOk();
+        $response->assertSee('Master progression');
+        $response->assertViewHas('characters', function (array $characters): bool {
+            return $characters[0]['masterProgression'] === [
+                'level' => 125,
+                'availablePoints' => 17,
+                'experience' => 9_876_543,
+            ];
+        });
     }
 
     /**

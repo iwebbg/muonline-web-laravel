@@ -8,11 +8,13 @@ use App\Game\Clocks\SystemRealmClock;
 use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\GameServerStatus;
+use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Repositories\FixtureRealmReadRepository;
 use App\Game\Repositories\LegacyGameAccountLookupRepository;
 use App\Game\Repositories\UnavailableCastleSiegeReadRepository;
+use App\Game\Repositories\UnavailableMasterProgressionRepository;
 use App\Game\Status\FixtureGameServerStatus;
 use App\Game\Status\TcpGameServerStatus;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
@@ -76,6 +78,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             CastleSiegeReadRepository::class,
             UnavailableCastleSiegeReadRepository::class,
+        );
+        $this->app->bind(
+            MasterProgressionRepository::class,
+            UnavailableMasterProgressionRepository::class,
         );
 
         foreach ($versionProfile->repositoryBindings() as $contract => $adapter) {

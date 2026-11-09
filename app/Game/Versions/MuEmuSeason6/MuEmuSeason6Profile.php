@@ -25,6 +25,7 @@ use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
+use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Contracts\ModerationRepository;
 use App\Game\Contracts\OnlineAccountRepository;
 use App\Game\Contracts\RealmReadRepository;
@@ -47,6 +48,7 @@ use App\Game\Repositories\SqlServerMuEmuSeason6CharacterVipRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6ItemSerialRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6ItemStorageRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6MarketItemEscrowRepository;
+use App\Game\Repositories\SqlServerMuEmuSeason6MasterProgressionRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6ModerationRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6RealmReadRepository;
 use App\Game\Repositories\SqlServerMuEmuSeason6ZenBankRepository;
@@ -97,6 +99,9 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
                 'MAP_SVR_GROUP', 'SIEGE_START_DATE', 'SIEGE_END_DATE', 'SIEGE_ENDED',
                 'CASTLE_OCCUPY', 'OWNER_GUILD',
             ],
+            'MasterSkillTree' => [
+                'Name', 'MasterLevel', 'MasterPoint', 'MasterExperience', 'MasterSkill',
+            ],
         ];
     }
 
@@ -118,6 +123,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
             'dbo.GuildMember' => ['SELECT', 'UPDATE'],
             'dbo.GameServerInfo' => ['SELECT'],
             'dbo.MuCastle_DATA' => ['SELECT'],
+            'dbo.MasterSkillTree' => ['SELECT'],
             'dbo.WZ_GetItemSerial' => ['EXECUTE', 'VIEW DEFINITION'],
         ];
     }
@@ -133,6 +139,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
             billingRecord: false,
             itemGenerator: true,
             castleSiege: true,
+            masterProgression: true,
         );
     }
 
@@ -338,6 +345,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
             ItemSerialRepository::class => SqlServerMuEmuSeason6ItemSerialRepository::class,
             MarketItemEscrowRepository::class => SqlServerMuEmuSeason6MarketItemEscrowRepository::class,
             ModerationRepository::class => SqlServerMuEmuSeason6ModerationRepository::class,
+            MasterProgressionRepository::class => SqlServerMuEmuSeason6MasterProgressionRepository::class,
             OnlineAccountRepository::class => SqlServerOnlineAccountRepository::class,
             ZenBankRepository::class => SqlServerMuEmuSeason6ZenBankRepository::class,
         ];
