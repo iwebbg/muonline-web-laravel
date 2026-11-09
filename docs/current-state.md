@@ -7,9 +7,10 @@ together with `AGENTS.md`, `docs/coding-standards.md`, `docs/product-ux.md` and
 ## Product baseline
 
 MuOnline Web is a Laravel 13 monolith running on PHP 8.5. It supports the
-DarksTeam `darksteam_97d99i` and `darksteam_1_0m` game and event profiles. The
-frontend is server-rendered Blade enhanced with Alpine.js and Tailwind CSS v4;
-it is intentionally not a separate SPA or Next.js application.
+DarksTeam `darksteam_97d99i` and `darksteam_1_0m` profiles plus the isolated
+`muemu_season_6` game and event profile. The frontend is server-rendered Blade
+enhanced with Alpine.js and Tailwind CSS v4; it is intentionally not a separate
+SPA or Next.js application.
 
 English is the default and fallback locale. Every player-facing or
 administrator-facing string must also have a Bulgarian translation. Do not
@@ -114,9 +115,9 @@ and **MuOnline**, with distinct restricted logins:
 
 Character classes, class progressions, base stats, supported attributes, item
 catalogs and legacy mappings belong to a `GameVersionProfile`. Controllers and
-views consume profile contracts and must not spread 97d+99i or 1.0M class codes
-and schema names across the application. Every future version adds a new profile
-and adapter implementation without rewriting existing profile behavior.
+views consume profile contracts and must not spread 97d+99i, 1.0M or MuEMU
+class codes and schema names across the application. Every future version adds
+a new profile and adapter implementation without rewriting existing behavior.
 
 ### Actions and previews
 
@@ -282,6 +283,58 @@ components under `resources/views/components`, and Alpine modules under
 - Raw identifiers such as `12:5` or `8:3` are diagnostic data and must not be
   shown in player UI.
 
+## MuEMU Season 6 Update 32 profile
+
+The selectable `muemu_season_6` profile was implemented without changing the
+existing DarksTeam adapters. Its compatibility baseline is the owner-supplied
+MuEMU Season 6 Episode 3 Update 32 server pack and the exported MuOnline schema
+in the protected root reference `script S6.sql`.
+
+Verified profile behavior includes:
+
+- all 18 class evolution codes across the seven Wizard, Knight, Elf, Magic
+  Gladiator, Dark Lord, Summoner and Rage Fighter families;
+- base stats from `DefaultClassInfo.txt`, Season 6 map names, public rankings,
+  guild marks, account-level VIP display and stock Castle Siege state;
+- 938 authoritative item definitions parsed from `Data/Item/Item.txt`, with 908
+  supplied editor images and safe image fallbacks for the remaining definitions;
+- lossless 16-byte item decoding for level, skill, luck, additional, excellent,
+  ancient/set, Harmony, socket and 380 option data. Golden fixtures were created
+  from items placed in the running MuEMU client, including Flameberge sockets,
+  Sacred Glove, Vicious Dragon Armor and 380 Dragon Knight Armor;
+- a 3,776-byte character inventory boundary with 12 equipment cells, a 64-cell
+  base bag and two 32-cell extensions selected by `ExtInventory`;
+- 3,840-byte Warehouse and ExtWarehouse blobs. The real client/editor check
+  placed Arrow +3 in the bottom-right cell and proved that player-visible
+  storage ends at slot 119 (`8×15`); the remaining 120 native slots are always
+  preserved untouched;
+- active extended warehouse routing through `AccountCharacter.ExtWarehouse`,
+  exact-item Market/Auction custody, Web/Jewel storage delivery and active-page
+  Zen Bank projection;
+- native `ResetCount` and `MasterResetCount` character operations, ten account
+  character slots, plaintext account lifecycle matching `MD5Encryption = 0`,
+  moderation, item serial reservation and offline/idempotency boundaries;
+- 258 Item Generator entries with explicit prices imported from the supplied
+  legacy webshop SQL. Unpriced newer Season 6 items remain available to audited
+  administrator grants and configured offers but are not assigned invented
+  generator prices;
+- 12 stock schedules sourced from `Data/Event/*.dat`, plus the database-backed
+  seven-day Castle Siege cycle. Pack-specific Battle Royale, GvG, TvT,
+  Marathon, King of MU, Quickly, Hide and Seek, Russian Roulette, Kill All,
+  PvP Championship and Auction events are intentionally excluded.
+
+MuEMU stores VIP entitlement at account level, while the product's purchasable
+VIP contract is character-scoped. Public profiles may display an active
+`AccountLevel`, but character VIP purchase is deliberately disabled rather than
+writing a semantically different field.
+
+Automated coverage uses exact real-item fixtures and portable adapter schemas.
+The full disposable suite passes with 742 tests and 3,795 assertions. Before a
+production rollout, complete `game:doctor` and disposable-account mutation
+checks against a cloned MuEMU database and dedicated test server. The main
+warehouse boundary is manually confirmed; creation and switching of every
+extended warehouse page remains part of that commissioning checklist.
+
 ## Current next priorities
 
 ### Character economy milestone
@@ -292,8 +345,9 @@ reset/grand-reset rewards, it now provides:
 
 - compact Character Services and Overview Quick Actions for paid Rename and
   Change Class operations, backed by shared teleported confirmation modals;
-- version-driven class-family choices: four families for 97d+99i and five for
-  1.0M, preserving an evolution tier only when the target family supports it;
+- version-driven class-family choices: four families for 97d+99i, five for
+  1.0M and seven for MuEMU Season 6, preserving an evolution tier only when the
+  target family supports it;
 - administrator-enabled Buy Resets and Buy LevelUpPoints packages with exact
   Credits calculations and player confirmation;
 - audited Paid Services settings and visible revision history;
@@ -334,7 +388,7 @@ The branch includes these final focused commits:
 - `6904ecf test(credits): update profile schema expectations`
 - `8221e53 fix(database): allow rename reference updates`
 
-The disposable main suite passes with 670 tests and 3,316 assertions. The
+The disposable main suite passes with 742 tests and 3,795 assertions. The
 97d+99i and 1.0M SQL Server integration suites pass. The least-privilege doctor
 allows the narrow `Guild` and `GuildMember` updates required to keep renamed
 character references consistent, while continuing to reject insert, delete,
@@ -353,8 +407,9 @@ delete them unless explicitly requested.
 
 ### Broader priorities
 
-1. Continue manual end-to-end testing against the dedicated 97d+99i and 1.0M
-   SQL Server databases and test game servers, one player operation at a time.
+1. Continue manual end-to-end testing against the dedicated 97d+99i, 1.0M and
+   MuEMU Season 6 SQL Server databases and test game servers, one player
+   operation at a time.
 2. Finish UI polish and responsive review after functional defects are closed.
 3. Add real vote-provider callbacks; the current workflow supports controlled
    administrator verification.

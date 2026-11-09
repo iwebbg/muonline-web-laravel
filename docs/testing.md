@@ -44,9 +44,9 @@ driver and database before database-refresh traits can run. Tests stop before
 migrations when any of those checks fail.
 
 The main suite contains profile-independent application tests plus direct unit
-coverage for both supported profiles. It is not a replacement for running both
-SQL Server adapter suites: feature tests that resolve the application container
-still use the active test profile derived from the normal project setup.
+and portable-adapter coverage for all three supported profiles. It is not a
+replacement for the dedicated 97d+99i and 1.0M SQL Server suites or manual
+MuEMU Season 6 commissioning against a cloned database and test server.
 
 ### Run a specific file
 

@@ -129,12 +129,13 @@ test commands, legacy schema handling and failure diagnosis.
 
 ## Selecting a supported game and event profile
 
-MuOnline Web currently supports two matched profile bundles:
+MuOnline Web currently supports three matched profile bundles:
 
 | Profile key | Compatible server files |
 | --- | --- |
 | `darksteam_97d99i` | [DarksTeam MuServer 97d+99i Beta 43.3](https://darksteam.net/threads/darksteam-muserver-97d-99i-beta-43-3.6440/) |
 | `darksteam_1_0m` | [DarksTeam MuServer 0.99.60/62T (1.0M) Beta 15](https://darksteam.net/threads/darksteam-muserver-0-99-60-62t-1-0m-beta-15.21354/) |
+| `muemu_season_6` | MuEMU Season 6 Episode 3 Update 32, verified against owner-supplied server files and database exports |
 
 Set both selectors to the same supported key before bootstrap:
 
@@ -144,9 +145,11 @@ GAME_EVENT_PROFILE=darksteam_97d99i
 ```
 
 For a 1.0M installation use `darksteam_1_0m` for both values and set
-`GAME_ACCOUNT_PASSWORD_SCHEME=darksteam_md5`. Do not mix game and event profiles
-from different versions. More integrations are in preparation; another server
-distribution or custom profile can be requested at
+`GAME_ACCOUNT_PASSWORD_SCHEME=darksteam_md5`. For the tested MuEMU build use
+`muemu_season_6` and `GAME_ACCOUNT_PASSWORD_SCHEME=plaintext`. When
+`GAME_EVENT_PROFILE` is omitted, it follows `GAME_SERVER_PROFILE`; explicit
+selectors must not mix versions. Another server distribution or custom profile
+can be requested at
 [office@interweb.bg](mailto:office@interweb.bg).
 
 ## Automatic SQL Server database first start
@@ -311,8 +314,8 @@ and privilege check:
 ./docker/compose exec -T app php artisan game:doctor
 ```
 
-Each supported profile validates its own DarksTeam schema and receives only its
-adapter-specific SQL permissions. The application does not run Laravel
+Each supported profile validates its own compatible schema and receives only
+its adapter-specific SQL permissions. The application does not run Laravel
 migrations against game-owned tables; reviewed profile extensions such as the
 1.0M **GrandResets** column are installed idempotently during bootstrap. SQL
 Server schema fixtures remain test references and must not be passed to Laravel

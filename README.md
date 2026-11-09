@@ -12,18 +12,20 @@ through controllers and templates.
 
 ## Compatibility
 
-MuOnline Web currently provides matching game and event profiles for two tested
-DarksTeam server versions:
+MuOnline Web currently provides matching game and event profiles for three
+tested server distributions:
 
 | Profile key | Compatible server files |
 | --- | --- |
 | `darksteam_97d99i` | [DarksTeam MuServer 97d+99i Beta 43.3][darksteam-97d99i] |
 | `darksteam_1_0m` | [DarksTeam MuServer 0.99.60/62T (1.0M) Beta 15][darksteam-1-0m] |
+| `muemu_season_6` | MuEMU Season 6 Episode 3 Update 32, verified against owner-supplied server files and database exports |
 
 Select the same key through `GAME_SERVER_PROFILE` and `GAME_EVENT_PROFILE` so
 database mappings, classes, maps, item formats, limits and event schedules come
-from one compatible adapter bundle. MuOnline Web is not affiliated with
-DarksTeam and does not bundle, modify or redistribute their server files.
+from one compatible adapter bundle. When `GAME_EVENT_PROFILE` is omitted, it
+follows `GAME_SERVER_PROFILE`. MuOnline Web is not affiliated with DarksTeam or
+MuEMU and does not bundle, modify or redistribute their server files.
 
 More version integrations are in preparation. Server owners who need another
 MuOnline distribution or a custom compatibility profile can request an

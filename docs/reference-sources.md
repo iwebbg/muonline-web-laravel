@@ -31,6 +31,39 @@ The DarksTeam files provide the reference layout for:
 - Blood Castle, Devil Square, Chaos Castle, Castle Siege and the additional
   schedules enabled by the supplied event configuration.
 
+## MuEMU Season 6 Episode 3 Update 32
+
+The `muemu_season_6` game and event profiles are developed against an
+owner-supplied MuEMU Season 6 Episode 3 Update 32 server installation and a
+sanitized database export. These private commissioning sources are not bundled
+with the application.
+
+The supplied server files and database provide the reference layout for:
+
+- the MuEMU SQL Server schema, plaintext legacy passwords and account-wide VIP;
+- the seven class families, including Summoner and Rage Fighter, and their
+  version-specific progression;
+- 16-byte item records, harmony, 380, ancient, excellent and socket options;
+- the 3,776-byte character inventory and 3,840-byte warehouse payloads;
+- stock Blood Castle, Devil Square, Chaos Castle, Illusion Temple, Doppelganger,
+  Imperial Guardian, Crywolf and Castle Siege schedules.
+
+The item codec and storage boundaries were also checked against items created
+with the supplied MuEMU editor and then loaded by the real game client. The main
+warehouse retained 240 native 16-byte records while the client rendered the
+first 120 positions; an Arrow +3 placed in the bottom-right client cell was read
+back from record 119. The remaining records are therefore preserved rather than
+treated as player-visible space.
+
+An owner-supplied historical website and Web Shop SQL catalogue were used only
+to identify explicit item art and 258 reviewed generator prices. Their runtime
+code, themes, credentials and database access patterns are not included.
+
+Compatibility claims are intentionally scoped to the tested MuEMU Season 6
+Episode 3 Update 32 distribution. Other Season 6 distributions require their
+own schema and item-storage verification even when their tables have similar
+names.
+
 MuOnline Web never edits or deploys those server files. Server configuration is
 translated into reviewed application profiles and administrator-managed
 overrides. Credentials or secrets found in legacy files must be considered
@@ -39,10 +72,14 @@ unsafe examples and must never be copied into an installation.
 ## Schema reference in this repository
 
 The repository keeps separate sanitized schema references for each supported
-adapter:
+adapter with a disposable SQL Server integration fixture:
 
 - `tests/Fixtures/SqlServer/97d99i-schema.sql` documents the 97d+99i contract;
 - `tests/Fixtures/SqlServer/1.0m-schema.sql` documents the 1.0M contract.
+
+The MuEMU Season 6 contract is currently covered by isolated adapter tests,
+profile schema requirements and manual commissioning against the supplied
+server. Its protected database export is not committed as a test fixture.
 
 They include only the tables, views, stored procedures, indexes and defaults
 needed during adapter development and isolated integration testing.
