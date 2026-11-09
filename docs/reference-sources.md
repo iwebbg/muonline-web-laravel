@@ -31,12 +31,13 @@ The DarksTeam files provide the reference layout for:
 - Blood Castle, Devil Square, Chaos Castle, Castle Siege and the additional
   schedules enabled by the supplied event configuration.
 
-## MuEMU Season 6 Episode 3 Update 32
+## Louis Emulator / MuEMU Season 6 Update 32
 
 The `muemu_season_6` game and event profiles are developed against an
-owner-supplied MuEMU Season 6 Episode 3 Update 32 server installation and a
-sanitized database export. These private commissioning sources are not bundled
-with the application.
+[publicly referenced Louis Emulator Season 6 Update 32 release](https://darksteam.net/threads/mu-server-season-6-louis-update-32-no-limits-crack.36704/),
+an owner-supplied extracted server installation and a sanitized database
+export. The extracted commissioning sources are not bundled with the
+application.
 
 The supplied server files and database provide the reference layout for:
 
@@ -61,10 +62,10 @@ An owner-supplied historical website and Web Shop SQL catalogue were used only
 to identify explicit item art and 258 reviewed generator prices. Their runtime
 code, themes, credentials and database access patterns are not included.
 
-Compatibility claims are intentionally scoped to the tested MuEMU Season 6
-Episode 3 Update 32 distribution. Other Season 6 distributions require their
-own schema and item-storage verification even when their tables have similar
-names.
+Compatibility claims are intentionally scoped to the tested Louis Emulator /
+MuEMU Season 6 Update 32 distribution. Other Season 6 distributions require
+their own schema and item-storage verification even when their tables have
+similar names.
 
 The pack also contains custom `Ranking*` tables, including a Battle Royale
 board and weekly score columns. They are not treated as a portable Season 6

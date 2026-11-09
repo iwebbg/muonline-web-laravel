@@ -286,9 +286,10 @@ components under `resources/views/components`, and Alpine modules under
 ## MuEMU Season 6 Update 32 profile
 
 The selectable `muemu_season_6` profile was implemented without changing the
-existing DarksTeam adapters. Its compatibility baseline is the owner-supplied
-MuEMU Season 6 Episode 3 Update 32 server pack and the exported MuOnline schema
-in the protected root reference `script S6.sql`.
+existing DarksTeam adapters. Its compatibility baseline is the
+[Louis Emulator Season 6 Update 32 release](https://darksteam.net/threads/mu-server-season-6-louis-update-32-no-limits-crack.36704/),
+the owner-supplied extracted installation and the exported MuOnline schema in
+the protected root reference `script S6.sql`.
 
 Verified profile behavior includes:
 

@@ -135,7 +135,7 @@ MuOnline Web currently supports three matched profile bundles:
 | --- | --- |
 | `darksteam_97d99i` | [DarksTeam MuServer 97d+99i Beta 43.3](https://darksteam.net/threads/darksteam-muserver-97d-99i-beta-43-3.6440/) |
 | `darksteam_1_0m` | [DarksTeam MuServer 0.99.60/62T (1.0M) Beta 15](https://darksteam.net/threads/darksteam-muserver-0-99-60-62t-1-0m-beta-15.21354/) |
-| `muemu_season_6` | MuEMU Season 6 Episode 3 Update 32, verified against owner-supplied server files and database exports |
+| `muemu_season_6` | [Louis Emulator Season 6 Update 32](https://darksteam.net/threads/mu-server-season-6-louis-update-32-no-limits-crack.36704/), verified against the supplied installation and database export |
 
 Set both selectors to the same supported key before bootstrap:
 
