@@ -110,7 +110,7 @@ final class RegisterAccountRequest extends FormRequest
     }
 
     /**
-     * Returns the validated plaintext required by the 97d+99i game server.
+     * Returns the validated password required by the active game profile.
      */
     public function password(): string
     {

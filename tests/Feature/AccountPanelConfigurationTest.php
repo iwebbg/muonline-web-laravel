@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Http\AccountPanelConfiguration;
+use App\Models\GameServer;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -10,6 +12,8 @@ use Tests\TestCase;
  */
 final class AccountPanelConfigurationTest extends TestCase
 {
+    use LazilyRefreshDatabase;
+
     /**
      * Confirms every operation uses its named route and request safety values.
      */
@@ -58,5 +62,31 @@ final class AccountPanelConfigurationTest extends TestCase
         $this->assertSame('Издръжливост', $configuration['itemOptionLabels']['durability']);
         $this->assertSame('Екипировката и чантата се запазват', $configuration['inventoryPolicies']['keep_all']);
         $this->assertSame('Фиксирана базова цена', $configuration['pkClearPriceModes']['fixed']);
+    }
+
+    /**
+     * Confirms account blockers use the administrator-managed server version.
+     */
+    public function test_configuration_builds_version_aware_block_reasons(): void
+    {
+        GameServer::factory()->current()->create([
+            'version' => 'Season 6',
+        ]);
+
+        $configuration = $this->app
+            ->make(AccountPanelConfiguration::class)
+            ->toArray(
+                writesEnabled: true,
+                csrfToken: 'csrf-token',
+            );
+
+        $this->assertStringContainsString(
+            'Season 6 item codec',
+            $configuration['executionReasons']['inventory_policy_unsupported'],
+        );
+        $this->assertStringContainsString(
+            'Season 6 stat-limit mapping',
+            $configuration['statBlockReasons']['character_class_unsupported'],
+        );
     }
 }

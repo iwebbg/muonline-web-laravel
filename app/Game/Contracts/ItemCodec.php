@@ -25,6 +25,8 @@ interface ItemCodec
 
     /**
      * Creates one native item from validated administrator or shop options.
+     *
+     * @param  list<int>  $socketOptions
      */
     public function create(
         int $group,
@@ -37,5 +39,9 @@ interface ItemCodec
         int $excellentMask,
         int $ancientOption,
         int $serial,
+        int $harmonyOption = 0,
+        ?int $socketBonus = null,
+        array $socketOptions = [],
+        bool $has380Option = false,
     ): string;
 }

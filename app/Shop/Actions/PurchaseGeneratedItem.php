@@ -40,7 +40,7 @@ final readonly class PurchaseGeneratedItem
     /**
      * Purchases one exact catalog-backed item configuration exactly once.
      *
-     * @param  array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int}  $options
+     * @param  array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int, harmony_option?: int, socket_count?: int, has_380_option?: bool}  $options
      *
      * @throws ShopPurchaseRejected When configuration, balance or replay checks fail.
      */

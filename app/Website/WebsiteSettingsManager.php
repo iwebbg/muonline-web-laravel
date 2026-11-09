@@ -3,6 +3,7 @@
 namespace App\Website;
 
 use App\Models\WebsiteSetting;
+use App\Servers\CurrentGameServer;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -11,6 +12,10 @@ use Illuminate\Support\Facades\Schema;
 final class WebsiteSettingsManager
 {
     private ?WebsiteSettings $resolvedSettings = null;
+
+    public function __construct(
+        private readonly CurrentGameServer $currentGameServer,
+    ) {}
 
     /**
      * Returns the persisted website snapshot or reviewed defaults before migration.
@@ -22,14 +27,16 @@ final class WebsiteSettingsManager
         }
 
         if (! Schema::hasTable('website_settings')) {
-            return $this->resolvedSettings = WebsiteSettings::defaults();
+            return $this->resolvedSettings = WebsiteSettings::defaults(
+                $this->currentGameServer->version(),
+            );
         }
 
         $setting = WebsiteSetting::query()->first();
 
         return $this->resolvedSettings = $setting instanceof WebsiteSetting
-            ? WebsiteSettings::fromModel($setting)
-            : WebsiteSettings::defaults();
+            ? WebsiteSettings::fromModel($setting, $this->currentGameServer->version())
+            : WebsiteSettings::defaults($this->currentGameServer->version());
     }
 
     /**

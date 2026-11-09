@@ -22,7 +22,7 @@ class GameServerFactory extends Factory
         return [
             'slug' => fake()->unique()->slug(2),
             'name' => fake()->company().' MuOnline',
-            'version' => '97d + 99i',
+            'version' => (string) config('game.profile.version'),
             'experience' => '9999x',
             'drop' => '60%',
             'capacity' => 500,

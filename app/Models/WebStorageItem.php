@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Stores one original 97d+99i item blob in a player's recoverable web vault.
+ * Stores one original versioned item blob in a player's recoverable web vault.
  */
 #[Fillable([
     'public_id',

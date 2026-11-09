@@ -7,6 +7,7 @@ use App\Content\NewsPostStatus;
 use App\Content\NewsPostType;
 use App\Models\Download;
 use App\Models\NewsPost;
+use App\Servers\CurrentGameServer;
 use DateTimeInterface;
 use Illuminate\Database\Seeder;
 
@@ -16,27 +17,36 @@ use Illuminate\Database\Seeder;
 final class DemoContentSeeder extends Seeder
 {
     /**
+     * Creates the seeder with the administrator-managed current server source.
+     */
+    public function __construct(
+        private readonly CurrentGameServer $currentGameServer,
+    ) {}
+
+    /**
      * Creates missing demo entries without restoring or overwriting hidden content.
      */
     public function run(): void
     {
         $publishedAt = now();
+        $serverName = $this->currentGameServer->name();
+        $serverVersion = $this->currentGameServer->version();
 
-        foreach ($this->news($publishedAt) as $post) {
+        foreach ($this->news($publishedAt, $serverName, $serverVersion) as $post) {
             NewsPost::query()->firstOrCreate(
                 ['slug' => $post['slug']],
                 $post,
             );
         }
 
-        foreach ($this->guides($publishedAt) as $post) {
+        foreach ($this->guides($publishedAt, $serverName) as $post) {
             NewsPost::query()->firstOrCreate(
                 ['slug' => $post['slug']],
                 $post,
             );
         }
 
-        foreach ($this->downloads($publishedAt) as $download) {
+        foreach ($this->downloads($publishedAt, $serverName, $serverVersion) as $download) {
             Download::query()->firstOrCreate(
                 ['slug' => $download['slug']],
                 $download,
@@ -49,18 +59,21 @@ final class DemoContentSeeder extends Seeder
      *
      * @return list<array<string, mixed>>
      */
-    private function news(DateTimeInterface $publishedAt): array
-    {
+    private function news(
+        DateTimeInterface $publishedAt,
+        string $serverName,
+        string $serverVersion,
+    ): array {
         return [
             [
                 'slug' => 'welcome-to-dreammu',
                 'type' => NewsPostType::News,
-                'title_en' => 'Welcome to DreamMu 97d+99i',
-                'title_bg' => 'Добре дошли в DreamMu 97d+99i',
+                'title_en' => 'Welcome to '.$serverName,
+                'title_bg' => 'Добре дошли в '.$serverName,
                 'excerpt_en' => 'A classic MuOnline adventure with familiar progression, active events and account tools in one place.',
                 'excerpt_bg' => 'Класическо MuOnline приключение с познат прогрес, активни евенти и управление на акаунта на едно място.',
-                'body_en' => "DreamMu opens the gates to a classic 97d+99i experience. Create your account, choose your first character and follow the event schedule from the website.\n\nThe server settings, rates and event times shown on the website are connected to the current server configuration. Keep an eye on the news section for maintenance notices, competitions and future updates.\n\nGather your party, build your guild and begin your journey through Lorencia, Noria and Devias.",
-                'body_bg' => "DreamMu отваря вратите към класическо 97d+99i изживяване. Създайте акаунт, изберете първия си герой и следете графика на евентите от уебсайта.\n\nНастройките, rates и часовете на евентите в сайта са свързани с текущата конфигурация на сървъра. Следете новините за профилактики, състезания и бъдещи обновявания.\n\nСъберете party, изградете гилдия и започнете приключението си в Lorencia, Noria и Devias.",
+                'body_en' => "{$serverName} opens the gates to a classic {$serverVersion} experience. Create your account, choose your first character and follow the event schedule from the website.\n\nThe server settings, rates and event times shown on the website are connected to the current server configuration. Keep an eye on the news section for maintenance notices, competitions and future updates.\n\nGather your party, build your guild and begin your journey through Lorencia, Noria and Devias.",
+                'body_bg' => "{$serverName} отваря вратите към класическо {$serverVersion} изживяване. Създайте акаунт, изберете първия си герой и следете графика на евентите от уебсайта.\n\nНастройките, rates и часовете на евентите в сайта са свързани с текущата конфигурация на сървъра. Следете новините за профилактики, състезания и бъдещи обновявания.\n\nСъберете party, изградете гилдия и започнете приключението си в Lorencia, Noria и Devias.",
                 'status' => NewsPostStatus::Published,
                 'published_at' => $publishedAt,
             ],
@@ -96,14 +109,14 @@ final class DemoContentSeeder extends Seeder
      *
      * @return list<array<string, mixed>>
      */
-    private function guides(DateTimeInterface $publishedAt): array
+    private function guides(DateTimeInterface $publishedAt, string $serverName): array
     {
         return [
             [
                 'slug' => 'getting-started',
                 'type' => NewsPostType::Guide,
-                'title_en' => 'Getting started on DreamMu',
-                'title_bg' => 'Първи стъпки в DreamMu',
+                'title_en' => 'Getting started on '.$serverName,
+                'title_bg' => 'Първи стъпки в '.$serverName,
                 'excerpt_en' => 'From registration and client download to your first levels, party and equipment upgrades.',
                 'excerpt_bg' => 'От регистрацията и клиента до първите нива, party група и подобрения на екипировката.',
                 'body_en' => "1. Create a website account and download the client from one of the available mirrors.\n\n2. Start the launcher, allow it to finish any updates and enter with the same Account ID.\n\n3. Choose a class that matches your preferred play style. Dark Knights are durable melee fighters, Dark Wizards specialize in magic, Fairy Elves support parties and Magic Gladiators become available according to the server rules.\n\n4. Complete early levels around Lorencia, Noria or Devias, join a party and watch the Events page for the next opening.\n\n5. Use the Account panel only while the character is offline when an operation requires it.",
@@ -143,8 +156,11 @@ final class DemoContentSeeder extends Seeder
      *
      * @return list<array<string, mixed>>
      */
-    private function downloads(DateTimeInterface $publishedAt): array
-    {
+    private function downloads(
+        DateTimeInterface $publishedAt,
+        string $serverName,
+        string $serverVersion,
+    ): array {
         $mirrors = [
             ['number' => 1, 'region_en' => 'Europe', 'region_bg' => 'Европа'],
             ['number' => 2, 'region_en' => 'North America', 'region_bg' => 'Северна Америка'],
@@ -160,9 +176,9 @@ final class DemoContentSeeder extends Seeder
                 'category' => DownloadCategory::Client,
                 'title_en' => 'Full Client — Mirror '.$mirrorNumber,
                 'title_bg' => 'Пълен клиент — Mirror '.$mirrorNumber,
-                'description_en' => 'Complete DreamMu 97d+99i client hosted on the '.$mirror['region_en'].' mirror. Replace this placeholder URL with the verified production package before launch.',
-                'description_bg' => 'Пълен DreamMu 97d+99i клиент, разположен на '.$mirror['region_bg'].' mirror. Заменете примерния URL с проверения production пакет преди старта.',
-                'version' => '97d+99i',
+                'description_en' => "Complete {$serverName} client hosted on the ".$mirror['region_en'].' mirror. Replace this placeholder URL with the verified production package before launch.',
+                'description_bg' => "Пълен {$serverName} клиент, разположен на ".$mirror['region_bg'].' mirror. Заменете примерния URL с проверения production пакет преди старта.',
+                'version' => $serverVersion,
                 'file_size' => '615 MB',
                 'download_url' => 'https://downloads.example.com/dreammu/full-client-mirror-'.$mirrorNumber.'.zip',
                 'checksum_sha256' => null,

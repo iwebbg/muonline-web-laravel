@@ -7,7 +7,7 @@
         <div>
             <div class="eyebrow mb-4">{{ __('ui.admin.eyebrow') }}</div>
             <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.admin.item_grants_heading') }}</h1>
-            <p class="mt-3 max-w-3xl text-silver">{{ __('ui.admin.item_grants_intro') }}</p>
+            <p class="mt-3 max-w-3xl text-silver">{{ __('ui.admin.item_grants_intro', ['version' => $currentGameServerVersion]) }}</p>
         </div>
 
         <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">

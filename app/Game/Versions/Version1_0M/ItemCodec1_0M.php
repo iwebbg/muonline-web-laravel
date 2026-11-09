@@ -72,7 +72,15 @@ final readonly class ItemCodec1_0M implements ItemCodec
         int $excellentMask,
         int $ancientOption,
         int $serial,
+        int $harmonyOption = 0,
+        ?int $socketBonus = null,
+        array $socketOptions = [],
+        bool $has380Option = false,
     ): string {
+        if ($harmonyOption !== 0 || $socketBonus !== null || $socketOptions !== [] || $has380Option) {
+            throw new InvalidArgumentException('Season 6 item options are unavailable in the DarksTeam 1.0M format.');
+        }
+
         if ($group < 0 || $group > 15 || $index < 0 || $index > 31) {
             throw new InvalidArgumentException('The item group or index is outside the DarksTeam 1.0M format.');
         }

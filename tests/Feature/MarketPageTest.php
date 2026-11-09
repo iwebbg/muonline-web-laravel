@@ -6,6 +6,7 @@ use App\Auth\GameAccount;
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
 use App\Models\AuctionBid;
+use App\Models\GameServer;
 use App\Models\MarketListing;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -43,6 +44,27 @@ final class MarketPageTest extends TestCase
             ->assertDontSee('<script>alert("market")</script>', false)
             ->assertSee('&lt;script&gt;', false)
             ->assertDontSee('Warehouse to escrow');
+    }
+
+    /**
+     * Confirms market copy follows the administrator-managed current server.
+     */
+    public function test_market_intro_uses_the_current_server_version_in_both_locales(): void
+    {
+        GameServer::factory()->current()->create([
+            'version' => 'Season 6',
+        ]);
+
+        $this->get(route('market.index'))
+            ->assertOk()
+            ->assertSee('Browse original Season 6 items')
+            ->assertDontSee('97d+99i items');
+
+        $this->withSession(['locale' => 'bg'])
+            ->get(route('market.index'))
+            ->assertOk()
+            ->assertSee('оригинални предмети за Season 6')
+            ->assertDontSee('97d+99i предмети');
     }
 
     /**

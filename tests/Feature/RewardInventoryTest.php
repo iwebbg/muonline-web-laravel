@@ -32,6 +32,9 @@ final class RewardInventoryTest extends TestCase
                 'level' => 11,
                 'has_luck' => true,
                 'excellent_mask' => 1,
+                'harmony_option' => 93,
+                'socket_count' => 0,
+                'has_380_option' => true,
             ],
         ]);
 
@@ -43,7 +46,9 @@ final class RewardInventoryTest extends TestCase
             ->assertOk()
             ->assertSee('shop-item-preview', false)
             ->assertSee('itemInspector(', false)
-            ->assertSee('item-tooltip', false);
+            ->assertSee('item-tooltip', false)
+            ->assertSee('harmonyOption', false)
+            ->assertSee('has380Option', false);
     }
 
     /**
