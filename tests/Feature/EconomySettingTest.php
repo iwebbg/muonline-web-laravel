@@ -53,8 +53,12 @@ final class EconomySettingTest extends TestCase
             'credits_per_item',
             'max_exchange_quantity',
             'create_exchange_offer',
+            'edit_exchange_offer',
+            'edit_exchange_offer_help',
+            'close_exchange_offer_editor',
             'no_item_options',
             'enabled',
+            'cancel',
             'save',
             'archive',
             'credit_exchange_offer_created',
@@ -100,6 +104,28 @@ final class EconomySettingTest extends TestCase
             ->assertSee(__('ui.admin.item_exchange_search_placeholder'))
             ->assertSee(__('ui.admin.item_exchange_preview'))
             ->assertDontSee('<select name="item_code"', false);
+    }
+
+    /**
+     * Confirms existing exchange offers open one shared teleported edit modal.
+     */
+    public function test_administrator_edits_existing_exchange_offer_in_modal(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $offer = CreditExchangeOffer::factory()->create([
+            'game_profile_key' => (string) config('game.profile.key'),
+        ]);
+        $this->actingAs($administrator, 'admin');
+
+        $response = $this->get(route('admin.economy-settings.edit'));
+
+        $response
+            ->assertOk()
+            ->assertSee('x-show="editingOffer !== null"', false)
+            ->assertSee('aria-labelledby="credit-exchange-offer-editor-title"', false)
+            ->assertSee('x-bind:action="editingOffer?.updateUrl ?? \'\'"', false)
+            ->assertSee(__('ui.admin.edit_exchange_offer'))
+            ->assertSee(route('admin.credit-exchange-offers.update', $offer));
     }
 
     /**

@@ -109,7 +109,11 @@
                     </div>
                     </form>
 
-                    <section class="panel-card p-5 sm:p-7">
+                    <section
+                        class="panel-card p-5 sm:p-7"
+                        x-data="{ editingOffer: null }"
+                        x-on:keydown.escape.window="editingOffer = null"
+                    >
                         <p class="kicker">{{ __('ui.admin.item_exchange_offers') }}</p>
                         <p class="mt-3 text-sm leading-6 text-silver">{{ __('ui.admin.item_exchange_offers_help') }}</p>
 
@@ -280,44 +284,68 @@
                         <div class="mt-6 grid gap-4">
                             @foreach ($exchangeOffers as $presentedOffer)
                                 @php($offer = $presentedOffer['model'])
-                                <article class="grid gap-5 rounded-2xl border border-white/8 bg-black/15 p-4 xl:grid-cols-[minmax(12rem,1fr)_minmax(0,3fr)] xl:items-end">
-                                    <div>
-                                        <h3 class="font-semibold text-white">{{ $presentedOffer['item']['title'] }}</h3>
-                                        <p class="mt-1 text-xs text-emerald-200">{{ implode(' · ', $presentedOffer['item']['options']) ?: __('ui.admin.no_item_options') }}</p>
-                                        <p class="mt-2 text-xs text-steel">{{ __('ui.admin.current_revision', ['revision' => $offer->revision]) }}</p>
+                                <article class="grid gap-5 rounded-2xl border border-white/8 bg-black/15 p-4 lg:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(7rem,0.65fr))_auto] lg:items-center">
+                                    <div class="flex min-w-0 items-center gap-4">
+                                        @if ($presentedOffer['item']['image'] !== null)
+                                            <span class="grid size-14 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
+                                                <img src="{{ $presentedOffer['item']['image'] }}" alt="" class="max-h-12 max-w-12 object-contain [image-rendering:pixelated]">
+                                            </span>
+                                        @endif
+                                        <div class="min-w-0">
+                                            <h3 class="truncate font-semibold text-white">{{ $presentedOffer['item']['title'] }}</h3>
+                                            <p class="mt-1 truncate text-xs text-emerald-200">{{ implode(' · ', $presentedOffer['item']['options']) ?: __('ui.admin.no_item_options') }}</p>
+                                            <p class="mt-2 text-xs text-steel">{{ __('ui.admin.current_revision', ['revision' => $offer->revision]) }}</p>
+                                        </div>
                                     </div>
 
-                                    <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-                                        <form method="POST" action="{{ route('admin.credit-exchange-offers.update', $offer) }}" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                                            @csrf
-                                            @method('PUT')
-                                            @foreach (['item_code' => $offer->item_group.':'.$offer->item_index, 'level' => $offer->level, 'option_level' => $offer->option_level, 'has_skill' => (int) $offer->has_skill, 'has_luck' => (int) $offer->has_luck, 'excellent_mask' => $offer->excellent_mask, 'ancient_option' => $offer->ancient_option, 'sort_order' => $offer->sort_order] as $name => $value)
-                                                <input type="hidden" name="{{ $name }}" value="{{ $value }}">
-                                            @endforeach
-                                            <label class="field-group">
-                                                <span>{{ __('ui.admin.credits_per_item') }}</span>
-                                                <input type="number" name="credits_per_item" value="{{ $offer->credits_per_item }}" min="1" required>
-                                            </label>
-                                            <label class="field-group">
-                                                <span>{{ __('ui.admin.max_exchange_quantity') }}</span>
-                                                <input type="number" name="max_quantity_per_exchange" value="{{ $offer->max_quantity_per_exchange }}" min="1" max="100" required>
-                                            </label>
-                                            <label class="field-group">
-                                                <span>{{ __('ui.admin.daily_limit') }}</span>
-                                                <input type="number" name="daily_account_credit_limit" value="{{ $offer->daily_account_credit_limit }}" min="1" required>
-                                            </label>
-                                            <div class="flex items-end justify-between gap-3 lg:justify-end">
-                                                <label class="toggle-control">
-                                                    <input type="hidden" name="enabled" value="0">
-                                                    <input type="checkbox" name="enabled" value="1" @checked($offer->enabled)>
-                                                    <span aria-hidden="true"></span>
-                                                    <span>{{ __('ui.admin.enabled') }}</span>
-                                                </label>
-                                                <button class="button button-ghost">{{ __('ui.admin.save') }}</button>
-                                            </div>
-                                        </form>
+                                    <div>
+                                        <span class="block text-xs text-steel">{{ __('ui.admin.credits_per_item') }}</span>
+                                        <strong class="mt-1 block text-sm text-white">{{ number_format($offer->credits_per_item) }}</strong>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs text-steel">{{ __('ui.admin.max_exchange_quantity') }}</span>
+                                        <strong class="mt-1 block text-sm text-white">{{ number_format($offer->max_quantity_per_exchange) }}</strong>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs text-steel">{{ __('ui.admin.daily_limit') }}</span>
+                                        <strong class="mt-1 block text-sm text-white">{{ number_format($offer->daily_account_credit_limit) }}</strong>
+                                    </div>
 
-                                        <form method="POST" action="{{ route('admin.credit-exchange-offers.destroy', $offer) }}" class="flex justify-end">
+                                    <div class="flex flex-wrap items-center justify-end gap-3">
+                                        <span @class([
+                                            'inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold',
+                                            'border-emerald-300/25 bg-emerald-300/8 text-emerald-100' => $offer->enabled,
+                                            'border-white/10 bg-white/5 text-steel' => ! $offer->enabled,
+                                        ])>
+                                            {{ $offer->enabled ? __('ui.admin.revision_value_enabled') : __('ui.admin.revision_value_disabled') }}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            class="button button-ghost"
+                                            x-on:click="editingOffer = @js([
+                                                'publicId' => $offer->public_id,
+                                                'title' => $presentedOffer['item']['title'],
+                                                'options' => implode(' · ', $presentedOffer['item']['options']) ?: __('ui.admin.no_item_options'),
+                                                'image' => $presentedOffer['item']['image'],
+                                                'revision' => $offer->revision,
+                                                'itemCode' => $offer->item_group.':'.$offer->item_index,
+                                                'level' => $offer->level,
+                                                'optionLevel' => $offer->option_level,
+                                                'hasSkill' => (int) $offer->has_skill,
+                                                'hasLuck' => (int) $offer->has_luck,
+                                                'excellentMask' => $offer->excellent_mask,
+                                                'ancientOption' => $offer->ancient_option,
+                                                'creditsPerItem' => $offer->credits_per_item,
+                                                'maxQuantity' => $offer->max_quantity_per_exchange,
+                                                'dailyLimit' => $offer->daily_account_credit_limit,
+                                                'enabled' => $offer->enabled,
+                                                'sortOrder' => $offer->sort_order,
+                                                'updateUrl' => route('admin.credit-exchange-offers.update', $offer),
+                                            ])"
+                                        >
+                                            {{ __('ui.admin.edit_exchange_offer') }}
+                                        </button>
+                                        <form method="POST" action="{{ route('admin.credit-exchange-offers.destroy', $offer) }}">
                                             @csrf
                                             @method('DELETE')
                                             <button class="px-3 py-2 text-sm text-red-300 transition hover:text-red-200">{{ __('ui.admin.archive') }}</button>
@@ -326,6 +354,84 @@
                                 </article>
                             @endforeach
                         </div>
+
+                        <template x-teleport="body">
+                            <div
+                                x-cloak
+                                x-show="editingOffer !== null"
+                                class="fixed inset-0 z-[120] overflow-y-auto bg-black/80 p-4 backdrop-blur-sm sm:p-8"
+                                x-on:click.self="editingOffer = null"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-labelledby="credit-exchange-offer-editor-title"
+                            >
+                                <template x-if="editingOffer !== null">
+                                    <section class="panel-card mx-auto w-full max-w-2xl p-5 sm:p-8">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p class="kicker">{{ __('ui.admin.item_exchange_offers') }}</p>
+                                            <h2 id="credit-exchange-offer-editor-title" class="mt-2 text-2xl font-semibold text-white">{{ __('ui.admin.edit_exchange_offer') }}</h2>
+                                            <p class="mt-2 text-sm leading-6 text-steel">{{ __('ui.admin.edit_exchange_offer_help') }}</p>
+                                        </div>
+                                        <button type="button" class="icon-button" x-on:click="editingOffer = null" aria-label="{{ __('ui.admin.close_exchange_offer_editor') }}">×</button>
+                                    </div>
+
+                                    <div class="mt-6 flex items-center gap-4 rounded-2xl border border-white/8 bg-black/20 p-4">
+                                        <span x-show="editingOffer?.image" class="grid size-16 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
+                                            <img x-bind:src="editingOffer?.image" alt="" class="max-h-14 max-w-14 object-contain [image-rendering:pixelated]">
+                                        </span>
+                                        <div class="min-w-0">
+                                            <h3 class="truncate font-semibold text-white" x-text="editingOffer?.title"></h3>
+                                            <p class="mt-1 text-xs text-emerald-200" x-text="editingOffer?.options"></p>
+                                            <p class="mt-2 text-xs text-steel">
+                                                {{ __('ui.admin.revision') }} <span x-text="editingOffer?.revision"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <form method="POST" x-bind:action="editingOffer?.updateUrl ?? ''" class="mt-6 grid gap-5">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="editor_offer_id" x-bind:value="editingOffer?.publicId">
+                                        <input type="hidden" name="item_code" x-bind:value="editingOffer?.itemCode">
+                                        <input type="hidden" name="level" x-bind:value="editingOffer?.level">
+                                        <input type="hidden" name="option_level" x-bind:value="editingOffer?.optionLevel">
+                                        <input type="hidden" name="has_skill" x-bind:value="editingOffer?.hasSkill">
+                                        <input type="hidden" name="has_luck" x-bind:value="editingOffer?.hasLuck">
+                                        <input type="hidden" name="excellent_mask" x-bind:value="editingOffer?.excellentMask">
+                                        <input type="hidden" name="ancient_option" x-bind:value="editingOffer?.ancientOption">
+                                        <input type="hidden" name="sort_order" x-bind:value="editingOffer?.sortOrder">
+
+                                        <div class="grid gap-5 sm:grid-cols-2">
+                                            <label class="field-group">
+                                                <span>{{ __('ui.admin.credits_per_item') }}</span>
+                                                <input type="number" name="credits_per_item" x-model.number="editingOffer.creditsPerItem" min="1" required>
+                                            </label>
+                                            <label class="field-group">
+                                                <span>{{ __('ui.admin.max_exchange_quantity') }}</span>
+                                                <input type="number" name="max_quantity_per_exchange" x-model.number="editingOffer.maxQuantity" min="1" max="100" required>
+                                            </label>
+                                            <label class="field-group">
+                                                <span>{{ __('ui.admin.daily_limit') }}</span>
+                                                <input type="number" name="daily_account_credit_limit" x-model.number="editingOffer.dailyLimit" min="1" required>
+                                            </label>
+                                            <label class="toggle-control self-end pb-3">
+                                                <input type="hidden" name="enabled" value="0">
+                                                <input type="checkbox" name="enabled" value="1" x-model="editingOffer.enabled">
+                                                <span aria-hidden="true"></span>
+                                                <span>{{ __('ui.admin.enabled') }}</span>
+                                            </label>
+                                        </div>
+
+                                        <div class="flex flex-col-reverse gap-3 border-t border-white/8 pt-5 sm:flex-row sm:justify-end">
+                                            <button type="button" class="button button-ghost" x-on:click="editingOffer = null">{{ __('ui.admin.cancel') }}</button>
+                                            <button type="submit" class="button button-primary">{{ __('ui.admin.save') }}</button>
+                                        </div>
+                                    </form>
+                                    </section>
+                                </template>
+                            </div>
+                        </template>
                     </section>
                 <section class="rounded-2xl border border-emerald-300/15 bg-emerald-300/6 p-4 text-sm leading-6 text-emerald-100">
                     <strong class="block text-emerald-200">{{ __('ui.admin.active_configuration') }}</strong>
