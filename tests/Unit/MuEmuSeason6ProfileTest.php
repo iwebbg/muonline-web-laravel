@@ -21,7 +21,7 @@ final class MuEmuSeason6ProfileTest extends TestCase
 
         $this->assertSame('muemu_season_6', $profile->key());
         $this->assertTrue($profile->capabilities()->grandResets);
-        $this->assertTrue($profile->capabilities()->characterVip);
+        $this->assertFalse($profile->capabilities()->characterVip);
         $this->assertTrue($profile->capabilities()->itemGenerator);
         $this->assertTrue($profile->capabilities()->castleSiege);
         $this->assertFalse($profile->capabilities()->billingRecord);

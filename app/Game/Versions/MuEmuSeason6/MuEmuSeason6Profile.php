@@ -78,7 +78,7 @@ final class MuEmuSeason6Profile implements GameDatabaseProfile, GameVersionProfi
     {
         return new GameVersionCapabilities(
             grandResets: true,
-            characterVip: true,
+            characterVip: false,
             billingRecord: false,
             itemGenerator: true,
             castleSiege: true,
