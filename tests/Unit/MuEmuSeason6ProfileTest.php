@@ -69,6 +69,20 @@ final class MuEmuSeason6ProfileTest extends TestCase
     }
 
     /**
+     * Confirms both Season 6-exclusive class families have bundled portraits.
+     */
+    public function test_bundles_summoner_and_rage_fighter_portraits(): void
+    {
+        $profile = new MuEmuSeason6Profile;
+        $projectRoot = dirname(__DIR__, 2);
+
+        $this->assertSame('/images/characters/summoner.gif', $profile->classForCode(82)?->image);
+        $this->assertSame('/images/characters/rage-fighter.gif', $profile->classForCode(98)?->image);
+        $this->assertFileExists($projectRoot.'/public/images/characters/summoner.gif');
+        $this->assertFileExists($projectRoot.'/public/images/characters/rage-fighter.gif');
+    }
+
+    /**
      * Confirms Rage Fighter defaults come from MuEMU DefaultClassInfo.txt.
      */
     public function test_returns_verified_rage_fighter_base_stats(): void
