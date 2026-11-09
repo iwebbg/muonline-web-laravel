@@ -18,6 +18,64 @@ final class EconomySettingTest extends TestCase
     use LazilyRefreshDatabase;
 
     /**
+     * Confirms every new administrator earning label exists in both locales.
+     */
+    public function test_credit_earning_administrator_copy_is_translated(): void
+    {
+        $translationKeys = [
+            'credit_earning',
+            'item_exchange',
+            'item_exchange_help',
+            'item_exchange_availability',
+            'online_time_rewards',
+            'online_time_rewards_availability',
+            'online_minutes_per_unit',
+            'online_credits_per_unit',
+            'online_daily_credit_limit',
+            'minutes',
+            'reward_credits',
+            'daily_limit',
+            'item_exchange_offers',
+            'item_exchange_offers_help',
+            'catalog_item',
+            'choose_item',
+            'item_exchange_search_placeholder',
+            'item_exchange_search_empty',
+            'item_exchange_preview',
+            'item_level',
+            'additional_option',
+            'excellent_mask',
+            'excellent_options',
+            'excellent_mask_help',
+            'item_skill',
+            'item_luck',
+            'ancient_option',
+            'credits_per_item',
+            'max_exchange_quantity',
+            'create_exchange_offer',
+            'edit_exchange_offer',
+            'edit_exchange_offer_help',
+            'close_exchange_offer_editor',
+            'no_item_options',
+            'enabled',
+            'cancel',
+            'save',
+            'archive',
+            'credit_exchange_offer_created',
+            'credit_exchange_offer_updated',
+            'credit_exchange_offer_archived',
+        ];
+
+        foreach (['en', 'bg'] as $locale) {
+            foreach ($translationKeys as $translationKey) {
+                $key = 'ui.admin.'.$translationKey;
+
+                $this->assertNotSame($key, __($key, [], $locale));
+            }
+        }
+    }
+
+    /**
      * Confirms unauthenticated visitors cannot read or update economy settings.
      */
     public function test_guest_cannot_access_economy_settings(): void
@@ -26,6 +84,48 @@ final class EconomySettingTest extends TestCase
 
         $this->put(route('admin.economy-settings.update'), [])->assertRedirect(route('admin.login'));
         $this->assertDatabaseCount('economy_settings', 0);
+    }
+
+    /**
+     * Confirms administrators select exchange items through the searchable catalog preview.
+     */
+    public function test_administrator_sees_searchable_item_exchange_offer_editor(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $this->actingAs($administrator, 'admin');
+
+        $response = $this->get(route('admin.economy-settings.edit'));
+
+        $response
+            ->assertOk()
+            ->assertSee('type="search"', false)
+            ->assertSee('role="combobox"', false)
+            ->assertSee('credit-exchange-item-suggestions')
+            ->assertSee(__('ui.admin.item_exchange_search_placeholder'))
+            ->assertSee(__('ui.admin.item_exchange_preview'))
+            ->assertDontSee('<select name="item_code"', false);
+    }
+
+    /**
+     * Confirms existing exchange offers open one shared teleported edit modal.
+     */
+    public function test_administrator_edits_existing_exchange_offer_in_modal(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $offer = CreditExchangeOffer::factory()->create([
+            'game_profile_key' => (string) config('game.profile.key'),
+        ]);
+        $this->actingAs($administrator, 'admin');
+
+        $response = $this->get(route('admin.economy-settings.edit'));
+
+        $response
+            ->assertOk()
+            ->assertSee('x-show="editingOffer !== null"', false)
+            ->assertSee('aria-labelledby="credit-exchange-offer-editor-title"', false)
+            ->assertSee('x-bind:action="editingOffer?.updateUrl ?? \'\'"', false)
+            ->assertSee(__('ui.admin.edit_exchange_offer'))
+            ->assertSee(route('admin.credit-exchange-offers.update', $offer));
     }
 
     /**

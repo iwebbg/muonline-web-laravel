@@ -497,40 +497,225 @@ export function shopOfferEditor(configuration) {
  * @returns {object} Alpine component state.
  */
 export function creditExchangeOfferEditor(configuration) {
+    const initialItem = configuration.items[configuration.itemCode] ?? null;
+
     return {
         items: configuration.items,
+        itemLevels: configuration.itemLevels,
+        optionLevels: configuration.optionLevels,
         itemOptionLabels: configuration.itemOptionLabels,
+        ui: configuration.ui,
         itemCode: configuration.itemCode ?? '',
+        itemSearch: initialItem?.name ?? '',
+        itemSuggestionsOpen: false,
+        activeItemSuggestionIndex: -1,
+        level: Number(configuration.level ?? 0),
+        optionLevel: Number(configuration.optionLevel ?? 0),
+        hasSkill: Number(configuration.hasSkill) === 1,
+        hasLuck: Number(configuration.hasLuck) === 1,
         excellentMask: Number(configuration.excellentMask ?? 0),
+        ancientOption: Number(configuration.ancientOption ?? 0),
 
+        /** Returns the exact catalog definition selected for the offer. */
         get selectedItem() {
             return this.items[this.itemCode] ?? null;
         },
 
+        /** Returns up to twelve catalog entries matching the visible item query. */
+        get itemSuggestions() {
+            const query = this.itemSearch.trim().toLocaleLowerCase();
+
+            if (query === '') {
+                return Object.values(this.items).slice(0, 12);
+            }
+
+            return Object.values(this.items)
+                .filter((item) => item.name.toLocaleLowerCase().includes(query))
+                .slice(0, 12);
+        },
+
+        /** Returns excellent choices appropriate for the selected item family. */
         get excellentOptions() {
             const type = Number(this.selectedItem?.excellentType ?? 0);
+            let labels = this.itemOptionLabels.excellent.weapon;
 
             if (type === 1) {
-                return this.itemOptionLabels.excellent.armor;
+                labels = this.itemOptionLabels.excellent.armor;
+            } else if (type === 4) {
+                labels = this.itemOptionLabels.excellent.wing;
             }
 
-            if (type === 4) {
-                return this.itemOptionLabels.excellent.wing;
+            return labels
+                .map((label, index) => ({
+                    bit: 1 << index,
+                    label,
+                }))
+                .filter((option) => option.label !== '');
+        },
+
+        /** Returns safe additional-option choices labeled for the selected family. */
+        get additionalOptionChoices() {
+            return this.optionLevels.map((optionLevel) => {
+                if (optionLevel === 0) {
+                    return {
+                        value: optionLevel,
+                        label: '0',
+                    };
+                }
+
+                let multiplier = 4;
+                let suffix = '';
+
+                if (this.selectedItem?.optionType === 1) {
+                    multiplier = 1;
+                    suffix = '%';
+                } else if (this.selectedItem?.optionType === 2) {
+                    multiplier = 5;
+                }
+
+                return {
+                    value: optionLevel,
+                    label: `+${optionLevel * multiplier}${suffix}`,
+                };
+            });
+        },
+
+        /** Builds the selected item's title with its level and excellent state. */
+        get itemTitle() {
+            if (this.selectedItem === null) {
+                return '';
             }
 
-            return this.itemOptionLabels.excellent.weapon;
+            const prefix = this.excellentMask > 0 && this.selectedItem.excellentType !== 4
+                ? `${this.itemOptionLabels.excellentPrefix} `
+                : '';
+            const level = this.level > 0 ? ` +${this.level}` : '';
+
+            return `${prefix}${this.selectedItem.name}${level}`;
         },
 
-        hasExcellentBit(index) {
-            return (this.excellentMask & (1 << index)) !== 0;
+        /** Formats the selected additional option for the offer preview. */
+        get additionalOption() {
+            if (this.optionLevel <= 0 || this.selectedItem === null) {
+                return null;
+            }
+
+            if (this.selectedItem.optionType === 1) {
+                return `${this.itemOptionLabels.automaticHpRecovery} +${this.optionLevel}%`;
+            }
+
+            if (this.selectedItem.optionType === 2) {
+                return `${this.itemOptionLabels.additionalDefenseRate} +${this.optionLevel * 5}`;
+            }
+
+            const label = this.selectedItem.excellentType === 1
+                ? this.itemOptionLabels.additionalDefense
+                : this.itemOptionLabels.additionalDamage;
+
+            return `${label} +${this.optionLevel * 4}`;
         },
 
-        toggleExcellentBit(index) {
-            this.excellentMask ^= 1 << index;
+        /** Returns every exact option currently configured for the preview. */
+        get fullItemOptions() {
+            const options = [];
+
+            if (this.hasSkill) {
+                options.push(this.ui.skill);
+            }
+
+            if (this.hasLuck) {
+                options.push(this.ui.luck);
+            }
+
+            if (this.additionalOption !== null) {
+                options.push(this.additionalOption);
+            }
+
+            for (const option of this.excellentOptions) {
+                if (this.hasExcellentBit(option.bit)) {
+                    options.push(option.label);
+                }
+            }
+
+            if (this.ancientOption > 0) {
+                options.push(`${this.ui.ancient}: ${this.ancientOption}`);
+            }
+
+            return options;
         },
 
+        /** Reports whether one exact excellent-option bit is selected. */
+        hasExcellentBit(bit) {
+            return (this.excellentMask & bit) !== 0;
+        },
+
+        /** Toggles one exact excellent-option bit in the submitted mask. */
+        toggleExcellentBit(bit) {
+            this.excellentMask ^= bit;
+        },
+
+        /** Clears excellent options when the selected catalog family changes. */
         clearExcellentOptions() {
             this.excellentMask = 0;
+        },
+
+        /** Clears the exact item while the administrator edits its visible name. */
+        filterItems() {
+            this.itemCode = '';
+            this.activeItemSuggestionIndex = -1;
+            this.itemSuggestionsOpen = true;
+            this.$refs.itemSearch.setCustomValidity('');
+        },
+
+        /** Selects one exact item from the verified catalog. */
+        selectItem(item) {
+            this.itemCode = item.code;
+            this.itemSearch = item.name;
+            this.clearExcellentOptions();
+            this.itemSuggestionsOpen = false;
+            this.activeItemSuggestionIndex = -1;
+            this.$refs.itemSearch.setCustomValidity('');
+        },
+
+        /** Moves keyboard focus through the filtered item suggestions. */
+        moveItemSuggestion(direction) {
+            if (!this.itemSuggestionsOpen || this.itemSuggestions.length === 0) {
+                return;
+            }
+
+            const nextIndex = this.activeItemSuggestionIndex + direction;
+            this.activeItemSuggestionIndex = Math.max(
+                0,
+                Math.min(this.itemSuggestions.length - 1, nextIndex),
+            );
+        },
+
+        /** Selects the keyboard-highlighted catalog item when one exists. */
+        selectActiveItemSuggestion() {
+            const item = this.itemSuggestions[this.activeItemSuggestionIndex];
+
+            if (item !== undefined) {
+                this.selectItem(item);
+            }
+        },
+
+        /** Closes item suggestions without changing the exact selection. */
+        closeItemSuggestions() {
+            this.itemSuggestionsOpen = false;
+            this.activeItemSuggestionIndex = -1;
+        },
+
+        /** Prevents submission until the visible query resolves to a catalog item. */
+        validateSelection(event) {
+            if (this.selectedItem !== null) {
+                this.$refs.itemSearch.setCustomValidity('');
+
+                return;
+            }
+
+            event.preventDefault();
+            this.$refs.itemSearch.setCustomValidity(this.ui.itemRequired);
+            this.$refs.itemSearch.reportValidity();
         },
     };
 }
