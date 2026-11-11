@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ApplyTheme;
 use App\Http\Middleware\EnforceDemoMode;
 use App\Http\Middleware\EnsureAdministratorPermission;
 use App\Http\Middleware\EnsureFullAdministrator;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->web(append: [
             SetLocale::class,
+            ApplyTheme::class,
         ]);
         $middleware->redirectGuestsTo(
             fn (Request $request): string => $request->is('admin', 'admin/*')

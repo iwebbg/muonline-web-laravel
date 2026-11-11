@@ -30,6 +30,7 @@ use App\Installation\SqlServerApplicationDatabaseInstaller;
 use App\Installation\SqlServerGameDatabaseInstaller;
 use App\Modules\ModuleManager;
 use App\Servers\CurrentGameServer;
+use App\Themes\ThemeManager;
 use App\Website\WebsiteSettings;
 use App\Website\WebsiteSettingsManager;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -37,6 +38,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
@@ -125,6 +127,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ModuleManager::class);
         $this->app->singleton(CurrentGameServer::class);
         $this->app->singleton(WebsiteSettingsManager::class);
+        $this->app->singleton(
+            ThemeManager::class,
+            fn (): ThemeManager => new ThemeManager(
+                themesPath: (string) config('themes.path'),
+                defaultTheme: (string) config('themes.default'),
+                labels: (array) config('themes.labels', []),
+            ),
+        );
         $this->app->bind(ApplicationDatabaseInstaller::class, SqlServerApplicationDatabaseInstaller::class);
         $this->app->bind(GameDatabaseInstaller::class, SqlServerGameDatabaseInstaller::class);
     }
@@ -134,6 +144,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Blade::anonymousComponentPath(resource_path('views/themes/muonline/components'));
+
         View::composer('*', function (LaravelView $view): void {
             $view->with(
                 'currentGameServerVersion',
@@ -150,13 +162,13 @@ class AppServiceProvider extends ServiceProvider
             },
         );
         View::composer(
-            ['layouts.app', 'home'],
+            ['layouts.app', 'layouts.admin', 'home'],
             function (LaravelView $view): void {
                 $websiteSettings = $this->app->make(WebsiteSettingsManager::class)->current();
 
                 $view->with('websiteSettings', $websiteSettings);
 
-                if ($view->name() !== 'layouts.app') {
+                if (! in_array($view->name(), ['layouts.app', 'layouts.admin'], true)) {
                     return;
                 }
 

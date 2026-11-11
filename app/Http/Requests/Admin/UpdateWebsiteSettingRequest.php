@@ -4,9 +4,11 @@ namespace App\Http\Requests\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
 use App\Models\Administrator;
+use App\Themes\ThemeManager;
 use App\Website\WebsiteSettings;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 /**
  * Authorizes and validates one website branding and search metadata revision.
@@ -29,7 +31,7 @@ final class UpdateWebsiteSettingRequest extends FormRequest
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules(ThemeManager $themes): array
     {
         return [
             'revision' => ['required', 'integer', 'min:0'],
@@ -43,6 +45,7 @@ final class UpdateWebsiteSettingRequest extends FormRequest
             'meta_keywords_en' => ['nullable', 'string', 'max:500'],
             'meta_keywords_bg' => ['nullable', 'string', 'max:500'],
             'copyright_holder' => ['nullable', 'string', 'max:160'],
+            'theme_slug' => ['required', 'string', Rule::in(array_keys($themes->available()))],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:2048', 'dimensions:max_width=2400,max_height=1200'],
             'og_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'extensions:jpg,jpeg,png,webp', 'max:4096', 'dimensions:max_width=4000,max_height=4000'],
             'remove_logo' => ['nullable', 'boolean'],
@@ -70,6 +73,7 @@ final class UpdateWebsiteSettingRequest extends FormRequest
             metaKeywordsBg: $this->normalized('meta_keywords_bg'),
             ogImagePath: $ogImagePath,
             copyrightHolder: $this->normalized('copyright_holder'),
+            themeSlug: $this->string('theme_slug')->toString(),
             revision: $this->integer('revision'),
         );
     }

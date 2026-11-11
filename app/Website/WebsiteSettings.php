@@ -25,6 +25,7 @@ final readonly class WebsiteSettings
         public ?string $metaKeywordsBg,
         public ?string $ogImagePath,
         public ?string $copyrightHolder,
+        public string $themeSlug,
         public int $revision,
     ) {}
 
@@ -46,6 +47,7 @@ final readonly class WebsiteSettings
             metaKeywordsBg: null,
             ogImagePath: null,
             copyrightHolder: null,
+            themeSlug: (string) config('themes.default', 'muonline'),
             revision: 0,
         );
     }
@@ -70,6 +72,7 @@ final readonly class WebsiteSettings
             metaKeywordsBg: self::nullable($setting->meta_keywords_bg),
             ogImagePath: self::nullable($setting->og_image_path),
             copyrightHolder: self::nullable($setting->copyright_holder),
+            themeSlug: self::fallback($setting->theme_slug, $defaults->themeSlug),
             revision: $setting->revision,
         );
     }
@@ -165,6 +168,7 @@ final readonly class WebsiteSettings
             'meta_keywords_bg' => $this->metaKeywordsBg,
             'og_image_path' => $this->ogImagePath,
             'copyright_holder' => $this->copyrightHolder,
+            'theme_slug' => $this->themeSlug,
         ];
     }
 

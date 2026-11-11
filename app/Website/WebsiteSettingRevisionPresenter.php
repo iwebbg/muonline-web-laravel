@@ -24,6 +24,7 @@ final class WebsiteSettingRevisionPresenter
         'meta_keywords_bg' => 'website_keywords_bg',
         'og_image_path' => 'website_og_image',
         'copyright_holder' => 'website_copyright_holder',
+        'theme_slug' => 'website_theme',
     ];
 
     /** @var list<string> */
