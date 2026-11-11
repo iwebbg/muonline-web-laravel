@@ -78,6 +78,29 @@
         pointer-events: none;
     }
 
+    .admin-sidebar-scrollbar {
+        scrollbar-color: rgb(242 184 91 / 0.35) rgb(255 255 255 / 0.025);
+        scrollbar-width: thin;
+    }
+
+    .admin-sidebar-scrollbar::-webkit-scrollbar {
+        width: 0.5rem;
+    }
+
+    .admin-sidebar-scrollbar::-webkit-scrollbar-track {
+        background: rgb(255 255 255 / 0.025);
+    }
+
+    .admin-sidebar-scrollbar::-webkit-scrollbar-thumb {
+        border: 2px solid #0b0d12;
+        border-radius: 999px;
+        background: rgb(242 184 91 / 0.35);
+    }
+
+    .admin-sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgb(242 184 91 / 0.55);
+    }
+
     .site-background {
         position: fixed;
         inset: 0;

@@ -40,34 +40,27 @@
         <div @class(['relative z-10 min-w-0', 'xl:pl-72' => auth('admin')->check()])>
             <header class="sticky top-0 z-50 border-b border-white/8 bg-void/90 backdrop-blur-xl">
                 <div class="admin-shell flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
-                    <div class="flex min-w-0 items-center gap-3">
-                        @auth('admin')
-                            <button
-                                type="button"
-                                class="icon-button xl:hidden"
-                                aria-label="{{ __('ui.navigation.toggle') }}"
-                                x-on:click="adminMenuOpen = true"
-                            >
-                                <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                                    <path d="M4 7h16M4 12h16M4 17h16" />
-                                </svg>
-                            </button>
-                        @endauth
+                    @auth('admin')
+                        <button
+                            type="button"
+                            class="icon-button xl:hidden"
+                            aria-label="{{ __('ui.navigation.toggle') }}"
+                            x-on:click="adminMenuOpen = true"
+                        >
+                            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <path d="M4 7h16M4 12h16M4 17h16" />
+                            </svg>
+                        </button>
+                    @endauth
 
-                        <a href="{{ auth('admin')->check() ? route('admin.dashboard') : route('admin.login') }}" class="min-w-0">
-                            <span class="block truncate text-sm font-semibold tracking-[0.12em] text-white">{{ config('app.name') }}</span>
-                            <span class="block text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-gold">{{ __('ui.navigation.administration') }}</span>
-                        </a>
-                    </div>
-
-                    <div class="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+                    <div class="ml-auto flex flex-wrap items-center justify-end gap-2 sm:gap-3">
                         <a href="{{ route('home') }}" class="button button-ghost">
                             {{ __('ui.navigation.view_website') }}
                         </a>
                         <x-language-selector />
 
                         @auth('admin')
-                            <span class="hidden max-w-48 truncate text-sm font-semibold text-silver md:inline">
+                            <span class="hidden max-w-48 truncate rounded-xl border border-white/10 bg-white/[0.025] px-4 py-2.5 text-sm font-semibold text-silver md:inline" data-admin-identity>
                                 {{ auth('admin')->user()->name }}
                             </span>
                             <form method="POST" action="{{ route('admin.logout') }}">

@@ -31,7 +31,7 @@
     };
 @endphp
 
-<aside {{ $attributes->class('fixed inset-y-0 left-0 z-[70] w-72 -translate-x-full overflow-y-auto border-r border-white/8 bg-[#0b0d12]/98 p-4 shadow-2xl shadow-black/60 transition-transform duration-200 xl:translate-x-0 xl:shadow-none') }}>
+<aside {{ $attributes->class('admin-sidebar-scrollbar fixed inset-y-0 left-0 z-[70] w-72 -translate-x-full overflow-y-auto border-r border-white/8 bg-[#0b0d12]/98 p-4 shadow-2xl shadow-black/60 transition-transform duration-200 xl:translate-x-0 xl:shadow-none') }}>
     <a href="{{ route('admin.dashboard') }}" class="mb-4 flex items-center gap-3 border-b border-white/8 px-2 pb-5 pt-1">
         <span class="brand-mark shrink-0" aria-hidden="true">MU</span>
         <span class="min-w-0">
