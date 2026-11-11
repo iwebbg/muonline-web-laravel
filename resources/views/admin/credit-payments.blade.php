@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', __('ui.admin.credit_purchase_history_title'))
 
