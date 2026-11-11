@@ -3,16 +3,14 @@
 @section('title', __('ui.admin.character_rule_profiles.'.$profile.'.title'))
 
 @section('content')
-    <div class="shell py-10 lg:py-14">
+    <div class="admin-shell py-10 lg:py-14">
         <div>
             <div class="eyebrow mb-4">{{ __('ui.admin.character_rules') }}</div>
             <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.admin.character_rule_profiles.'.$profile.'.heading') }}</h1>
             <p class="mt-3 max-w-3xl text-silver">{{ __('ui.admin.character_rule_profiles.'.$profile.'.intro') }}</p>
         </div>
 
-        <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <x-admin-navigation :active="'character-rules-'.$profile" :reset-revision="$revision" />
-
+        <div class="mt-8">
             <main class="grid min-w-0 content-start gap-6 2xl:grid-cols-[minmax(0,1fr)_20rem]">
                 <div class="grid content-start gap-6">
                     @if (session('status'))

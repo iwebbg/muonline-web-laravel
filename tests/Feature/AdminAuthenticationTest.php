@@ -154,6 +154,7 @@ final class AdminAuthenticationTest extends TestCase
         $response
             ->assertOk()
             ->assertSee('Server Owner')
+            ->assertSee('data-admin-identity', false)
             ->assertSee('action="'.route('admin.logout').'"', false)
             ->assertDontSee('action="'.route('logout').'"', false);
     }

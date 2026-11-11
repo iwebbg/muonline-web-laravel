@@ -3,7 +3,7 @@
 @section('title', __('ui.admin.title'))
 
 @section('content')
-    <div class="shell py-10 lg:py-14">
+    <div class="admin-shell py-10 lg:py-14">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
                 <div class="eyebrow mb-4">{{ __('ui.admin.eyebrow') }}</div>
@@ -22,9 +22,7 @@
             </div>
         </div>
 
-        <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <x-admin-navigation active="overview" />
-
+        <div class="mt-8">
             <main class="grid min-w-0 content-start gap-6">
                 @if ($realmAnalytics === null)
                     <section class="panel-card border-red-300/20 py-14 text-center">

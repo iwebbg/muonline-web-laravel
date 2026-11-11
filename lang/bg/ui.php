@@ -25,6 +25,7 @@ return [
         'account_panel' => 'Акаунт панел',
         'admin' => 'Админ',
         'administration' => 'Администрация',
+        'view_website' => 'Към сайта',
         'register' => 'Регистрация',
         'enter_account' => 'Влез в акаунта',
         'logout' => 'Изход',

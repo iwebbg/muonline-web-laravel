@@ -1,9 +1,45 @@
 @props([
-    'active',
+    'active' => null,
     'resetRevision' => null,
 ])
 
-<aside {{ $attributes->class('panel-card h-fit p-3') }}>
+@php
+    $active ??= match (true) {
+        request()->routeIs('admin.dashboard') => 'overview',
+        request()->routeIs('admin.character-rules.*') => 'character-rules-'.request()->route('profile'),
+        request()->routeIs('admin.event-schedules.*') => 'event-schedules',
+        request()->routeIs('admin.moderation*') => 'moderation',
+        request()->routeIs('admin.item-grants.*') => 'item-grants',
+        request()->routeIs('admin.game-masters.*') => 'game-masters',
+        request()->routeIs('admin.economy-settings.*', 'admin.credit-exchange-offers.*') => 'economy-settings',
+        request()->routeIs('admin.wallet.*') => 'economy',
+        request()->routeIs('admin.credit-packages.*') => 'credit-packages',
+        request()->routeIs('admin.credit-payments.*') => 'credit-payments',
+        request()->routeIs('admin.vip-plans.*') => 'vip-plans',
+        request()->routeIs('admin.market.*') => 'market',
+        request()->routeIs('admin.shop-offers.*') => 'shop-offers',
+        request()->routeIs('admin.economy-recovery.*') => 'economy-recovery',
+        request()->routeIs('admin.vote-sites.*') => 'vote-links',
+        request()->routeIs('admin.vote-claims.*') => 'vote-history',
+        request()->routeIs('admin.game-servers.*') => 'game-servers',
+        request()->routeIs('admin.website-settings.*') => 'website-settings',
+        request()->routeIs('admin.modules.*') => 'modules',
+        request()->routeIs('admin.news-posts.*') => 'content',
+        request()->routeIs('admin.downloads.*') => 'downloads',
+        request()->routeIs('admin.audit-log') => 'audit-log',
+        default => 'overview',
+    };
+@endphp
+
+<aside {{ $attributes->class('admin-sidebar-scrollbar fixed inset-y-0 left-0 z-[70] w-72 -translate-x-full overflow-y-auto border-r border-white/8 bg-[#0b0d12]/98 p-4 shadow-2xl shadow-black/60 transition-transform duration-200 xl:translate-x-0 xl:shadow-none') }}>
+    <a href="{{ route('admin.dashboard') }}" class="mb-4 flex items-center gap-3 border-b border-white/8 px-2 pb-5 pt-1">
+        <span class="brand-mark shrink-0" aria-hidden="true">MU</span>
+        <span class="min-w-0">
+            <span class="block truncate text-sm font-semibold tracking-[0.12em] text-white">{{ config('app.name') }}</span>
+            <span class="block text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-gold">{{ __('ui.navigation.administration') }}</span>
+        </span>
+    </a>
+
     <p class="px-3 pb-3 pt-2 text-xs font-semibold uppercase tracking-[0.2em] text-steel">
         {{ __('ui.admin.control_areas') }}
     </p>

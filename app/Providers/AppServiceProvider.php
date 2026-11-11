@@ -162,13 +162,13 @@ class AppServiceProvider extends ServiceProvider
             },
         );
         View::composer(
-            ['layouts.app', 'layouts.admin', 'home'],
+            ['layouts.app', 'home'],
             function (LaravelView $view): void {
                 $websiteSettings = $this->app->make(WebsiteSettingsManager::class)->current();
 
                 $view->with('websiteSettings', $websiteSettings);
 
-                if (! in_array($view->name(), ['layouts.app', 'layouts.admin'], true)) {
+                if ($view->name() !== 'layouts.app') {
                     return;
                 }
 

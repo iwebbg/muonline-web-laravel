@@ -16,13 +16,12 @@
             'weight' => $item->weight,
         ])->values()->all() ?? []);
     @endphp
-    <div class="shell py-10 lg:py-14">
+    <div class="admin-shell py-10 lg:py-14">
         <div>
             <div class="eyebrow mb-4">{{ __('ui.admin.shop_offers_heading') }}</div>
             <h1 class="font-display text-4xl text-white sm:text-5xl">{{ $offer ? __('ui.admin.shop_offer_edit') : __('ui.admin.shop_offer_create') }}</h1>
         </div>
-        <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <x-admin-navigation active="shop-offers" />
+        <div class="mt-8">
             <main class="min-w-0">
                 @if (session('status'))<div class="mb-5 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100">{{ session('status') }}</div>@endif
                 @if ($errors->any())<div class="mb-5 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100">{{ $errors->first() }}</div>@endif

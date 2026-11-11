@@ -3,16 +3,14 @@
 @section('title', __('ui.admin.vote_history_title'))
 
 @section('content')
-    <div class="shell py-10 lg:py-14">
+    <div class="admin-shell py-10 lg:py-14">
         <div>
             <div class="eyebrow mb-4">{{ __('ui.admin.eyebrow') }}</div>
             <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.admin.vote_history_heading') }}</h1>
             <p class="mt-3 max-w-3xl text-silver">{{ __('ui.admin.vote_history_intro') }}</p>
         </div>
 
-        <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <x-admin-navigation active="vote-history" />
-
+        <div class="mt-8">
             <main class="min-w-0">
                 @if (session('status'))
                     <div class="mb-6 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">
