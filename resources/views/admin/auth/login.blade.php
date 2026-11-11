@@ -3,7 +3,7 @@
 @section('title', __('ui.admin_auth.title'))
 
 @section('content')
-    <div class="shell grid min-h-[calc(100vh-12rem)] items-center gap-10 py-12 lg:grid-cols-[1fr_0.9fr] lg:py-20">
+    <div class="admin-shell grid min-h-[calc(100vh-12rem)] items-center gap-10 py-12 lg:grid-cols-[1fr_0.9fr] lg:py-20">
         <section class="max-w-2xl">
             <div class="eyebrow mb-5">{{ __('ui.admin_auth.eyebrow') }}</div>
             <h1 class="font-display text-5xl leading-[1.05] text-white sm:text-6xl">

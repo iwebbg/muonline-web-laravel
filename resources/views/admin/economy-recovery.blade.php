@@ -3,7 +3,7 @@
 @section('title', __('ui.admin.recovery_title'))
 
 @section('content')
-    <div class="shell py-10 lg:py-14">
+    <div class="admin-shell py-10 lg:py-14">
         <div>
             <div class="eyebrow mb-4">{{ __('ui.admin.eyebrow') }}</div>
             <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.admin.recovery_heading') }}</h1>
@@ -28,9 +28,7 @@
             </div>
         @endif
 
-        <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <x-admin-navigation active="economy-recovery" />
-
+        <div class="mt-8">
             <main class="grid min-w-0 content-start gap-8">
                 <section>
                     <p class="kicker">{{ __('ui.admin.recovery_item_custody') }}</p>

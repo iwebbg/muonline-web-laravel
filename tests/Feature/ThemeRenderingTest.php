@@ -110,6 +110,7 @@ final class ThemeRenderingTest extends TestCase
         $this->actingAs($administrator, 'admin')
             ->get(route('admin.website-settings.edit'))
             ->assertOk()
+            ->assertSee('data-admin-layout', false)
             ->assertSee('Website identity and SEO')
             ->assertDontSee('Unsafe themed administration marker')
             ->assertDontSee('Unsafe themed administration layout');

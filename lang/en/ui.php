@@ -25,6 +25,7 @@ return [
         'account_panel' => 'Account panel',
         'admin' => 'Admin',
         'administration' => 'Administration',
+        'view_website' => 'View website',
         'register' => 'Register',
         'enter_account' => 'Enter account',
         'logout' => 'Log out',

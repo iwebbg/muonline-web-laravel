@@ -3,16 +3,14 @@
 @section('title', __('ui.admin.credit_purchase_history_title'))
 
 @section('content')
-    <div class="shell py-10 lg:py-14">
+    <div class="admin-shell py-10 lg:py-14">
         <div>
             <p class="kicker">{{ __('ui.admin.economy') }}</p>
             <h1 class="mt-3 font-display text-4xl text-white sm:text-5xl">{{ __('ui.admin.credit_purchase_history_heading') }}</h1>
             <p class="mt-3 max-w-3xl text-silver">{{ __('ui.admin.credit_purchase_history_intro') }}</p>
         </div>
 
-        <div class="mt-8 grid gap-6 xl:grid-cols-[18rem_minmax(0,1fr)]">
-            <x-admin-navigation active="credit-payments" />
-
+        <div class="mt-8">
             <main class="min-w-0">
                 @if ($errors->any())
                     <div class="mb-6 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">

@@ -4,7 +4,7 @@
 
 @section('content')
     <div
-        class="shell py-10 lg:py-14"
+        class="admin-shell py-10 lg:py-14"
         x-data="moderationPanel"
         x-on:keydown.escape.window="closeModeration()"
     >
@@ -29,9 +29,7 @@
             </div>
         </div>
 
-        <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <x-admin-navigation active="moderation" />
-
+        <div class="mt-8">
             <main class="grid min-w-0 content-start gap-6">
                 @if (session('status'))
                     <div class="rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">
