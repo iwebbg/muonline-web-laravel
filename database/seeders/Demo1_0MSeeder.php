@@ -102,6 +102,7 @@ final class Demo1_0MSeeder extends Seeder
             'meta_keywords_bg' => 'DreamMU, MuOnline, 1.0M',
             'og_image_path' => null,
             'copyright_holder' => 'DreamMU',
+            'theme_slug' => 'muonline',
             'revision' => 1,
             'updated_by_administrator_id' => null,
         ]);

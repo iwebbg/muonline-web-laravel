@@ -8,6 +8,8 @@ use App\Models\Administrator;
 use App\Models\GameServer;
 use App\Models\WebsiteSetting;
 use App\Models\WebsiteSettingRevision;
+use App\Themes\ThemeManager;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -59,7 +61,57 @@ final class AdminWebsiteSettingTest extends TestCase
             ->assertSee('Website identity and SEO')
             ->assertSee('value="MUONLINE"', false)
             ->assertSee('value="Season 6"', false)
+            ->assertSee('MuOnline Core')
+            ->assertSee('name="theme_slug"', false)
             ->assertDontSee('value="97d + 99i"', false);
+    }
+
+    /**
+     * Confirms a slug without an installed theme directory is rejected.
+     */
+    public function test_unknown_theme_slug_is_rejected_without_persisting_settings(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $payload = $this->settingsPayload();
+        $payload['theme_slug'] = 'missing-theme';
+
+        $this->actingAs($administrator, 'admin')
+            ->put(route('admin.website-settings.update'), $payload)
+            ->assertSessionHasErrors('theme_slug');
+
+        $this->assertSame(0, WebsiteSetting::query()->count());
+        $this->assertSame(0, WebsiteSettingRevision::query()->count());
+    }
+
+    /**
+     * Confirms an installed selected theme is stored in the immutable revision flow.
+     */
+    public function test_selected_theme_is_persisted_in_revision_history(): void
+    {
+        $filesystem = new Filesystem;
+        $themesPath = sys_get_temp_dir().'/muonline-admin-themes-'.bin2hex(random_bytes(8));
+        $filesystem->ensureDirectoryExists($themesPath.'/muonline');
+        $filesystem->ensureDirectoryExists($themesPath.'/dark-fantasy');
+        config()->set('themes.path', $themesPath);
+        $this->app->forgetInstance(ThemeManager::class);
+        $administrator = Administrator::factory()->create();
+        $payload = $this->settingsPayload();
+        $payload['theme_slug'] = 'dark-fantasy';
+
+        try {
+            $this->actingAs($administrator, 'admin')
+                ->put(route('admin.website-settings.update'), $payload)
+                ->assertRedirect()
+                ->assertSessionHas('status');
+
+            $this->assertSame('dark-fantasy', WebsiteSetting::query()->sole()->theme_slug);
+            $this->assertSame(
+                'dark-fantasy',
+                WebsiteSettingRevision::query()->sole()->after_snapshot['theme_slug'],
+            );
+        } finally {
+            $filesystem->deleteDirectory($themesPath);
+        }
     }
 
     /**
@@ -91,6 +143,7 @@ final class AdminWebsiteSettingTest extends TestCase
         $this->assertSame('Season 2', $setting->brand_subtitle);
         $this->assertSame('DreamMU', $setting->page_title_suffix);
         $this->assertSame('InterWeb Ltd.', $setting->copyright_holder);
+        $this->assertSame('muonline', $setting->theme_slug);
         $this->assertSame(1, $setting->revision);
         $this->assertSame('DREAMMU', $revision->after_snapshot['brand_title']);
 
@@ -313,6 +366,7 @@ final class AdminWebsiteSettingTest extends TestCase
             'meta_keywords_en' => 'muonline, dreammu',
             'meta_keywords_bg' => 'muonline, dreammu, сървър',
             'copyright_holder' => 'InterWeb Ltd.',
+            'theme_slug' => 'muonline',
         ];
     }
 
@@ -336,6 +390,7 @@ final class AdminWebsiteSettingTest extends TestCase
             'meta_keywords_bg' => 'muonline, dreammu, сървър',
             'og_image_path' => null,
             'copyright_holder' => 'InterWeb Ltd.',
+            'theme_slug' => 'muonline',
         ];
     }
 

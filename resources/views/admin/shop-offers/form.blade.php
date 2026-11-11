@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', $offer ? __('ui.admin.shop_offer_edit') : __('ui.admin.shop_offer_create'))
 

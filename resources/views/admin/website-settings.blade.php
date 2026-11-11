@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', __('ui.admin.website_title'))
 
@@ -73,6 +73,17 @@
                                 <span>{{ __('ui.admin.website_copyright_holder') }}</span>
                                 <input type="text" name="copyright_holder" value="{{ old('copyright_holder', $settings->copyrightHolder) }}" maxlength="160" placeholder="{{ $settings->pageTitleSuffix }}">
                                 <small>{{ __('ui.admin.website_copyright_help') }}</small>
+                            </label>
+                            <label class="field-group lg:col-span-2">
+                                <span>{{ __('ui.admin.website_theme') }}</span>
+                                <select name="theme_slug" required>
+                                    @foreach ($availableThemes as $theme)
+                                        <option value="{{ $theme['slug'] }}" @selected(old('theme_slug', $settings->themeSlug) === $theme['slug'])>
+                                            {{ $theme['name'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small>{{ __('ui.admin.website_theme_help') }}</small>
                             </label>
                         </div>
                     </section>

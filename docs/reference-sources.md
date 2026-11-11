@@ -4,6 +4,12 @@ This document records the sources used to understand the current game version
 and runtime. References provide compatibility information; they are not bundled
 dependencies and do not imply affiliation.
 
+Only the distributions documented below are supported. Versions not listed
+here must be treated as unsupported until their own profile and adapters have
+been implemented and verified. MuOnline Web is not affiliated with DarksTeam,
+Louis Emulator or MuEMU and does not bundle, modify or redistribute their
+server files.
+
 ## DarksTeam MuServer 97d+99i
 
 The `darksteam_97d99i` game and event profiles are developed and tested against

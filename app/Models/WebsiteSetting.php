@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
     'meta_keywords_bg',
     'og_image_path',
     'copyright_holder',
+    'theme_slug',
     'revision',
     'updated_by_administrator_id',
 ])]
