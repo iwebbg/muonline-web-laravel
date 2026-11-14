@@ -75,7 +75,7 @@
                         @php($offer = $presentedOffer['model'])
                         <article class="panel-card p-6" x-data="{ reviewing: false, quantity: 1, creditsPerItem: {{ $offer->credits_per_item }} }">
                             <div class="flex gap-4">
-                                @if ($presentedOffer['item']['image'])<img src="{{ asset($presentedOffer['item']['image']) }}" alt="" class="h-16 w-16 rounded-xl border border-white/10 bg-black/30 object-contain p-2">@endif
+                                <x-item-image :src="$presentedOffer['item']['image'] ? asset($presentedOffer['item']['image']) : null" class="size-16 rounded-xl border border-white/10 bg-black/30 p-2" />
                                 <div><p class="kicker">{{ __('ui.account.item_exchange') }}</p><h3 class="mt-2 text-lg font-semibold text-white">{{ $presentedOffer['item']['title'] }}</h3><p class="mt-1 text-xs text-emerald-200">{{ implode(' · ', $presentedOffer['item']['options']) ?: __('ui.account.no_item_options') }}</p></div>
                             </div>
                             <p class="mt-4 text-sm text-silver">{{ __('ui.account.item_exchange_rate', ['credits' => number_format($offer->credits_per_item)]) }}</p>

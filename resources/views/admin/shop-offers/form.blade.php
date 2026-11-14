@@ -120,7 +120,7 @@
                                                     x-bind:aria-selected="item.item_code === definition.code"
                                                 >
                                                     <span class="grid size-11 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
-                                                        <img x-show="definition.image" x-bind:src="definition.image" alt="" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]">
+                                                        <x-item-image source-expression="definition.image" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]" />
                                                     </span>
                                                     <strong class="text-sm text-white" x-text="definition.name"></strong>
                                                 </button>

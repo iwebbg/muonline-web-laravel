@@ -187,7 +187,7 @@
                                                 x-bind:aria-selected="itemCode === item.code"
                                             >
                                                 <span class="grid size-11 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
-                                                    <img x-show="item.image" x-bind:src="item.image" alt="" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]">
+                                                    <x-item-image source-expression="item.image" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]" />
                                                 </span>
                                                 <span>
                                                     <strong class="block text-sm text-white" x-text="item.name"></strong>
@@ -261,7 +261,7 @@
                                 <p class="kicker">{{ __('ui.admin.item_exchange_preview') }}</p>
                                 <template x-if="selectedItem">
                                     <div class="mt-5">
-                                        <img x-show="selectedItem.image" x-bind:src="selectedItem.image" x-bind:alt="selectedItem.name" class="mx-auto max-h-32 max-w-32 object-contain [image-rendering:pixelated]">
+                                        <x-item-image source-expression="selectedItem.image" label-expression="selectedItem.name" class="mx-auto max-h-32 max-w-32 object-contain [image-rendering:pixelated]" />
                                         <p class="mt-4 font-semibold text-white" x-text="itemTitle"></p>
                                         <ul x-show="fullItemOptions.length > 0" class="mt-4 grid gap-1 text-left text-xs text-emerald-200">
                                             <template x-for="option in fullItemOptions" :key="option">
@@ -284,11 +284,9 @@
                                 @php($offer = $presentedOffer['model'])
                                 <article class="grid gap-5 rounded-2xl border border-white/8 bg-black/15 p-4 lg:grid-cols-[minmax(0,1.5fr)_repeat(3,minmax(7rem,0.65fr))_auto] lg:items-center">
                                     <div class="flex min-w-0 items-center gap-4">
-                                        @if ($presentedOffer['item']['image'] !== null)
-                                            <span class="grid size-14 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
-                                                <img src="{{ $presentedOffer['item']['image'] }}" alt="" class="max-h-12 max-w-12 object-contain [image-rendering:pixelated]">
-                                            </span>
-                                        @endif
+                                        <span class="grid size-14 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
+                                            <x-item-image :src="$presentedOffer['item']['image']" class="max-h-12 max-w-12 [image-rendering:pixelated]" />
+                                        </span>
                                         <div class="min-w-0">
                                             <h3 class="truncate font-semibold text-white">{{ $presentedOffer['item']['title'] }}</h3>
                                             <p class="mt-1 truncate text-xs text-emerald-200">{{ implode(' · ', $presentedOffer['item']['options']) ?: __('ui.admin.no_item_options') }}</p>
@@ -375,8 +373,8 @@
                                     </div>
 
                                     <div class="mt-6 flex items-center gap-4 rounded-2xl border border-white/8 bg-black/20 p-4">
-                                        <span x-show="editingOffer?.image" class="grid size-16 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
-                                            <img x-bind:src="editingOffer?.image" alt="" class="max-h-14 max-w-14 object-contain [image-rendering:pixelated]">
+                                        <span class="grid size-16 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
+                                            <x-item-image source-expression="editingOffer?.image" class="max-h-14 max-w-14 object-contain [image-rendering:pixelated]" />
                                         </span>
                                         <div class="min-w-0">
                                             <h3 class="truncate font-semibold text-white" x-text="editingOffer?.title"></h3>

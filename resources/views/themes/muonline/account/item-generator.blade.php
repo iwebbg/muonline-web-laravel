@@ -102,7 +102,7 @@
                                 <template x-for="(item, index) in itemSuggestions" :key="item.code">
                                     <button type="button" class="flex w-full items-center gap-4 px-4 py-3 text-left transition hover:bg-white/[0.06]" x-on:click="selectItem(item)" role="option">
                                         <span class="grid size-11 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
-                                            <img x-show="item.image" x-bind:src="item.image" alt="" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]">
+                                            <x-item-image source-expression="item.image" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]" />
                                         </span>
                                         <span>
                                             <strong class="block text-sm text-white" x-text="item.name"></strong>
@@ -209,7 +209,7 @@
                         <p class="kicker">{{ __('ui.admin.item_grant_preview') }}</p>
                         <template x-if="selectedItem">
                             <div class="mt-5">
-                                <img x-show="selectedItem.image" :src="selectedItem.image" :alt="selectedItem.name" class="mx-auto max-h-32 max-w-32 object-contain [image-rendering:pixelated]">
+                                <x-item-image source-expression="selectedItem.image" label-expression="selectedItem.name" class="mx-auto max-h-32 max-w-32 object-contain [image-rendering:pixelated]" />
                                 <p class="mt-4 font-semibold text-white" x-text="itemTitle"></p>
                                 <ul x-show="fullItemOptions.length > 0" class="mt-4 grid gap-1 text-left text-xs text-emerald-200">
                                     <template x-for="option in fullItemOptions" :key="option"><li x-text="option"></li></template>

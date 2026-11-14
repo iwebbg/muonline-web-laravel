@@ -17,15 +17,7 @@
             :style="equipmentSlotStyle(item.slot, item)"
             :aria-label="item.name"
         >
-            <template x-if="item.image !== null">
-                <img
-                    :src="item.image"
-                    :alt="item.name"
-                    class="inventory-item-image"
-                    loading="lazy"
-                >
-            </template>
-            <span x-show="item.image === null" x-text="item.code"></span>
+            <x-item-image source-expression="item.image" label-expression="item.name" class="inventory-item-image" />
             <x-item-tooltip item="item" />
         </button>
     </template>

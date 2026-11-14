@@ -76,9 +76,7 @@
                         <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3" x-show="resetPreviewConfiguration.webStorageItems.length > 0">
                             <template x-for="storedItem in resetPreviewConfiguration.webStorageItems" :key="storedItem.publicId">
                                 <button type="button" class="warehouse-action-card" @click="openWebStorageItemActions(storedItem)">
-                                    <template x-if="storedItem.item.image !== null">
-                                        <img :src="storedItem.item.image" :alt="storedItem.item.name" class="size-14 object-contain">
-                                    </template>
+                                    <x-item-image source-expression="storedItem.item.image" label-expression="storedItem.item.name" class="size-14" />
                                     <span class="min-w-0 text-left">
                                         <strong class="block truncate" :class="`item-name-${itemNameTone(storedItem.item)}`" x-text="itemTitle(storedItem.item)"></strong>
                                     </span>

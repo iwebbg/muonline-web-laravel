@@ -54,11 +54,7 @@
                                 tabindex="0"
                                 aria-label="{{ $item->item_name }}"
                             >
-                                @if ($item->item_image)
-                                    <img src="{{ asset($item->item_image) }}" alt="" class="size-16 object-contain" loading="lazy">
-                                @else
-                                    <span class="grid size-16 place-items-center rounded-2xl border border-gold/25 bg-gold/8 font-display text-2xl text-gold" aria-hidden="true">?</span>
-                                @endif
+                                <x-item-image :src="$item->item_image ? asset($item->item_image) : null" :alt="$item->item_name" class="size-16" />
                                 <x-item-tooltip item="item" />
                             </div>
                         @else

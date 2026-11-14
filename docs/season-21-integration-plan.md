@@ -325,7 +325,9 @@ converting schedules; the source includes non-round-minute start times.
 
 ## Items, equipment and storage
 
-`Data/Item/Item.xml` has 4,701 item records with unique section/index pairs.
+`Data/Item/Item.xml` has 4,701 item records with unique section/index pairs
+across 20 sections: 0–16, 19, 20 and 21. The highest item index is 510.
+Do not impose S6's four-bit group or one-byte index limits on native metadata.
 Every record has width and height; observed dimensions range from 1×1 to 5×3
 and include 1×4 and 2×4 shapes. Preserve exact rectangles even without art.
 The XML also exposes class requirements, equip slots, transaction, personal
@@ -347,11 +349,25 @@ against server behavior before allowing an operation.
 | Guardians, pets, lucky/periodic and stacked items | Guardian/Lucky/ItemStack/period config and `T_PetItem_Info`, `LuckyItem` | Verify ownership, binding, quantities and expirations; preserve associated state. |
 | Ancient, excellent, Harmony, 380 and sockets | Active option, set, Harmony, socket and 380 config | S21-specific validation, tooltip names and lossless byte preservation. |
 
-Several independent item columns are explicitly 25 bytes. Dividing main storage
-capacities by 25 suggests 239 character records and 240 warehouse records;
-these are hypotheses, not verified visible slot counts. Event inventory uses a
-different capacity and must be investigated independently. Do not truncate to
-the S6 12-equipment/64-bag/120-visible-warehouse assumptions.
+Several independent item columns are explicitly 25 bytes. `Data/Scripts/Define.lua`
+also declares `INVENTORY_SIZE = 239`, 12 main equipment positions, a main boundary
+of 76 and successive extension boundaries of 108, 140, 172, 204 and 236.
+Pentagram and right/left earrings occupy 236, 237 and 238. These source constants
+support the character record count, but do not establish the binary option
+layout or how `ExtInventory` unlocks pages. Dividing warehouse capacity by 25
+suggests 240 records; its visible grid still requires client verification. Event
+inventory uses a different capacity and must be investigated independently.
+
+The bundled `resources/game/mudevs_season_21/items.json` snapshot retains every
+attribute from each XML `Section/Item`, keyed by section index and item index;
+all native attribute values remain strings. Its source SHA-256 is
+`cda914f8392e2bc153f8ceb08466f4f0fd72786bd69f4c48e647ff5ef5020450`.
+`ItemCatalogMuDevsSeason21` exposes typed identity, name, dimensions and equipment
+slot alongside the complete native attributes, including all 16 class flags,
+requirements and operation/stack metadata. Artwork remains null. This catalog
+deliberately does not implement the shared `ItemCatalog` contract yet: native
+option interpretation must be verified before creating legacy tooltip types.
+It is not bound to the selectable profile or generation/transfer services.
 
 Required shared changes identified in the existing implementation:
 
@@ -366,8 +382,13 @@ Required shared changes identified in the existing implementation:
 - `account-inventory-panel.blade.php` fixes the bag at 64 cells;
   `equipmentSlotLayout` in `resources/js/muonline.js` fixes equipment placement.
   Supply profile/layout metadata for equipment, pages and special storage.
-- The missing-image path in `item-grid.blade.php` shows an internal item code.
-  Replace it with a readable name/placeholder, exact geometry and full tooltip.
+- Shared missing-art presentation is implemented by `<x-item-image>` and
+  `public/images/items/unknown-item.svg`. Inventory/equipment grids, item action
+  modals, custody, market, shop, rewards, jewel bank, exchange and administration
+  previews use it. Null/empty paths and failed image loads display the fallback;
+  an already failed load is checked on Alpine initialization, and a failed
+  fallback cannot cause a retry loop. Grid geometry and tooltips stay intact.
+  Canonical catalog/snapshot artwork remains nullable.
 - Audit serial types and reservation semantics, custody snapshots, reward/grant
   persistence and schema limits before accepting S21 bytes. The supplied
   `WZ_GetItemSerial` returns an int, while WingCore uses bigint references;

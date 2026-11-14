@@ -19,9 +19,7 @@
             <div class="mt-6 grid gap-6 md:grid-cols-[15rem_1fr]" x-show="selectedActionItem !== null">
                 <div class="item-action-preview rounded-2xl border border-white/8 bg-black/25 p-5 text-center">
                     <div class="grid min-h-44 place-items-center">
-                        <template x-if="selectedActionItem?.image !== null">
-                            <img :src="selectedActionItem?.image" :alt="selectedActionItem?.name" class="max-h-40 max-w-full object-contain">
-                        </template>
+                        <x-item-image source-expression="selectedActionItem?.image" label-expression="selectedActionItem?.name ?? ''" class="max-h-40 max-w-full" />
                     </div>
                     <strong class="mt-4 block text-lg" :class="`item-name-${itemNameTone(selectedActionItem)}`" x-text="itemTitle(selectedActionItem)"></strong>
                     <div class="mt-4 text-sm">

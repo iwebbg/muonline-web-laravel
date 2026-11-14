@@ -50,9 +50,7 @@
                                 x-data="itemInspector(@js($itemOptionLabels), @js($item))"
                             >
                                 <div class="relative grid min-h-32 place-items-center rounded-2xl border border-white/8 bg-black/25 p-4">
-                                    @if (($item['image'] ?? null) !== null)
-                                        <img src="{{ $item['image'] }}" alt="{{ $item['name'] ?? __('ui.market.unknown_item') }}" class="max-h-24 max-w-full object-contain" loading="lazy">
-                                    @endif
+                                    <x-item-image :src="$item['image'] ?? null" :alt="$item['name'] ?? __('ui.market.unknown_item')" class="max-h-24 max-w-full object-contain" loading="lazy" />
                                     <x-item-tooltip item="item" />
                                 </div>
                                 <div class="min-w-0">
@@ -156,9 +154,7 @@
                         x-data="itemInspector(@js($itemOptionLabels), @js($item))"
                     >
                         <div class="relative grid min-h-28 place-items-center rounded-2xl border border-white/8 bg-black/25 p-4">
-                            @if (($item['image'] ?? null) !== null)
-                                <img src="{{ $item['image'] }}" alt="{{ $item['name'] ?? __('ui.market.unknown_item') }}" class="max-h-24 max-w-full object-contain" loading="lazy">
-                            @endif
+                            <x-item-image :src="$item['image'] ?? null" :alt="$item['name'] ?? __('ui.market.unknown_item')" class="max-h-24 max-w-full object-contain" loading="lazy" />
                             <x-item-tooltip item="item" />
                         </div>
                         <p

@@ -393,6 +393,26 @@ Game coins remain independent from web Credits. Conversion policy and shop
 currency selection are undecided; no exchange or automatic substitution is
 implemented.
 
+The item metadata stage now bundles all 4,701 S21 source records across 20
+native groups, including groups above 15 and indices above 255. The typed native
+catalog preserves exact rectangles, equipment slots and every source attribute;
+it remains separate from legacy item options and the selectable profile until
+binary decoding is verified with known client items. Source inventory constants
+identify 239 character slots, with pentagram/earrings at 236–238. Warehouse
+geometry, extended-page availability and binary option interpretation remain open.
+
+All shared item preview surfaces now use `<x-item-image>` with a neutral SVG
+fallback for missing paths and failed loads, including loads that fail before
+Alpine initializes. This applies to existing adapters as well as future S21
+presentation. Item dimensions, tooltips and nullable persisted artwork are
+preserved; no game writes or currency changes are involved.
+
+Validation for this item metadata/presentation stage: `./docker/compose test-all`
+passes 880 unit/feature tests with 18,416 assertions and all three existing
+profile smoke checks. Pint and Blade compilation pass. Native S21 item decoding,
+generation and writes are not enabled by this stage; known client warehouse
+items are the next source of binary fixtures.
+
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
 `MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85
