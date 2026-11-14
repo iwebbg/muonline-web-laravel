@@ -494,6 +494,16 @@ Validation for the filled Fire seed: 911 isolated unit/feature tests with 18,695
 assertions and Pint pass. Coverage distinguishes filled code 0, empty FE, absent
 FF and a still-unverified nonzero filled code without inventing an effect.
 
+A thirteenth capture verifies tier-1 Lightning in Flameberge's second socket:
+`00 1D FE FF FF`, with Fire preserved at zero and no bonus (FF). Raw seed 29
+matches the client's Excellent damage increase +15 and the active native socket
+option source. The English/Bulgarian administrator preview now names both
+captured effects in order; unknown seed codes remain unverified. Native bytes
+remain unchanged on re-encoding, and no game writes were enabled.
+Validation for Lightning: 913 isolated unit/feature tests with 18,705 assertions
+and Pint pass. A separate read-only live presentation check matched both socket
+descriptions and their positions.
+
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
 `MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85

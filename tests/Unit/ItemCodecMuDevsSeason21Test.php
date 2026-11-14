@@ -174,6 +174,24 @@ final class ItemCodecMuDevsSeason21Test extends TestCase
     }
 
     /**
+     * Preserves an existing zero-valued Fire seed when the second socket gains Lightning.
+     */
+    public function test_retains_both_client_matched_fire_and_lightning_socket_positions(): void
+    {
+        $fixture = json_decode(file_get_contents(__DIR__.'/../Fixtures/SqlServer/mudevs-season-21-flameberge-fire-lightning-sockets.json'), true, flags: JSON_THROW_ON_ERROR);
+        $binary = substr_replace(str_repeat("\xFF", 6000), hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        $codec = $this->codec();
+
+        $records = $codec->decode($binary, 240);
+
+        self::assertSame('0:26', $records[19]->code());
+        self::assertSame([0, 29, 254, 255, 255], $records[19]->socketOptions);
+        self::assertSame(255, $records[19]->socketBonus);
+        self::assertNull($records[19]->harmonyOption);
+        self::assertSame($binary, $codec->encode($records));
+    }
+
+    /**
      * Supplies explicit artifacts without booting Laravel for binary-domain tests.
      */
     private function codec(): ItemCodecMuDevsSeason21

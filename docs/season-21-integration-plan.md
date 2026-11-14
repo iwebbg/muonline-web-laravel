@@ -447,6 +447,17 @@ and Bulgarian and retains empty/absent distinctions without dropping zero.
 No other element/tier encoding or full damage formula is inferred from this
 single insertion, and all original 25 bytes remain unchanged on re-encoding.
 
+A thirteenth capture,
+`tests/Fixtures/SqlServer/mudevs-season-21-flameberge-fire-lightning-sockets.json`,
+matches a tier-1 Lightning sphere inserted into the second socket of the same
+Flameberge. The capture position is 19 and the socket bytes are
+`00 1D FE FF FF`; the existing Fire zero is retained, third socket stays empty
+and bonus remains FF. Client text is Excellent damage increase +15, corroborated
+by active `SocketItemOption.xml` Index=29, Element=5, Value1=15. The native
+metadata and bilingual preview now recognize raw seed 29 as that captured
+tier-1 Lightning effect. Other unverified codes remain raw; no higher-tier
+packing or automatic socket-bonus activation is inferred from this sample.
+
 | Item | Native code | Level | Rectangle | Matched option evidence |
 | --- | --- | --- | --- | --- |
 | Brilliant Knight Helm [S] | 7:270 | 15 | 2×2 | Luck; byte 7 bit 7 supplies index bit 8. |

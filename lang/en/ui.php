@@ -36,7 +36,9 @@ return [
         'seed_code' => 'Unverified seed code :value',
         'seed_summary' => 'Level :level :element — :effect +:value',
         'element_fire' => 'Fire',
+        'element_lightning' => 'Lightning',
         'effect_damage_wizardry_per_20_levels' => 'Damage and wizardry damage per 20 levels',
+        'effect_excellent_damage' => 'Excellent damage increase',
         'socket_bonus' => 'Socket bonus code',
     ],
     'language' => [

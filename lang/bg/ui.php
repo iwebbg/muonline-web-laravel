@@ -36,7 +36,9 @@ return [
         'seed_code' => 'Непотвърден seed код :value',
         'seed_summary' => 'Ниво :level :element — :effect +:value',
         'element_fire' => 'Огън',
+        'element_lightning' => 'Мълния',
         'effect_damage_wizardry_per_20_levels' => 'Щети и магически щети на всеки 20 нива',
+        'effect_excellent_damage' => 'Увеличение на excellent щетите',
         'socket_bonus' => 'Код на socket бонуса',
     ],
     'language' => [

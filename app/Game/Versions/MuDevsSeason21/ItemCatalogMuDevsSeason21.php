@@ -18,6 +18,8 @@ final class ItemCatalogMuDevsSeason21
      *
      * Code 0 matches active SocketItemOption.xml Index=0, Element=1, Value1=11
      * and the client's tier-1 Fire damage/wizardry-per-20-levels display of +1.1.
+     * Code 29 matches Index=29, Element=5, Value1=15 and tier-1 Lightning's
+     * client-displayed Excellent damage increase +15.
      *
      * @var array<int, array{element: string, tier: int, effect: string, displayValue: string}>
      */
@@ -27,6 +29,12 @@ final class ItemCatalogMuDevsSeason21
             'tier' => 1,
             'effect' => 'damage_wizardry_per_20_levels',
             'displayValue' => '1.1',
+        ],
+        29 => [
+            'element' => 'lightning',
+            'tier' => 1,
+            'effect' => 'excellent_damage',
+            'displayValue' => '15',
         ],
     ];
 

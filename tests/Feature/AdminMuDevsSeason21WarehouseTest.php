@@ -218,6 +218,32 @@ final class AdminMuDevsSeason21WarehouseTest extends TestCase
     }
 
     /**
+     * Shows both verified seed effects in order while the third socket remains empty.
+     */
+    public function test_fire_and_lightning_descriptions_keep_their_native_socket_order(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $connection = $this->createGameSchema();
+        $fixture = json_decode(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-flameberge-fire-lightning-sockets.json')), true, flags: JSON_THROW_ON_ERROR);
+        $binary = substr_replace(str_repeat("\xFF", 6000), hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        $connection->table('warehouse')->insert(['AccountID' => 'owner', 'AccountIndex' => 1, 'Items' => $binary]);
+
+        $this->actingAs($administrator, 'admin')->get(route('admin.s21-warehouse', ['account' => 'owner']))
+            ->assertOk()
+            ->assertSeeInOrder([
+                'Socket 1',
+                'Level 1 Fire — Damage and wizardry damage per 20 levels +1.1',
+                'Socket 2',
+                'Level 1 Lightning — Excellent damage increase +15',
+                'Socket 3',
+                'Empty',
+            ])
+            ->assertDontSee('Socket 4')
+            ->assertDontSee('Unverified seed code 29')
+            ->assertDontSee('Socket bonus code');
+    }
+
+    /**
      * Creates only the sanitized native projection on the isolated game connection.
      */
     private function createGameSchema(): ConnectionInterface
