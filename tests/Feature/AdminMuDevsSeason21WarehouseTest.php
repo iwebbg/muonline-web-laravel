@@ -271,6 +271,48 @@ final class AdminMuDevsSeason21WarehouseTest extends TestCase
     }
 
     /**
+     * Presents tier seven from the matched shared-header context without a false ancient label.
+     */
+    public function test_extended_fire_socket_shows_tier_seven_without_false_ancient_fields(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $connection = $this->createGameSchema();
+        $fixture = json_decode(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-cyclone-fire-tier-seven.json')), true, flags: JSON_THROW_ON_ERROR);
+        $binary = substr_replace(str_repeat("\xFF", 6000), hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        $connection->table('warehouse')->insert(['AccountID' => 'owner', 'AccountIndex' => 1, 'Items' => $binary]);
+
+        $this->actingAs($administrator, 'admin')->get(route('admin.s21-warehouse', ['account' => 'owner']))
+            ->assertOk()
+            ->assertSee('Cyclone Sword')
+            ->assertSee('Level 7 Fire — Damage and wizardry damage per 20 levels +1.7')
+            ->assertSee('Socket header flags')
+            ->assertDontSee('Ancient option code')
+            ->assertDontSee('Ancient set')
+            ->assertDontSee('Level 1 Fire');
+    }
+
+    /**
+     * Keeps unknown extension tails unverified instead of applying the captured grade-seven label.
+     */
+    public function test_unknown_extension_tail_does_not_acquire_a_verified_seed_description(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $connection = $this->createGameSchema();
+        $fixture = json_decode(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-cyclone-fire-tier-seven.json')), true, flags: JSON_THROW_ON_ERROR);
+        $weapon = hex2bin($fixture['hex']);
+        $weapon[16] = "\x00";
+        $connection->table('warehouse')->insert([
+            'AccountID' => 'owner', 'AccountIndex' => 1, 'Items' => $weapon.str_repeat("\xFF", 5975),
+        ]);
+
+        $this->actingAs($administrator, 'admin')->get(route('admin.s21-warehouse', ['account' => 'owner']))
+            ->assertOk()
+            ->assertSee('Unverified seed code 46')
+            ->assertDontSee('Level 7 Fire')
+            ->assertDontSee('Level 1 Fire');
+    }
+
+    /**
      * Creates only the sanitized native projection on the isolated game connection.
      */
     private function createGameSchema(): ConnectionInterface

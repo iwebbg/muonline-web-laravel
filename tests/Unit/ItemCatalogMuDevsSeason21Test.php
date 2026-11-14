@@ -104,6 +104,23 @@ final class ItemCatalogMuDevsSeason21Test extends TestCase
     }
 
     /**
+     * Names the extended Fire capture only for its observed header and socket position.
+     */
+    public function test_extended_seed_description_requires_the_captured_context(): void
+    {
+        $catalog = $this->catalog();
+
+        self::assertSame([
+            'element' => 'fire', 'tier' => 7,
+            'effect' => 'damage_wizardry_per_20_levels', 'displayValue' => '1.7',
+        ], $catalog->socketSeedFor(46, 0, 64));
+        self::assertNull($catalog->socketSeedFor(46, 0, 0));
+        self::assertNull($catalog->socketSeedFor(46, 1, 64));
+        self::assertNull($catalog->socketSeedFor(0, 0, 64));
+        self::assertNull($catalog->socketSeedFor(0, 0, 128));
+    }
+
+    /**
      * Uses the bundled artifact without booting Laravel in a pure catalog test.
      */
     private function catalog(): ItemCatalogMuDevsSeason21

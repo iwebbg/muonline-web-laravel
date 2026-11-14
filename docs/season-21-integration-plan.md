@@ -472,6 +472,37 @@ or an out-of-range section does not acquire the Attack +11 description.
 This observed insertion confirms that this item acquired a bonus; it does not
 establish a universal bonus probability or higher-tier seed encoding.
 
+A fifteenth capture,
+`tests/Fixtures/SqlServer/mudevs-season-21-cyclone-fire-tier-seven.json`, matches
+Fire tier 7 in Cyclone Sword's first socket at saved position 3. Its first raw
+socket byte is 2E (46), and shared byte 8 contains 40 hex (64). The remaining
+socket positions are FE FE FF FF, the bonus is FF, and bytes 16–24 remain FF.
+Client text shows Fire level 7 with the same per-20-level damage/wizardry effect
+at +1.7, corroborating active SocketItemOption.xml Index=0, Value7=17.
+
+This capture corrects the previous treatment of byte 8 as entirely ancient
+data: for source-declared socket gear, the observed 0x40 flag is now removed
+from the exposed ancient option and retained separately as socket header
+context. Other upper bits remain raw/unverified context; the exact original
+25 bytes are retained. `socketSeedFor()` matches the captured tuple of header
+64, position 0 and raw value 46 instead of inventing a general grade formula.
+That byte without the flag, another socket position, unsupported flag
+combinations or a non-FF extension tail do not acquire the tier-7 description.
+Normal tier-1 and actual ancient-armor fixtures remain valid. Native SQL Server
+coverage verifies the shared flag survives loading and exact re-encoding.
+
+### Client item artwork
+
+The owner is transferring the matching S21 client so its actual resources can
+be inspected. The current server pack and legacy client-source samples are not
+a substitute for that client's models/textures. Check for ready-made icons
+first; otherwise map native item identities to models and textures, render
+consistent transparent PNG/WebP previews, and attach verified paths to the
+native catalog while preserving source rectangles and the shared fallback.
+Compatibility with the actual S21 model/texture formats must be tested on a few
+known items before claiming a complete export. No client assets have been
+exported or replaced by this stage.
+
 | Item | Native code | Level | Rectangle | Matched option evidence |
 | --- | --- | --- | --- | --- |
 | Brilliant Knight Helm [S] | 7:270 | 15 | 2×2 | Luck; byte 7 bit 7 supplies index bit 8. |

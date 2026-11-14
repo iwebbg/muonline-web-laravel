@@ -42,6 +42,7 @@ return [
         'effect_excellent_damage' => 'Увеличение на excellent щетите',
         'effect_life_on_monster_kill' => 'Увеличение на живота при убито чудовище',
         'socket_bonus' => 'Код на socket бонуса',
+        'socket_header_flags' => 'Разширени socket флагове',
         'socket_bonus_effect' => 'Socket бонус',
         'socket_bonus_summary' => ':effect +:value',
         'bonus_attack' => 'Увеличение на атаката',

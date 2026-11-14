@@ -20,6 +20,30 @@ use Tests\Integration\TestCase;
 final class MuDevsSeason21ReadIntegrationTest extends TestCase
 {
     /**
+     * Preserves a captured high-tier socket header while excluding its flag from ancient state.
+     */
+    public function test_reads_tier_seven_socket_header_from_native_sql_server_binary(): void
+    {
+        $connection = $this->gameConnection();
+        $fixture = json_decode(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-cyclone-fire-tier-seven.json')), true, flags: JSON_THROW_ON_ERROR);
+        $binary = substr_replace(str_repeat("\xFF", 6000), hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        $connection->statement(
+            'INSERT INTO warehouse (AccountID, AccountIndex, Items, Money) VALUES (?, ?, CONVERT(varbinary(6000), ?, 2), 0)',
+            ['s21grade7', 1, strtoupper(bin2hex($binary))],
+        );
+
+        $records = $this->app->make(SqlServerMuDevsSeason21WarehouseInspectionRepository::class)->forAccount('s21grade7');
+
+        self::assertNotNull($records);
+        self::assertSame('0:36', $records[3]->code());
+        self::assertSame([46, 254, 254, 255, 255], $records[3]->socketOptions);
+        self::assertSame(64, $records[3]->socketExtensionFlags);
+        self::assertSame(0, $records[3]->ancientOption);
+        self::assertNull($records[3]->ancientSetName);
+        self::assertSame($binary, $this->app->make(ItemCodecMuDevsSeason21::class)->encode($records));
+    }
+
+    /**
      * Reads full 6,000-byte storage through SQL Server while preserving owner and page scope.
      */
     public function test_inspects_native_warehouse_binary_and_extended_pages_without_changes(): void

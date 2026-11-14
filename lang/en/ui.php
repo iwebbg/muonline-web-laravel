@@ -42,6 +42,7 @@ return [
         'effect_excellent_damage' => 'Excellent damage increase',
         'effect_life_on_monster_kill' => 'Life increase on monster destruction',
         'socket_bonus' => 'Socket bonus code',
+        'socket_header_flags' => 'Socket header flags',
         'socket_bonus_effect' => 'Socket bonus',
         'socket_bonus_summary' => ':effect +:value',
         'bonus_attack' => 'Attack increase',

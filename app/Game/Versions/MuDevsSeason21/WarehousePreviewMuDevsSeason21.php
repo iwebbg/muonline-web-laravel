@@ -104,6 +104,10 @@ final class WarehousePreviewMuDevsSeason21
             $fields['harmony_byte'] = (string) $record->harmonyOption;
         }
 
+        if ($record->socketExtensionFlags !== 0) {
+            $fields['socket_header_flags'] = (string) $record->socketExtensionFlags;
+        }
+
         $details = [];
 
         foreach ($fields as $key => $value) {
@@ -114,7 +118,7 @@ final class WarehousePreviewMuDevsSeason21
             if ($value !== 255) {
                 $details[] = [
                     'label' => __('ui.s21_warehouse.socket', ['number' => $position + 1]),
-                    'value' => $this->socketValue($value),
+                    'value' => $this->socketValue($value, $position, $record),
                 ];
             }
         }
@@ -140,13 +144,17 @@ final class WarehousePreviewMuDevsSeason21
     /**
      * Describes empty or verified filled sockets without guessing unsupported seed encodings.
      */
-    private function socketValue(int $value): string
+    private function socketValue(int $value, int $position, ItemRecordMuDevsSeason21 $record): string
     {
         if ($value === 254) {
             return __('ui.s21_warehouse.empty_socket');
         }
 
-        $seed = $this->catalog->socketSeedFor($value);
+        $seed = null;
+
+        if (substr($record->binary(), 16) === str_repeat("\xFF", 9)) {
+            $seed = $this->catalog->socketSeedFor($value, $position, $record->socketExtensionFlags);
+        }
 
         if ($seed === null) {
             return __('ui.s21_warehouse.seed_code', ['value' => $value]);

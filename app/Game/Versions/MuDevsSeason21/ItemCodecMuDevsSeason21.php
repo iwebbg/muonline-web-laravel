@@ -14,6 +14,12 @@ final readonly class ItemCodecMuDevsSeason21
 {
     public const SLOT_BYTES = 25;
 
+    /** The observed first-socket extension bit shares byte 8 with ancient data. */
+    private const FIRST_SOCKET_EXTENSION_FLAG = 0x40;
+
+    /** Raw upper header bits are retained as context; unverified combinations stay unnamed. */
+    private const SOCKET_CONTEXT_HEADER_FLAGS = 0xC0;
+
     /**
      * Supplies the native catalog for source-backed names and exact rectangles.
      */
@@ -62,6 +68,10 @@ final readonly class ItemCodecMuDevsSeason21
 
     /**
      * Decodes client-matched common fields while leaving advanced payloads opaque.
+     *
+     * For source-declared socket gear, the captured byte-8 flag 0x40 is socket
+     * context rather than ancient state. The raw header context and all original
+     * bytes are retained; other flag meanings remain unverified.
      */
     private function decodeRecord(string $binary, int $slot): ItemRecordMuDevsSeason21
     {
@@ -80,20 +90,24 @@ final readonly class ItemCodecMuDevsSeason21
         $metadata = null;
         $socketBonus = null;
         $socketOptions = [];
+        $socketExtensionFlags = 0;
         $ancientOption = $isEmpty ? 0 : ord($binary[8]);
         $ancientSet = null;
         $harmonyOption = null;
 
         if ($group !== null && $index !== null) {
             $metadata = $this->catalog->definitionFor($group, $index);
-            $ancientSet = $this->catalog->ancientSetFor($group, $index, $ancientOption & 0x03);
 
             if ($this->catalog->maximumSocketsFor($group, $index) > 0) {
+                $socketExtensionFlags = $ancientOption & self::SOCKET_CONTEXT_HEADER_FLAGS;
+                $ancientOption &= ~self::FIRST_SOCKET_EXTENSION_FLAG;
                 $socketBonus = ord($binary[10]);
                 $socketOptions = array_values(unpack('C*', substr($binary, 11, 5)));
             } elseif ($group <= 11) {
                 $harmonyOption = ord($binary[10]);
             }
+
+            $ancientSet = $this->catalog->ancientSetFor($group, $index, $ancientOption & 0x03);
         }
 
         return new ItemRecordMuDevsSeason21(
@@ -115,6 +129,7 @@ final readonly class ItemCodecMuDevsSeason21
             metadata: $metadata,
             socketBonus: $socketBonus,
             socketOptions: $socketOptions,
+            socketExtensionFlags: $socketExtensionFlags,
         );
     }
 }

@@ -514,6 +514,19 @@ Validation for Ice/bonus: 916 isolated unit/feature tests with 18,719 assertions
 and Pint pass. A separate live read/presentation check matched the three seed
 descriptions and Attack +11 without modifying game data.
 
+A fifteenth capture verifies Fire tier 7 on Cyclone Sword. Raw socket byte 46
+is accompanied by byte-8 header flag 0x40; treating the whole shared byte as
+ancient state was incorrect for this socket item. The native record now retains
+socket header context separately and excludes the verified 0x40 socket bit from
+ancient options on source-declared socket gear. The preview names only the
+matched first-position tier-7 tuple (+1.7), leaves unsupported contexts/tails
+unverified and preserves every original byte. The owner is transferring the
+matching S21 client for item-art inspection; no client artwork has been exported.
+Validation for the tier-7 correction: 920 isolated unit/feature tests with
+18,743 assertions, five native S21 SQL Server cases with 38 assertions and Pint
+pass. A separate live read/presentation check shows Fire level 7 +1.7 with ancient
+option 0 and socket header context 64, preserving the original saved bytes.
+
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
 `MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85

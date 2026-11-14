@@ -78,12 +78,13 @@ final class InspectMuDevsSeason21Warehouse extends Command
                 $item['excellentMask'],
                 $item['ancientSetName'] ?? '',
                 $item['ancientOption'],
+                $item['socketExtensionFlags'],
                 $item['harmonyOption'] ?? '',
                 implode(',', $item['socketOptions']),
             ];
         }
 
-        $this->table(['Slot', 'Code', 'Item', 'Level', 'Size', 'Durability', 'Option', 'Skill', 'Luck', 'Excellent mask', 'Ancient set', 'Ancient byte', 'Harmony byte', 'Socket bytes'], $rows);
+        $this->table(['Slot', 'Code', 'Item', 'Level', 'Size', 'Durability', 'Option', 'Skill', 'Luck', 'Excellent mask', 'Ancient set', 'Ancient option', 'Socket header flags', 'Harmony byte', 'Socket bytes'], $rows);
         $this->info('Read-only inspection: advanced options and extended group identities still require client verification.');
 
         return self::SUCCESS;

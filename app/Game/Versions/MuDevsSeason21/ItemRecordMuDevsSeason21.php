@@ -13,6 +13,7 @@ final readonly class ItemRecordMuDevsSeason21
      * Creates a diagnostic snapshot without inventing advanced option semantics.
      *
      * @param  list<int>  $socketOptions  Raw socket bytes: 254 is an empty socket, 255 is absent.
+     * @param  int  $socketExtensionFlags  Raw upper shared-header bits for socket context; only captured combinations are interpreted.
      */
     public function __construct(
         public int $slot,
@@ -33,6 +34,7 @@ final readonly class ItemRecordMuDevsSeason21
         public ?ItemMetadataMuDevsSeason21 $metadata,
         public ?int $socketBonus,
         public array $socketOptions,
+        public int $socketExtensionFlags = 0,
     ) {
         if (strlen($binary) !== 25) {
             throw new InvalidArgumentException('A native MUDevs S21 record must contain exactly 25 bytes.');
@@ -62,7 +64,7 @@ final readonly class ItemRecordMuDevsSeason21
     /**
      * Exposes diagnostic metadata separately from transferable/generated item snapshots.
      *
-     * @return array{slot: int, code: string|null, name: string|null, width: int|null, height: int|null, image: string|null, level: int|null, durability: int|null, optionLevel: int|null, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int, ancientSetIndex: int|null, ancientSetName: string|null, harmonyOption: int|null, harmonyIndex: int|null, harmonyLevel: int|null, socketBonus: int|null, socketOptions: list<int>, advancedOptionsVerified: bool, nativeHex: string}
+     * @return array{slot: int, code: string|null, name: string|null, width: int|null, height: int|null, image: string|null, level: int|null, durability: int|null, optionLevel: int|null, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int, ancientSetIndex: int|null, ancientSetName: string|null, harmonyOption: int|null, harmonyIndex: int|null, harmonyLevel: int|null, socketBonus: int|null, socketOptions: list<int>, socketExtensionFlags: int, advancedOptionsVerified: bool, nativeHex: string}
      */
     public function toInspectionArray(): array
     {
@@ -87,6 +89,7 @@ final readonly class ItemRecordMuDevsSeason21
             'harmonyLevel' => $this->harmonyOption === null ? null : $this->harmonyOption & 0x0F,
             'socketBonus' => $this->socketBonus,
             'socketOptions' => $this->socketOptions,
+            'socketExtensionFlags' => $this->socketExtensionFlags,
             'advancedOptionsVerified' => false,
             'nativeHex' => strtoupper(bin2hex($this->binary)),
         ];

@@ -47,6 +47,22 @@ final class ItemCatalogMuDevsSeason21
     ];
 
     /**
+     * Matches complete observed header/position/seed tuples without guessing a grade formula.
+     *
+     * Header 64, first socket byte 46 matches the captured Fire tier 7 +1.7.
+     *
+     * @var array<string, array{element: string, tier: int, effect: string, displayValue: string}>
+     */
+    private const VERIFIED_EXTENDED_SOCKET_SEEDS = [
+        '64:0:46' => [
+            'element' => 'fire',
+            'tier' => 7,
+            'effect' => 'damage_wizardry_per_20_levels',
+            'displayValue' => '1.7',
+        ],
+    ];
+
+    /**
      * Contains client-matched socket bonuses within their configured item-section range.
      *
      * Bonus 0 matches SocketBonusSettings Index=0, sections 0–4, Value=11.
@@ -95,8 +111,12 @@ final class ItemCatalogMuDevsSeason21
      *
      * @return array{element: string, tier: int, effect: string, displayValue: string}|null
      */
-    public function socketSeedFor(int $rawOption): ?array
+    public function socketSeedFor(int $rawOption, int $position = 0, int $extensionFlags = 0): ?array
     {
+        if ($extensionFlags !== 0) {
+            return self::VERIFIED_EXTENDED_SOCKET_SEEDS[$extensionFlags.':'.$position.':'.$rawOption] ?? null;
+        }
+
         return self::VERIFIED_SOCKET_SEEDS[$rawOption] ?? null;
     }
 

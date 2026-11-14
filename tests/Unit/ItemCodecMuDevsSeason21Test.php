@@ -209,6 +209,28 @@ final class ItemCodecMuDevsSeason21Test extends TestCase
     }
 
     /**
+     * Separates the captured tier-seven socket header flag from ancient state without changing bytes.
+     */
+    public function test_tier_seven_socket_flag_does_not_create_a_false_ancient_item(): void
+    {
+        $fixture = json_decode(file_get_contents(__DIR__.'/../Fixtures/SqlServer/mudevs-season-21-cyclone-fire-tier-seven.json'), true, flags: JSON_THROW_ON_ERROR);
+        $binary = substr_replace(str_repeat("\xFF", 6000), hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        $codec = $this->codec();
+
+        $records = $codec->decode($binary, 240);
+        $weapon = $records[3];
+
+        self::assertSame('0:36', $weapon->code());
+        self::assertSame([46, 254, 254, 255, 255], $weapon->socketOptions);
+        self::assertSame(64, $weapon->socketExtensionFlags);
+        self::assertSame(0, $weapon->ancientOption);
+        self::assertNull($weapon->ancientSetName);
+        self::assertNull($weapon->ancientSetIndex);
+        self::assertSame(64, ord($weapon->binary()[8]));
+        self::assertSame($binary, $codec->encode($records));
+    }
+
+    /**
      * Supplies explicit artifacts without booting Laravel for binary-domain tests.
      */
     private function codec(): ItemCodecMuDevsSeason21
