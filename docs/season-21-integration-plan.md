@@ -414,9 +414,9 @@ It is not bound to the selectable profile or generation/transfer services.
 
 ### Client-matched warehouse commissioning
 
-Owner-supplied client screenshots and read-only reads now match seven occupied
-25-byte records in a 6,000-byte main warehouse. The stored positions are 0, 2,
-4, 6, 16, 66 and 75. Account identifiers are not retained; fixture serial bytes
+Owner-supplied client screenshots and read-only reads now match nine distinct
+25-byte examples in a 6,000-byte main warehouse. Their stored positions are 0, 2,
+4, 6, 16, 66, 75, 99 and 110. Account identifiers are not retained; fixture serial bytes
 3–6 are replaced with synthetic values in
 `tests/Fixtures/SqlServer/mudevs-season-21-warehouse-items.json`.
 
@@ -429,6 +429,8 @@ Owner-supplied client screenshots and read-only reads now match seven occupied
 | Dragon Knight Armor | 8:29 | 15 | 2×3 | Luck, option 1; stored durability 255 is retained despite lower displayed maximum. |
 | Flameberge | 0:26 | 0 | 1×4 | Three empty sockets: bytes 11–15 are FE FE FE FF FF; byte 10 is FF. |
 | Kris | 0:0 | 9 | 1×2 | Luck, option 7 (+28 displayed), excellent mask 63. Skill is absent despite requesting it through `/make`; the native definition declares Skill=0. |
+| Warrior's Leather Armor | 8:5 | 9 | 2×3 | Byte 8 is 05; variant 1 maps to native set index 1, Warrior's. Client shows stamina +5. |
+| Kris with Harmony | 0:0 | 9 | 1×2 | No Luck/excellent/additional option; byte 10 is 11 hex (17), index 1, level 1; client shows minimum attack +3. |
 
 `ItemCodecMuDevsSeason21` reads only verified common fields and uses the separate
 `ItemRecordMuDevsSeason21` boundary. It retains every byte, including unknown
@@ -443,9 +445,21 @@ The active nested `SocketItemType.xml` contributes 231 socket-item identities to
 `resources/game/mudevs_season_21/socket-items.json`, all with a maximum of three.
 The inspector exposes raw socket positions only for those native socket items,
 without calling every occupied seed a verified decoded seed option. Filled seeds,
-bonus semantics, ancient sets, Harmony, 380, expiry and newer option families
-remain separate verification tasks. Shared S6 behavior is a comparison source,
+bonus semantics, other ancient variants/full-set activation, the complete Harmony
+effect catalog, 380, expiry and newer option families remain separate verification
+tasks. Shared S6 behavior is a comparison source,
 not automatic certification of the S21 extension bytes.
+
+`ancient-items.json` joins all 1,356 native `SetItemType.xml` identities to the
+three declared variant slots and set index/name from the active nested
+`SetItemOption.xml`. Diagnostic records retain the original ancient byte and
+resolve only item-supported variants; an ancient flag on a non-set Kris does not
+invent a set name. The common low-two-bit variant mapping is client-matched for
+the Warrior's example; no full-set stat activation is calculated here. Non-socket
+weapon/armor snapshots expose the raw shared Harmony byte and its index/level
+nibbles. Socket items use that byte exclusively as their socket bonus, and groups
+above 11 do not acquire a guessed Harmony field. The corrected Harmony `/make`
+probe, rather than the repeated excellent Kris, supplies the Harmony fixture.
 
 The read-only `game:inspect-s21-warehouse {account} --vault=0 [--json]` command
 uses the configured game connection independently of the incomplete selectable
@@ -461,11 +475,14 @@ The pack documents `/make` in `GameServer/DATA/GameServerInfo - Command.dat`:
 /make <group> <id> <lvl> <dur> <skill> <luck> <opt> <exe> <set> <harmony> <extl> <socketcount> <socketbonus> <exp> <count>
 /make 0 26 0 255 0 0 0 0 0 0 0 3 255 0 1
 /make 0 0 9 255 1 1 7 63 0 0 0 0 0 0 1
+/make 8 5 9 255 0 0 0 0 5 0 0 0 0 0 1
+/make 0 0 9 255 0 0 0 0 0 17 0 0 0 0 1
 ```
 
-The two samples above produced the captured Flameberge and Kris respectively.
-They establish open socket positions and full classic excellent/option masks;
-they do not establish filled seed encoding or the remaining make arguments.
+These samples produced the captured Flameberge, excellent Kris, ancient armor
+and Harmony Kris respectively. They establish open socket positions, full classic
+excellent/option masks and one ancient/Harmony example each; they do not establish
+filled seed encoding or all values of the remaining make arguments.
 
 Required shared changes identified in the existing implementation:
 

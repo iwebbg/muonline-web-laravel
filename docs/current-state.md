@@ -441,6 +441,20 @@ four native S21 SQL Server cases with 28 assertions, and Pint pass. Automated
 tests use only isolated fixtures; the separate live comparison performed reads
 and did not create, update or move game items.
 
+Ancient/Harmony commissioning adds two more distinct client-matched fixtures:
+Warrior's Leather Armor +9 with native ancient byte 05 and a plain Kris +9 with
+Harmony byte 11 hex (minimum attack +3 in the client). A 1,356-entry source-backed
+ancient catalog resolves item-specific variant names and set indices without
+calculating full-set activation. Diagnostic snapshots expose the ancient byte
+and set identity, plus non-socket weapon/armor Harmony byte/index/level. Socket
+items retain a separate socket-bonus interpretation. Unknown options/extension
+bytes still round-trip unchanged, and advanced-option certification, transfer,
+generation and complete S21 profile activation remain pending.
+Validation for the ancient/Harmony extension: 897 isolated unit/feature tests
+with 18,616 assertions, four native S21 SQL Server tests with 30 assertions,
+and Pint pass. A separate read-only probe through the updated inspector matched
+the two new client examples; no game data was modified by the application.
+
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
 `MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85

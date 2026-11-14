@@ -80,13 +80,19 @@ final readonly class ItemCodecMuDevsSeason21
         $metadata = null;
         $socketBonus = null;
         $socketOptions = [];
+        $ancientOption = $isEmpty ? 0 : ord($binary[8]);
+        $ancientSet = null;
+        $harmonyOption = null;
 
         if ($group !== null && $index !== null) {
             $metadata = $this->catalog->definitionFor($group, $index);
+            $ancientSet = $this->catalog->ancientSetFor($group, $index, $ancientOption & 0x03);
 
             if ($this->catalog->maximumSocketsFor($group, $index) > 0) {
                 $socketBonus = ord($binary[10]);
                 $socketOptions = array_values(unpack('C*', substr($binary, 11, 5)));
+            } elseif ($group <= 11) {
+                $harmonyOption = ord($binary[10]);
             }
         }
 
@@ -102,6 +108,10 @@ final readonly class ItemCodecMuDevsSeason21
             hasSkill: ! $isEmpty && ($packedOptions & 0x80) !== 0,
             hasLuck: ! $isEmpty && ($packedOptions & 0x04) !== 0,
             excellentMask: $isEmpty ? 0 : ($extendedOptions & 0x3F),
+            ancientOption: $ancientOption,
+            ancientSetIndex: $ancientSet['index'] ?? null,
+            ancientSetName: $ancientSet['name'] ?? null,
+            harmonyOption: $harmonyOption,
             metadata: $metadata,
             socketBonus: $socketBonus,
             socketOptions: $socketOptions,

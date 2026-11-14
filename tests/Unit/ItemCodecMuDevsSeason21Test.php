@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 final class ItemCodecMuDevsSeason21Test extends TestCase
 {
     /**
-     * Matches seven captured client items, including the high-index helmet and open sockets.
+     * Matches captured client items, including a high-index helmet, open sockets and ancient armor.
      */
     public function test_decodes_client_matched_items_and_round_trips_the_full_warehouse(): void
     {
@@ -42,6 +42,10 @@ final class ItemCodecMuDevsSeason21Test extends TestCase
         }
         self::assertSame(255, $records[66]->socketBonus);
         self::assertNull($records[75]->socketBonus);
+        self::assertSame(5, $records[99]->ancientOption);
+        self::assertSame("Warrior's", $records[99]->ancientSetName);
+        self::assertSame(17, $records[110]->harmonyOption);
+        self::assertNull($records[66]->harmonyOption);
     }
 
     /**
@@ -74,6 +78,21 @@ final class ItemCodecMuDevsSeason21Test extends TestCase
         self::assertNull($records[0]->code());
         self::assertNull($records[0]->metadata);
         self::assertSame($binary, $codec->encode($records));
+    }
+
+    /**
+     * Keeps unsupported ancient flags raw rather than inventing a set for a non-set item.
+     */
+    public function test_does_not_invent_an_ancient_set_for_an_unsupported_item(): void
+    {
+        $binary = hex2bin('004FFF010203077F050000FFFFFFFFFFFFFFFFFFFFFFFFFFFF');
+
+        $records = $this->codec()->decode($binary, 1);
+
+        self::assertSame(5, $records[0]->ancientOption);
+        self::assertNull($records[0]->ancientSetName);
+        self::assertNull($records[0]->ancientSetIndex);
+        self::assertSame($binary, $this->codec()->encode($records));
     }
 
     /**

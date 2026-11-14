@@ -55,6 +55,8 @@ final class MuDevsSeason21ReadIntegrationTest extends TestCase
         self::assertSame('7:270', $records[0]->code());
         self::assertSame([254, 254, 254, 255, 255], $records[66]->socketOptions);
         self::assertSame(63, $records[75]->excellentMask);
+        self::assertSame("Warrior's", $records[99]->ancientSetName);
+        self::assertSame(17, $records[110]->harmonyOption);
         self::assertSame($binary, $this->app->make(ItemCodecMuDevsSeason21::class)->encode($records));
         self::assertSame($binary, $this->app->make(ItemCodecMuDevsSeason21::class)->encode($extendedRecords));
         self::assertNull($inspector->forAccount('s21owner', 1));

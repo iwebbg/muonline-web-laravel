@@ -26,6 +26,10 @@ final readonly class ItemRecordMuDevsSeason21
         public bool $hasSkill,
         public bool $hasLuck,
         public int $excellentMask,
+        public int $ancientOption,
+        public ?int $ancientSetIndex,
+        public ?string $ancientSetName,
+        public ?int $harmonyOption,
         public ?ItemMetadataMuDevsSeason21 $metadata,
         public ?int $socketBonus,
         public array $socketOptions,
@@ -58,7 +62,7 @@ final readonly class ItemRecordMuDevsSeason21
     /**
      * Exposes diagnostic metadata separately from transferable/generated item snapshots.
      *
-     * @return array{slot: int, code: string|null, name: string|null, width: int|null, height: int|null, image: string|null, level: int|null, durability: int|null, optionLevel: int|null, hasSkill: bool, hasLuck: bool, excellentMask: int, socketBonus: int|null, socketOptions: list<int>, advancedOptionsVerified: bool, nativeHex: string}
+     * @return array{slot: int, code: string|null, name: string|null, width: int|null, height: int|null, image: string|null, level: int|null, durability: int|null, optionLevel: int|null, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int, ancientSetIndex: int|null, ancientSetName: string|null, harmonyOption: int|null, harmonyIndex: int|null, harmonyLevel: int|null, socketBonus: int|null, socketOptions: list<int>, advancedOptionsVerified: bool, nativeHex: string}
      */
     public function toInspectionArray(): array
     {
@@ -75,6 +79,12 @@ final readonly class ItemRecordMuDevsSeason21
             'hasSkill' => $this->hasSkill,
             'hasLuck' => $this->hasLuck,
             'excellentMask' => $this->excellentMask,
+            'ancientOption' => $this->ancientOption,
+            'ancientSetIndex' => $this->ancientSetIndex,
+            'ancientSetName' => $this->ancientSetName,
+            'harmonyOption' => $this->harmonyOption,
+            'harmonyIndex' => $this->harmonyOption === null ? null : $this->harmonyOption >> 4,
+            'harmonyLevel' => $this->harmonyOption === null ? null : $this->harmonyOption & 0x0F,
             'socketBonus' => $this->socketBonus,
             'socketOptions' => $this->socketOptions,
             'advancedOptionsVerified' => false,

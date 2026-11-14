@@ -19,6 +19,9 @@ final class ItemCatalogMuDevsSeason21
     /** @var array<string, int>|null */
     private ?array $maximumSockets = null;
 
+    /** @var array<string, list<array{index: int, name: string}|null>>|null */
+    private ?array $ancientSets = null;
+
     /**
      * Selects the bundled source snapshot or a sanitized test catalog.
      */
@@ -77,6 +80,56 @@ final class ItemCatalogMuDevsSeason21
         }
 
         return $this->maximumSockets[$group.':'.$index] ?? 0;
+    }
+
+    /**
+     * Resolves a native ancient variant through the active set type and option sources.
+     *
+     * @return array{index: int, name: string}|null
+     */
+    public function ancientSetFor(int $group, int $index, int $variant): ?array
+    {
+        if ($variant < 1 || $variant > 3) {
+            return null;
+        }
+
+        if ($this->ancientSets === null) {
+            $catalogPath = $this->catalogPath ?? resource_path('game/mudevs_season_21/items.json');
+            $ancientPath = dirname($catalogPath).'/ancient-items.json';
+            $contents = is_readable($ancientPath) ? file_get_contents($ancientPath) : false;
+
+            if ($contents === false) {
+                throw new RuntimeException('The MUDevs S21 ancient item catalog could not be read.');
+            }
+
+            try {
+                $records = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $exception) {
+                throw new RuntimeException('The MUDevs S21 ancient item catalog contains invalid JSON.', previous: $exception);
+            }
+
+            if (! is_array($records) || $records === [] || array_is_list($records)) {
+                throw new RuntimeException('The MUDevs S21 ancient item catalog must contain an identity-keyed object.');
+            }
+
+            foreach ($records as $code => $variants) {
+                if (! is_string($code) || ! isset($this->definitions()[$code])
+                    || ! is_array($variants) || ! array_is_list($variants) || count($variants) !== 3) {
+                    throw new RuntimeException('The MUDevs S21 ancient item catalog contains invalid item variants.');
+                }
+
+                foreach ($variants as $set) {
+                    if ($set !== null && (! is_array($set) || ! is_int($set['index'] ?? null)
+                        || $set['index'] < 1 || ! is_string($set['name'] ?? null) || trim($set['name']) === '')) {
+                        throw new RuntimeException('The MUDevs S21 ancient item catalog contains invalid set metadata.');
+                    }
+                }
+            }
+
+            $this->ancientSets = $records;
+        }
+
+        return $this->ancientSets[$group.':'.$index][$variant - 1] ?? null;
     }
 
     /**
