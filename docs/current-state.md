@@ -474,6 +474,15 @@ tests with 31 assertions, Pint, Vite build and Blade compilation pass. Local
 HTTP checks confirm the protected preview redirects to administrator login and
 the fallback image/frontend manifest are served successfully.
 
+An eleventh, separate client capture verifies Fire Seed Sphere [Lvl. 1] as
+12:100 with packed item level 0, durability 1 and a 1×1 rectangle. Its source tier
+is preserved in both native decoding and the administrator preview. This is a
+standalone sphere fixture; filled equipment sockets and the seed-effect formula
+remain unverified until the owner inserts it in the client. No live game writes
+were performed by the application.
+The focused codec/preview suites pass 18 tests with 227 assertions, and Pint
+passes. No application logic changed for this capture.
+
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
 `MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85

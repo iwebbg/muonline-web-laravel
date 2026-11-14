@@ -157,6 +157,26 @@ final class AdminMuDevsSeason21WarehouseTest extends TestCase
     }
 
     /**
+     * Displays a standalone seed sphere with its source tier and no invented weapon socket fields.
+     */
+    public function test_standalone_fire_seed_sphere_is_named_by_its_native_identity(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $connection = $this->createGameSchema();
+        $fixture = json_decode(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-fire-seed-sphere.json')), true, flags: JSON_THROW_ON_ERROR);
+        $binary = substr_replace(str_repeat("\xFF", 6000), hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        $connection->table('warehouse')->insert(['AccountID' => 'owner', 'AccountIndex' => 1, 'Items' => $binary]);
+
+        $this->actingAs($administrator, 'admin')->get(route('admin.s21-warehouse', ['account' => 'owner']))
+            ->assertOk()
+            ->assertSee('Seed Sphere [Fire][Lvl. 1]')
+            ->assertDontSee('Seed Sphere [Fire][Lvl. 1] +1')
+            ->assertSee('images/items/unknown-item.svg')
+            ->assertDontSee('Harmony option code')
+            ->assertDontSee('Socket 1');
+    }
+
+    /**
      * Creates only the sanitized native projection on the isolated game connection.
      */
     private function createGameSchema(): ConnectionInterface

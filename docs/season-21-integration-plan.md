@@ -421,6 +421,18 @@ Account identifiers are not retained; fixture serial bytes
 3–6 are replaced with synthetic values in
 `tests/Fixtures/SqlServer/mudevs-season-21-warehouse-items.json`.
 
+A separate eleventh capture,
+`tests/Fixtures/SqlServer/mudevs-season-21-fire-seed-sphere.json`, matches a
+Fire Seed Sphere tier 1 at native code 12:100, stored position 3, durability 1
+and size 1×1. Its packed item level is 0; the sphere tier belongs to its native
+item identity, not an item upgrade level. The screenshot shows the Fire
+damage/wizardry-per-20-levels effect and +1.1. This capture verifies the standalone
+sphere identity, not the encoded seed byte after insertion into equipment or a
+general seed-effect formula. It is kept separate from earlier warehouse
+captures because its later position overlaps a previously occupied rectangle.
+Unit and administrator-preview tests retain the source tier in the name without
+inventing Harmony/socket fields for the standalone sphere.
+
 | Item | Native code | Level | Rectangle | Matched option evidence |
 | --- | --- | --- | --- | --- |
 | Brilliant Knight Helm [S] | 7:270 | 15 | 2×2 | Luck; byte 7 bit 7 supplies index bit 8. |

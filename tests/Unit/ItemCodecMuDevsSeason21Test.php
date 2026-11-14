@@ -130,6 +130,30 @@ final class ItemCodecMuDevsSeason21Test extends TestCase
     }
 
     /**
+     * Reads the sphere tier from native item identity without confusing it with item upgrade level.
+     */
+    public function test_reads_a_client_matched_fire_seed_sphere_without_weapon_options(): void
+    {
+        $fixture = json_decode(file_get_contents(__DIR__.'/../Fixtures/SqlServer/mudevs-season-21-fire-seed-sphere.json'), true, flags: JSON_THROW_ON_ERROR);
+        $binary = substr_replace(str_repeat("\xFF", 6000), hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        $codec = $this->codec();
+
+        $records = $codec->decode($binary, 240);
+        $sphere = $records[3];
+
+        self::assertSame('12:100', $sphere->code());
+        self::assertSame('Seed Sphere [Fire][Lvl. 1]', $sphere->metadata?->name);
+        self::assertSame(0, $sphere->level);
+        self::assertSame(1, $sphere->durability);
+        self::assertSame(1, $sphere->metadata?->width);
+        self::assertSame(1, $sphere->metadata?->height);
+        self::assertNull($sphere->harmonyOption);
+        self::assertNull($sphere->socketBonus);
+        self::assertSame([], $sphere->socketOptions);
+        self::assertSame($binary, $codec->encode($records));
+    }
+
+    /**
      * Supplies explicit artifacts without booting Laravel for binary-domain tests.
      */
     private function codec(): ItemCodecMuDevsSeason21
