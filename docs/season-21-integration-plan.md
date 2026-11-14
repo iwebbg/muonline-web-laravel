@@ -412,6 +412,61 @@ deliberately does not implement the shared `ItemCatalog` contract yet: native
 option interpretation must be verified before creating legacy tooltip types.
 It is not bound to the selectable profile or generation/transfer services.
 
+### Client-matched warehouse commissioning
+
+Owner-supplied client screenshots and read-only reads now match seven occupied
+25-byte records in a 6,000-byte main warehouse. The stored positions are 0, 2,
+4, 6, 16, 66 and 75. Account identifiers are not retained; fixture serial bytes
+3–6 are replaced with synthetic values in
+`tests/Fixtures/SqlServer/mudevs-season-21-warehouse-items.json`.
+
+| Item | Native code | Level | Rectangle | Matched option evidence |
+| --- | --- | --- | --- | --- |
+| Brilliant Knight Helm [S] | 7:270 | 15 | 2×2 | Luck; byte 7 bit 7 supplies index bit 8. |
+| Rune Blade | 0:31 | 13 | 2×4 | Skill, Luck, option 1, excellent mask 1. Byte 10 remains uninterpreted. |
+| Sword Dancer | 0:25 | 13 | 2×4 | Luck, option 4 (+16 displayed). |
+| Thunder Hawk Armor | 8:20 | 13 | 2×3 | Luck, option 1 (+4 defense displayed), excellent mask 1 (Zen). |
+| Dragon Knight Armor | 8:29 | 15 | 2×3 | Luck, option 1; stored durability 255 is retained despite lower displayed maximum. |
+| Flameberge | 0:26 | 0 | 1×4 | Three empty sockets: bytes 11–15 are FE FE FE FF FF; byte 10 is FF. |
+| Kris | 0:0 | 9 | 1×2 | Luck, option 7 (+28 displayed), excellent mask 63. Skill is absent despite requesting it through `/make`; the native definition declares Skill=0. |
+
+`ItemCodecMuDevsSeason21` reads only verified common fields and uses the separate
+`ItemRecordMuDevsSeason21` boundary. It retains every byte, including unknown
+extensions and unsupported identity flags, and can concatenate complete original
+record sequences exactly. It does not implement the shared generation contract,
+does not create new items and does not extend the legacy ItemSlot byte limits.
+Group-header low-bit flags are currently treated as unsupported identities;
+native groups above 15 and advanced flag meanings require additional captures.
+All diagnostic snapshots explicitly mark advanced option interpretation unverified.
+
+The active nested `SocketItemType.xml` contributes 231 socket-item identities to
+`resources/game/mudevs_season_21/socket-items.json`, all with a maximum of three.
+The inspector exposes raw socket positions only for those native socket items,
+without calling every occupied seed a verified decoded seed option. Filled seeds,
+bonus semantics, ancient sets, Harmony, 380, expiry and newer option families
+remain separate verification tasks. Shared S6 behavior is a comparison source,
+not automatic certification of the S21 extension bytes.
+
+The read-only `game:inspect-s21-warehouse {account} --vault=0 [--json]` command
+uses the configured game connection independently of the incomplete selectable
+profile. Zero selects main storage; a positive value is an exact native
+`ExtWarehouse.Number`. Reads are account-scoped, retain all 240 stored records
+and reject malformed/uninitialized blobs. The command is a diagnostic interface,
+not a public warehouse endpoint or transfer/generation action. Client-visible
+pages and extension unlocking still require independent verification.
+
+The pack documents `/make` in `GameServer/DATA/GameServerInfo - Command.dat`:
+
+```text
+/make <group> <id> <lvl> <dur> <skill> <luck> <opt> <exe> <set> <harmony> <extl> <socketcount> <socketbonus> <exp> <count>
+/make 0 26 0 255 0 0 0 0 0 0 0 3 255 0 1
+/make 0 0 9 255 1 1 7 63 0 0 0 0 0 0 1
+```
+
+The two samples above produced the captured Flameberge and Kris respectively.
+They establish open socket positions and full classic excellent/option masks;
+they do not establish filled seed encoding or the remaining make arguments.
+
 Required shared changes identified in the existing implementation:
 
 - `app/Game/Data/ItemSlot.php` rejects every byte length except 10 and 16.

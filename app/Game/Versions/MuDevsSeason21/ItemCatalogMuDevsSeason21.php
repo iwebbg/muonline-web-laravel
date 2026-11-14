@@ -16,6 +16,9 @@ final class ItemCatalogMuDevsSeason21
     /** @var array<string, ItemMetadataMuDevsSeason21>|null */
     private ?array $definitions = null;
 
+    /** @var array<string, int>|null */
+    private ?array $maximumSockets = null;
+
     /**
      * Selects the bundled source snapshot or a sanitized test catalog.
      */
@@ -37,6 +40,43 @@ final class ItemCatalogMuDevsSeason21
     public function allDefinitions(): array
     {
         return array_values($this->definitions());
+    }
+
+    /**
+     * Returns the maximum socket count declared by the active SocketItemType source.
+     */
+    public function maximumSocketsFor(int $group, int $index): int
+    {
+        if ($this->maximumSockets === null) {
+            $catalogPath = $this->catalogPath ?? resource_path('game/mudevs_season_21/items.json');
+            $socketPath = dirname($catalogPath).'/socket-items.json';
+            $contents = is_readable($socketPath) ? file_get_contents($socketPath) : false;
+
+            if ($contents === false) {
+                throw new RuntimeException('The MUDevs S21 socket item catalog could not be read.');
+            }
+
+            try {
+                $records = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $exception) {
+                throw new RuntimeException('The MUDevs S21 socket item catalog contains invalid JSON.', previous: $exception);
+            }
+
+            if (! is_array($records) || $records === [] || array_is_list($records)) {
+                throw new RuntimeException('The MUDevs S21 socket item catalog must contain an identity-keyed object.');
+            }
+
+            foreach ($records as $code => $maximumSockets) {
+                if (! is_string($code) || ! isset($this->definitions()[$code])
+                    || ! is_int($maximumSockets) || $maximumSockets < 1 || $maximumSockets > 5) {
+                    throw new RuntimeException('The MUDevs S21 socket item catalog contains invalid item metadata.');
+                }
+            }
+
+            $this->maximumSockets = $records;
+        }
+
+        return $this->maximumSockets[$group.':'.$index] ?? 0;
     }
 
     /**

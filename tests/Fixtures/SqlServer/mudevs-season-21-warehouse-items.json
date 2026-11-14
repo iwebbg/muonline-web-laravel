@@ -1,0 +1,9 @@
+[
+    {"slot":0,"hex":"0E7C010102030180007000FFFFFFFFFFFFFFFFFFFFFFFFFFFF","code":"7:270","name":"Brilliant Knight Helm [S]","level":15,"durability":1,"optionLevel":0,"hasSkill":false,"hasLuck":true,"excellentMask":0,"width":2,"height":2,"socketOptions":[]},
+    {"slot":2,"hex":"1FED010102030201000001FFFFFFFFFFFFFFFFFFFFFFFFFFFF","code":"0:31","name":"Rune Blade","level":13,"durability":1,"optionLevel":1,"hasSkill":true,"hasLuck":true,"excellentMask":1,"width":2,"height":4,"socketOptions":[]},
+    {"slot":4,"hex":"196C010102030340000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF","code":"0:25","name":"Sword Dancer","level":13,"durability":1,"optionLevel":4,"hasSkill":false,"hasLuck":true,"excellentMask":0,"width":2,"height":4,"socketOptions":[]},
+    {"slot":6,"hex":"146D010102030401008000FFFFFFFFFFFFFFFFFFFFFFFFFFFF","code":"8:20","name":"Thunder Hawk Armor","level":13,"durability":1,"optionLevel":1,"hasSkill":false,"hasLuck":true,"excellentMask":1,"width":2,"height":3,"socketOptions":[]},
+    {"slot":16,"hex":"1D7DFF0102030500008000FFFFFFFFFFFFFFFFFFFFFFFFFFFF","code":"8:29","name":"Dragon Knight Armor","level":15,"durability":255,"optionLevel":1,"hasSkill":false,"hasLuck":true,"excellentMask":0,"width":2,"height":3,"socketOptions":[]},
+    {"slot":66,"hex":"1A00FF01020306000000FFFEFEFEFFFFFFFFFFFFFFFFFFFFFF","code":"0:26","name":"Flameberge","level":0,"durability":255,"optionLevel":0,"hasSkill":false,"hasLuck":false,"excellentMask":0,"width":1,"height":4,"socketOptions":[254,254,254,255,255]},
+    {"slot":75,"hex":"004FFF010203077F000000FFFFFFFFFFFFFFFFFFFFFFFFFFFF","code":"0:0","name":"Kris","level":9,"durability":255,"optionLevel":7,"hasSkill":false,"hasLuck":true,"excellentMask":63,"width":1,"height":2,"socketOptions":[]}
+]

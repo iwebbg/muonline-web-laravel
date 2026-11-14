@@ -2,6 +2,22 @@
 -- Load only in disposable test databases. No accounts or server procedures.
 -- Explicit identities let the same read fixtures run on SQLite and SQL Server.
 
+CREATE TABLE warehouse (
+    AccountID VARCHAR(10) NOT NULL PRIMARY KEY,
+    AccountIndex INT NOT NULL,
+    Items VARBINARY(6000) NULL,
+    Money INT NULL
+);
+
+CREATE TABLE ExtWarehouse (
+    AccountID VARCHAR(10) NOT NULL,
+    AccountIndex INT NOT NULL,
+    Number INT NOT NULL,
+    Items VARBINARY(6000) NULL,
+    Money INT NULL,
+    PRIMARY KEY (AccountID, Number)
+);
+
 CREATE TABLE MEMB_INFO (
     memb_guid INT NOT NULL,
     memb___id VARCHAR(10) NOT NULL PRIMARY KEY,

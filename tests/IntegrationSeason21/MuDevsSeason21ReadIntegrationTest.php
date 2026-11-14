@@ -5,7 +5,9 @@ namespace Tests\IntegrationSeason21;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21MasterProgressionRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21RealmReadRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21WarehouseInspectionRepository;
 use App\Game\Versions\MuDevsSeason21\GuildMarkDecoderMuDevsSeason21;
+use App\Game\Versions\MuDevsSeason21\ItemCodecMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\MapNameMapperMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\MuDevsSeason21Profile;
 use Illuminate\Database\ConnectionInterface;
@@ -17,6 +19,49 @@ use Tests\Integration\TestCase;
  */
 final class MuDevsSeason21ReadIntegrationTest extends TestCase
 {
+    /**
+     * Reads full 6,000-byte storage through SQL Server while preserving owner and page scope.
+     */
+    public function test_inspects_native_warehouse_binary_and_extended_pages_without_changes(): void
+    {
+        $connection = $this->gameConnection();
+        $fixtures = json_decode(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-warehouse-items.json')), true, flags: JSON_THROW_ON_ERROR);
+        $binary = str_repeat("\xFF", 6000);
+
+        foreach ($fixtures as $fixture) {
+            $binary = substr_replace($binary, hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        }
+
+        $connection->statement(
+            'INSERT INTO warehouse (AccountID, AccountIndex, Items, Money) VALUES (?, ?, CONVERT(varbinary(6000), ?, 2), 0)',
+            ['s21owner', 1, strtoupper(bin2hex($binary))],
+        );
+        $connection->statement(
+            'INSERT INTO ExtWarehouse (AccountID, AccountIndex, Number, Items, Money) VALUES (?, ?, ?, CONVERT(varbinary(6000), ?, 2), 0)',
+            ['s21owner', 1, 2, strtoupper(bin2hex($binary))],
+        );
+        $connection->statement(
+            'INSERT INTO ExtWarehouse (AccountID, AccountIndex, Number, Items, Money) VALUES (?, ?, ?, CONVERT(varbinary(6000), ?, 2), 0)',
+            ['s21other', 2, 1, strtoupper(bin2hex($binary))],
+        );
+        $inspector = $this->app->make(SqlServerMuDevsSeason21WarehouseInspectionRepository::class);
+
+        $records = $inspector->forAccount('s21owner');
+        $extendedRecords = $inspector->forAccount('s21owner', 2);
+
+        self::assertNotNull($records);
+        self::assertNotNull($extendedRecords);
+        self::assertCount(240, $records);
+        self::assertSame('7:270', $records[0]->code());
+        self::assertSame([254, 254, 254, 255, 255], $records[66]->socketOptions);
+        self::assertSame(63, $records[75]->excellentMask);
+        self::assertSame($binary, $this->app->make(ItemCodecMuDevsSeason21::class)->encode($records));
+        self::assertSame($binary, $this->app->make(ItemCodecMuDevsSeason21::class)->encode($extendedRecords));
+        self::assertNull($inspector->forAccount('s21owner', 1));
+        self::assertNull($inspector->forAccount('missing'));
+        self::assertSame(6000, (int) $connection->table('warehouse')->where('AccountID', 's21owner')->selectRaw('DATALENGTH(Items) AS byte_count')->value('byte_count'));
+    }
+
     /**
      * Starts an isolated transaction after the base case validates the SQL endpoint.
      */

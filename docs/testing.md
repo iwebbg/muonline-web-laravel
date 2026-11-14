@@ -166,10 +166,14 @@ the new internal database `MuOnline_S21_Test`, runs
 the containers, internal network and volume. It never imports the full external
 emulator scripts or connects to `MuOnline_S21`/`BattleCore_S21` on the LAN.
 
-This seven-table fixture is a sanitized read-model projection with explicit
+This nine-table fixture is a sanitized read-model projection with explicit
 synthetic identities. The portable feature tests also load it into SQLite.
 Native tests cover SQL Server pagination, bigint experience, index-based
-progression joins and packed binary guild marks. The S21 profile is not yet
+progression joins, packed binary guild marks, full 6,000-byte warehouse reads,
+extended-vault ownership and lossless preservation of the client-matched records.
+`mudevs-season-21-warehouse-items.json` contains serial-anonymized item captures
+and expected metadata from owner-supplied tooltips; unit tests use these without
+connecting to the game server. The S21 profile is not yet
 selectable: shared test infrastructure boots with an existing registered
 profile, and every S21 adapter is explicitly instantiated with its own profile.
 That bootstrap profile does not select the tested S21 queries or fixture schema.

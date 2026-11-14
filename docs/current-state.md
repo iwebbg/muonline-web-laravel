@@ -426,6 +426,21 @@ Validation: 884 unit/feature tests with 18,434 assertions, all three existing
 profile smoke checks and Pint pass. Automated checks remain network-isolated;
 no live event configuration or game data was changed.
 
+The item commissioning stage now matches seven owner-supplied client tooltips
+with saved 25-byte warehouse records, including index 270, three empty sockets,
+excellent mask 63 and option 7. Serial-anonymized fixtures cover exact full-blob
+round trips. The separate S21 diagnostic record/codec preserves all bytes without
+binding legacy item services or enabling creation/transfers. A bundled active
+socket catalog contains 231 identities; filled seeds and advanced options remain
+unverified. `game:inspect-s21-warehouse` reads account-owned main/extended vaults
+and reports verified metadata/raw options; its live read matched all seven items.
+Native warehouse reads are also covered by the disposable SQL Server workflow,
+whose sanitized projection now includes warehouse and ExtWarehouse (nine tables).
+Validation for this stage: 896 unit/feature tests with 18,572 assertions,
+four native S21 SQL Server cases with 28 assertions, and Pint pass. Automated
+tests use only isolated fixtures; the separate live comparison performed reads
+and did not create, update or move game items.
+
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
 `MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85
