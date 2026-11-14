@@ -154,6 +154,26 @@ final class ItemCodecMuDevsSeason21Test extends TestCase
     }
 
     /**
+     * Retains a valid zero-valued seed alongside empty and absent socket positions.
+     */
+    public function test_preserves_a_client_matched_zero_seed_without_confusing_socket_sentinels(): void
+    {
+        $fixture = json_decode(file_get_contents(__DIR__.'/../Fixtures/SqlServer/mudevs-season-21-flameberge-fire-socket.json'), true, flags: JSON_THROW_ON_ERROR);
+        $binary = substr_replace(str_repeat("\xFF", 6000), hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        $codec = $this->codec();
+
+        $records = $codec->decode($binary, 240);
+        $weapon = $records[3];
+
+        self::assertFalse($weapon->isEmpty);
+        self::assertSame('0:26', $weapon->code());
+        self::assertSame([0, 254, 254, 255, 255], $weapon->socketOptions);
+        self::assertSame(255, $weapon->socketBonus);
+        self::assertNull($weapon->harmonyOption);
+        self::assertSame($binary, $codec->encode($records));
+    }
+
+    /**
      * Supplies explicit artifacts without booting Laravel for binary-domain tests.
      */
     private function codec(): ItemCodecMuDevsSeason21

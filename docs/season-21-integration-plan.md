@@ -433,6 +433,20 @@ captures because its later position overlaps a previously occupied rectangle.
 Unit and administrator-preview tests retain the source tier in the name without
 inventing Harmony/socket fields for the standalone sphere.
 
+A twelfth, separate capture,
+`tests/Fixtures/SqlServer/mudevs-season-21-flameberge-fire-socket.json`, matches
+the same Fire sphere inserted into Flameberge's first socket through Seed Master.
+The five socket bytes are `00 FE FE FF FF`, with bonus `FF`: zero is a valid
+filled seed, FE is an empty socket, and FF is an absent socket position. The
+client shows Level 1 Fire, damage/wizardry damage per 20 levels, +1.1. Active
+`SocketItemOption.xml` Index=0, Element=1 and Value1=11 corroborate that one
+description. `ItemCatalogMuDevsSeason21::socketSeedFor()` names only explicitly
+client-matched seed codes; unverified filled codes remain visible as raw codes.
+The administrator preview translates the matched Fire description into English
+and Bulgarian and retains empty/absent distinctions without dropping zero.
+No other element/tier encoding or full damage formula is inferred from this
+single insertion, and all original 25 bytes remain unchanged on re-encoding.
+
 | Item | Native code | Level | Rectangle | Matched option evidence |
 | --- | --- | --- | --- | --- |
 | Brilliant Knight Helm [S] | 7:270 | 15 | 2×2 | Luck; byte 7 bit 7 supplies index bit 8. |

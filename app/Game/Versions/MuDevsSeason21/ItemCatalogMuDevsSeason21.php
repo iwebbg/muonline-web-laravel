@@ -13,6 +13,23 @@ use RuntimeException;
  */
 final class ItemCatalogMuDevsSeason21
 {
+    /**
+     * Contains only socket seed codes matched to saved bytes and client tooltips.
+     *
+     * Code 0 matches active SocketItemOption.xml Index=0, Element=1, Value1=11
+     * and the client's tier-1 Fire damage/wizardry-per-20-levels display of +1.1.
+     *
+     * @var array<int, array{element: string, tier: int, effect: string, displayValue: string}>
+     */
+    private const VERIFIED_SOCKET_SEEDS = [
+        0 => [
+            'element' => 'fire',
+            'tier' => 1,
+            'effect' => 'damage_wizardry_per_20_levels',
+            'displayValue' => '1.1',
+        ],
+    ];
+
     /** @var array<string, ItemMetadataMuDevsSeason21>|null */
     private ?array $definitions = null;
 
@@ -43,6 +60,16 @@ final class ItemCatalogMuDevsSeason21
     public function allDefinitions(): array
     {
         return array_values($this->definitions());
+    }
+
+    /**
+     * Resolves only client-matched filled socket codes, keeping other values unverified.
+     *
+     * @return array{element: string, tier: int, effect: string, displayValue: string}|null
+     */
+    public function socketSeedFor(int $rawOption): ?array
+    {
+        return self::VERIFIED_SOCKET_SEEDS[$rawOption] ?? null;
     }
 
     /**

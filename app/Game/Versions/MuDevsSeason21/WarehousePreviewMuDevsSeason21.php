@@ -10,6 +10,11 @@ namespace App\Game\Versions\MuDevsSeason21;
 final class WarehousePreviewMuDevsSeason21
 {
     /**
+     * Supplies native metadata for explicitly client-matched socket descriptions.
+     */
+    public function __construct(private readonly ItemCatalogMuDevsSeason21 $catalog) {}
+
+    /**
      * Builds occupied-item previews without exposing serials or raw native bytes.
      *
      * @param  list<ItemRecordMuDevsSeason21>  $records
@@ -109,7 +114,7 @@ final class WarehousePreviewMuDevsSeason21
             if ($value !== 255) {
                 $details[] = [
                     'label' => __('ui.s21_warehouse.socket', ['number' => $position + 1]),
-                    'value' => $value === 254 ? __('ui.s21_warehouse.empty_socket') : __('ui.s21_warehouse.seed_code', ['value' => $value]),
+                    'value' => $this->socketValue($value),
                 ];
             }
         }
@@ -119,5 +124,28 @@ final class WarehousePreviewMuDevsSeason21
         }
 
         return $details;
+    }
+
+    /**
+     * Describes empty or verified filled sockets without guessing unsupported seed encodings.
+     */
+    private function socketValue(int $value): string
+    {
+        if ($value === 254) {
+            return __('ui.s21_warehouse.empty_socket');
+        }
+
+        $seed = $this->catalog->socketSeedFor($value);
+
+        if ($seed === null) {
+            return __('ui.s21_warehouse.seed_code', ['value' => $value]);
+        }
+
+        return __('ui.s21_warehouse.seed_summary', [
+            'level' => $seed['tier'],
+            'element' => __('ui.s21_warehouse.element_'.$seed['element']),
+            'effect' => __('ui.s21_warehouse.effect_'.$seed['effect']),
+            'value' => $seed['displayValue'],
+        ]);
     }
 }

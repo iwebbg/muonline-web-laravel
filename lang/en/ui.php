@@ -34,6 +34,9 @@ return [
         'socket' => 'Socket :number',
         'empty_socket' => 'Empty',
         'seed_code' => 'Unverified seed code :value',
+        'seed_summary' => 'Level :level :element — :effect +:value',
+        'element_fire' => 'Fire',
+        'effect_damage_wizardry_per_20_levels' => 'Damage and wizardry damage per 20 levels',
         'socket_bonus' => 'Socket bonus code',
     ],
     'language' => [

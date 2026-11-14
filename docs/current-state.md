@@ -483,6 +483,17 @@ were performed by the application.
 The focused codec/preview suites pass 18 tests with 227 assertions, and Pint
 passes. No application logic changed for this capture.
 
+A twelfth client-matched fixture now verifies a tier-1 Fire sphere inserted
+into Flameberge: socket bytes `00 FE FE FF FF`, bonus FF. The zero-valued first
+seed is distinct from empty FE and absent FF. Native metadata and the read-only
+administrator preview now name this verified Fire damage/wizardry-per-20-levels
++1.1 effect in English and Bulgarian. Other filled seed codes remain explicitly
+unverified. The separate live read/presentation check matched the same effect;
+the application did not create or move any game items.
+Validation for the filled Fire seed: 911 isolated unit/feature tests with 18,695
+assertions and Pint pass. Coverage distinguishes filled code 0, empty FE, absent
+FF and a still-unverified nonzero filled code without inventing an effect.
+
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
 `MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85

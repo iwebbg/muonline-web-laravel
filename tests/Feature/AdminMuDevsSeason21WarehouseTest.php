@@ -177,6 +177,47 @@ final class AdminMuDevsSeason21WarehouseTest extends TestCase
     }
 
     /**
+     * Names a client-matched Fire seed even though its native filled value is zero.
+     */
+    public function test_filled_zero_seed_is_shown_with_its_verified_fire_effect(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $connection = $this->createGameSchema();
+        $fixture = json_decode(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-flameberge-fire-socket.json')), true, flags: JSON_THROW_ON_ERROR);
+        $binary = substr_replace(str_repeat("\xFF", 6000), hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        $connection->table('warehouse')->insert(['AccountID' => 'owner', 'AccountIndex' => 1, 'Items' => $binary]);
+
+        $this->actingAs($administrator, 'admin')->get(route('admin.s21-warehouse', ['account' => 'owner']))
+            ->assertOk()
+            ->assertSee('Socket 1')
+            ->assertSee('Level 1 Fire — Damage and wizardry damage per 20 levels +1.1')
+            ->assertSee('Socket 2')
+            ->assertSee('Socket 3')
+            ->assertDontSee('Socket 4')
+            ->assertDontSee('Unverified seed code 0');
+    }
+
+    /**
+     * Keeps unverified seed codes visible without assigning a guessed element or tier.
+     */
+    public function test_unverified_filled_seed_keeps_its_raw_code(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $connection = $this->createGameSchema();
+        $fixture = json_decode(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-flameberge-fire-socket.json')), true, flags: JSON_THROW_ON_ERROR);
+        $weapon = hex2bin($fixture['hex']);
+        $weapon[11] = "\x01";
+        $connection->table('warehouse')->insert([
+            'AccountID' => 'owner', 'AccountIndex' => 1, 'Items' => $weapon.str_repeat("\xFF", 5975),
+        ]);
+
+        $this->actingAs($administrator, 'admin')->get(route('admin.s21-warehouse', ['account' => 'owner']))
+            ->assertOk()
+            ->assertSee('Unverified seed code 1')
+            ->assertDontSee('Level 1 Fire');
+    }
+
+    /**
      * Creates only the sanitized native projection on the isolated game connection.
      */
     private function createGameSchema(): ConnectionInterface

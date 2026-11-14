@@ -34,6 +34,9 @@ return [
         'socket' => 'Socket :number',
         'empty_socket' => 'Празен',
         'seed_code' => 'Непотвърден seed код :value',
+        'seed_summary' => 'Ниво :level :element — :effect +:value',
+        'element_fire' => 'Огън',
+        'effect_damage_wizardry_per_20_levels' => 'Щети и магически щети на всеки 20 нива',
         'socket_bonus' => 'Код на socket бонуса',
     ],
     'language' => [
