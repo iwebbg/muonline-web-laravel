@@ -362,10 +362,36 @@ Development started on `feat/mudevs-season-21` from `origin/develop` at
 base stats and normal level-up points, the 121 configured map labels, and a
 read-only repository for WCoinC, WCoinP, Goblin Points, Lucky Coin and owned
 character Ruud. These components are not yet bound to a selectable profile or
-player interface. The initial focused tests pass: 73 tests, 134 assertions.
-The complete disposable suite passes with 855 tests and 4,132 assertions; Pint
-passes. A separate manual read-only probe successfully read all five native
-currency types for the existing S21 account without exposing account amounts.
+player interface. The first foundation commit is `6dcd812`.
+
+The next read-model stage adds `MuDevsSeason21Profile` outside the selectable
+registry, private character and public realm/guild/ranking repositories, and
+Master/enhancement reads joined through `CharacterIndex`. Its class catalog
+currently contains only the 16 base codes explicitly seeded by the supplied
+SQL; advanced evolution codes remain a commissioning task. Nine owner-supplied
+portraits live under `public/images/characters/mudevs_season_21`, with
+profile-owned focal points for the landscape/full-body sources. Shared DTOs
+keep their previous serialized shape when no custom focal point or enhancement
+points are present. Enhancement points are separate from native Master counters;
+no unverified total-level formula is applied. S21 VIP expiry uses the configured
+game content timezone.
+
+The new `./docker/compose test-integration-s21` command checks these readers
+against a sanitized seven-table schema projection in its own disposable SQL
+Server database. This is read-adapter coverage, not certification of the full
+version bundle. Manual read-only probes using the restricted S21 identity also
+successfully read the existing base Dark Knight, public rankings, realm
+aggregates, Master counters and five native currency types. No private account
+amounts were printed.
+
+Validation for this read-model stage: 872 disposable unit/feature tests with
+4,269 assertions; the existing three-profile smoke matrix; 97d+99i integration
+(3 tests, 40 assertions), 1.0M integration (10 tests, 51 assertions), and S21
+read integration (3 tests, 17 assertions). Pint and Blade compilation pass.
+
+Game coins remain independent from web Credits. Conversion policy and shop
+currency selection are undecided; no exchange or automatic substitution is
+implemented.
 
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
@@ -380,8 +406,7 @@ removed from active `.env`; its previous values are preserved in ignored
 the existing fixture profile until the complete S21 bundle is registered.
 Do not switch to real game data using the retained S6 fixture profile.
 
-Eight inspected
-MuOnline procedures retain unbracketed `BattleCore.dbo` references, and the
+Eight inspected MuOnline procedures retain unbracketed `BattleCore.dbo` references, and the
 BattleCore database contains only ten tables. Resolve the dependencies before
 claiming BattleCore events work. No game data or procedure definitions were
 changed. Class evolution codes and visible item boundaries remain pending.

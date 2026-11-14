@@ -44,10 +44,39 @@ These components do not register a partial game profile. Native currency reads
 are not yet exposed in the account UI. Market and Web Shop remain later
 compatibility tests; no existing module settings have been changed.
 
-Validation: 73 focused tests with 134 assertions; the complete disposable suite
-passes with 855 tests and 4,132 assertions, and Pint passes. A separate manual
-read-only probe against MuOnline_S21 successfully used the currency adapter for
-the existing account. Automated tests never connected to that server.
+The first foundation commit is `6dcd812`. The subsequent read-model stage adds:
+
+- `MuDevsSeason21Profile`, containing the 16 SQL-seeded base class codes,
+  source stats, portraits and read bindings. It remains outside the selectable
+  registry; unavailable advancement codes are not guessed.
+- Private account character reads plus public rankings, profiles, guilds and
+  realm analytics through S21-owned adapters.
+- Master and enhancement reads joined by stable `CharacterIndex`, including
+  tests where cached names point to another character. Native counters remain
+  separate; no assumed base/Master/enhancement total-level calculation is used.
+- Nine owner-provided portraits stored unchanged in the version asset folder,
+  with class-defined focal points passed to rankings and account/public views.
+- Optional Enhancement Points presentation in both languages; legacy DTO
+  serialization omits new fields when their default/absent values apply.
+- A separate disposable SQL Server read integration suite through
+  `./docker/compose test-integration-s21` and the sanitized read-schema fixture.
+
+The owner currently has only the existing base Dark Knight and no editor.
+Fourth/fifth advancement codes therefore remain a client commissioning task.
+The source seed and last runtime read both identify that character with code
+16. Do not change it through SQL to manufacture advancement fixtures.
+
+Read-only probes using the restricted login successfully exercised private
+characters, public rankings/analytics and Master reads on MuOnline_S21.
+Automated tests never connected to that server. Game coins remain separate
+from web Credits; neither exchange nor a native shop-currency policy has been
+selected or implemented.
+
+Read-model validation: the full disposable suite passes with 872 tests and
+4,269 assertions. All three existing profile smoke runs pass. Native SQL Server
+checks pass for S21 reads (3 tests, 17 assertions), 97d+99i (3 tests,
+40 assertions) and 1.0M (10 tests, 51 assertions). Pint and Blade compilation
+pass. Real-browser portrait framing remains a manual UI review.
 
 ## Bootstrap and BattleCore commissioning
 

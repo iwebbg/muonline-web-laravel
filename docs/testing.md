@@ -151,6 +151,37 @@ Run one integration file or method with the same argument style:
 
 ## Using the legacy schema fixture
 
+### Season 21 read-adapter development
+
+The in-development MUDevs S21 readers have a separate disposable SQL Server
+workflow:
+
+```bash
+./docker/compose test-integration-s21
+```
+
+It loads only `tests/Fixtures/SqlServer/mudevs-season-21-read-schema.sql` into
+the new internal database `MuOnline_S21_Test`, runs
+`tests/IntegrationSeason21` through `phpunit.integration-s21.xml`, and removes
+the containers, internal network and volume. It never imports the full external
+emulator scripts or connects to `MuOnline_S21`/`BattleCore_S21` on the LAN.
+
+This seven-table fixture is a sanitized read-model projection with explicit
+synthetic identities. The portable feature tests also load it into SQLite.
+Native tests cover SQL Server pagination, bigint experience, index-based
+progression joins and packed binary guild marks. The S21 profile is not yet
+selectable: shared test infrastructure boots with an existing registered
+profile, and every S21 adapter is explicitly instantiated with its own profile.
+That bootstrap profile does not select the tested S21 queries or fixture schema.
+
+Run a single native case with the same PHPUnit argument convention:
+
+```bash
+./docker/compose test-integration-s21 --filter=test_reads_master_and_enhancement_progression_by_index_with_stale_names
+```
+
+### Existing legacy schema fixtures
+
 The committed `97d99i-schema.sql` and `1.0m-schema.sql` files are compatibility
 references for their matching DarksTeam database schemas. They contain the
 required database settings, tables, constraints, views and stored procedures,

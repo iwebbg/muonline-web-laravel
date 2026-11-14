@@ -22,5 +22,6 @@ final readonly class PublicCharacterProfile
         public ?string $guildName,
         public bool $online,
         public bool $vip,
+        public string $imagePosition = 'center top',
     ) {}
 }

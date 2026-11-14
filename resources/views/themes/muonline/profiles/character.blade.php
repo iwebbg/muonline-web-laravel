@@ -10,7 +10,7 @@
             <a href="{{ route('rankings') }}" class="text-sm text-steel transition hover:text-white">← {{ __('ui.profiles.back_to_rankings') }}</a>
             <div class="mt-7 grid gap-8 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-end">
                 <div class="overflow-hidden rounded-3xl border border-white/10 bg-black/30">
-                    <img src="{{ $character->image }}" alt="" class="aspect-[4/5] w-full object-cover" fetchpriority="high">
+                    <img src="{{ $character->image }}" alt="" style="object-position: {{ $character->imagePosition }}" class="aspect-[4/5] w-full object-cover" fetchpriority="high">
                 </div>
                 <div>
                     <div class="flex flex-wrap items-center gap-3">
@@ -65,6 +65,12 @@
                     <span class="text-xs uppercase tracking-[0.16em] text-steel">{{ __('ui.account.master_experience') }}</span>
                     <strong class="mt-3 block text-2xl text-white">{{ number_format($masterProgression->experience) }}</strong>
                 </article>
+                @if ($masterProgression->enhancementPoints !== null)
+                    <article class="panel-card p-6">
+                        <span class="text-xs uppercase tracking-[0.16em] text-steel">{{ __('ui.account.enhancement_points') }}</span>
+                        <strong class="mt-3 block text-2xl text-white">{{ number_format($masterProgression->enhancementPoints) }}</strong>
+                    </article>
+                @endif
             @endif
             @if ($gensMembership !== null)
                 <article class="panel-card p-6">

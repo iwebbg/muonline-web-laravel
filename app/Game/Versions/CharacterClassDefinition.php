@@ -19,6 +19,7 @@ final readonly class CharacterClassDefinition
         public string $family,
         public int $evolutionTier,
         public ?int $previousClassCode = null,
+        public string $imagePosition = 'center top',
     ) {}
 
     /**

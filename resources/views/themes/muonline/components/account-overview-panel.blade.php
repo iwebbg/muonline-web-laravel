@@ -89,6 +89,10 @@
                     <dt>{{ __('ui.account.master_experience') }}</dt>
                     <dd x-text="selectedCharacter.masterProgression?.experience.toLocaleString()"></dd>
                 </div>
+                <div class="outcome-card" x-show="selectedCharacter.masterProgression?.enhancementPoints !== undefined">
+                    <dt>{{ __('ui.account.enhancement_points') }}</dt>
+                    <dd x-text="selectedCharacter.masterProgression?.enhancementPoints?.toLocaleString()"></dd>
+                </div>
             </dl>
         </article>
         <article

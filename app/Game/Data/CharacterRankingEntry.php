@@ -22,12 +22,13 @@ final readonly class CharacterRankingEntry
         public int $pkCount,
         public int $pkLevel,
         public bool $online,
+        public string $imagePosition = 'center top',
     ) {}
 
     /**
      * Converts the entry to the stable shape consumed by the ranking view.
      *
-     * @return array{name: string, class_code: int, class: string, class_abbreviation: string, image: string, level: int, resets: int, grand_resets: int, pk_count: int, pk_level: int, online: bool}
+     * @return array{name: string, class_code: int, class: string, class_abbreviation: string, image: string, imagePosition?: string, level: int, resets: int, grand_resets: int, pk_count: int, pk_level: int, online: bool}
      */
     public function toArray(): array
     {
@@ -37,6 +38,7 @@ final readonly class CharacterRankingEntry
             'class' => $this->className,
             'class_abbreviation' => $this->classAbbreviation,
             'image' => $this->image,
+            ...($this->imagePosition === 'center top' ? [] : ['imagePosition' => $this->imagePosition]),
             'level' => $this->level,
             'resets' => $this->resets,
             'grand_resets' => $this->grandResets,

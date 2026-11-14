@@ -31,6 +31,7 @@ final readonly class AccountCharacter
         public string $map,
         public bool $online,
         public array $additionalStats = [],
+        public string $imagePosition = 'center top',
     ) {}
 
     /**
@@ -61,6 +62,7 @@ final readonly class AccountCharacter
             'class' => $this->className,
             'classCode' => $this->classCode,
             'image' => $this->image,
+            ...($this->imagePosition === 'center top' ? [] : ['imagePosition' => $this->imagePosition]),
             'level' => $this->level,
             'resets' => $this->resets,
             'grandResets' => $this->grandResets,

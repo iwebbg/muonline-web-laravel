@@ -831,6 +831,7 @@ return [
         'master_progression_help' => 'Standard Master Level progress recorded by the active game server.',
         'master_level' => 'Master level',
         'master_points' => 'Available Master Points',
+        'enhancement_points' => 'Available Enhancement Points',
         'master_experience' => 'Master experience',
         'gens_progression' => 'Gens progression',
         'gens_progression_help' => 'Standard faction membership and contribution recorded by the active game server.',

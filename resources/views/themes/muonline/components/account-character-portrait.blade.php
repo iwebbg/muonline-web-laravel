@@ -3,6 +3,7 @@
     <img
         :src="selectedCharacter.image"
         :alt="selectedCharacter.class"
+        :style="{ objectPosition: selectedCharacter.imagePosition ?? 'center top' }"
         class="relative z-10 h-[27rem] w-full object-cover object-top"
     >
     <div class="relative z-20 -mt-28 bg-gradient-to-t from-[#0b0d12] via-[#0b0d12]/95 to-transparent px-6 pb-6 pt-28">

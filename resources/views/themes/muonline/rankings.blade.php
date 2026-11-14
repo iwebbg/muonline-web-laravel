@@ -123,7 +123,7 @@
                         <template x-if="!['guilds', 'castle_siege'].includes(board)">
                             <a x-bind:href="entry.profile_url" class="block">
                                 <div class="relative h-72 overflow-hidden sm:h-80">
-                                    <img x-bind:src="entry.image" alt="" class="size-full object-cover object-top transition duration-500 group-hover:scale-[1.025]">
+                                    <img x-bind:src="entry.image" :style="{ objectPosition: entry.imagePosition ?? 'center top' }" alt="" class="size-full object-cover object-top transition duration-500 group-hover:scale-[1.025]">
                                     <div class="absolute inset-0 bg-gradient-to-t from-[#0e1117] via-transparent to-transparent"></div>
                                     <span class="absolute left-4 top-4 grid size-12 place-items-center rounded-2xl border border-gold/40 bg-black/70 font-display text-xl text-gold backdrop-blur" x-text="String(entry.rank).padStart(2, '0')"></span>
                                 </div>
@@ -187,7 +187,7 @@
                         <span class="grid size-12 place-items-center rounded-xl border border-gold/25 bg-gold/[0.06] font-display text-lg text-gold" x-text="String(entry.rank).padStart(2, '0')"></span>
                         <div class="flex min-w-0 items-center gap-4">
                             <template x-if="!['guilds', 'castle_siege'].includes(board)">
-                                <img x-bind:src="entry.image" alt="" class="size-14 rounded-xl object-cover object-top">
+                                <img x-bind:src="entry.image" :style="{ objectPosition: entry.imagePosition ?? 'center top' }" alt="" class="size-14 rounded-xl object-cover object-top">
                             </template>
                             <template x-if="['guilds', 'castle_siege'].includes(board)">
                                 <span class="guild-mark shrink-0" aria-hidden="true">

@@ -831,6 +831,7 @@ return [
         'master_progression_help' => 'Стандартното Master Level развитие, записано от активния игрови сървър.',
         'master_level' => 'Master ниво',
         'master_points' => 'Свободни Master точки',
+        'enhancement_points' => 'Свободни Enhancement точки',
         'master_experience' => 'Master опит',
         'gens_progression' => 'Gens развитие',
         'gens_progression_help' => 'Стандартната Gens принадлежност и contribution, записани от активния игрови сървър.',
