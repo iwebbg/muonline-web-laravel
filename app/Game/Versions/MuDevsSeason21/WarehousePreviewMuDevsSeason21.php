@@ -121,6 +121,17 @@ final class WarehousePreviewMuDevsSeason21
 
         if ($record->socketBonus !== null && $record->socketBonus !== 255) {
             $details[] = ['label' => __('ui.s21_warehouse.socket_bonus'), 'value' => (string) $record->socketBonus];
+            $bonus = $record->group === null ? null : $this->catalog->socketBonusFor($record->group, $record->socketBonus);
+
+            if ($bonus !== null) {
+                $details[] = [
+                    'label' => __('ui.s21_warehouse.socket_bonus_effect'),
+                    'value' => __('ui.s21_warehouse.socket_bonus_summary', [
+                        'effect' => __('ui.s21_warehouse.bonus_'.$bonus['effect']),
+                        'value' => $bonus['displayValue'],
+                    ]),
+                ];
+            }
         }
 
         return $details;

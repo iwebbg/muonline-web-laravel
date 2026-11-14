@@ -504,6 +504,16 @@ Validation for Lightning: 913 isolated unit/feature tests with 18,705 assertions
 and Pint pass. A separate read-only live presentation check matched both socket
 descriptions and their positions.
 
+A fourteenth capture completes the tier-1 Fire/Lightning/Ice Flameberge example:
+socket bytes `00 1D 10 FF FF`, bonus 00. Ice matches life increase on monster
+destruction +250; the newly acquired bonus matches Attack +11. Native metadata
+and the bilingual preview now name both effects. Bonus descriptions are limited
+to their configured item-section range, with unknown codes retained as raw
+diagnostics. Full probability rules and higher-tier seed encoding remain open.
+Validation for Ice/bonus: 916 isolated unit/feature tests with 18,719 assertions
+and Pint pass. A separate live read/presentation check matched the three seed
+descriptions and Attack +11 without modifying game data.
+
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
 `MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85

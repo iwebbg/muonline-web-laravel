@@ -458,6 +458,20 @@ metadata and bilingual preview now recognize raw seed 29 as that captured
 tier-1 Lightning effect. Other unverified codes remain raw; no higher-tier
 packing or automatic socket-bonus activation is inferred from this sample.
 
+A fourteenth capture,
+`tests/Fixtures/SqlServer/mudevs-season-21-flameberge-three-seeds-bonus.json`,
+matches tier-1 Ice inserted into the third socket. The captured position is 2,
+the socket bytes are `00 1D 10 FF FF` and the bonus changed from FF to 00.
+Client text is life increase on monster destruction +250 for Ice, followed by
+Attack +11 as the bonus. Active SocketItemOption.xml Index=16, Element=3,
+Value1=250 corroborates the Ice effect. SocketBonusSettings Index=0, item
+sections 0–4 and Value=11 corroborates the bonus description and its section
+boundary. The bilingual preview now names all three matched seed effects and
+bonus 0 while retaining their raw diagnostic codes. An unsupported bonus code
+or an out-of-range section does not acquire the Attack +11 description.
+This observed insertion confirms that this item acquired a bonus; it does not
+establish a universal bonus probability or higher-tier seed encoding.
+
 | Item | Native code | Level | Rectangle | Matched option evidence |
 | --- | --- | --- | --- | --- |
 | Brilliant Knight Helm [S] | 7:270 | 15 | 2×2 | Luck; byte 7 bit 7 supplies index bit 8. |

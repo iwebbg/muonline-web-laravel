@@ -20,6 +20,8 @@ final class ItemCatalogMuDevsSeason21
      * and the client's tier-1 Fire damage/wizardry-per-20-levels display of +1.1.
      * Code 29 matches Index=29, Element=5, Value1=15 and tier-1 Lightning's
      * client-displayed Excellent damage increase +15.
+     * Code 16 matches Index=16, Element=3, Value1=250 and tier-1 Ice's
+     * client-displayed life increase on monster destruction +250.
      *
      * @var array<int, array{element: string, tier: int, effect: string, displayValue: string}>
      */
@@ -36,6 +38,24 @@ final class ItemCatalogMuDevsSeason21
             'effect' => 'excellent_damage',
             'displayValue' => '15',
         ],
+        16 => [
+            'element' => 'ice',
+            'tier' => 1,
+            'effect' => 'life_on_monster_kill',
+            'displayValue' => '250',
+        ],
+    ];
+
+    /**
+     * Contains client-matched socket bonuses within their configured item-section range.
+     *
+     * Bonus 0 matches SocketBonusSettings Index=0, sections 0–4, Value=11.
+     * It was observed both through /make and after Fire/Lightning/Ice insertion.
+     *
+     * @var array<int, array{minGroup: int, maxGroup: int, effect: string, displayValue: string}>
+     */
+    private const VERIFIED_SOCKET_BONUSES = [
+        0 => ['minGroup' => 0, 'maxGroup' => 4, 'effect' => 'attack', 'displayValue' => '11'],
     ];
 
     /** @var array<string, ItemMetadataMuDevsSeason21>|null */
@@ -78,6 +98,22 @@ final class ItemCatalogMuDevsSeason21
     public function socketSeedFor(int $rawOption): ?array
     {
         return self::VERIFIED_SOCKET_SEEDS[$rawOption] ?? null;
+    }
+
+    /**
+     * Resolves a verified bonus only within its native configured item-section range.
+     *
+     * @return array{effect: string, displayValue: string}|null
+     */
+    public function socketBonusFor(int $group, int $rawBonus): ?array
+    {
+        $bonus = self::VERIFIED_SOCKET_BONUSES[$rawBonus] ?? null;
+
+        if ($bonus === null || $group < $bonus['minGroup'] || $group > $bonus['maxGroup']) {
+            return null;
+        }
+
+        return ['effect' => $bonus['effect'], 'displayValue' => $bonus['displayValue']];
     }
 
     /**

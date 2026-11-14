@@ -89,6 +89,21 @@ final class ItemCatalogMuDevsSeason21Test extends TestCase
     }
 
     /**
+     * Names the verified attack bonus only for its declared native item-section range.
+     */
+    public function test_socket_bonus_description_respects_item_sections_and_unknown_codes(): void
+    {
+        $catalog = $this->catalog();
+
+        self::assertSame(['effect' => 'attack', 'displayValue' => '11'], $catalog->socketBonusFor(0, 0));
+        self::assertSame(['effect' => 'attack', 'displayValue' => '11'], $catalog->socketBonusFor(4, 0));
+        self::assertNull($catalog->socketBonusFor(5, 0));
+        self::assertNull($catalog->socketBonusFor(-1, 0));
+        self::assertNull($catalog->socketBonusFor(0, 1));
+        self::assertNull($catalog->socketBonusFor(0, 255));
+    }
+
+    /**
      * Uses the bundled artifact without booting Laravel in a pure catalog test.
      */
     private function catalog(): ItemCatalogMuDevsSeason21

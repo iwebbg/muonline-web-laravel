@@ -192,6 +192,23 @@ final class ItemCodecMuDevsSeason21Test extends TestCase
     }
 
     /**
+     * Retains three occupied sockets and a valid zero bonus after the third client insertion.
+     */
+    public function test_preserves_fire_lightning_ice_and_the_zero_bonus(): void
+    {
+        $fixture = json_decode(file_get_contents(__DIR__.'/../Fixtures/SqlServer/mudevs-season-21-flameberge-three-seeds-bonus.json'), true, flags: JSON_THROW_ON_ERROR);
+        $binary = substr_replace(str_repeat("\xFF", 6000), hex2bin($fixture['hex']), $fixture['slot'] * 25, 25);
+        $codec = $this->codec();
+
+        $records = $codec->decode($binary, 240);
+
+        self::assertSame([0, 29, 16, 255, 255], $records[2]->socketOptions);
+        self::assertSame(0, $records[2]->socketBonus);
+        self::assertNull($records[2]->harmonyOption);
+        self::assertSame($binary, $codec->encode($records));
+    }
+
+    /**
      * Supplies explicit artifacts without booting Laravel for binary-domain tests.
      */
     private function codec(): ItemCodecMuDevsSeason21
