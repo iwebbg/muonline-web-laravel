@@ -121,6 +121,12 @@ database is never accessed using `sa` or `db_owner` credentials.
 
 ## Immediate continuation backlog
 
+The planned MUDevs Season 21 ep1–2 integration has a dedicated
+[compatibility matrix and implementation plan](season-21-integration-plan.md).
+Its scope includes all standard class advancements, progression systems,
+maps, events and item/storage systems in the supplied distribution. S21 is not
+yet an implemented or selectable profile.
+
 1. Manually verify every character and economy mutation against dedicated test
    accounts on the live 97d+99i, 1.0M and MuEMU Season 6 test servers.
 2. Close remaining responsive and interaction defects without changing the

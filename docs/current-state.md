@@ -349,6 +349,44 @@ extended warehouse page remains part of that commissioning checklist.
 
 ## Current next priorities
 
+### MUDevs Season 21 integration foundation
+
+The owner requested full standard Season 21 ep1–2 support for the supplied
+MUDevs distribution. The [compatibility matrix and implementation
+plan](season-21-integration-plan.md) records the inspected source paths,
+16 base class families, fourth/fifth advancement evidence, progression,
+maps, standard event candidates, item systems and delivery gates.
+
+Development started on `feat/mudevs-season-21` from `origin/develop` at
+`955c754`. The initial code provides the 16 native base-family identifiers,
+base stats and normal level-up points, the 121 configured map labels, and a
+read-only repository for WCoinC, WCoinP, Goblin Points, Lucky Coin and owned
+character Ruud. These components are not yet bound to a selectable profile or
+player interface. The initial focused tests pass: 73 tests, 134 assertions.
+The complete disposable suite passes with 855 tests and 4,132 assertions; Pint
+passes. A separate manual read-only probe successfully read all five native
+currency types for the existing S21 account without exposing account amounts.
+
+Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
+`192.168.0.104:1433`. The existing bootstrap installers created
+`MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85
+application migrations are applied. The separate `muonline_s21_game_app` login
+has SELECT access to 20 reviewed main-game tables and five BattleCore event
+tables, with no sysadmin/db_owner membership or game mutation permissions.
+`GAME_DB_BATTLE_CORE=BattleCore_S21` configures the optional `battle_core`
+connection. Bootstrap is disabled and temporary administrator credentials are
+removed from active `.env`; its previous values are preserved in ignored
+`.env.backup`. Game writes are closed, and `GAME_DATA_SOURCE=fixture` retains
+the existing fixture profile until the complete S21 bundle is registered.
+Do not switch to real game data using the retained S6 fixture profile.
+
+Eight inspected
+MuOnline procedures retain unbracketed `BattleCore.dbo` references, and the
+BattleCore database contains only ten tables. Resolve the dependencies before
+claiming BattleCore events work. No game data or procedure definitions were
+changed. Class evolution codes and visible item boundaries remain pending.
+Initial item presentation may omit images but must preserve catalog dimensions.
+
 ### Character economy milestone
 
 The `feat/character-economy-improvements` branch completes the current

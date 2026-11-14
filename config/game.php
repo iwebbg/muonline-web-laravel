@@ -45,6 +45,7 @@ return [
     'database_connections' => [
         'primary' => 'game',
         'rankings' => env('GAME_RANKING_CONNECTION', 'game'),
+        'battle_core' => 'battle_core',
     ],
 
     'event_timezone' => env('GAME_EVENT_TIMEZONE', 'Europe/Sofia'),

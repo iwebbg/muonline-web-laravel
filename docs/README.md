@@ -21,6 +21,7 @@ MuOnline Web.
 ## Compatibility and contribution
 
 - [Compatibility and reference sources](reference-sources.md)
+- [MUDevs Season 21 integration plan](season-21-integration-plan.md)
 - [Coding standards](coding-standards.md)
 - [Contributor and agent instructions](../AGENTS.md)
 
