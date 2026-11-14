@@ -323,6 +323,49 @@ and UI. Preserve old-profile behavior and database-backed schedule overrides.
 Confirm server timezone, weekday numbering, phase anchors and seconds before
 converting schedules; the source includes non-round-minute start times.
 
+### Implemented recurring profile
+
+`game_events.profiles.mudevs_season_21` now contains 11 source-backed recurring
+definitions: Blood Castle, Devil Square, Chaos Castle, Castle Deep, Moss Merchant,
+Group Boss Battle, Skeleton King, Red Dragon, Golden, White Wizard and Medusa.
+The existing `EventProfileReader` and `EventSchedule` consume this profile without
+changes; administrator overrides retain profile/version isolation. The S21 game
+bundle is still incomplete and not selectable, and the active environment remains
+on its existing fixture/game/event profile. These are configured recurrences,
+not evidence of live event execution or a complete standard-activity implementation.
+
+Each definition identifies its switch/host and active source. Blood Castle,
+Devil Square, Chaos Castle and Castle Deep use the enabled `GameServerCS` host.
+Moss uses `GameServer`'s enabled 120-minute setting; the CS host disables Moss
+and has a different 300-minute value, which must not override the active host.
+All starts are explicit times: retain Blood Castle's 01:06/15:03 and Chaos
+Castle's 11:24/16:50/17:13 rather than replacing them with regular intervals.
+Invasions use XML IDs 0, 1, 2, 3 and 8, preserving their exact schedules and
+converting the configured 600-second duration to ten minutes.
+
+Warning, notify, play and close values are retained in definition provenance;
+the current single-duration timer does not expose separate event phases. Client
+verification must confirm the meaning of the configured anchor before treating
+these recurrences as gameplay phase starts. Server time continues to come from
+the existing configured content timezone; Windows timezone needs commissioning.
+
+The remaining standard systems keep these explicit gates instead of fabricated
+daily countdowns:
+
+| Systems | Current disposition / next requirement |
+| --- | --- |
+| Acheron Guardian, Crywolf | Timed source exists; confirm host/activation, weekday numbering and phase anchors. |
+| Illusion Temple / renewal / League | Resolve the selected variant; League XML disables it despite the global switch. |
+| Castle Siege, Arca Battle, Chaos Castle Survival, Tormented Square / Battle Core | Implement cycle/stage/phase models and verified native result/state dependencies. Arca XML enables all weekdays at 10:45 with EventType=0; that anchor is not yet interpreted as a battle phase. |
+| Doppelganger renewal, Imperial Guardian renewal, Labyrinth | On-demand activity sources; dedicated entry/availability/progression views remain pending rather than recurring dungeon starts. |
+| Kanturu, Raklion and world bosses | Read native states or verify respawn semantics before publishing an exact next occurrence. |
+| Evolution Monster, seasonal invasions/minigames, anniversary, Battle/Season Pass and Play Time | Verify activation periods, triggers and private ownership/reward state. Invasion IDs 4–7 and 9–10 remain excluded pending this review, not relabeled as custom events. |
+
+Custom-event files remain outside this standard profile. Tests exercise the
+11 definitions through the normal reader/calculator, irregular times, midnight
+rollover, active-host duration and isolated persisted overrides without reading
+or writing the live game database.
+
 ## Items, equipment and storage
 
 `Data/Item/Item.xml` has 4,701 item records with unique section/index pairs

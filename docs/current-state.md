@@ -413,6 +413,19 @@ profile smoke checks. Pint and Blade compilation pass. Native S21 item decoding,
 generation and writes are not enabled by this stage; known client warehouse
 items are the next source of binary fixtures.
 
+The independent S21 event metadata stage adds 11 configured recurring standard
+events under `game_events.profiles.mudevs_season_21`: Blood Castle, Devil Square,
+Chaos Castle, Castle Deep, Moss Merchant, Group Boss Battle and five reviewed
+invasions. It preserves exact irregular times and separates enabled GS/CS host
+settings, including Moss's 120-minute main-server duration. Shared reader,
+countdown calculation and profile/version-scoped administrator overrides are
+reused. The environment has not switched to this profile, and native runtime
+phase/activation verification remains required. The integration plan records
+explicit gates for every remaining standard activity family and seasonal source.
+Validation: 884 unit/feature tests with 18,434 assertions, all three existing
+profile smoke checks and Pint pass. Automated checks remain network-isolated;
+no live event configuration or game data was changed.
+
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
 `MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85
