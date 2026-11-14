@@ -455,6 +455,25 @@ with 18,616 assertions, four native S21 SQL Server tests with 30 assertions,
 and Pint pass. A separate read-only probe through the updated inspector matched
 the two new client examples; no game data was modified by the application.
 
+The first S21 warehouse web preview is available at `/admin/s21-warehouse`,
+behind administrator authentication, ManageSettings permission and the explicit
+`GAME_S21_WAREHOUSE_PREVIEW_ENABLED` flag (off by default, enabled locally).
+It uses the native read inspector and displays saved positions, exact source
+rectangles, fallback artwork and verified diagnostic fields, with tooltips and
+a selectable detail panel. Native serial bytes/hex and item write actions are
+excluded. The main game/event fixture profile remains unchanged while the full
+S21 bundle is incomplete. Local app/nginx/Redis services were started for the
+preview; the scheduler was not started.
+
+A tenth client-matched fixture confirms Flameberge socket bonus 0 as the visible
+Attack +11 bonus; FF remains the no-bonus sentinel. Paired armor probes with
+`extl=0/1` had identical bytes except serials, so 380 support remains unverified.
+Validation for the web preview: 906 isolated unit/feature tests with 18,663
+assertions, all three existing profile smoke checks, four native S21 SQL Server
+tests with 31 assertions, Pint, Vite build and Blade compilation pass. Local
+HTTP checks confirm the protected preview redirects to administrator login and
+the fallback image/frontend manifest are served successfully.
+
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
 `MuOnline_S21_Web` and its dedicated `muonline_s21_web_app` login; all 85

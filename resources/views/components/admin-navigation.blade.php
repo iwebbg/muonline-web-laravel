@@ -8,6 +8,7 @@
         request()->routeIs('admin.dashboard') => 'overview',
         request()->routeIs('admin.character-rules.*') => 'character-rules-'.request()->route('profile'),
         request()->routeIs('admin.event-schedules.*') => 'event-schedules',
+        request()->routeIs('admin.s21-warehouse') => 's21-warehouse',
         request()->routeIs('admin.moderation*') => 'moderation',
         request()->routeIs('admin.item-grants.*') => 'item-grants',
         request()->routeIs('admin.game-masters.*') => 'game-masters',
@@ -83,6 +84,11 @@
                         <a href="{{ route('admin.event-schedules.index') }}" class="admin-nav-link {{ $active === 'event-schedules' ? 'admin-nav-link-active' : '' }}">
                             <span>◷</span>{{ __('ui.admin.event_schedules_nav') }}
                         </a>
+                        @if (config('game.s21_warehouse_preview_enabled'))
+                            <a href="{{ route('admin.s21-warehouse') }}" class="admin-nav-link {{ $active === 's21-warehouse' ? 'admin-nav-link-active' : '' }}">
+                                <span>◇</span>{{ __('ui.s21_warehouse.title') }}
+                            </a>
+                        @endif
                     @endif
                     @if (
                         auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateAccounts)

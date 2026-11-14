@@ -46,6 +46,8 @@ final class ItemCodecMuDevsSeason21Test extends TestCase
         self::assertSame("Warrior's", $records[99]->ancientSetName);
         self::assertSame(17, $records[110]->harmonyOption);
         self::assertNull($records[66]->harmonyOption);
+        self::assertSame(0, $records[38]->socketBonus);
+        self::assertNull($records[38]->harmonyOption);
     }
 
     /**

@@ -23,6 +23,11 @@ $serverProfileDefaults = match ($serverProfileKey) {
 return [
     'data_source' => env('GAME_DATA_SOURCE', 'fixture'),
 
+    's21_warehouse_preview_enabled' => filter_var(
+        env('GAME_S21_WAREHOUSE_PREVIEW_ENABLED', false),
+        FILTER_VALIDATE_BOOL,
+    ),
+
     'database_bootstrap' => [
         'enabled' => env('APP_DB_BOOTSTRAP', false),
         'admin_connection' => 'game_admin',

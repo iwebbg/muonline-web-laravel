@@ -178,6 +178,18 @@ selectable: shared test infrastructure boots with an existing registered
 profile, and every S21 adapter is explicitly instantiated with its own profile.
 That bootstrap profile does not select the tested S21 queries or fixture schema.
 
+The opt-in administrator warehouse preview is covered separately:
+
+```bash
+./docker/compose test tests/Feature/AdminMuDevsSeason21WarehouseTest.php
+```
+
+These tests use isolated storage fixtures for authentication/permission gates,
+the disabled-feature response, validated native account/vault selection, exact
+item rectangles, fallback artwork, omission of serial hex and socket bonus zero.
+They do not use the LAN database. Manual client/website comparisons require an
+explicit local `GAME_S21_WAREHOUSE_PREVIEW_ENABLED=true`; the default is false.
+
 Run a single native case with the same PHPUnit argument convention:
 
 ```bash

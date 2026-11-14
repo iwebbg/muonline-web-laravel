@@ -58,6 +58,7 @@ use App\Http\Controllers\Admin\ItemGrantController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\ModuleProfileController;
+use App\Http\Controllers\Admin\MuDevsSeason21WarehouseController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ShopOfferController as AdminShopOfferController;
 use App\Http\Controllers\Admin\ShopRewardGrantController;
@@ -462,6 +463,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     });
 
     Route::middleware(['auth:admin', 'demo:unsafe'])->group(function (): void {
+        Route::get('/s21-warehouse', MuDevsSeason21WarehouseController::class)
+            ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
+            ->name('s21-warehouse');
         Route::get('/', AdminDashboardController::class)
             ->name('dashboard');
         Route::get('/audit-log', AdminAuditLogController::class)

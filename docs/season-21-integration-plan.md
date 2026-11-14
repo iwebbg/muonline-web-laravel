@@ -414,9 +414,10 @@ It is not bound to the selectable profile or generation/transfer services.
 
 ### Client-matched warehouse commissioning
 
-Owner-supplied client screenshots and read-only reads now match nine distinct
-25-byte examples in a 6,000-byte main warehouse. Their stored positions are 0, 2,
-4, 6, 16, 66, 75, 99 and 110. Account identifiers are not retained; fixture serial bytes
+Owner-supplied client screenshots and read-only reads now match ten distinct
+25-byte examples in a 6,000-byte main warehouse. Their capture positions are 0, 2,
+4, 6, 16, 38, 66, 75, 99 and 110; these fixtures need not reflect later client moves.
+Account identifiers are not retained; fixture serial bytes
 3–6 are replaced with synthetic values in
 `tests/Fixtures/SqlServer/mudevs-season-21-warehouse-items.json`.
 
@@ -431,6 +432,7 @@ Owner-supplied client screenshots and read-only reads now match nine distinct
 | Kris | 0:0 | 9 | 1×2 | Luck, option 7 (+28 displayed), excellent mask 63. Skill is absent despite requesting it through `/make`; the native definition declares Skill=0. |
 | Warrior's Leather Armor | 8:5 | 9 | 2×3 | Byte 8 is 05; variant 1 maps to native set index 1, Warrior's. Client shows stamina +5. |
 | Kris with Harmony | 0:0 | 9 | 1×2 | No Luck/excellent/additional option; byte 10 is 11 hex (17), index 1, level 1; client shows minimum attack +3. |
+| Flameberge with bonus | 0:26 | 0 | 1×4 | Three empty sockets and byte 10 equal to 00; client shows bonus Increases Attack +11. Zero is a real bonus code, distinct from FF (none). |
 
 `ItemCodecMuDevsSeason21` reads only verified common fields and uses the separate
 `ItemRecordMuDevsSeason21` boundary. It retains every byte, including unknown
@@ -477,12 +479,40 @@ The pack documents `/make` in `GameServer/DATA/GameServerInfo - Command.dat`:
 /make 0 0 9 255 1 1 7 63 0 0 0 0 0 0 1
 /make 8 5 9 255 0 0 0 0 5 0 0 0 0 0 1
 /make 0 0 9 255 0 0 0 0 0 17 0 0 0 0 1
+/make 0 26 0 255 0 0 0 0 0 0 0 3 0 0 1
 ```
 
-These samples produced the captured Flameberge, excellent Kris, ancient armor
-and Harmony Kris respectively. They establish open socket positions, full classic
+These samples produced the captured Flameberge, excellent Kris, ancient armor,
+Harmony Kris and Flameberge with socket bonus respectively. They establish open socket positions, full classic
 excellent/option masks and one ancient/Harmony example each; they do not establish
 filled seed encoding or all values of the remaining make arguments.
+
+A paired Dragon Knight Armor probe used identical level/durability and zero
+options, with only `extl` changing from 0 to 1. The saved records were identical
+except for serial bytes, and both client tooltips lacked additional 380 lines.
+This probe does not establish a 380 flag: `extl=1` must not be treated as verified
+380 generation. Obtain a client item with an actually applied 380 option before
+implementing that interpretation.
+
+### Permissioned web preview
+
+`/admin/s21-warehouse` now renders the native warehouse inspector through a
+dedicated read-only controller/request and `WarehousePreviewMuDevsSeason21`.
+It requires administrator authentication, ManageSettings permission and the
+explicit `GAME_S21_WAREHOUSE_PREVIEW_ENABLED` flag (false by default). The local
+commissioning environment enables that flag while retaining its existing fixture
+profile and closed game writes. The administrator supplies an account and an
+exact native vault number; missing/invalid storage is reported without padding
+or substituting another account's data.
+
+The view renders all 240 stored positions, source-backed item rectangles, shared
+fallback artwork, native identity/level and confirmed diagnostic option fields.
+Hover/focus tooltips and a selectable detail panel preserve unknown option states
+without inventing seed/effect names. Serial/native hex fields are omitted. It is
+a commissioning preview, not a claim that all 240 cells are client-visible or
+that native character equipment/extension pages and public account storage are
+complete. English/Bulgarian strings and a conditional administration link are
+included. No transfer, sale or creation actions are provided.
 
 Required shared changes identified in the existing implementation:
 
