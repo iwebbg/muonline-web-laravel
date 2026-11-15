@@ -17,15 +17,16 @@ all six core character preview/action endpoints, Zen/Jewel Bank, Web Vault,
 Credits/Votes, Market/Auction, Shop, Mystery Boxes and Rewards. All 76 class forms
 are represented. Game writes remain closed globally. The runtime game role now has the narrow
 permissions required by the reviewed account/core/item adapters. The latest completed economy checkpoint passes
-1076 isolated tests / 19931 assertions and all four profile smoke runs. Native SQL
-Server coverage now passes 24 tests / 137 assertions, including item receipts,
+1092 isolated tests / 20025 assertions and all four profile smoke runs. Native SQL
+Server coverage now passes 29 tests / 168 assertions, including item receipts,
 serial allocation and both application-schema migrations.
 
 Adapter availability is an explicit module/route allow-list combined with
 persisted operator switches. Administration includes native item grants, reviewed
 economy pages, events, character rules, moderation, module management, Game Masters
-and content. Unimplemented per-character VIP and paid identity/progression routes
-remain gated rather than falling through to a legacy repository.
+and content. Journaled paid reset/point purchases now have native S21 routes.
+Unimplemented per-character VIP, rename and class-change routes remain gated
+rather than falling through to a legacy repository.
 
 The native default and administrator stat limit are 65000. The application-owned
 reset_profiles.maximum_stat column was originally SQL Server SMALLINT; a new
@@ -123,11 +124,58 @@ coverage verifies both corrected readers. S6 behavior remains unchanged.
 
 The complete isolated suite passes 1,076 tests / 19,931 assertions and all four
 profile smoke runs; native SQL integration passes 24 tests / 137 assertions.
-Pint and the frontend build pass. Native paid identity/progression services remain
-gated: the legacy rename path references absent MarryName and omits S21 index
-caches; reset/point purchases also need native durable retry receipts before
-opening their payment boundary. No paid operation or live game mutation was
-performed during this work.
+Pint and the frontend build pass. At that checkpoint paid native services remained
+gated; the subsequent journaled progression stage below adds reset/point purchases.
+The legacy rename path still references absent MarryName and omits S21 index
+caches. No paid operation or live game mutation was performed during commissioning.
+
+### Journaled paid progression without a game-client dependency
+
+Native reset and LevelUpPoints purchases now use a separate S21 implementation,
+not the shared legacy mutation repository. Public package validation, operator
+Credits prices and immutable application settings snapshots remain in the existing
+payment action. The S21 boundary requires a stable operation identity; direct
+unjournaled purchase methods reject calls. Rename and class change remain disabled.
+
+IWEB_S21_CharacterOperation stores the account, payload hash, before/after result
+or definitive rejection, and timestamp. The account status lock serializes native
+sessions. A successful counter change and receipt commit atomically. A rejected
+callback rolls back to a savepoint before its rejection receipt commits; late
+concurrent retries therefore cannot grant a purchase that has already been
+refunded. Reused keys with changed account, character, kind, quantity or reset
+policy are rejected. Matching committed results are returned before checking the
+current online state, so acknowledgement never mutates the now-online character.
+
+The shared action opts into this protocol only for the new journaled contract.
+Existing adapters retain their original method calls and refund behavior. Native
+unexpected persistence failures remain Pending, with no speculative refund;
+replaying the original operation acknowledges a committed result or applies an
+uncommitted purchase exactly once. The original captured point amount, price and
+reset policy survive later settings edits. Native completed audit snapshots retain
+Command and every class-supported stat. Operations from another profile are not
+replayed or refunded through the S21 boundary.
+
+The private dashboard lists owned pending native purchases with their original
+identity and package. A new purchase for that character is refused while its
+existing operation awaits confirmation. Replay uses the stored debit idempotency
+key; a definitive rejection refunds once. Account/session, public package, offline,
+class, signed-INT bounds and KeepAll inventory requirements are checked. Purchased
+resets modify only the reviewed level/experience/reset/point/stat fields and retain
+inventory, quests, skills, Master/enhancement state, Ruud and Zen.
+
+Tests simulate an exception after the actual native commit, receipt INSERT failure,
+immutable rejection replay after online state changes, changed pricing, ownership,
+profile mismatch and private pending-purchase rendering. Disposable SQL Server
+checks verify two independent sessions grant one point package, rejection savepoint
+rollback, schema-extension idempotence, missing receipt permission rollback and
+successful reset/point purchases under the restricted non-administrator role.
+
+Validation: 1,092 isolated tests / 20,025 assertions, all four profile smoke runs,
+and 29 native SQL tests / 168 assertions pass. Pint and the frontend build pass.
+The authorized live bootstrap added only the receipt table and SELECT/INSERT
+grants. Runtime UPDATE/DELETE on receipts are absent; the live table has zero
+paid operations and the private dashboard returns HTTP 200. Global game writes
+remain disabled. No real character or wallet purchase was executed.
 
 ## Sources and evidence
 

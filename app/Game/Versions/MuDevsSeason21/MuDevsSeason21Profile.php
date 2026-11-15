@@ -15,6 +15,7 @@ use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Contracts\CharacterMoveRepository;
 use App\Game\Contracts\CharacterPkClearRepository;
 use App\Game\Contracts\CharacterResetRepository;
+use App\Game\Contracts\CharacterServiceRepository;
 use App\Game\Contracts\CharacterStatAllocationRepository;
 use App\Game\Contracts\CharacterStatResetRepository;
 use App\Game\Contracts\GameCurrencyBalanceRepository;
@@ -26,6 +27,7 @@ use App\Game\Contracts\ItemGeneratorCatalog;
 use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ItemStorageRepository;
+use App\Game\Contracts\JournaledCharacterServiceRepository;
 use App\Game\Contracts\LuckyCoinBalanceRepository;
 use App\Game\Contracts\MapNameLookup;
 use App\Game\Contracts\MarketItemEscrowRepository;
@@ -47,6 +49,7 @@ use App\Game\Repositories\SqlServerMuDevsSeason21CharacterInventoryEscrowReposit
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterMoveRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterPkClearRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterResetRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterServiceRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterStatAllocationRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterStatResetRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CurrencyBalanceRepository;
@@ -138,6 +141,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
                 'market.*', 'shop.items.*', 'shop.mystery-boxes.*',
                 'account.rewards.*', 'account.votes.*',
                 'account.reset-preview', 'account.character-reset', 'account.grand-reset-preview',
+                'account.character-reset-purchases.store', 'account.character-level-up-points-purchases.store',
                 'account.character-grand-reset', 'account.stat-allocation-preview', 'account.stat-allocations.store',
                 'account.stat-reset-preview', 'account.character-stat-reset', 'account.pk-clear-preview',
                 'account.character-pk-clear', 'account.move-to-town-preview', 'account.character-move',
@@ -498,6 +502,8 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
             AccountCredentialRepository::class => SqlServerMuDevsSeason21AccountCredentialRepository::class,
             AccountPasswordRecoveryRepository::class => SqlServerMuDevsSeason21AccountPasswordRecoveryRepository::class,
             CharacterResetRepository::class => SqlServerMuDevsSeason21CharacterResetRepository::class,
+            CharacterServiceRepository::class => SqlServerMuDevsSeason21CharacterServiceRepository::class,
+            JournaledCharacterServiceRepository::class => SqlServerMuDevsSeason21CharacterServiceRepository::class,
             CharacterGrandResetRepository::class => SqlServerMuDevsSeason21CharacterGrandResetRepository::class,
             CharacterStatAllocationRepository::class => SqlServerMuDevsSeason21CharacterStatAllocationRepository::class,
             CharacterStatResetRepository::class => SqlServerMuDevsSeason21CharacterStatResetRepository::class,
@@ -554,6 +560,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
         $permissions['dbo.warehouse'] = ['SELECT', 'UPDATE'];
         $permissions['dbo.ExtWarehouse'] = ['SELECT', 'UPDATE'];
         $permissions['dbo.IWEB_S21_ItemOperation'] = ['SELECT', 'INSERT'];
+        $permissions['dbo.IWEB_S21_CharacterOperation'] = ['SELECT', 'INSERT'];
         $permissions['dbo.WZ_GetItemSerial'] = ['EXECUTE', 'VIEW DEFINITION'];
 
         return $permissions;

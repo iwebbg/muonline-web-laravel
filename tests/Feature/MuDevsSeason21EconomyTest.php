@@ -214,7 +214,7 @@ final class MuDevsSeason21EconomyTest extends TestCase
     }
 
     /**
-     * Prevents persisted paid-service switches from advertising unavailable native endpoints.
+     * Keeps unreviewed identity services hidden while exposing journaled native progression purchases.
      */
     public function test_paid_character_services_stay_hidden_when_the_native_route_is_unavailable(): void
     {
@@ -228,11 +228,11 @@ final class MuDevsSeason21EconomyTest extends TestCase
 
         self::assertFalse($settings->characterRenameEnabled);
         self::assertFalse($settings->characterClassChangeEnabled);
-        self::assertFalse($settings->characterResetPurchaseEnabled);
-        self::assertFalse($settings->characterLevelUpPointsPurchaseEnabled);
+        self::assertTrue($settings->characterResetPurchaseEnabled);
+        self::assertTrue($settings->characterLevelUpPointsPurchaseEnabled);
         self::assertTrue($settings->itemExchangeEnabled);
         $this->actingAs(new GameAccount(1, 'owner', 'Owner', null, false, false, ''))->get('/account')
-            ->assertOk()->assertViewHas('characterServicesEnabled', false);
+            ->assertOk()->assertViewHas('characterServicesEnabled', true);
     }
 
     /**

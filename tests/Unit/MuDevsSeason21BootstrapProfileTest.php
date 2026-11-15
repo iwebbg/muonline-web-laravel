@@ -25,7 +25,7 @@ final class MuDevsSeason21BootstrapProfileTest extends TestCase
             'dbo.MasterSkillTree', 'dbo.EnhanceSkillTree', 'dbo.AbilityEnhancementCore',
             'dbo.CashShopData', 'dbo.LuckyCoin', 'dbo.Gens_Rank', 'dbo.PentagramJewel',
             'dbo.MuunInventory', 'dbo.EventInventory', 'dbo.GremoryCase',
-            'dbo.ArtifactSystem', 'dbo.WingCoreItem', 'dbo.IWEB_S21_ItemOperation',
+            'dbo.ArtifactSystem', 'dbo.WingCoreItem', 'dbo.IWEB_S21_CharacterOperation', 'dbo.IWEB_S21_ItemOperation',
         ], array_keys($permissions));
 
         foreach ($permissions as $object => $grants) {

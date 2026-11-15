@@ -2,15 +2,21 @@
 
 namespace Tests\IntegrationSeason21;
 
+use App\CharacterServices\CharacterServiceType;
+use App\CharacterServices\PurchasedResetPolicy;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountActivationRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountRegistrationRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterServiceRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21ItemSerialRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21MarketItemEscrowRepository;
+use App\Game\Versions\MuDevsSeason21\CharacterServiceJournalMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\ItemCodecAdapterMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\MuDevsSeason21Profile;
 use App\Installation\GameDatabaseInstallation;
 use App\Installation\SqlServerGameDatabaseInstaller;
 use App\Market\MarketEscrowResult;
+use App\Reset\InventoryPolicy;
+use App\Reset\PointsMode;
 use Illuminate\Database\DatabaseManager;
 use Tests\Integration\TestCase;
 
@@ -44,6 +50,7 @@ final class MuDevsSeason21RuntimePermissionsTest extends TestCase
             $admin->exec(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-serial-procedure.sql')));
             $admin->exec('INSERT INTO GameServerInfo (Number, ItemCount) VALUES (0, 100)');
             $admin->exec("INSERT INTO MEMB_STAT (memb___id, ConnectStat) VALUES ('owner', 0)");
+            $admin->exec("INSERT INTO Character (AccountID, Name, Class, cLevel, LevelUpPoint, ResetCount, MasterResetCount, ExtInventory, GiantMountType, GiantMountStatus, Leadership) VALUES ('owner', 'PaidHero', 68, 400, 100, 2, 1, 0, 0, 0, 1500)");
             $warehouseInsert = $admin->prepare("INSERT INTO warehouse (AccountID, AccountIndex, Items, Money) VALUES ('owner', 1, CONVERT(varbinary(6000), ?, 2), 0)");
             $warehouseInsert->execute([str_repeat('FF', 6000)]);
             config()->set('database.connections.game.database', self::DATABASE);
@@ -87,6 +94,19 @@ final class MuDevsSeason21RuntimePermissionsTest extends TestCase
             self::assertSame(MarketEscrowResult::Deposited, $escrow->depositForOperation('owner', $item, 1, 2, 'runtime-delivery'));
             self::assertSame(MarketEscrowResult::Extracted, $escrow->extractForOperation('owner', 0, 0, $item, 'runtime-extraction'));
             self::assertSame(2, $runtime->table('IWEB_S21_ItemOperation')->count());
+            $paid = new SqlServerMuDevsSeason21CharacterServiceRepository($database, $profile, new CharacterServiceJournalMuDevsSeason21);
+            $first = $paid->applyPurchaseForOperation('owner', 'PaidHero', CharacterServiceType::LevelUpPointsPurchase, 1000, null, 'runtime-paid-points');
+            $repeat = $paid->applyPurchaseForOperation('owner', 'PaidHero', CharacterServiceType::LevelUpPointsPurchase, 1000, null, 'runtime-paid-points');
+            self::assertSame(1100, $first->after['points']);
+            self::assertSame($first->after, $repeat->after);
+            $reset = $paid->applyPurchaseForOperation('owner', 'PaidHero', CharacterServiceType::ResetPurchase, 5,
+                new PurchasedResetPolicy(999, true, PointsMode::Fixed, 500, InventoryPolicy::KeepAll), 'runtime-paid-resets');
+            self::assertSame(7, $reset->after['resets']);
+            self::assertSame(25, $reset->after['command']);
+            self::assertSame(2, $runtime->table('IWEB_S21_CharacterOperation')->count());
+            $receiptPermissions = $runtime->selectOne("SELECT HAS_PERMS_BY_NAME('dbo.IWEB_S21_CharacterOperation', 'OBJECT', 'UPDATE') AS can_update, HAS_PERMS_BY_NAME('dbo.IWEB_S21_CharacterOperation', 'OBJECT', 'DELETE') AS can_delete");
+            self::assertSame(0, (int) $receiptPermissions->can_update);
+            self::assertSame(0, (int) $receiptPermissions->can_delete);
             self::assertSame(str_repeat("\xFF", 6000), $runtime->table('warehouse')->where('AccountID', 'owner')->value('Items'));
         } finally {
             $database->purge('game');

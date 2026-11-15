@@ -2,14 +2,21 @@
 
 namespace Tests\IntegrationSeason21;
 
+use App\CharacterServices\CharacterServiceBlockReason;
+use App\CharacterServices\CharacterServiceResult;
+use App\CharacterServices\CharacterServiceType;
+use App\CharacterServices\Exceptions\CharacterServiceRejected;
+use App\CharacterServices\PurchasedResetPolicy;
 use App\Game\Contracts\MapNameLookup;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterGrandResetRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterMoveRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterPkClearRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterResetRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterServiceRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterStatAllocationRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterStatResetRepository;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\MuDevsSeason21\CharacterServiceJournalMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\MapNameMapperMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\MuDevsSeason21Profile;
 use App\Reset\InventoryPolicy;
@@ -19,6 +26,7 @@ use App\Stats\StatAllocation;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
 use PHPUnit\Framework\Attributes\DataProvider;
+use RuntimeException;
 use Tests\Integration\TestCase;
 
 /**
@@ -76,11 +84,44 @@ final class MuDevsSeason21NativeCharacterOperationsTest extends TestCase
     public static function nativeOperations(): iterable
     {
         yield 'reset' => ['reset', ['ResetCount' => 101, 'cLevel' => 1, 'Leadership' => 25]];
+        yield 'paid reset' => ['paid-reset', ['ResetCount' => 105, 'cLevel' => 1, 'Leadership' => 25, 'LevelUpPoint' => 500]];
+        yield 'paid points' => ['paid-points', ['LevelUpPoint' => 1100]];
         yield 'grand reset' => ['grand-reset', ['MasterResetCount' => 3, 'ResetCount' => 0, 'Leadership' => 25]];
         yield 'allocation' => ['allocate', ['Leadership' => 1510, 'LevelUpPoint' => 90]];
         yield 'stat reset' => ['stat-reset', ['Leadership' => 25, 'Strength' => 26]];
         yield 'PK clear' => ['pk-clear', ['PkLevel' => 3, 'PkCount' => 0]];
         yield 'town movement' => ['move', ['MapNumber' => 51, 'MapPosX' => 50, 'MapPosY' => 225]];
+    }
+
+    /**
+     * Rolls back a rejected callback before persisting a failure that remains final on replay.
+     */
+    public function test_paid_rejection_receipt_preserves_the_counter_and_prevents_a_late_grant(): void
+    {
+        $this->seedCharacter();
+        $journal = new CharacterServiceJournalMuDevsSeason21;
+        $connection = $this->app->make(DatabaseManager::class)->connection('game');
+
+        try {
+            $journal->run($connection, 'sql-rejected-paid', 'owner', str_repeat('a', 64), function () use ($connection): CharacterServiceResult {
+                $connection->table('Character')->where('Name', 'Hero')->update(['LevelUpPoint' => 9000]);
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::MaximumResetsReached);
+            });
+            self::fail('The native rejection must reach the caller after being recorded.');
+        } catch (CharacterServiceRejected $exception) {
+            self::assertSame(CharacterServiceBlockReason::MaximumResetsReached, $exception->reason);
+        }
+
+        self::assertSame(100, (int) $connection->table('Character')->where('Name', 'Hero')->value('LevelUpPoint'));
+        self::assertSame(1, $connection->table('IWEB_S21_CharacterOperation')->where('OperationKey', 'sql-rejected-paid')->count());
+        try {
+            $journal->run($connection, 'sql-rejected-paid', 'owner', str_repeat('a', 64), function (): CharacterServiceResult {
+                throw new RuntimeException('A rejected paid callback must never be retried.');
+            });
+            self::fail('A saved rejection must remain a rejection.');
+        } catch (CharacterServiceRejected $exception) {
+            self::assertSame(CharacterServiceBlockReason::MaximumResetsReached, $exception->reason);
+        }
     }
 
     /**
@@ -98,6 +139,8 @@ final class MuDevsSeason21NativeCharacterOperationsTest extends TestCase
 
         match ($operation) {
             'reset' => $this->app->make(SqlServerMuDevsSeason21CharacterResetRepository::class)->reset('owner', 'Hero', $settings),
+            'paid-reset' => $this->app->make(SqlServerMuDevsSeason21CharacterServiceRepository::class)->applyPurchaseForOperation('owner', 'Hero', CharacterServiceType::ResetPurchase, 5, new PurchasedResetPolicy(999, true, PointsMode::Fixed, 500, InventoryPolicy::KeepAll), 'sql-paid-reset'),
+            'paid-points' => $this->app->make(SqlServerMuDevsSeason21CharacterServiceRepository::class)->applyPurchaseForOperation('owner', 'Hero', CharacterServiceType::LevelUpPointsPurchase, 1000, null, 'sql-paid-points'),
             'grand-reset' => $this->app->make(SqlServerMuDevsSeason21CharacterGrandResetRepository::class)->grandReset('owner', 'Hero', $settings),
             'allocate' => $this->app->make(SqlServerMuDevsSeason21CharacterStatAllocationRepository::class)->allocate('owner', 'Hero', new StatAllocation(0, 0, 0, 0, ['command' => 10]), $settings),
             'stat-reset' => $this->app->make(SqlServerMuDevsSeason21CharacterStatResetRepository::class)->resetStats('owner', 'Hero', $settings),

@@ -1,6 +1,10 @@
 <?php
 
+use App\CharacterServices\CharacterServiceType;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterServiceRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21MarketItemEscrowRepository;
+use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\MuDevsSeason21\MuDevsSeason21Profile;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Database\DatabaseManager;
 
@@ -34,15 +38,25 @@ try {
     }
 
     usleep(200000);
-    $result = $application->make(SqlServerMuDevsSeason21MarketItemEscrowRepository::class)->depositForOperation(
-        accountId: $input['accountId'],
-        itemBinary: hex2bin($input['itemHex']),
-        width: 1,
-        height: 4,
-        operationKey: $input['operationKey'],
-    );
+    if (($input['type'] ?? 'item') === 'points') {
+        $application->singleton(GameVersionProfile::class, MuDevsSeason21Profile::class);
+        $result = $application->make(SqlServerMuDevsSeason21CharacterServiceRepository::class)->applyPurchaseForOperation(
+            $input['accountId'], $input['characterName'], CharacterServiceType::LevelUpPointsPurchase,
+            1000, null, $input['operationKey'],
+        );
+        $value = $result->after['points'];
+    } else {
+        $result = $application->make(SqlServerMuDevsSeason21MarketItemEscrowRepository::class)->depositForOperation(
+            accountId: $input['accountId'],
+            itemBinary: hex2bin($input['itemHex']),
+            width: 1,
+            height: 4,
+            operationKey: $input['operationKey'],
+        );
+        $value = $result->value;
+    }
     $connection->commit();
-    fwrite(STDOUT, json_encode(['result' => $result->value], JSON_THROW_ON_ERROR)."\n");
+    fwrite(STDOUT, json_encode(['result' => $value], JSON_THROW_ON_ERROR)."\n");
 } catch (Throwable $exception) {
     if ($connection->transactionLevel() > 0) {
         $connection->rollBack();

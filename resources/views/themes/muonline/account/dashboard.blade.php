@@ -76,6 +76,32 @@
             <x-account-battle-core-panel :snapshot="$battleCore" />
         @endif
 
+        @if ($pendingCharacterPurchases->isNotEmpty())
+            <section class="panel-card mt-6 p-5" aria-labelledby="pending-character-purchases">
+                <h2 id="pending-character-purchases" class="text-lg font-semibold text-white">{{ __('ui.account.pending_purchases_heading') }}</h2>
+                <p class="mt-3 text-sm text-silver">{{ __('ui.account.pending_purchases_help') }}</p>
+                <div class="mt-4 grid gap-3">
+                    @foreach ($pendingCharacterPurchases as $purchase)
+                        @php
+                            $isResetPurchase = $purchase->service_type === \App\CharacterServices\CharacterServiceType::ResetPurchase;
+                        @endphp
+                        <form method="POST" action="{{ route($isResetPurchase ? 'account.character-reset-purchases.store' : 'account.character-level-up-points-purchases.store') }}" class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 p-4">
+                            @csrf
+                            <input type="hidden" name="character_name" value="{{ $purchase->character_name }}">
+                            <input type="hidden" name="idempotency_key" value="{{ $purchase->idempotency_key }}">
+                            <input type="hidden" name="package_count" value="{{ $isResetPurchase ? $purchase->requested_amount : ($purchase->settings_snapshot['package_count'] ?? 0) }}">
+                            <p class="text-sm text-silver">
+                                <strong class="text-white">{{ $purchase->character_name }}</strong>
+                                · {{ __($isResetPurchase ? 'ui.account.character_buy_resets' : 'ui.account.character_buy_level_up_points') }}
+                                · {{ number_format($purchase->requested_amount) }}
+                            </p>
+                            <button type="submit" class="button button-ghost" @disabled(! $gameWritesEnabled)>{{ __('ui.account.pending_purchases_resume') }}</button>
+                        </form>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
         @if ($vipEnabled)
             <x-account-vip-modal
                 :characters="$characters"

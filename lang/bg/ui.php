@@ -675,6 +675,9 @@ return [
     ],
     'account' => [
         'battle_core_heading' => 'Участие между сървъри',
+        'pending_purchases_heading' => 'Незавършени покупки за герои',
+        'pending_purchases_help' => 'Продължи първоначалната покупка, за да потвърдим записания резултат. Тя се заплаща и прилага еднократно. Завърши я, преди да започнеш нова покупка за същия герой.',
+        'pending_purchases_resume' => 'Продължи покупката',
         'native_membership_heading' => 'Статус на игровия акаунт',
         'native_membership_standard' => 'Стандартен акаунт',
         'native_membership_tier' => 'VIP ниво :level',

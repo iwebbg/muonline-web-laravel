@@ -4,18 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Auth\GameAccount;
 use App\CharacterServices\CharacterClassChangeResolver;
+use App\CharacterServices\CharacterServiceType;
 use App\Economy\WalletCurrency;
 use App\Game\Contracts\AccountMembershipReadRepository;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\BattleCoreReadRepository;
 use App\Game\Contracts\GameCurrencyBalanceRepository;
 use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Contracts\JournaledCharacterServiceRepository;
 use App\Game\Contracts\LuckyCoinBalanceRepository;
 use App\Game\Contracts\MasterProgressionRepository;
+use App\Game\Operations\CharacterOperationStatus;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\AccountPanelConfiguration;
 use App\Models\AccountWallet;
+use App\Models\CharacterServiceOperation;
 use App\Models\VipEntitlement;
 use App\Models\VipPlan;
 use App\Models\VipPurchase;
@@ -51,6 +55,7 @@ final class AccountDashboardController extends Controller
         private readonly ?GameCurrencyBalanceRepository $currencyBalanceRepository = null,
         private readonly ?BattleCoreReadRepository $battleCoreReadRepository = null,
         private readonly ?AccountMembershipReadRepository $accountMembershipReadRepository = null,
+        private readonly ?JournaledCharacterServiceRepository $journaledCharacterServiceRepository = null,
     ) {}
 
     /**
@@ -196,6 +201,16 @@ final class AccountDashboardController extends Controller
             }
         }
 
+        $pendingCharacterPurchases = collect();
+        if ($this->journaledCharacterServiceRepository !== null && Schema::hasTable('character_service_operations')) {
+            $pendingCharacterPurchases = CharacterServiceOperation::query()
+                ->where('account_id', $account->username)
+                ->where('status', CharacterOperationStatus::Pending)
+                ->whereIn('service_type', [CharacterServiceType::ResetPurchase, CharacterServiceType::LevelUpPointsPurchase])
+                ->orderBy('id')->limit(100)->get()
+                ->filter(fn (CharacterServiceOperation $operation): bool => ($operation->settings_snapshot['game_profile'] ?? null) === $this->versionProfile->key());
+        }
+
         $readOnlyGameProfile = $this->versionProfile->capabilities()->readOnly;
         $allowedSections = $readOnlyGameProfile ? ['overview', 'inventory', 'vaults'] : [
             'overview',
@@ -267,6 +282,7 @@ final class AccountDashboardController extends Controller
             'luckyCoinBalance' => $luckyCoinBalance,
             'nativeCurrencyBalances' => $nativeCurrencyBalances,
             'battleCore' => $this->battleCoreReadRepository?->forAccount($account->username),
+            'pendingCharacterPurchases' => $pendingCharacterPurchases,
             'nativeAccountMembership' => $this->accountMembershipReadRepository?->forAccount($account->username),
             'vipPlans' => $vipPlans,
             'vipEntitlements' => $vipEntitlements,

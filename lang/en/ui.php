@@ -675,6 +675,9 @@ return [
     ],
     'account' => [
         'battle_core_heading' => 'Inter-server participation',
+        'pending_purchases_heading' => 'Unfinished character purchases',
+        'pending_purchases_help' => 'Resume the original purchase to confirm its saved result. The same purchase is charged and applied once. Resolve it before starting another purchase for this character.',
+        'pending_purchases_resume' => 'Resume purchase',
         'native_membership_heading' => 'Game account membership',
         'native_membership_standard' => 'Standard account',
         'native_membership_tier' => 'VIP tier :level',
