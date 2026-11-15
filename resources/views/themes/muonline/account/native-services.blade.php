@@ -8,10 +8,10 @@
         <p class="mt-3 max-w-3xl text-silver">{{ __('ui.native_services.intro') }}</p>
         <x-account-navigation class="mt-6" />
         @if (session('status'))
-            <p class="panel-card mt-6 p-4 text-emerald-200" role="status">{{ session('status') }}</p>
+            <p class="mt-6 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">{{ session('status') }}</p>
         @endif
         @if ($errors->any())
-            <p class="panel-card mt-6 p-4 text-red-200" role="alert">{{ $errors->first() }}</p>
+            <p class="mt-6 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">{{ $errors->first() }}</p>
         @endif
         <div class="mt-6 flex flex-wrap gap-3">
             <div class="resource-chip"><span>Credits</span><strong>{{ number_format($walletBalance) }}</strong></div>
@@ -19,7 +19,13 @@
                 <div class="resource-chip"><span>{{ $label }}</span><strong>{{ number_format($balance) }}</strong></div>
             @endforeach
         </div>
-        <p class="mt-5 text-sm text-gold">{{ __('ui.native_services.offline_notice') }}</p>
+        <div class="mt-5 flex items-start gap-3 rounded-2xl border border-amber-300/25 bg-amber-300/8 p-4 text-sm leading-6 text-amber-100" role="alert">
+            <svg class="mt-0.5 size-5 shrink-0 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M10.3 3.9 2.2 18a2 2 0 0 0 1.7 3h16.2a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                <path d="M12 9v4M12 17h.01" />
+            </svg>
+            <p>{{ __('ui.native_services.offline_notice') }}</p>
+        </div>
         @if (! $writesEnabled)
             <p class="mt-2 text-sm text-steel">{{ __('ui.native_services.errors.writes_disabled') }}</p>
         @endif
