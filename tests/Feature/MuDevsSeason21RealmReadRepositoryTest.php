@@ -37,7 +37,8 @@ final class MuDevsSeason21RealmReadRepositoryTest extends TestCase
         self::assertSame(3, $page->total);
         self::assertSame(2, $page->lastPage);
         self::assertSame(['Crusader', 'RuneHero'], array_column($page->entries, 'name'));
-        self::assertSame('50% 35%', $page->entries[0]->toArray()['imagePosition']);
+        self::assertArrayNotHasKey('imagePosition', $page->entries[0]->toArray());
+        self::assertSame('center top', $page->entries[0]->imagePosition);
 
         $filtered = $repository->characterRankings(new CharacterRankingQuery(
             RankingBoard::Overall, (new MuDevsSeason21Profile)->classForCode(144), 1, 10, '', false,
@@ -45,7 +46,7 @@ final class MuDevsSeason21RealmReadRepositoryTest extends TestCase
 
         self::assertSame(1, $filtered->total);
         self::assertSame('Slayer', $filtered->entries[0]->className);
-        self::assertSame('75% 15%', $filtered->entries[0]->imagePosition);
+        self::assertSame('center top', $filtered->entries[0]->imagePosition);
 
         $killers = $repository->characterRankings(new CharacterRankingQuery(
             RankingBoard::PlayerKillers, null, 1, 10, '', true,
@@ -73,7 +74,7 @@ final class MuDevsSeason21RealmReadRepositoryTest extends TestCase
 
         self::assertSame('Crusader', $character?->className);
         self::assertSame('Aquilas Temple', $character?->map);
-        self::assertSame('50% 35%', $character?->imagePosition);
+        self::assertSame('center top', $character?->imagePosition);
         self::assertTrue($character?->vip);
         self::assertSame('S21Guild', $character?->guildName);
         self::assertArrayNotHasKey('accountId', get_object_vars($character));
@@ -135,7 +136,7 @@ final class MuDevsSeason21RealmReadRepositoryTest extends TestCase
             ->assertSee('Crusader')
             ->assertSee('Illusion Knight')
             ->assertSee('imagePosition')
-            ->assertSee('crusader.jpeg');
+            ->assertSee('muonline-web-crusader.png');
     }
 
     /**

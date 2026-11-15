@@ -127,7 +127,7 @@ final readonly class SqlServerMuDevsSeason21AccountReadRepository implements Acc
             name: (string) $row->name,
             className: $classDefinition?->name ?? sprintf('Unknown class (%d)', $classCode),
             classCode: $classCode,
-            image: $classDefinition?->image ?? '/images/characters/blade-knight.png',
+            image: $classDefinition?->image ?? '/images/characters/muonline-web-dark-knight.png',
             imagePosition: $classDefinition?->imagePosition ?? 'center top',
             level: (int) $row->level,
             resets: (int) $row->resets,

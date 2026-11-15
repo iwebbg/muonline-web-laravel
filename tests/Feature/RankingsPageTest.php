@@ -33,7 +33,7 @@ final class RankingsPageTest extends TestCase
             ->assertSee('pageNumbers', false)
             ->assertSee('Online only')
             ->assertViewHas('rankingPage', function (array $rankingPage): bool {
-                return $rankingPage['items'][0]['image'] === '/images/characters/blade-knight.png'
+                return $rankingPage['items'][0]['image'] === '/images/characters/muonline-web-dark-knight.png'
                     && $rankingPage['items'][0]['class_abbreviation'] === 'BK';
             });
     }

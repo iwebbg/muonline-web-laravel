@@ -29,7 +29,7 @@ final class CharacterPortraitPositionTest extends TestCase
             ->with('Portrait')
             ->andReturn(new PublicCharacterProfile(
                 name: 'Portrait', className: 'Slayer',
-                image: '/images/characters/mudevs_season_21/slayer.png',
+                image: '/images/characters/muonline-web-slayer.png',
                 level: 800, resets: 0, grandResets: 0, map: 'Aquilas Temple',
                 pkLevel: 0, guildName: null, online: false, vip: false,
                 imagePosition: '75% 15%',
@@ -54,7 +54,7 @@ final class CharacterPortraitPositionTest extends TestCase
     {
         $entry = new CharacterRankingEntry(
             name: 'Legacy', classCode: 16, className: 'Dark Knight',
-            classAbbreviation: 'DK', image: '/images/characters/blade-knight.png',
+            classAbbreviation: 'DK', image: '/images/characters/muonline-web-dark-knight.png',
             level: 1, resets: 0, grandResets: 0, pkCount: 0, pkLevel: 0, online: false,
         );
 

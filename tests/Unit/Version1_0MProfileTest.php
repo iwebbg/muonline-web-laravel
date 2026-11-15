@@ -119,10 +119,10 @@ final class Version1_0MProfileTest extends TestCase
     {
         $profile = new Version1_0MProfile;
 
-        $this->assertSame('/images/characters/dark-lord.png', $profile->classForCode(64)?->image);
+        $this->assertSame('/images/characters/muonline-web-dark-lord.png', $profile->classForCode(64)?->image);
         $this->assertNull($profile->classForCode(65));
         $this->assertNull($profile->classForKey('le'));
-        $this->assertFileExists(dirname(__DIR__, 2).'/public/images/characters/dark-lord.png');
+        $this->assertFileExists(dirname(__DIR__, 2).'/public/images/characters/muonline-web-dark-lord.png');
     }
 
     /**

@@ -49,7 +49,8 @@ final class MuDevsSeason21AccountReadRepositoryTest extends TestCase
         self::assertSame(123, $characters[15]->points);
         self::assertSame(['command' => 600], $characters[4]->additionalStats);
         self::assertSame([], $characters[15]->additionalStats);
-        self::assertSame('50% 35%', $characters[15]->toArray()['imagePosition']);
+        self::assertArrayNotHasKey('imagePosition', $characters[15]->toArray());
+        self::assertSame('center top', $characters[15]->imagePosition);
         self::assertFalse($characters[15]->online);
         self::assertNull($this->repository()->characterFor('owner', 'Hidden'));
         self::assertNull($this->repository()->characterFor("' OR 1=1--", 'Hero00'));

@@ -96,8 +96,11 @@ strict decoding, rejection without a custody receipt and special equipment
 presentation. Full-suite/profile and native SQL checks pass. Real special-item
 fixtures remain required for extended identities and dependent-table custody;
 this change does not certify Pentagram/Errtel, Muun, Artifact or wing-core
-transfers. Character portraits remain deferred; static item artwork is now
-available through the native-table export documented below.
+transfers. All 16 character families now use the owner-generated 1024×1536 portraits in
+`public/images/characters/muonline-web-*.png`, shared by every adapter and
+advancement. The previous portraits and source-specific crop offsets have been
+removed. Static item artwork is available through the native-table export
+documented below.
 
 ### Native identity, account VIP and currency exchange
 

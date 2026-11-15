@@ -370,9 +370,10 @@ The next read-model stage initially added `MuDevsSeason21Profile` outside the
 registry, private character and public realm/guild/ranking repositories, and
 Master/enhancement reads joined through `CharacterIndex`. Its class catalog
 contains the 16 SQL-seeded base codes and now includes client-confirmed Blade
-Master (18); other evolution codes remain a commissioning task. Nine owner-supplied
-portraits live under `public/images/characters/mudevs_season_21`, with
-profile-owned focal points for the landscape/full-body sources. Shared DTOs
+Master (18); other evolution codes remain a commissioning task. The initial nine portraits have since been replaced by 16 owner-generated
+1024×1536 PNG portraits under `public/images/characters/muonline-web-*.png`.
+All four adapters, every advancement, demo data and fallback paths now use this
+shared collection. Old portraits and their source-specific focal offsets were removed. Shared DTOs
 keep their previous serialized shape when no custom focal point or enhancement
 points are present. Enhancement points are separate from native Master counters;
 no unverified total-level formula is applied. S21 VIP expiry uses the configured

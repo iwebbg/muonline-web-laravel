@@ -248,7 +248,7 @@ final class MuDevsSeason21ReadIntegrationTest extends TestCase
         $guild = $reader->publicGuild('S21Test');
 
         self::assertSame('S21Hidden', $rankings[0]->name);
-        self::assertSame('50% 35%', $rankings[0]->imagePosition);
+        self::assertSame('center top', $rankings[0]->imagePosition);
         self::assertSame('S21Test', $character?->guildName);
         self::assertArrayNotHasKey('accountId', get_object_vars($character));
         self::assertSame(array_fill(0, 64, '#000000'), $guild?->markColors);

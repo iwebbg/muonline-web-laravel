@@ -40,16 +40,16 @@ final class MuDevsSeason21ProfileTest extends TestCase
     }
 
     /**
-     * Confirms imported landscape and full-body portraits have deliberate focal points.
+     * Confirms the shared portrait collection uses centered framing for every native family.
      */
-    public function test_preserves_portrait_focal_points_for_new_families(): void
+    public function test_shared_portraits_use_centered_framing_for_new_families(): void
     {
         $profile = new MuDevsSeason21Profile;
 
         self::assertSame('Slayer', $profile->classForCode(144)?->name);
-        self::assertSame('75% 15%', $profile->classForCode(144)?->imagePosition);
-        self::assertSame('50% 35%', $profile->classForCode(240)?->imagePosition);
-        self::assertSame('50% 15%', $profile->classForCode(128)?->imagePosition);
+        self::assertSame('center top', $profile->classForCode(144)?->imagePosition);
+        self::assertSame('center top', $profile->classForCode(240)?->imagePosition);
+        self::assertSame('center top', $profile->classForCode(128)?->imagePosition);
         self::assertSame('center top', $profile->classForCode(16)?->imagePosition);
     }
 

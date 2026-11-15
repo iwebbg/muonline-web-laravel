@@ -163,7 +163,7 @@ final class StatAllocationPreviewTest extends TestCase
             name: 'OwnedHero',
             className: 'Blade Knight',
             classCode: $classCode,
-            image: '/images/characters/blade-knight.png',
+            image: '/images/characters/muonline-web-dark-knight.png',
             level: 400,
             resets: 4,
             grandResets: 1,

@@ -113,7 +113,7 @@ final class ResetPreviewTest extends TestCase
             name: 'OwnedHero',
             className: 'Blade Knight',
             classCode: 17,
-            image: '/images/characters/blade-knight.png',
+            image: '/images/characters/muonline-web-dark-knight.png',
             level: $level,
             resets: $resets,
             grandResets: 1,
