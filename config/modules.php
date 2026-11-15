@@ -6,6 +6,7 @@ return [
         'password_recovery' => true,
         'account_security' => true,
         'credits' => true,
+        'game_currency_exchange' => true,
         'vote_rewards' => true,
         'vip' => true,
         'web_storage' => true,

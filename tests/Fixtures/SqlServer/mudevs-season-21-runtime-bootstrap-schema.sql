@@ -195,3 +195,360 @@ CREATE TABLE [dbo].[GameServerInfo] (
     [AceItemCount] [int] NULL
 );
 
+
+-- Reviewed mutable identity projection; binary contents and historical records remain untouched.
+CREATE TABLE [ARCA_BATTLE_GUILD_JOIN_INFO] (
+    [G_Master] VARCHAR(10) NULL
+);
+
+CREATE TABLE [ARCA_BATTLE_GUILDMARK_REG] (
+    [G_Master] VARCHAR(10) NULL
+);
+
+CREATE TABLE [ARCA_BATTLE_MEMBER_JOIN_INFO] (
+    [CharName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [ARCA_BATTLE_PERIOD_BUFF_INFO] (
+    [CharacterName] VARCHAR(10) NULL
+);
+
+ALTER TABLE [ArtifactSystem] ADD [Account] VARCHAR(10) NULL;
+
+CREATE TABLE [BanMacInfo] (
+    [Account] VARCHAR(11) NULL,
+    [Name] VARCHAR(11) NULL
+);
+
+CREATE TABLE [BattleCoreUser] (
+    [AccountID] VARCHAR(10) NULL,
+    [Name] VARCHAR(10) NULL,
+    [ServerCode] SMALLINT NULL
+);
+
+CREATE TABLE [BattlePassDailyMissionInfo] (
+    [Account] NCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] NCHAR(10) NULL
+);
+
+CREATE TABLE [BattlePassInfo] (
+    [Account] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [BlockChat] (
+    [BlockName] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [ChaosCastleFinal_Ranking] (
+    [mName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [ChaosCastleFinal_Scores] (
+    [mName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [EventEntryCount] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [EventEntryLimit] (
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [EventLeoTheHelper] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [EventSantaClaus] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [FavoriteWarpList] (
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [Gens_Left] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [Gens_Reward] (
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [HelperData] (
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [IllusionTempleLeague_UserPoint] (
+    [mUserName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [IllusionTempleLeague_UserReward] (
+    [mUserName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [ItemCompensationLevel] (
+    [Account] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [MonsterSoulConverterItem] (
+    [Account] NCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] NCHAR(10) NULL
+);
+
+CREATE TABLE [MonsterSoulConverterWeeklyPurchases] (
+    [Account] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [MuHelperPlus] (
+    [Account] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [MuQuestInfo] (
+    [Account] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [MuRummyCard] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [MuRummyData] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [OptionData] (
+    [ChangeSkin] TINYINT NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [PartyRenewaInfo] (
+    [LeaderName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [PartyRenewalMemberList] (
+    [Class] INT NULL,
+    [LeaderName] VARCHAR(10) NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [PersonalShopRenewalList] (
+    [Account] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [PlayTimeEvent] (
+    [CharacterIndex] BIGINT NULL,
+    [account] NCHAR(10) NULL,
+    [name] NCHAR(10) NULL
+);
+
+CREATE TABLE [PShopItemValue] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [QuestGuide] (
+    [Account] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [QuestKillCount] (
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [QuestWorld] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [RankingBloodCastle] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [RankingCastleSiege] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [RankingChaosCastle] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [RankingDevilSquare] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [RankingDuel] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [RankingIllusionTemple] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [RestoreOffline] (
+    [Account] VARCHAR(10) NULL,
+    [Name] VARCHAR(10) NULL,
+    [ServerCode] INT NULL,
+    [Status] INT NULL
+);
+
+CREATE TABLE [SNSData] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_ARCA_BATTLE_GUILD_JOIN_INFO] (
+    [G_Master] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_ARCA_BATTLE_GUILDMARK_REG] (
+    [G_Master] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_ARCA_BATTLE_MEMBER_JOIN_INFO] (
+    [CharName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_BombHunt] (
+    [AccountID] VARCHAR(10) NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_CGuid] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_EvolutionMonster] (
+    [AccountID] VARCHAR(10) NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_FriendList] (
+    [FriendName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_FriendMail] (
+    [FriendName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_FriendMain] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_HuntingRecordOption] (
+    [AccountID] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_LabyrinthLeague] (
+    [Account] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_LabyrinthLeagueReward] (
+    [Account] VARCHAR(10) NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_PartyMatching] (
+    [LeaderClass] TINYINT NULL,
+    [PartyLeaderName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_PartyMatchingRecruitInfo] (
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_PeriodBuffInfo] (
+    [CharacterName] CHAR(10) NULL
+);
+
+CREATE TABLE [T_QUEST_EXP_INFO] (
+    [CHAR_NAME] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_RestoreItem_Inventory] (
+    [AccountID] VARCHAR(10) NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_WaitFriend] (
+    [FriendName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [T_WaitPartyMatching] (
+    [Class] TINYINT NULL,
+    [LeaderName] VARCHAR(10) NULL,
+    [MemberName] VARCHAR(10) NULL
+);
+
+CREATE TABLE [WingExchangeItem] (
+    [Account] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+CREATE TABLE [DeathExpRecovery] (
+    [Account] VARCHAR(10) NULL,
+    [CharacterIndex] BIGINT NULL,
+    [Name] VARCHAR(10) NULL
+);
+
+ALTER TABLE [AccountCharacter] ADD [CharacterIndex_10] BIGINT NULL;
+
+ALTER TABLE [AccountCharacter] ADD [CharacterIndex_2] BIGINT NULL;
+
+ALTER TABLE [AccountCharacter] ADD [CharacterIndex_3] BIGINT NULL;
+
+ALTER TABLE [AccountCharacter] ADD [CharacterIndex_4] BIGINT NULL;
+
+ALTER TABLE [AccountCharacter] ADD [CharacterIndex_5] BIGINT NULL;
+
+ALTER TABLE [AccountCharacter] ADD [CharacterIndex_6] BIGINT NULL;
+
+ALTER TABLE [AccountCharacter] ADD [CharacterIndex_7] BIGINT NULL;
+
+ALTER TABLE [AccountCharacter] ADD [CharacterIndex_8] BIGINT NULL;
+
+ALTER TABLE [AccountCharacter] ADD [CharacterIndex_9] BIGINT NULL;
+
+ALTER TABLE [AccountCharacter] ADD [GameID10] VARCHAR(10) NULL;
+
+ALTER TABLE [AccountCharacter] ADD [GameID2] VARCHAR(10) NULL;
+
+ALTER TABLE [AccountCharacter] ADD [GameID3] VARCHAR(10) NULL;
+
+ALTER TABLE [AccountCharacter] ADD [GameID4] VARCHAR(10) NULL;
+
+ALTER TABLE [AccountCharacter] ADD [GameID5] VARCHAR(10) NULL;
+
+ALTER TABLE [AccountCharacter] ADD [GameID6] VARCHAR(10) NULL;
+
+ALTER TABLE [AccountCharacter] ADD [GameID7] VARCHAR(10) NULL;
+
+ALTER TABLE [AccountCharacter] ADD [GameID8] VARCHAR(10) NULL;
+
+ALTER TABLE [AccountCharacter] ADD [GameID9] VARCHAR(10) NULL;
+
+ALTER TABLE [AccountCharacter] ADD [GameIDC] VARCHAR(10) NULL;

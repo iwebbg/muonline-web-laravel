@@ -76,6 +76,9 @@
             <x-account-battle-core-panel :snapshot="$battleCore" />
         @endif
 
+        @if ($nativeIdentityServices)
+            <p class="panel-card mt-6 p-4 text-sm text-silver">{{ __('ui.account.native_identity_help') }}</p>
+        @endif
         @if ($pendingCharacterPurchases->isNotEmpty())
             <section class="panel-card mt-6 p-5" aria-labelledby="pending-character-purchases">
                 <h2 id="pending-character-purchases" class="text-lg font-semibold text-white">{{ __('ui.account.pending_purchases_heading') }}</h2>
@@ -84,15 +87,23 @@
                     @foreach ($pendingCharacterPurchases as $purchase)
                         @php
                             $isResetPurchase = $purchase->service_type === \App\CharacterServices\CharacterServiceType::ResetPurchase;
+                            $purchaseRoute = match ($purchase->service_type) {
+                                \App\CharacterServices\CharacterServiceType::Rename => 'account.character-rename',
+                                \App\CharacterServices\CharacterServiceType::ClassChange => 'account.character-class-change',
+                                \App\CharacterServices\CharacterServiceType::ResetPurchase => 'account.character-reset-purchases.store',
+                                \App\CharacterServices\CharacterServiceType::LevelUpPointsPurchase => 'account.character-level-up-points-purchases.store',
+                            };
                         @endphp
-                        <form method="POST" action="{{ route($isResetPurchase ? 'account.character-reset-purchases.store' : 'account.character-level-up-points-purchases.store') }}" class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 p-4">
+                        <form method="POST" action="{{ route($purchaseRoute) }}" class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 p-4">
                             @csrf
                             <input type="hidden" name="character_name" value="{{ $purchase->character_name }}">
                             <input type="hidden" name="idempotency_key" value="{{ $purchase->idempotency_key }}">
+                            <input type="hidden" name="new_name" value="{{ $purchase->requested_name }}">
+                            <input type="hidden" name="target_family" value="{{ $characterClassDefinitions->get($purchase->target_class_code)?->family }}">
                             <input type="hidden" name="package_count" value="{{ $isResetPurchase ? $purchase->requested_amount : ($purchase->settings_snapshot['package_count'] ?? 0) }}">
                             <p class="text-sm text-silver">
                                 <strong class="text-white">{{ $purchase->character_name }}</strong>
-                                · {{ __($isResetPurchase ? 'ui.account.character_buy_resets' : 'ui.account.character_buy_level_up_points') }}
+                                · {{ __('ui.account.character_'.match ($purchase->service_type) { \App\CharacterServices\CharacterServiceType::Rename => 'rename', \App\CharacterServices\CharacterServiceType::ClassChange => 'class_change', \App\CharacterServices\CharacterServiceType::ResetPurchase => 'buy_resets', \App\CharacterServices\CharacterServiceType::LevelUpPointsPurchase => 'buy_level_up_points' }) }}
                                 · {{ number_format($purchase->requested_amount) }}
                             </p>
                             <button type="submit" class="button button-ghost" @disabled(! $gameWritesEnabled)>{{ __('ui.account.pending_purchases_resume') }}</button>

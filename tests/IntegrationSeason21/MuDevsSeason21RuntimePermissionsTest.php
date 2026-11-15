@@ -4,11 +4,20 @@ namespace Tests\IntegrationSeason21;
 
 use App\CharacterServices\CharacterServiceType;
 use App\CharacterServices\PurchasedResetPolicy;
+use App\Economy\NativeAccountMutation;
+use App\Economy\NativeCurrency;
+use App\Economy\NativePurchaseKind;
+use App\Game\Contracts\BattleCoreReadRepository;
+use App\Game\Data\BattleCoreAccountSnapshot;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountActivationRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountRegistrationRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21AccountServiceRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterServiceRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21ItemSerialRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21MarketItemEscrowRepository;
+use App\Game\Versions\Contracts\GameDatabaseProfile;
+use App\Game\Versions\MuDevsSeason21\AccountPurchaseJournalMuDevsSeason21;
+use App\Game\Versions\MuDevsSeason21\CharacterIdentityMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\CharacterServiceJournalMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\ItemCodecAdapterMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\MuDevsSeason21Profile;
@@ -32,7 +41,7 @@ final class MuDevsSeason21RuntimePermissionsTest extends TestCase
     private const PASSWORD = 'S21-runtime-test-only-123!';
 
     /**
-     * Supports reviewed native writes while keeping native coins, special state and receipts protected.
+     * Supports reviewed native writes while keeping special item payloads and receipts protected.
      */
     public function test_runtime_role_supports_native_account_and_item_services_without_admin_privileges(): void
     {
@@ -76,7 +85,7 @@ final class MuDevsSeason21RuntimePermissionsTest extends TestCase
             self::assertSame(0, (int) $permissions->is_admin);
             self::assertSame(0, (int) $permissions->is_owner);
             self::assertSame(1, (int) $permissions->can_update_character);
-            self::assertSame(0, (int) $permissions->can_update_coins);
+            self::assertSame(1, (int) $permissions->can_update_coins);
             self::assertSame(0, (int) $permissions->can_update_special);
             self::assertSame(0, (int) $permissions->can_delete_receipts);
             self::assertSame(0, (int) $permissions->can_update_receipts);
@@ -107,8 +116,53 @@ final class MuDevsSeason21RuntimePermissionsTest extends TestCase
             $receiptPermissions = $runtime->selectOne("SELECT HAS_PERMS_BY_NAME('dbo.IWEB_S21_CharacterOperation', 'OBJECT', 'UPDATE') AS can_update, HAS_PERMS_BY_NAME('dbo.IWEB_S21_CharacterOperation', 'OBJECT', 'DELETE') AS can_delete");
             self::assertSame(0, (int) $receiptPermissions->can_update);
             self::assertSame(0, (int) $receiptPermissions->can_delete);
+            $accountServices = new SqlServerMuDevsSeason21AccountServiceRepository($database, new AccountPurchaseJournalMuDevsSeason21);
+            $characterIndex = (int) $runtime->table('Character')->where('Name', 'PaidHero')->value('CharacterIndex');
+            foreach (NativeCurrency::cases() as $currency) {
+                $mutation = new NativeAccountMutation(NativePurchaseKind::CurrencyExchange, $currency, 7,
+                    $currency === NativeCurrency::Ruud ? $characterIndex : null);
+                $operationKey = 'runtime-coin:'.$currency->value;
+                $grant = $accountServices->apply('owner', $mutation, $operationKey);
+                $replay = $accountServices->apply('owner', $mutation, $operationKey);
+                self::assertSame(7, $grant->after['balance']);
+                self::assertSame($grant->after, $replay->after);
+            }
+            $vipMutation = new NativeAccountMutation(kind: NativePurchaseKind::AccountVip, vipLevel: 2, durationDays: 30);
+            $vip = $accountServices->apply('owner', $vipMutation, 'runtime-vip');
+            $repeatVip = $accountServices->apply('owner', $vipMutation, 'runtime-vip');
+            self::assertSame(2, $vip->after['account_level']);
+            self::assertSame($vip->after, $repeatVip->after);
+            self::assertSame(6, $runtime->table('IWEB_S21_AccountPurchase')->count());
+            $immutable = $runtime->selectOne("SELECT HAS_PERMS_BY_NAME('dbo.IWEB_S21_AccountPurchase', 'OBJECT', 'UPDATE') AS can_update, HAS_PERMS_BY_NAME('dbo.IWEB_S21_AccountPurchase', 'OBJECT', 'DELETE') AS can_delete");
+            self::assertSame(0, (int) $immutable->can_update);
+            self::assertSame(0, (int) $immutable->can_delete);
+            $battle = $this->createStub(BattleCoreReadRepository::class);
+            $battle->method('forAccount')->willReturn(new BattleCoreAccountSnapshot(true, [], 0));
+            $identity = new CharacterIdentityMuDevsSeason21($profile, $battle);
+            $identityServices = new SqlServerMuDevsSeason21CharacterServiceRepository($database, $profile, new CharacterServiceJournalMuDevsSeason21, $identity);
+            $rename = $identityServices->renameForOperation('owner', 'PaidHero', 'Renamed', 'runtime-rename');
+            $renameRepeat = $identityServices->renameForOperation('owner', 'PaidHero', 'Renamed', 'runtime-rename');
+            self::assertSame('Renamed', $rename->after['name']);
+            self::assertSame($rename->after, $renameRepeat->after);
+            $classChange = $identityServices->changeClassForOperation('owner', 'Renamed', 4, 'runtime-class');
+            self::assertSame(4, $classChange->after['class_code']);
+            self::assertSame(str_repeat("\xFF", 246), $runtime->table('Character')->where('CharacterIndex', $characterIndex)->value('MagicList'));
+            $columns = $runtime->selectOne("SELECT HAS_PERMS_BY_NAME('dbo.ArtifactSystem', 'OBJECT', 'UPDATE', 'Name', 'COLUMN') AS can_rename, HAS_PERMS_BY_NAME('dbo.ArtifactSystem', 'OBJECT', 'UPDATE', 'ItemInfo', 'COLUMN') AS can_edit_payload");
+            self::assertSame(1, (int) $columns->can_rename);
+            self::assertSame(0, (int) $columns->can_edit_payload);
+            $admin->exec('DROP TABLE [dbo].[DeathExpRecovery]');
+            $installer->install($installation);
+            $withoutOptionalCache = $identityServices->renameForOperation('owner', 'Renamed', 'FinalHero', 'runtime-rename-no-optional-cache');
+            self::assertSame('FinalHero', $withoutOptionalCache->after['name']);
+            $this->app->instance(GameDatabaseProfile::class, $profile);
+            config()->set('game.writes_enabled', false);
+            config()->set('database.connections.game.readonly', true);
+            $this->artisan('game:doctor')->assertSuccessful();
             self::assertSame(str_repeat("\xFF", 6000), $runtime->table('warehouse')->where('AccountID', 'owner')->value('Items'));
         } finally {
+            if (isset($runtime)) {
+                $runtime->disconnect();
+            }
             $database->purge('game');
             $admin->exec('USE [master]');
             $admin->exec('DROP DATABASE [MuOnline_S21_Runtime_Test]');

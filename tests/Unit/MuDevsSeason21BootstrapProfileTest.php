@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Game\Versions\MuDevsSeason21\BattleCoreDatabaseProfileMuDevsSeason21;
+use App\Game\Versions\MuDevsSeason21\CharacterIdentityMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\ReadOnlyDatabaseProfileMuDevsSeason21;
 use PHPUnit\Framework\TestCase;
 
@@ -19,14 +20,18 @@ final class MuDevsSeason21BootstrapProfileTest extends TestCase
         $profile = new ReadOnlyDatabaseProfileMuDevsSeason21;
         $permissions = $profile->databaseObjectPermissions();
 
-        self::assertSame([
+        $expectedObjects = [
             'dbo.MEMB_INFO', 'dbo.MEMB_STAT', 'dbo.AccountCharacter', 'dbo.Character',
             'dbo.warehouse', 'dbo.ExtWarehouse', 'dbo.MuCastle_DATA', 'dbo.Guild', 'dbo.GuildMember',
             'dbo.MasterSkillTree', 'dbo.EnhanceSkillTree', 'dbo.AbilityEnhancementCore',
             'dbo.CashShopData', 'dbo.LuckyCoin', 'dbo.Gens_Rank', 'dbo.PentagramJewel',
             'dbo.MuunInventory', 'dbo.EventInventory', 'dbo.GremoryCase',
-            'dbo.ArtifactSystem', 'dbo.WingCoreItem', 'dbo.IWEB_S21_CharacterOperation', 'dbo.IWEB_S21_ItemOperation',
-        ], array_keys($permissions));
+            'dbo.ArtifactSystem', 'dbo.WingCoreItem', 'dbo.IWEB_S21_AccountPurchase', 'dbo.IWEB_S21_CharacterOperation', 'dbo.IWEB_S21_ItemOperation',
+        ];
+        foreach (array_keys(CharacterIdentityMuDevsSeason21::requiredSchema()) as $table) {
+            $expectedObjects[] = 'dbo.'.$table;
+        }
+        self::assertSame(array_values(array_unique($expectedObjects)), array_keys($permissions));
 
         foreach ($permissions as $object => $grants) {
             self::assertSame(['SELECT'], $grants, $object);

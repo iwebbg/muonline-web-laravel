@@ -14,6 +14,11 @@ enum CharacterServiceBlockReason: string
     case NameTaken = 'name_taken';
     case SameName = 'same_name';
     case InvalidClass = 'invalid_class';
+    case InvalidName = 'invalid_name';
+    case EquippedItems = 'equipped_items';
+    case AllocatedSkills = 'allocated_skills';
+    case IdentityDependencyUnavailable = 'identity_dependency_unavailable';
+    case InterServerBusy = 'inter_server_busy';
     case SameClassFamily = 'same_class_family';
     case InvalidQuantity = 'invalid_quantity';
     case MaximumResetsReached = 'maximum_resets_reached';

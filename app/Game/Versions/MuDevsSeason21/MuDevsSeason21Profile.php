@@ -33,6 +33,7 @@ use App\Game\Contracts\MapNameLookup;
 use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Contracts\ModerationRepository;
+use App\Game\Contracts\NativeAccountServiceRepository;
 use App\Game\Contracts\OnlineAccountRepository;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Contracts\ZenBankRepository;
@@ -42,6 +43,7 @@ use App\Game\Repositories\SqlServerMuDevsSeason21AccountMembershipReadRepository
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountPasswordRecoveryRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountRegistrationRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21AccountServiceRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21BattleCoreReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CastleSiegeReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterGrandResetRepository;
@@ -68,6 +70,7 @@ use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
 use App\Game\Versions\Contracts\GameDatabaseSchemaBootstrap;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\Contracts\OptionalGameDatabaseObjects;
 use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
 use App\Game\Versions\UnavailableItemGeneratorCatalog;
@@ -83,7 +86,7 @@ use RuntimeException;
  * Route and module allow-lists keep incomplete systems unavailable. Live write
  * commissioning remains separate from enabling the reviewed account tools.
  */
-final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSchemaBootstrap, GameVersionProfile
+final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSchemaBootstrap, GameVersionProfile, OptionalGameDatabaseObjects
 {
     private const SCHEMA_EXTENSION_RESOURCE = 'game/mudevs_season_21/schema-extensions.sql';
 
@@ -106,6 +109,9 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
         return new GameVersionCapabilities(
             grandResets: true,
             characterVip: false,
+            accountVip: true,
+            journaledIdentityServices: true,
+            gameCurrencyExchange: true,
             billingRecord: false,
             itemGenerator: false,
             masterProgression: true,
@@ -121,6 +127,8 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
                 ServerModule::AccountSecurity,
                 ServerModule::ZenBank,
                 ServerModule::Credits,
+                ServerModule::GameCurrencyExchange,
+                ServerModule::Vip,
                 ServerModule::VoteRewards,
                 ServerModule::WebStorage,
                 ServerModule::JewelBank,
@@ -136,7 +144,8 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
                 'register', 'register.store', 'password.*', 'account.activation*',
                 'account.security.index', 'account.credentials.update', 'account.deletion-requests.*',
                 'account.zen-bank.*', 'account.web-storage.*', 'account.jewel-bank.*',
-                'account.credits.index', 'account.credit-item-exchanges.store', 'account.online-time-claims.store',
+                'account.character-rename', 'account.character-class-change',
+                'account.native-services.*', 'account.credits.index', 'account.credit-item-exchanges.store', 'account.online-time-claims.store',
                 'account.credit-packages.purchase', 'account.credit-payments.return', 'payments.webhooks',
                 'market.*', 'shop.items.*', 'shop.mystery-boxes.*',
                 'account.rewards.*', 'account.votes.*',
@@ -153,7 +162,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
                 'admin.game-servers.*', 'admin.wallet.*', 'admin.economy-settings.*',
                 'admin.credit-exchange-offers.*', 'admin.credit-packages.*', 'admin.credit-payments.*',
                 'admin.vote-sites.*', 'admin.vote-claims.*', 'admin.market.*', 'admin.shop-offers.*',
-                'admin.economy-recovery.*',
+                'admin.economy-recovery.*', 'admin.game-currency-rates.*', 'admin.vip-plans.*',
             ],
         );
     }
@@ -504,6 +513,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
             CharacterResetRepository::class => SqlServerMuDevsSeason21CharacterResetRepository::class,
             CharacterServiceRepository::class => SqlServerMuDevsSeason21CharacterServiceRepository::class,
             JournaledCharacterServiceRepository::class => SqlServerMuDevsSeason21CharacterServiceRepository::class,
+            CharacterIdentityMuDevsSeason21::class => CharacterIdentityMuDevsSeason21::class,
             CharacterGrandResetRepository::class => SqlServerMuDevsSeason21CharacterGrandResetRepository::class,
             CharacterStatAllocationRepository::class => SqlServerMuDevsSeason21CharacterStatAllocationRepository::class,
             CharacterStatResetRepository::class => SqlServerMuDevsSeason21CharacterStatResetRepository::class,
@@ -522,6 +532,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
             AccountMembershipReadRepository::class => SqlServerMuDevsSeason21AccountMembershipReadRepository::class,
             CastleSiegeReadRepository::class => SqlServerMuDevsSeason21CastleSiegeReadRepository::class,
             AccountReadRepository::class => SqlServerMuDevsSeason21AccountReadRepository::class,
+            NativeAccountServiceRepository::class => SqlServerMuDevsSeason21AccountServiceRepository::class,
             RealmReadRepository::class => SqlServerMuDevsSeason21RealmReadRepository::class,
             MasterProgressionRepository::class => SqlServerMuDevsSeason21MasterProgressionRepository::class,
             GameCurrencyBalanceRepository::class => SqlServerMuDevsSeason21CurrencyBalanceRepository::class,
@@ -561,8 +572,25 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
         $permissions['dbo.ExtWarehouse'] = ['SELECT', 'UPDATE'];
         $permissions['dbo.IWEB_S21_ItemOperation'] = ['SELECT', 'INSERT'];
         $permissions['dbo.IWEB_S21_CharacterOperation'] = ['SELECT', 'INSERT'];
+        $permissions['dbo.IWEB_S21_AccountPurchase'] = ['SELECT', 'INSERT'];
+        $permissions['dbo.CashShopData'] = ['SELECT', 'INSERT', 'UPDATE'];
+        $permissions['dbo.AccountCharacter'] = ['SELECT', 'UPDATE'];
+        $permissions['dbo.LuckyCoin'] = ['SELECT', 'INSERT', 'UPDATE'];
+        foreach (CharacterIdentityMuDevsSeason21::updateColumns() as $table => $columns) {
+            $permissions['dbo.'.$table] = ['SELECT', 'UPDATE (['.implode('], [', array_unique($columns)).'])'];
+        }
         $permissions['dbo.WZ_GetItemSerial'] = ['EXECUTE', 'VIEW DEFINITION'];
 
         return $permissions;
+    }
+
+    /**
+     * Allows installations predating the final source SQL batch without creating emulator-owned data tables.
+     *
+     * @return list<string>
+     */
+    public function optionalDatabaseObjects(): array
+    {
+        return ['dbo.DeathExpRecovery'];
     }
 }

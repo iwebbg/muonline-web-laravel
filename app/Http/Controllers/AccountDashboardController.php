@@ -127,6 +127,7 @@ final class AccountDashboardController extends Controller
         $vipPlanEntries = $vipEnabled
             ? VipPlan::query()
                 ->available()
+                ->whereNull('native_account_level')
                 ->orderBy('sort_order')
                 ->orderBy('id')
                 ->get()
@@ -206,7 +207,7 @@ final class AccountDashboardController extends Controller
             $pendingCharacterPurchases = CharacterServiceOperation::query()
                 ->where('account_id', $account->username)
                 ->where('status', CharacterOperationStatus::Pending)
-                ->whereIn('service_type', [CharacterServiceType::ResetPurchase, CharacterServiceType::LevelUpPointsPurchase])
+                ->whereIn('service_type', CharacterServiceType::cases())
                 ->orderBy('id')->limit(100)->get()
                 ->filter(fn (CharacterServiceOperation $operation): bool => ($operation->settings_snapshot['game_profile'] ?? null) === $this->versionProfile->key());
         }
@@ -283,6 +284,8 @@ final class AccountDashboardController extends Controller
             'nativeCurrencyBalances' => $nativeCurrencyBalances,
             'battleCore' => $this->battleCoreReadRepository?->forAccount($account->username),
             'pendingCharacterPurchases' => $pendingCharacterPurchases,
+            'nativeIdentityServices' => $this->versionProfile->capabilities()->journaledIdentityServices,
+            'characterClassDefinitions' => collect($this->versionProfile->classes())->keyBy('code'),
             'nativeAccountMembership' => $this->accountMembershipReadRepository?->forAccount($account->username),
             'vipPlans' => $vipPlans,
             'vipEntitlements' => $vipEntitlements,

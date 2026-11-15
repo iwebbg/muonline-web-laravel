@@ -37,6 +37,7 @@ final class MuDevsSeason21EventProfileTest extends TestCase
         $events = (new EventSchedule)->upcoming($definitions, new DateTimeImmutable('2026-11-14T00:00:00+02:00'));
 
         $this->assertSame([
+            'illusion-temple-classic', 'illusion-temple-renewal',
             'blood-castle', 'devil-square', 'chaos-castle', 'castle-deep',
             'moss-merchant', 'group-boss-battle', 'skeleton-king-invasion',
             'red-dragon-invasion', 'golden-invasion', 'white-wizard-invasion', 'medusa',
@@ -47,6 +48,27 @@ final class MuDevsSeason21EventProfileTest extends TestCase
         $this->assertCount(21, $events);
         $this->assertSame('group-boss-battle', $events[0]->key);
         $this->assertSame('2026-11-14T00:05:00+02:00', $events[0]->toClientArray()['occurrences'][0]);
+    }
+
+    /**
+     * Offers both source schedules to administrators while publishing only a confirmed enabled variant.
+     */
+    public function test_temple_variants_stay_disabled_until_an_operator_selects_one(): void
+    {
+        $definitions = collect(app(EventProfileReader::class)->definitions())->keyBy('key');
+        self::assertFalse($definitions['illusion-temple-classic']->enabled);
+        self::assertFalse($definitions['illusion-temple-renewal']->enabled);
+        EventScheduleEntry::query()->create([
+            'profile_key' => 'mudevs_season_21', 'game_version' => 'S21.1-2',
+            'event_key' => 'illusion-temple-classic', 'name_en' => 'Illusion Temple', 'location_en' => 'Illusion Temple',
+            'schedule_mode' => 'times', 'sort_order' => 0,
+            'enabled' => true, 'duration_minutes' => 15,
+            'times' => ['01:30', '05:30', '09:30', '13:30', '17:30', '21:30'],
+            'days_of_week' => [], 'days_of_month' => [], 'interval_minutes' => null,
+        ]);
+        $events = collect((new EventSchedule)->upcoming(app(EventProfileReader::class)->definitions(), new DateTimeImmutable('2026-11-14T00:00:00+02:00')))->keyBy('key');
+        self::assertSame('2026-11-14T01:30:00+02:00', $events['illusion-temple-classic']->nextOccurrence()->format(DATE_ATOM));
+        self::assertFalse($events->has('illusion-temple-renewal'));
     }
 
     /**
@@ -113,7 +135,7 @@ final class MuDevsSeason21EventProfileTest extends TestCase
         $definitions = app(EventProfileReader::class)->definitions();
         $events = collect((new EventSchedule)->upcoming($definitions, new DateTimeImmutable('2026-11-14T00:00:00+02:00')))->keyBy('key');
 
-        $this->assertCount(21, $definitions);
+        $this->assertCount(23, $definitions);
         $this->assertCount(20, $events);
         $this->assertFalse($events->has('blood-castle'));
         $this->assertTrue($events->has('devil-square'));

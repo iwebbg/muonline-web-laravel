@@ -17,9 +17,12 @@ final class MuDevsSeason21BattleCoreSqlReadTest extends TestCase
     public function test_account_snapshot_filters_other_realms_and_claimed_rewards_on_sql_server(): void
     {
         $database = $this->app->make(DatabaseManager::class);
-        $connection = $database->connection('game');
+        $admin = $database->connection('game');
+        $admin->statement('CREATE DATABASE [BattleCore_S21_Read_Test]');
         config()->set('database.connections.battle_core', config('database.connections.game'));
+        config()->set('database.connections.battle_core.database', 'BattleCore_S21_Read_Test');
         $database->purge('battle_core');
+        $connection = $database->connection('battle_core');
         config()->set('game.battle_core.reads_enabled', true);
         config()->set('game.battle_core.server_codes', [20]);
         $connection->unprepared(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-battle-core-read-schema.sql')));
@@ -44,8 +47,7 @@ final class MuDevsSeason21BattleCoreSqlReadTest extends TestCase
             self::assertSame(3, $connection->table('BattleCoreReward')->count());
         } finally {
             $database->purge('battle_core');
-            $connection->statement('DROP TABLE BattleCoreReward');
-            $connection->statement('DROP TABLE BattleCoreUser');
+            $admin->statement('DROP DATABASE [BattleCore_S21_Read_Test]');
         }
     }
 }

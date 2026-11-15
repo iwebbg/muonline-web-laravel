@@ -35,6 +35,9 @@ final class ModuleManager
     public function supports(ServerModule $module): bool
     {
         $capabilities = $this->versionProfile->capabilities();
+        if ($module === ServerModule::GameCurrencyExchange && ! $capabilities->gameCurrencyExchange) {
+            return false;
+        }
 
         if ($capabilities->availableModules === null) {
             return ! $capabilities->readOnly;
@@ -126,11 +129,13 @@ final class ModuleManager
     {
         $availableModules = $this->versionProfile->capabilities()->availableModules;
 
-        if ($availableModules === null) {
-            return $settings;
-        }
-
         $states = $settings->toArray();
+        if (! $this->versionProfile->capabilities()->gameCurrencyExchange) {
+            $states[ServerModule::GameCurrencyExchange->value] = false;
+        }
+        if ($availableModules === null) {
+            return new ModuleSettings($states);
+        }
 
         foreach (ServerModule::cases() as $module) {
             if (! in_array($module, $availableModules, true)) {

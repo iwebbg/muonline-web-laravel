@@ -7,6 +7,26 @@ return [
             'reference' => 'GameServer and GameServerCS DATA/GameServerInfo - Path.dat and Event.dat; Data/Event',
             'events' => [
                 [
+                    'key' => 'illusion-temple-classic',
+                    'name' => 'Illusion Temple — Classic',
+                    'location' => 'Illusion Temple',
+                    'accent' => 'violet',
+                    'enabled' => false,
+                    'duration_minutes' => 15,
+                    'times' => ['01:30', '05:30', '09:30', '13:30', '17:30', '21:30'],
+                    'source' => 'IllusionTemple.dat sections 0–1; disabled pending runtime variant confirmation; enable only the confirmed Temple variant',
+                ],
+                [
+                    'key' => 'illusion-temple-renewal',
+                    'name' => 'Illusion Temple — Renewal',
+                    'location' => 'Illusion Temple',
+                    'accent' => 'violet',
+                    'enabled' => false,
+                    'duration_minutes' => 15,
+                    'times' => ['00:00'],
+                    'source' => 'IllusionTempleRenewal/IllusionTempleRenewal.xml EventSchedule; disabled pending runtime variant confirmation; enable only the confirmed Temple variant',
+                ],
+                [
                     'key' => 'blood-castle',
                     'name' => 'Blood Castle',
                     'location' => 'Blood Castle',

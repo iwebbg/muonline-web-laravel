@@ -32,6 +32,9 @@ final readonly class GameVersionCapabilities
         public ?array $availableModules = null,
         public ?array $resetInventoryPolicies = null,
         public ?string $schemaExtensionResource = null,
+        public bool $gameCurrencyExchange = false,
+        public bool $accountVip = false,
+        public bool $journaledIdentityServices = false,
     ) {}
 
     /**

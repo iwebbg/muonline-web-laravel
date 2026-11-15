@@ -1,6 +1,6 @@
 # MUDevs Season 21 compatibility and implementation plan
 
-Status: read bundle selectable and active locally, 15 November 2026. Full S21
+Status: native website bundle selectable and active locally, 15 November 2026. Full S21
 support remains in development. The target is the owner-supplied MUDevs S21.1-2 distribution,
 including its standard inherited game systems, all playable class families and
 their advancements. A read-only panel is an intermediate milestone, not the
@@ -14,19 +14,23 @@ may be absent; verified dimensions and readable presentation are required.
 
 The native bundle exposes registration/recovery/security, inventory/vault reads,
 all six core character preview/action endpoints, Zen/Jewel Bank, Web Vault,
-Credits/Votes, Market/Auction, Shop, Mystery Boxes and Rewards. All 76 class forms
+Credits/Votes, Market/Auction, Shop, Mystery Boxes, Rewards, journaled rename/class
+changes, native account VIP purchases and Credits-to-game-currency exchange. All 76 class forms
 are represented. Game writes remain closed globally. The runtime game role now has the narrow
 permissions required by the reviewed account/core/item adapters. The latest completed economy checkpoint passes
-1094 isolated tests / 46933 assertions and all four profile smoke runs. Native SQL
-Server coverage now passes 29 tests / 168 assertions, including item receipts,
-serial allocation and both application-schema migrations.
+1133 isolated tests / 47250 assertions and all four profile smoke runs. Native SQL
+Server coverage passes 30 tests / 198 assertions, including native account purchases,
+identity services, restricted column grants and application-schema migrations. The
+legacy 1.0M SQL integration suite passes 10 tests / 51 assertions. Subsequent
+focused checks also cover unknown restored-offline activity and the updated doctor.
 
 Adapter availability is an explicit module/route allow-list combined with
 persisted operator switches. Administration includes native item grants, reviewed
 economy pages, events, character rules, moderation, module management, Game Masters
 and content. Journaled paid reset/point purchases now have native S21 routes.
-Unimplemented per-character VIP, rename and class-change routes remain gated
-rather than falling through to a legacy repository.
+The old per-character VIP endpoint remains unavailable on S21; account VIP has
+its own native purchase flow. Rename and class changes now use native receipts
+and reviewed identity references rather than the legacy repository.
 
 The native default and administrator stat limit are 65000. The application-owned
 reset_profiles.maximum_stat column was originally SQL Server SMALLINT; a new
@@ -95,11 +99,77 @@ this change does not certify Pentagram/Errtel, Muun, Artifact or wing-core
 transfers. Character portraits remain deferred; static item artwork is now
 available through the native-table export documented below.
 
+### Native identity, account VIP and currency exchange
+
+The private `account/game-services` page offers one-way Credits exchange for
+WCoin(C), WCoin(P), Goblin Points, Lucky Coins and character-owned Ruud. Each
+currency has a profile-scoped integer ratio, minimum/maximum pack count, enable
+switch and immutable administrator revision. Initial ratios are **1 Credit ->
+1 coin** for all five currencies; they are deployment defaults, not a claimed
+in-game conversion rule. Operators edit them under Economy -> Game coin exchange
+rates. For example, 3 Credits -> 10 WCoin(C) per unit means 5 units cost 15
+Credits and grant 50 coins. Website Credits remain usable by existing web modules;
+exchange is irreversible and adds to the game's actual native balance.
+
+Ruud grants capture CharacterIndex and recheck account ownership inside the
+native transaction. Account coins use CashShopData/LuckyCoin, initializing a
+missing native row atomically. Signed INT overflow is rejected. Connected,
+unknown-session and restored-offline activity block grants. No native coin
+purchase was executed against the running server during commissioning.
+
+Native VIP plans have an explicit AccountLevel 1–3, duration and Credits price.
+Legacy plans retain null native metadata and their existing character behavior.
+Native and legacy plan catalogs are filtered separately; administrators cannot
+edit or delete a plan across that boundary, and the legacy purchase action
+rejects native plans.
+A matching active tier extends its paid expiry; an expired membership starts
+from the database clock. Another active tier is rejected rather than discarding
+paid time. Dates retain native server wall time and smalldatetime bounds. No
+commercial VIP tier/price was invented or enabled locally: an economy manager
+must configure the desired account plans in VIP plan administration.
+
+`IWEB_S21_AccountPurchase` commits a native result or definitive rejection with
+its immutable key/account/payload hash. The application debit, captured offer
+and owned recovery history survive response loss, changed rates and disabled or
+archived offers. Uncertain failures remain pending without a speculative refund;
+receipt-backed rejection refunds once. Native receipts are SELECT/INSERT only.
+The private application migration and native bootstrap have been applied locally;
+`GAME_DB_READONLY=true`, `GAME_WRITES_ENABLED=false` and bootstrap=false remain.
+
+Paid rename updates all ten AccountCharacter name/index slots, GameIDC, indexed
+name caches and secondary social/party/guild references in one transaction. The
+reviewed graph contains 80 columns across 77 native tables, of which
+DeathExpRecovery is optional. The supplied SQL's final batch defines that table,
+but the running database omits it. Bootstrap skips its grants only when absent;
+rename preserves the same behavior and updates its name cache when present.
+Historical item/death/hunting/mail gift and inter-realm competition records keep
+their original identity. Battle Core main-database rows retain realm filters;
+the separate BattleCore database remains read-only. SQL Server application locks
+serialize case-insensitive name reservations, independently of native indexes.
+
+Class changes select a supported target stage no higher than the current stage,
+including fifth advancement. Equipment slots 0–11 and 236–238 must be empty;
+allocated Master, Enhancement and Ability core data must be reset in-game first.
+Ordinary skills are cleared with a binary-safe native update; level, stats,
+points, quests and advanced counters are retained. Party class caches and skin
+presentation are updated. Both identity actions require available Battle Core
+reads, no active/unknown registration and no unclaimed rewards. The dashboard
+can replay pending rename/class purchases using the original name and key.
+
+Identity grants update only reviewed name/presentation columns, keeping special
+item payloads protected. `game:doctor` understands column grants and optional
+objects; the running database passes read-only schema/role/permission diagnostics.
+Disposable SQL tests exercise all five grants, VIP extension/replay, name locks,
+class writes, immutable receipts, optional-table absence and lossless migrations.
+The account dashboard and native-service page return HTTP 200 against local data.
+In-game balance/identity/skill behavior remains the final owner-led acceptance test.
+
 ### Native account membership and Gens verification
 
 The private dashboard now displays account-wide native membership from
 MEMB_INFO.AccountLevel/AccountExpireDate. This is independent of character VIP
-purchases and does not enable the website VIP purchase module. Numeric VIP tiers
+purchases. The subsequent native account-purchase stage below enables a separate
+website VIP module without creating character entitlements. Numeric VIP tiers
 retain their native value rather than inventing Silver/Gold/Platinum labels.
 Standard, active, expired and incomplete states are represented; the expiry
 label explicitly retains game-server time without assuming the Windows SQL
@@ -136,7 +206,8 @@ Native reset and LevelUpPoints purchases now use a separate S21 implementation,
 not the shared legacy mutation repository. Public package validation, operator
 Credits prices and immutable application settings snapshots remain in the existing
 payment action. The S21 boundary requires a stable operation identity; direct
-unjournaled purchase methods reject calls. Rename and class change remain disabled.
+unjournaled purchase methods reject calls. Rename and class change now share the
+native journal through the identity stage described below.
 
 IWEB_S21_CharacterOperation stores the account, payload hash, before/after result
 or definitive rejection, and timestamp. The account status lock serializes native
@@ -596,15 +667,16 @@ daily countdowns:
 | Systems | Current disposition / next requirement |
 | --- | --- |
 | Acheron Guardian / Crywolf | Crywolf first-phase anchors are scheduled on ISO Wednesday/Saturday. Acheron timings are listed as entry information; activation remains a client check. |
-| Illusion Temple / renewal / League | Resolve the selected variant; League XML disables it despite the global switch. |
+| Illusion Temple / renewal / League | Both source schedules are available as disabled administrator definitions. Classic starts 01:30/05:30/09:30/13:30/17:30/21:30; Renewal starts 00:00; both last 15 minutes. Enable only the runtime-confirmed mode. League XML explicitly disables League despite the host switch. |
 | Castle Siege, Arca Battle, Chaos Castle Survival, Tormented Square / Battle Core | Castle Siege uses its database cycle. Arca and Battle use exact anchors; monthly tournament stages are implemented. Live result/state dependencies and distinct runtime phase interpretation still need commissioning. |
 | Doppelganger renewal, Imperial Guardian renewal, Labyrinth | Doppelganger has an explicit daily start. Imperial Guardian and Labyrinth have entry-information cards without recurring timers. Private progression is separate from entry information. |
 | Kanturu, Raklion and world bosses | Read native states or verify respawn semantics before publishing an exact next occurrence. |
 | Evolution Monster, seasonal invasions/minigames, anniversary, Battle/Season Pass and Play Time | Verify activation periods, triggers and private ownership/reward state. Invasion IDs 4–7 and 9–10 remain excluded pending this review, not relabeled as custom events. |
 
 Custom-event files remain outside this standard profile. Tests exercise the
-21 definitions through the normal reader/calculator, irregular times, midnight
-rollover, active-host duration and isolated persisted overrides without reading
+21 active definitions and two disabled Temple candidates through the normal
+reader/calculator, irregular times, midnight rollover, active-host duration and
+isolated persisted overrides without reading
 or writing the live game database.
 
 ## Items, equipment and storage
@@ -742,10 +814,10 @@ exchange signature that has no fields to price those options.
 
 Public/private economy pages and eight administration pages render with S21
 bindings. Persisted paid-character-service flags are filtered by route support;
-unfinished native rename/class/purchased-progression endpoints cannot become
-visible through a saved setting. This filter leaves legacy profiles unrestricted.
-Native VIP remains gated because the source grants account-wide AccountLevel /
-AccountExpireDate, not the existing per-character entitlement model.
+only reviewed native endpoints can become visible through a saved setting. This
+filter leaves legacy profiles unrestricted. Native VIP now has its own
+account-scoped AccountLevel / AccountExpireDate purchase boundary; the old
+per-character entitlement endpoint remains unavailable.
 
 ### Client-matched warehouse commissioning
 
@@ -1018,11 +1090,11 @@ does not remove the system from the completion backlog.
 | Authentication | `MEMB_INFO`, JoinServer `MD5Encryption=0`, password column varchar(10) | Verify deployed mode and case/length behavior; implement matching registration, activation and recovery. |
 | Account/character identity | `AccountCharacter.AccountIndex`, `Character.CharacterIndex`, ten named slots and index columns | Use verified ownership joins and update both representations where required. |
 | Online sessions | `MEMB_STAT` | Enforce offline conditions inside every write and distinguish offline helper/shop states if applicable. |
-| VIP | AccountLevel and AccountExpireDate | Account-scoped entitlement; extend product contracts deliberately rather than writing it as character VIP. |
+| VIP | AccountLevel and AccountExpireDate | Native account purchase/replay implemented; explicit tier/duration/price plans, clock and date limits verified. In-game acceptance remains. |
 | Zen, Ruud, cash points and Lucky Coin | Character Money/RuudMoney, warehouse Money, CashShopData, LuckyCoin | Separate game balances from web Credits; read privately, add audited writes only for explicit supported workflows. |
 | Gens | `Gens_Rank`, `Gens_Left`, `Gens_Reward` | Family/contribution/rank and eligibility semantics verified independently of S6. |
 | Reset, grand reset, stats and PK | Native counters/stats, `EnhanceResetCount`, ResetTable/PkSystem | Preview and transactional execution with explicit progression preservation policies. |
-| Rename/class change | Indexed and name-based references throughout game schema | Enumerate all affected records, including quests, pets, social/event and specialized equipment state. |
+| Rename/class change | Indexed and name-based references throughout game schema | Journaled native actions, reviewed reference graph, advancement/skill/equipment guards and pending recovery implemented. In-game acceptance remains. |
 | Quest progress, hunting and Monster Soul Converter | Quest/MuQuest/QuestGuide config, `MuQuestInfo`, `QuestWorld`, `T_HuntingRecord*`, `MonsterSoulConverter*` | Read verified progress privately and preserve it during services. |
 | Web economy | Existing shop/reward/bank/market/auction actions | Bind S21 repositories, capabilities and item rules; test idempotency, exact custody, full-storage recovery and concurrency. |
 

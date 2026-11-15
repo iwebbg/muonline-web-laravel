@@ -136,6 +136,11 @@
                     <a href="{{ route('admin.credit-payments.index') }}" class="admin-nav-link {{ $active === 'credit-payments' ? 'admin-nav-link-active' : '' }}">
                         <span>◷</span>{{ __('ui.admin.credit_purchase_history_nav') }}
                     </a>
+                    @if ($gameCapabilities->gameCurrencyExchange)
+                        <a href="{{ route('admin.game-currency-rates.index') }}" class="admin-nav-link {{ request()->routeIs('admin.game-currency-rates.*') ? 'admin-nav-link-active' : '' }}">
+                            <span>⇄</span>{{ __('ui.native_services.exchange_heading') }}
+                        </a>
+                    @endif
                     <a href="{{ route('admin.vip-plans.index') }}" class="admin-nav-link {{ $active === 'vip-plans' ? 'admin-nav-link-active' : '' }}">
                         <span>◆</span>{{ __('ui.admin.vip_plans_nav') }}
                     </a>

@@ -458,6 +458,14 @@ final readonly class ExecuteCharacterService
     private function applyOperation(CharacterServiceOperation $operation): CharacterServiceResult
     {
         if ($this->characterServiceRepository instanceof JournaledCharacterServiceRepository) {
+            $key = 'character-service:'.$operation->idempotency_key;
+            if ($operation->service_type === CharacterServiceType::Rename) {
+                return $this->characterServiceRepository->renameForOperation($operation->account_id, $operation->character_name, (string) $operation->requested_name, $key);
+            }
+            if ($operation->service_type === CharacterServiceType::ClassChange) {
+                return $this->characterServiceRepository->changeClassForOperation($operation->account_id, $operation->character_name, (int) $operation->target_class_code, $key);
+            }
+
             return $this->characterServiceRepository->applyPurchaseForOperation(
                 accountId: $operation->account_id,
                 characterName: $operation->character_name,
@@ -466,7 +474,7 @@ final readonly class ExecuteCharacterService
                 policy: $operation->service_type === CharacterServiceType::ResetPurchase
                     ? PurchasedResetPolicy::fromSnapshot((array) $operation->settings_snapshot['purchased_reset_policy'])
                     : null,
-                operationKey: 'character-service:'.$operation->idempotency_key,
+                operationKey: $key,
             );
         }
 

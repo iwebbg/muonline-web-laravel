@@ -97,6 +97,10 @@ final class UpdateModuleProfileRequest extends FormRequest
                     );
                 }
 
+                if ($this->boolean('modules.'.ServerModule::GameCurrencyExchange->value) && ! $creditsEnabled) {
+                    $validator->errors()->add('modules.'.ServerModule::Credits->value, __('ui.native_services.errors.module_disabled'));
+                }
+
                 if (($webShopEnabled || $mysteryBoxesEnabled) && ! $creditsEnabled) {
                     $validator->errors()->add(
                         'modules.'.ServerModule::Credits->value,

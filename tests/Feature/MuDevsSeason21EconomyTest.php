@@ -214,9 +214,9 @@ final class MuDevsSeason21EconomyTest extends TestCase
     }
 
     /**
-     * Keeps unreviewed identity services hidden while exposing journaled native progression purchases.
+     * Exposes journaled native identity and progression purchases.
      */
-    public function test_paid_character_services_stay_hidden_when_the_native_route_is_unavailable(): void
+    public function test_reviewed_paid_character_services_are_available(): void
     {
         $this->seedAccount('owner', 1);
         EconomySetting::factory()->create([
@@ -226,8 +226,8 @@ final class MuDevsSeason21EconomyTest extends TestCase
         ]);
         $settings = $this->app->make(EconomySettingReader::class)->current();
 
-        self::assertFalse($settings->characterRenameEnabled);
-        self::assertFalse($settings->characterClassChangeEnabled);
+        self::assertTrue($settings->characterRenameEnabled);
+        self::assertTrue($settings->characterClassChangeEnabled);
         self::assertTrue($settings->characterResetPurchaseEnabled);
         self::assertTrue($settings->characterLevelUpPointsPurchaseEnabled);
         self::assertTrue($settings->itemExchangeEnabled);

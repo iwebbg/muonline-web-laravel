@@ -190,7 +190,7 @@ final class MuDevsSeason21WebsiteTest extends TestCase
         ]);
         $this->app->make(ModuleManager::class)->forget();
 
-        $this->assertFalse($this->app->make(ModuleManager::class)->enabled(ServerModule::Vip));
+        $this->assertTrue($this->app->make(ModuleManager::class)->enabled(ServerModule::Vip));
         $this->assertFalse($this->app->make(ModuleManager::class)->enabled(ServerModule::Market));
         $this->assertFalse($this->app->make(ModuleManager::class)->enabled(ServerModule::Registration));
         $this->assertTrue($this->app->make(ModuleManager::class)->enabled(ServerModule::AccountSecurity));
@@ -228,7 +228,7 @@ final class MuDevsSeason21WebsiteTest extends TestCase
 
         foreach (ServerModule::cases() as $module) {
             $this->assertSame(
-                $module !== ServerModule::Vip,
+                true,
                 $this->app->make(ModuleManager::class)->enabled($module),
             );
         }

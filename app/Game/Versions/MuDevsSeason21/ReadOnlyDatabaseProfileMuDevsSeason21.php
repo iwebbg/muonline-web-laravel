@@ -16,7 +16,7 @@ final class ReadOnlyDatabaseProfileMuDevsSeason21 implements GameDatabaseProfile
      */
     public function requiredDatabaseSchema(): array
     {
-        return [
+        $schema = [
             'MEMB_INFO' => ['memb___id', 'memb__pwd', 'memb_guid', 'memb_name', 'sno__numb', 'mail_addr', 'bloc_code', 'ctl1_code', 'AccountLevel', 'AccountExpireDate'],
             'MEMB_STAT' => ['memb___id', 'ConnectStat', 'ConnectTM', 'DisConnectTM', 'OnlineHours'],
             'AccountCharacter' => ['Id', 'AccountIndex', 'ExtWarehouse', 'GameID1', 'CharacterIndex_1'],
@@ -45,9 +45,21 @@ final class ReadOnlyDatabaseProfileMuDevsSeason21 implements GameDatabaseProfile
             'GremoryCase' => ['Account', 'Name', 'AccountIndex', 'CharacterIndex', 'ItemInfo', 'ExpireDate'],
             'ArtifactSystem' => ['Name', 'CharacterIndex', 'GroupIndex', 'Slot', 'ItemInfo'],
             'WingCoreItem' => ['coreSerial', 'lastCharacterIndex', 'itemInfo'],
+            'IWEB_S21_AccountPurchase' => ['OperationKey', 'AccountID', 'PayloadHash', 'ResultJson', 'AppliedAt'],
             'IWEB_S21_CharacterOperation' => ['OperationKey', 'AccountID', 'PayloadHash', 'ResultJson', 'AppliedAt'],
             'IWEB_S21_ItemOperation' => ['OperationKey', 'Direction', 'AccountID', 'PayloadHash', 'AppliedAt'],
         ];
+        foreach (CharacterIdentityMuDevsSeason21::requiredSchema() as $table => $columns) {
+            $schema[$table] = array_values(array_unique(array_merge($schema[$table] ?? [], $columns)));
+        }
+        for ($slot = 1; $slot <= 10; $slot++) {
+            $schema['AccountCharacter'][] = 'GameID'.$slot;
+            $schema['AccountCharacter'][] = 'CharacterIndex_'.$slot;
+        }
+        $schema['AccountCharacter'][] = 'GameIDC';
+        $schema['AccountCharacter'] = array_values(array_unique($schema['AccountCharacter']));
+
+        return $schema;
     }
 
     /**

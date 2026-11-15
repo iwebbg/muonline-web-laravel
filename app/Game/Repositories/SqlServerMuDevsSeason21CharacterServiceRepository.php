@@ -10,6 +10,7 @@ use App\CharacterServices\PurchasedResetPolicy;
 use App\Game\Contracts\JournaledCharacterServiceRepository;
 use App\Game\GameAccountWriteStatus;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Game\Versions\MuDevsSeason21\CharacterIdentityMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\CharacterServiceJournalMuDevsSeason21;
 use App\Reset\InventoryPolicy;
 use Illuminate\Database\Connection;
@@ -19,7 +20,7 @@ use LogicException;
 use stdClass;
 
 /**
- * Applies only journaled S21 reset and point purchases while preserving all dependent game state.
+ * Applies journaled native S21 identity and progression services through reviewed boundaries.
  */
 final readonly class SqlServerMuDevsSeason21CharacterServiceRepository implements JournaledCharacterServiceRepository
 {
@@ -32,6 +33,7 @@ final readonly class SqlServerMuDevsSeason21CharacterServiceRepository implement
         private DatabaseManager $database,
         private GameVersionProfile $versionProfile,
         private CharacterServiceJournalMuDevsSeason21 $journal,
+        private ?CharacterIdentityMuDevsSeason21 $identity = null,
     ) {}
 
     /**
@@ -39,7 +41,7 @@ final readonly class SqlServerMuDevsSeason21CharacterServiceRepository implement
      */
     public function rename(string $accountId, string $currentName, string $newName): CharacterServiceResult
     {
-        throw new CharacterServiceRejected(CharacterServiceBlockReason::ServiceDisabled);
+        throw new LogicException('Native S21 identity changes require an operation identity.');
     }
 
     /**
@@ -47,7 +49,41 @@ final readonly class SqlServerMuDevsSeason21CharacterServiceRepository implement
      */
     public function changeClass(string $accountId, string $characterName, int $targetClassCode): CharacterServiceResult
     {
-        throw new CharacterServiceRejected(CharacterServiceBlockReason::ServiceDisabled);
+        throw new LogicException('Native S21 identity changes require an operation identity.');
+    }
+
+    /**
+     * Journals the complete native rename and its stable-index reference updates.
+     */
+    public function renameForOperation(string $accountId, string $oldName, string $newName, string $operationKey): CharacterServiceResult
+    {
+        $connection = $this->database->connection('game');
+        $hash = hash('sha256', json_encode(['rename', $accountId, $oldName, $newName], JSON_THROW_ON_ERROR));
+
+        return $this->journal->run($connection, $operationKey, $accountId, $hash, function () use ($connection, $accountId, $oldName, $newName): CharacterServiceResult {
+            if ($this->identity === null) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::IdentityDependencyUnavailable);
+            }
+
+            return $this->identity->rename($connection, $accountId, $oldName, $newName);
+        });
+    }
+
+    /**
+     * Journals a class change while retaining the original exact result for replay.
+     */
+    public function changeClassForOperation(string $accountId, string $characterName, int $targetCode, string $operationKey): CharacterServiceResult
+    {
+        $connection = $this->database->connection('game');
+        $hash = hash('sha256', json_encode(['class_change', $accountId, $characterName, $targetCode], JSON_THROW_ON_ERROR));
+
+        return $this->journal->run($connection, $operationKey, $accountId, $hash, function () use ($connection, $accountId, $characterName, $targetCode): CharacterServiceResult {
+            if ($this->identity === null) {
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::IdentityDependencyUnavailable);
+            }
+
+            return $this->identity->changeClass($connection, $accountId, $characterName, $targetCode);
+        });
     }
 
     /**
