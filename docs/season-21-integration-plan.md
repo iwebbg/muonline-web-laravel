@@ -16,7 +16,8 @@ The native bundle exposes registration/recovery/security, inventory/vault reads,
 all six core character preview/action endpoints, Zen/Jewel Bank, Web Vault,
 Credits/Votes, Market/Auction, Shop, Mystery Boxes, Rewards, journaled rename/class
 changes, native account VIP purchases and Credits-to-game-currency exchange. All 76 class forms
-are represented. Game writes remain closed globally. The runtime game role now has the narrow
+are represented. The owner has enabled local game writes for supervised client
+acceptance checks; this is not a production commissioning approval. The runtime game role now has the narrow
 permissions required by the reviewed account/core/item adapters. The latest completed economy checkpoint passes
 1133 isolated tests / 47250 assertions and all four profile smoke runs. Native SQL
 Server coverage passes 30 tests / 198 assertions, including native account purchases,
@@ -101,6 +102,32 @@ transfers. All 16 character families now use the owner-generated 1024×1536 port
 advancement. The previous portraits and source-specific crop offsets have been
 removed. Static item artwork is available through the native-table export
 documented below.
+
+### Owner-confirmed Web Vault round trip
+
+On 15 November 2026 the owner transferred Excellent Kris +9 from native vault 0,
+slot 109 into Web Vault, then withdrew it and confirmed its unchanged tooltip in
+the running client. The original serial is 0000000A and the SHA-256 fingerprint
+is 522ce95b2f90de9007fd724e4ca2e4769e8bd48598dffd80e24c503ea27d8cbf.
+
+Read-only checks confirmed one available web record after extraction, an empty
+source slot and no matching item remaining in the visible game vaults. Withdrawal
+completed with one exact copy at vault 0, slot 4, status Withdrawn and a released
+escrow key. Both directions have one native receipt, with no synchronization
+error. All original 25 bytes matched; +9, Luck, Additional Damage +28, all six
+excellent options and durability 255 were retained. The owner then logged in and
+confirmed the same item in the game client. This certifies this ordinary excellent
+item round trip; special-dependency and full-storage cases remain separate.
+The owner also completed a second round trip with Flameberge, native serial
+00000021, initially and finally in vault 0, slot 2. All original 25 bytes matched
+and exactly one game copy remained. Filled socket bytes [0,29,16,255,255] and
+bonus byte 0 were retained. The final client screenshot confirms Level 1 Fire
++1.1, Lightning excellent damage +15, Ice life-on-kill +250 and Bonus Attack +11.
+One extraction and one deposit receipt exist, the web record is Withdrawn and
+its escrow reservation is released. This confirms this three-seed/bonus fixture;
+other seed levels, special dependencies and full-storage recovery remain separate.
+
+The local baselines are stored privately under storage/app/private/s21-live-checks.
 
 ### Native identity, account VIP and currency exchange
 
