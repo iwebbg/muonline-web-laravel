@@ -17,7 +17,7 @@ all six core character preview/action endpoints, Zen/Jewel Bank, Web Vault,
 Credits/Votes, Market/Auction, Shop, Mystery Boxes and Rewards. All 76 class forms
 are represented. Game writes remain closed globally. The runtime game role now has the narrow
 permissions required by the reviewed account/core/item adapters. The latest completed economy checkpoint passes
-1092 isolated tests / 20025 assertions and all four profile smoke runs. Native SQL
+1094 isolated tests / 46933 assertions and all four profile smoke runs. Native SQL
 Server coverage now passes 29 tests / 168 assertions, including item receipts,
 serial allocation and both application-schema migrations.
 
@@ -92,7 +92,8 @@ strict decoding, rejection without a custody receipt and special equipment
 presentation. Full-suite/profile and native SQL checks pass. Real special-item
 fixtures remain required for extended identities and dependent-table custody;
 this change does not certify Pentagram/Errtel, Muun, Artifact or wing-core
-transfers. Artwork extraction and new character portraits remain deferred.
+transfers. Character portraits remain deferred; static item artwork is now
+available through the native-table export documented below.
 
 ### Native account membership and Gens verification
 
@@ -827,15 +828,55 @@ coverage verifies the shared flag survives loading and exact re-encoding.
 
 ### Client item artwork
 
-The owner supplied the matching S21 client for inspection; artwork extraction
-is now deferred until the website adapter is complete. The current server pack and legacy client-source samples are not
-a substitute for that client's models/textures. Check for ready-made icons
-first; otherwise map native item identities to models and textures, render
-consistent transparent PNG/WebP previews, and attach verified paths to the
-native catalog while preserving source rectangles and the shared fallback.
-Compatibility with the actual S21 model/texture formats must be tested on a few
-known items before claiming a complete export. Only the two pilot icons
-described below have been imported; no bulk export is part of the current work.
+The matching supplied client now provides static artwork for 4,688 of the 4,701
+native catalog identities, using 2,690 distinct BMD models. Runtime artwork paths
+are in `item-images.json`; source table/model/texture/output hashes, exact item
+mapping, export limits and missing resources are in `item-image-provenance.json`.
+The images are transparent WebP, cropped to a maximum dimension of 256 pixels;
+source item grid rectangles remain unchanged. Total new image payload is
+42,303,324 bytes. The original two pilot PNGs remain available for existing
+persisted snapshots.
+
+The authoritative mapping is the client's `Data/Local/Eng/Item.bmd`: 4,727 records,
+708 bytes per record, XOR FC/CF/AB reset per record, packed identity at offsets
+0/4, model folder at 8, model filename at 268, and English name at 528. Every
+one of the server catalog's 4,701 codes and names matches exactly. No filename
+index arithmetic or legacy adapter mappings are used to assign artwork.
+
+All 2,690 referenced available models parsed successfully, including BMD versions
+10, 12, 14 and 15. The offline decoder uses the public xulek BMD viewer cipher
+implementations (FileCryptor, LEA and ModulusCryptor); no client executables were
+run and no application dependencies were added. Models are rendered at action 0,
+frame 0 using their bone hierarchy and matching OZJ/OZT textures. JPEG wrapper
+headers are removed before decoding. Border-black texture backgrounds and black
+additive effect backgrounds become transparent. The output represents static
+base artwork; exact game lighting, +level glow, option tint and animation remain
+outside scope. Several native item identities intentionally share one client
+model and one output image.
+
+Thirteen catalog identities keep null artwork and the shared fallback: seven
+client records explicitly use Empty/Empty, while six Muun model files referenced
+by the table are absent from this supplied client. The Blue Eye Summoner Helm
+(7:167) is rendered with its available helmet textures; the client lacks its
+secondary HQSkinClass406_hair.tga texture. These limits are recorded explicitly
+in provenance rather than substituted with unrelated graphics.
+
+The local extraction tools are retained outside Git at
+`storage/app/private/s21-item-artwork/extraction-tools.tar.gz`; the reviewed
+contact sheet is `storage/app/private/s21-item-artwork/preview.jpg`. Extract the
+tool archive into /tmp, then run prepare-jobs.py, bulk-parse.mjs,
+prepare-textures.py, export-images.py, publish-export.py and contact-sheet.py
+in that order. They target the documented local client/workspace paths and use
+Node 24 plus the existing Python Pillow installation. Raw models and textures
+remain outside the repository.
+
+Validation: 1,094 isolated tests / 46,933 assertions and all four profile smoke
+runs pass; S21 SQL integration passes 29 tests / 168 assertions. Every exported
+image is checked for dimensions, MIME and output SHA-256. Account storage and
+admin inspection tests assert the new paths while preserving source geometry.
+Nginx serves extracted WebP with HTTP 200. Read-only live commissioning resolves
+artwork for all nine currently visible account items. Old adapter catalogs and
+images are unchanged; game data was not mutated.
 
 | Item | Native code | Level | Rectangle | Matched option evidence |
 | --- | --- | --- | --- | --- |
@@ -955,8 +996,8 @@ Required shared changes identified in the existing implementation:
   Armor (8:29), preserving their 1x4 and 2x3 source geometry. Only these matched
   identities are assigned in the native catalog. The bundled
   `item-image-provenance.json` records model/texture hashes and static-rendering
-  limits. Cyclone Sword mapping, v14 models and bulk extraction remain
-  unverified; use the shared fallback elsewhere. Per owner direction, the web
+  limits. This historical two-icon pilot has now been superseded by the
+  native-table bulk export described above, including Cyclone Sword and v14 models. Per owner direction, the web
   needs recognizable static icons as in existing versions. Exact 3D fidelity,
   animated effects, +level glow and option-dependent colors are outside the
   artwork scope; models are only an offline source for PNG generation.

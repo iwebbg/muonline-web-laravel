@@ -17,10 +17,7 @@ final class ItemCatalogMuDevsSeason21Test extends TestCase
     public function test_loads_all_source_items_without_inventing_artwork(): void
     {
         $definitions = $this->catalog()->allDefinitions();
-        $verifiedImages = [
-            '0:26' => '/images/items/mudevs_season_21/flameberge.png',
-            '8:29' => '/images/items/mudevs_season_21/dragon-knight-armor.png',
-        ];
+        $verifiedImages = json_decode(file_get_contents(__DIR__.'/../../resources/game/mudevs_season_21/item-images.json'), true, flags: JSON_THROW_ON_ERROR);
 
         self::assertCount(4701, $definitions);
         self::assertCount(20, array_unique(array_column($definitions, 'group')));
@@ -28,6 +25,44 @@ final class ItemCatalogMuDevsSeason21Test extends TestCase
             self::assertGreaterThan(0, $definition->width);
             self::assertGreaterThan(0, $definition->height);
             self::assertSame($verifiedImages[$definition->code()] ?? null, $definition->image);
+        }
+    }
+
+    /**
+     * Assigns exact native model artwork and keeps absent client models on the shared fallback.
+     */
+    public function test_client_artwork_preserves_native_item_identity_and_missing_model_fallback(): void
+    {
+        $catalog = $this->catalog();
+
+        self::assertSame('/images/items/mudevs_season_21/91cec7afd2cbe354.webp', $catalog->definitionFor(0, 0)->image);
+        self::assertSame('/images/items/mudevs_season_21/31f919cf464e3d75.webp', $catalog->definitionFor(7, 270)->image);
+        self::assertNull($catalog->definitionFor(13, 20)->image);
+        self::assertNull($catalog->definitionFor(16, 284)->image);
+    }
+
+    /**
+     * Verifies shipped artwork decodes within the export limits and matches its provenance hashes.
+     */
+    public function test_every_exported_model_has_a_valid_version_scoped_image_and_integrity_hash(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $provenance = json_decode(file_get_contents($root.'/resources/game/mudevs_season_21/item-image-provenance.json'), true, flags: JSON_THROW_ON_ERROR);
+
+        self::assertSame(4701, $provenance['catalogItemCount']);
+        self::assertSame(4688, count($provenance['items']));
+        self::assertCount(13, $provenance['missingItems']);
+        foreach ($provenance['models'] as $model) {
+            self::assertMatchesRegularExpression('~\A/images/items/mudevs_season_21/[a-f0-9]{16}\.webp\z~', $model['image']);
+            $file = $root.'/public'.$model['image'];
+            self::assertFileExists($file);
+            self::assertSame($model['outputSha256'], hash_file('sha256', $file));
+            $image = getimagesize($file);
+            self::assertSame('image/webp', $image['mime']);
+            self::assertGreaterThan(0, $image[0]);
+            self::assertGreaterThan(0, $image[1]);
+            self::assertLessThanOrEqual(256, $image[0]);
+            self::assertLessThanOrEqual(256, $image[1]);
         }
     }
 

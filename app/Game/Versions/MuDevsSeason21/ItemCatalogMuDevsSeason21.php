@@ -14,7 +14,7 @@ use RuntimeException;
 final class ItemCatalogMuDevsSeason21
 {
     /**
-     * Assigns only artwork matched to the supplied client's models and textures.
+     * Retains the initial pilot artwork for installations without the optional bulk manifest.
      *
      * Source hashes and rendering limits are recorded in the bundled
      * item-image-provenance.json. Other identities retain the shared fallback.
@@ -237,6 +237,44 @@ final class ItemCatalogMuDevsSeason21
     }
 
     /**
+     * Loads only version-scoped static artwork extracted from the matching client item table.
+     *
+     * The optional manifest retains the original two pilot paths if absent. An
+     * unresolved image still uses the shared image component's runtime fallback.
+     *
+     * @return array<string, string>
+     *
+     * @throws RuntimeException When the bundled artwork manifest is malformed.
+     */
+    private function artworkPaths(string $catalogPath): array
+    {
+        $path = dirname($catalogPath).'/item-images.json';
+        if (! is_readable($path)) {
+            return self::VERIFIED_ITEM_IMAGES;
+        }
+        $contents = file_get_contents($path);
+        if ($contents === false) {
+            throw new RuntimeException('The MUDevs S21 artwork manifest could not be read.');
+        }
+        try {
+            $images = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException $exception) {
+            throw new RuntimeException('The MUDevs S21 artwork manifest contains invalid JSON.', previous: $exception);
+        }
+        if (! is_array($images) || array_is_list($images)) {
+            throw new RuntimeException('The MUDevs S21 artwork manifest must contain an identity-keyed object.');
+        }
+        foreach ($images as $code => $image) {
+            if (! is_string($code) || preg_match('/\A[0-9]+:[0-9]+\z/', $code) !== 1
+                || ! is_string($image) || preg_match('~\A/images/items/mudevs_season_21/[a-z0-9-]+\.(?:webp|png)\z~', $image) !== 1) {
+                throw new RuntimeException('The MUDevs S21 artwork manifest contains an invalid image reference.');
+            }
+        }
+
+        return array_replace(self::VERIFIED_ITEM_IMAGES, $images);
+    }
+
+    /**
      * Validates the bundled native metadata before caching it for this instance.
      *
      * @return array<string, ItemMetadataMuDevsSeason21>
@@ -267,6 +305,7 @@ final class ItemCatalogMuDevsSeason21
         }
 
         $definitions = [];
+        $images = $this->artworkPaths($path);
 
         foreach ($records as $code => $attributes) {
             if (! is_string($code) || ! preg_match('/^(\d+):(\d+)$/D', $code, $identity) || ! is_array($attributes)) {
@@ -297,7 +336,7 @@ final class ItemCatalogMuDevsSeason21
                 height: (int) $attributes['Height'],
                 equipmentSlot: (int) $attributes['Slot'],
                 sourceAttributes: $attributes,
-                image: self::VERIFIED_ITEM_IMAGES[$code] ?? null,
+                image: $images[$code] ?? null,
             );
 
             if ($definition->code() !== $code || trim($definition->name) === ''

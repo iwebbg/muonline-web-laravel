@@ -60,6 +60,7 @@ class MuDevsSeason21ItemStorageTest extends TestCase
             ->assertJsonCount(1, 'storage.character.inventory')
             ->assertJsonPath('storage.character.inventory.0.slot', 70)
             ->assertJsonPath('storage.character.inventory.0.name', 'Flameberge')
+            ->assertJsonPath('storage.character.inventory.0.image', '/images/items/mudevs_season_21/39d586ec2db87e0d.webp')
             ->assertJsonPath('storage.character.inventory.0.height', 4)
             ->assertJsonCount(1, 'storage.warehouse.vaults.0.items')
             ->assertJsonPath('storage.warehouse.vaults.1.number', 2)
