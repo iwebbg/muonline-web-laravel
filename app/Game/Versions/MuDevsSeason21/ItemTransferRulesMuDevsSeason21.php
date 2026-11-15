@@ -2,7 +2,6 @@
 
 namespace App\Game\Versions\MuDevsSeason21;
 
-use App\Game\Data\ItemSlot;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use InvalidArgumentException;
@@ -16,53 +15,60 @@ final readonly class ItemTransferRulesMuDevsSeason21
     private const STANDARD_JEWELS = ['12:15', '14:13', '14:14', '14:16', '14:22'];
 
     /**
-     * Uses native source flags and complete records before permitting custody changes.
+     * Uses the native decoder independently of the shared display bridge.
      */
-    public function __construct(
-        private ItemCodecAdapterMuDevsSeason21 $codec,
-        private ItemCatalogMuDevsSeason21 $catalog,
-    ) {}
+    public function __construct(private ItemCodecMuDevsSeason21 $codec) {}
 
     /**
-     * Rejects special-item dependencies, unknown extensions and non-tradable records.
+     * Rejects special dependencies and returns verified native geometry for one custody record.
      *
-     * Pentagrams, earrings, wings, Muun and artifacts require separate persistence
-     * adapters. Retaining their main item bytes alone cannot transfer their state.
-     *
-     * @throws MarketListingRejected When the item is not a commissioned ordinary item.
+     * @throws MarketListingRejected When the record cannot be transferred with its bytes alone.
      */
-    public function assertTransferable(string $binary): ItemSlot
+    public function assertTransferable(string $binary): ItemMetadataMuDevsSeason21
     {
         try {
-            $item = $this->codec->decode($binary, 1)[0];
+            $record = $this->codec->decode($binary, 1)[0];
         } catch (InvalidArgumentException) {
             throw new MarketListingRejected(MarketListingBlockReason::UnsupportedItem);
         }
 
-        if ($item->isEmpty()) {
+        if (! $this->allowsTransfer($record)) {
             throw new MarketListingRejected(MarketListingBlockReason::UnsupportedItem);
         }
 
-        $metadata = $this->catalog->definitionFor($item->group, $item->index);
-        $flags = $metadata?->sourceAttributes ?? [];
-        $isEquipment = $metadata !== null && $item->group <= 11
+        return $record->metadata;
+    }
+
+    /**
+     * Checks native flags without reconstructing bytes or resolving display services.
+     *
+     * Pentagrams, earrings, wings, Muun and artifacts need separate persistence;
+     * their main record alone does not establish complete custody.
+     */
+    public function allowsTransfer(ItemRecordMuDevsSeason21 $record): bool
+    {
+        $metadata = $record->metadata;
+
+        if ($record->isEmpty || $metadata === null) {
+            return false;
+        }
+
+        $flags = $metadata->sourceAttributes;
+        $isEquipment = $record->group <= 11
             && $metadata->equipmentSlot >= 0 && $metadata->equipmentSlot <= 11;
-        $isStandardJewel = in_array($item->code(), self::STANDARD_JEWELS, true)
-            && $item->level === 0 && $item->durability >= 1
-            && $item->durability <= (int) ($flags['ItemOverlap'] ?? 0)
-            && ! $item->hasSkill && ! $item->hasLuck
-            && $item->optionLevel === 0 && $item->excellentMask === 0 && $item->ancientOption === 0;
+        $isStandardJewel = in_array($record->code(), self::STANDARD_JEWELS, true)
+            && $record->level === 0 && $record->durability >= 1
+            && $record->durability <= (int) ($flags['ItemOverlap'] ?? 0)
+            && ! $record->hasSkill && ! $record->hasLuck
+            && $record->optionLevel === 0 && $record->excellentMask === 0 && $record->ancientOption === 0;
+        $serial = strtoupper(bin2hex(substr($record->binary(), 3, 4)));
 
-        if (($flags['Transaction'] ?? '0') !== '1'
-            || ($flags['StoreWarehouse'] ?? '0') !== '1'
-            || ($flags['Serial'] ?? '0') !== '1'
-            || (! $isEquipment && ! $isStandardJewel)
-            || substr($binary, 16) !== str_repeat("\xFF", 9)
-            || in_array($item->serial, [null, '00000000', 'FFFFFFFF'], true)
-            || $item->ancientOption > 15) {
-            throw new MarketListingRejected(MarketListingBlockReason::UnsupportedItem);
-        }
-
-        return $item;
+        return ($flags['Transaction'] ?? '0') === '1'
+            && ($flags['StoreWarehouse'] ?? '0') === '1'
+            && ($flags['Serial'] ?? '0') === '1'
+            && ($isEquipment || $isStandardJewel)
+            && substr($record->binary(), 16) === str_repeat("\xFF", 9)
+            && ! in_array($serial, ['00000000', 'FFFFFFFF'], true)
+            && $record->ancientOption <= 15;
     }
 }

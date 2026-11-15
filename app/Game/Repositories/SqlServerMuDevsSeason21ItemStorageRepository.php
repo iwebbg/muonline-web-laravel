@@ -92,12 +92,12 @@ final readonly class SqlServerMuDevsSeason21ItemStorageRepository implements Ite
             0,
             (self::EQUIPMENT_SLOTS + $inventorySlots) * ItemCodecAdapterMuDevsSeason21::SLOT_BYTES,
         );
-        $characterSlots = $this->codec->decode(
+        $characterSlots = $this->codec->decodeForDisplay(
             $activeBinary,
             self::EQUIPMENT_SLOTS + $inventorySlots,
         );
         $equipment = $this->occupiedSlots(array_slice($characterSlots, 0, self::EQUIPMENT_SLOTS));
-        $additionalEquipment = $this->codec->decode(
+        $additionalEquipment = $this->codec->decodeForDisplay(
             substr($inventoryBinary, 236 * ItemCodecAdapterMuDevsSeason21::SLOT_BYTES),
             3,
         );
@@ -200,7 +200,7 @@ final readonly class SqlServerMuDevsSeason21ItemStorageRepository implements Ite
             0,
             self::USABLE_WAREHOUSE_SLOTS * ItemCodecAdapterMuDevsSeason21::SLOT_BYTES,
         );
-        $slots = $this->codec->decode($visibleBinary, self::USABLE_WAREHOUSE_SLOTS);
+        $slots = $this->codec->decodeForDisplay($visibleBinary, self::USABLE_WAREHOUSE_SLOTS);
 
         return new WarehouseVault(
             number: $number,
@@ -227,10 +227,9 @@ final readonly class SqlServerMuDevsSeason21ItemStorageRepository implements Ite
             $item = $slotOffset > 0
                 ? $slot->withSlot($slot->slot - $slotOffset)
                 : $slot;
-            $definition = $this->catalog->definitionFor(
-                (int) $item->group,
-                (int) $item->index,
-            );
+            $definition = $item->identityVerified
+                ? $this->catalog->definitionFor((int) $item->group, (int) $item->index)
+                : null;
 
             $occupied[] = $definition === null
                 ? $item

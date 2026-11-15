@@ -125,6 +125,25 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
     }
 
     /**
+     * Rejects unknown identities without removing bytes or creating a custody receipt.
+     */
+    public function test_unknown_identity_cannot_enter_web_custody(): void
+    {
+        $item = str_repeat("\x00", 25);
+        $item[9] = "\x01";
+        $original = $this->seedWarehouse($item);
+
+        try {
+            $this->repository()->extractForOperation('owner', 0, 0, $item, operationKey: __FUNCTION__);
+            $this->fail('Unknown item identities must remain in the game.');
+        } catch (MarketListingRejected $exception) {
+            $this->assertSame(MarketListingBlockReason::UnsupportedItem, $exception->reason);
+            $this->assertSame($original, $this->warehouseBinary());
+            $this->assertSame(0, $this->game()->table('IWEB_S21_ItemOperation')->count());
+        }
+    }
+
+    /**
      * Prevents caller-supplied dimensions from overwriting another item's rectangle.
      */
     public function test_deposit_cannot_shrink_the_catalog_rectangle(): void

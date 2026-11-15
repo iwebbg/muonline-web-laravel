@@ -18,6 +18,10 @@ final class ItemExchangeMatcher
      */
     public function matches(ItemSlot $item, CreditExchangeOffer $offer): bool
     {
+        if ($item->transferable === false) {
+            return false;
+        }
+
         if (strlen($item->binary()) === 25
             && ($item->harmonyOption !== 0
                 || array_filter($item->socketOptions, static fn (int $option): bool => $option !== 255) !== []

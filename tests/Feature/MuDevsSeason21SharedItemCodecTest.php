@@ -163,6 +163,41 @@ class MuDevsSeason21SharedItemCodecTest extends TestCase
     }
 
     /**
+     * Keeps unknown records occupied for display without exposing bytes or allowing custody.
+     */
+    public function test_unknown_display_slot_remains_occupied_and_round_trips_losslessly(): void
+    {
+        $binary = str_repeat("\x00", 25);
+        $binary[9] = "\x01";
+        $codec = $this->app->make(ItemCodecAdapterMuDevsSeason21::class);
+        $slot = $codec->decodeForDisplay($binary, 1)[0]->withSlot(7);
+
+        $this->assertFalse($slot->isEmpty());
+        $this->assertFalse($slot->identityVerified);
+        $this->assertFalse($slot->transferable);
+        $this->assertSame('', $slot->code());
+        $this->assertSame(__('ui.s21_warehouse.unknown_item'), $slot->name);
+        $this->assertSame($binary, $codec->encode([$slot]));
+        $this->assertArrayNotHasKey('serial', $slot->toArray());
+        $this->assertArrayNotHasKey('nativeHex', $slot->toArray());
+    }
+
+    /**
+     * Displays catalogued special equipment while refusing incomplete standalone custody.
+     */
+    public function test_pentagram_has_source_metadata_but_cannot_be_transferred(): void
+    {
+        $codec = $this->app->make(ItemCodecAdapterMuDevsSeason21::class);
+        $binary = $codec->create(12, 200, 0, 255, 0, false, false, 0, 0, 123);
+        $slot = $codec->decodeForDisplay($binary, 1)[0];
+
+        $this->assertSame('12:200', $slot->code());
+        $this->assertNotEmpty($slot->name);
+        $this->assertTrue($slot->identityVerified);
+        $this->assertFalse($slot->transferable);
+    }
+
+    /**
      * Keeps native S21 records out of each legacy storage encoder.
      *
      * @param  class-string<ItemCodec>  $codecClass

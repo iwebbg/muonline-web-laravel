@@ -21,6 +21,7 @@ final readonly class ItemCodecAdapterMuDevsSeason21 implements ItemCodec
         private ItemCatalogAdapterMuDevsSeason21 $catalog,
         private WarehousePreviewMuDevsSeason21 $preview,
         private ItemCatalogMuDevsSeason21 $nativeCatalog,
+        private ItemTransferRulesMuDevsSeason21 $transferRules,
     ) {}
 
     /**
@@ -32,10 +33,33 @@ final readonly class ItemCodecAdapterMuDevsSeason21 implements ItemCodec
      */
     public function decode(string $binary, int $expectedSlots): array
     {
+        return $this->sharedSlots($this->codec->decode($binary, $expectedSlots), false);
+    }
+
+    /**
+     * Displays unknown occupied records without presenting them as empty or transferable cells.
+     *
+     * @return list<ItemSlot>
+     */
+    public function decodeForDisplay(string $binary, int $expectedSlots): array
+    {
+        return $this->sharedSlots($this->codec->decode($binary, $expectedSlots), true);
+    }
+
+    /**
+     * Enriches native records while keeping unknown display-only positions occupied.
+     *
+     * @param  list<ItemRecordMuDevsSeason21>  $records
+     * @return list<ItemSlot>
+     */
+    private function sharedSlots(array $records, bool $allowUnknownIdentity): array
+    {
         $slots = [];
 
-        foreach ($this->codec->decode($binary, $expectedSlots) as $record) {
-            if (! $record->isEmpty && $record->code() === null) {
+        foreach ($records as $record) {
+            $unknownIdentity = ! $record->isEmpty && $record->code() === null;
+
+            if ($unknownIdentity && ! $allowUnknownIdentity) {
                 throw new InvalidArgumentException('The S21 item uses an unsupported identity header.');
             }
 
@@ -44,25 +68,35 @@ final readonly class ItemCodecAdapterMuDevsSeason21 implements ItemCodec
                 'title' => $presentation['title'],
                 'details' => $presentation['details'],
             ];
+            if ($unknownIdentity) {
+                $nativePresentation = [
+                    'title' => __('ui.s21_warehouse.unknown_item'),
+                    'details' => [['label' => __('ui.s21_warehouse.unknown'), 'value' => __('ui.web_storage.errors.unsupported_item')]],
+                ];
+            }
+
             $slot = new ItemSlot(
                 slot: $record->slot,
                 binary: $record->binary(),
                 group: $record->group,
                 index: $record->index,
-                level: $record->level,
-                durability: $record->durability,
-                optionLevel: $record->optionLevel,
-                hasSkill: $record->hasSkill,
-                hasLuck: $record->hasLuck,
-                excellentMask: $record->excellentMask,
-                ancientOption: $record->ancientOption,
+                level: $unknownIdentity ? null : $record->level,
+                durability: $unknownIdentity ? null : $record->durability,
+                optionLevel: $unknownIdentity ? null : $record->optionLevel,
+                hasSkill: ! $unknownIdentity && $record->hasSkill,
+                hasLuck: ! $unknownIdentity && $record->hasLuck,
+                excellentMask: $unknownIdentity ? 0 : $record->excellentMask,
+                ancientOption: $unknownIdentity ? 0 : $record->ancientOption,
                 serial: $record->isEmpty ? null : strtoupper(bin2hex(substr($record->binary(), 3, 4))),
                 harmonyOption: $record->harmonyOption ?? 0,
                 socketBonus: $record->socketBonus,
                 socketOptions: $record->socketOptions,
                 nativePresentation: $nativePresentation,
+                name: $unknownIdentity ? __('ui.s21_warehouse.unknown_item') : null,
+                identityVerified: ! $unknownIdentity,
+                transferable: $record->isEmpty ? null : $this->transferRules->allowsTransfer($record),
             );
-            $definition = $record->isEmpty ? null : $this->catalog->definitionFor($record->group, $record->index);
+            $definition = $record->isEmpty || $unknownIdentity ? null : $this->catalog->definitionFor($record->group, $record->index);
             $slots[] = $definition === null ? $slot : $slot->withDefinition($definition);
         }
 

@@ -17,8 +17,8 @@ all six core character preview/action endpoints, Zen/Jewel Bank, Web Vault,
 Credits/Votes, Market/Auction, Shop, Mystery Boxes and Rewards. All 76 class forms
 are represented. Game writes remain closed globally. The runtime game role now has the narrow
 permissions required by the reviewed account/core/item adapters. The latest completed economy checkpoint passes
-1046 isolated tests / 19788 assertions and all four profile smoke runs. Native SQL
-Server coverage now passes 20 tests / 102 assertions, including item receipts,
+1064 isolated tests / 19870 assertions and all four profile smoke runs. Native SQL
+Server coverage now passes 22 tests / 123 assertions, including item receipts,
 serial allocation and both application-schema migrations.
 
 Adapter availability is an explicit module/route allow-list combined with
@@ -69,6 +69,29 @@ serial allocation and journaled item deposit/extraction through this role. The
 installer is idempotent; the role is neither sysadmin nor db_owner. SQL integration
 coverage is now 22 tests / 123 assertions. Live bootstrap changed permissions only;
 no game account, serial counter or item row was mutated during commissioning.
+
+### Unknown item display and custody boundary
+
+Native read-only storage now keeps unknown identity headers as occupied,
+non-transferable placeholders instead of failing the whole account storage
+request or accidentally enriching null identities as Kris. Read presentation
+retains all 25 original bytes internally, omits serial/raw bytes from account
+JSON and uses the existing missing-image fallback. Known special items retain
+catalog names and dimensions while exposing their unavailable custody state.
+
+The shared native codec still rejects unknown identities in mutation paths;
+warehouse/inventory placement cannot treat their unknown rectangles as free
+space. Transfer rules depend directly on the native decoder, keeping display
+eligibility independent of the shared codec. Native item action buttons and
+Credits exchange matching respect this eligibility. Existing adapter payloads
+omit the optional native-only fields and retain their prior behavior.
+
+Tests cover mixed recognized/unknown warehouse responses, byte retention,
+strict decoding, rejection without a custody receipt and special equipment
+presentation. Full-suite/profile and native SQL checks pass. Real special-item
+fixtures remain required for extended identities and dependent-table custody;
+this change does not certify Pentagram/Errtel, Muun, Artifact or wing-core
+transfers. Artwork extraction and new character portraits remain deferred.
 
 ## Sources and evidence
 

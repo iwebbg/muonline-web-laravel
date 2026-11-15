@@ -71,6 +71,33 @@ class MuDevsSeason21ItemStorageTest extends TestCase
     }
 
     /**
+     * Returns recognized and unknown occupied records together without changing native storage.
+     */
+    public function test_unknown_header_does_not_break_storage_or_become_a_false_kris(): void
+    {
+        $binary = $this->blob(240, [0]);
+        $unknown = str_repeat("\x00", 25);
+        $unknown[9] = "\x01";
+        $binary = substr_replace($binary, $unknown, 50, 25);
+        $this->game()->table('warehouse')->insert([
+            'AccountID' => 'owner', 'AccountIndex' => 1, 'Items' => $binary, 'Money' => 100,
+        ]);
+        $token = 'unknown-native-item';
+
+        $this->actingAs($this->account())->withSession(['_token' => $token])
+            ->postJson('/account/item-storage', ['_token' => $token])
+            ->assertOk()
+            ->assertJsonCount(2, 'storage.warehouse.vaults.0.items')
+            ->assertJsonPath('storage.warehouse.vaults.0.items.0.name', 'Flameberge')
+            ->assertJsonPath('storage.warehouse.vaults.0.items.1.code', '')
+            ->assertJsonPath('storage.warehouse.vaults.0.items.1.name', __('ui.s21_warehouse.unknown_item'))
+            ->assertJsonPath('storage.warehouse.vaults.0.items.1.identityVerified', false)
+            ->assertJsonPath('storage.warehouse.vaults.0.items.1.transferable', false)
+            ->assertJsonMissingPath('storage.warehouse.vaults.0.items.1.nativeHex');
+        $this->assertSame($binary, $this->game()->table('warehouse')->value('Items'));
+    }
+
+    /**
      * Keeps foreign character inventories and warehouses private at the HTTP boundary.
      */
     public function test_foreign_character_does_not_reveal_either_accounts_items(): void
