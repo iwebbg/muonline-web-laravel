@@ -1,6 +1,11 @@
-@props(['items'])
+@props(['items', 'slotNumbersExpression' => null])
 
-<div {{ $attributes->class(['equipment-layout']) }}>
+<div {{ $attributes->class(['equipment-layout']) }}
+    @if ($slotNumbersExpression !== null)
+        :style="({{ $slotNumbersExpression }}) !== null ? 'grid-template-rows: repeat(10, var(--equipment-cell-size))' : ''"
+    @endif
+>
+    @if ($slotNumbersExpression === null)
     @for ($slot = 0; $slot < 12; $slot++)
         <div
             class="equipment-slot equipment-slot-{{ $slot }}"
@@ -8,6 +13,11 @@
             aria-hidden="true"
         ></div>
     @endfor
+    @else
+        <template x-for="slot in ({{ $slotNumbersExpression }} ?? [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])" :key="slot">
+            <div class="equipment-slot" :style="equipmentSlotStyle(slot, itemFor({{ $items }}, slot))" aria-hidden="true"></div>
+        </template>
+    @endif
 
     <template x-for="item in {{ $items }}" :key="`${item.slot}-${item.code}`">
         <button

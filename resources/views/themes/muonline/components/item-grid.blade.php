@@ -3,12 +3,19 @@
     'items',
     'useItemSize' => true,
     'itemAction' => null,
+    'slotCountExpression' => null,
 ])
 
 <div {{ $attributes->class(['inventory-grid']) }}>
-    @for ($slot = 0; $slot < $slots; $slot++)
-        <div class="inventory-slot" aria-hidden="true"></div>
-    @endfor
+    @if ($slotCountExpression === null)
+        @for ($slot = 0; $slot < $slots; $slot++)
+            <div class="inventory-slot" aria-hidden="true"></div>
+        @endfor
+    @else
+        <template x-for="cell in ({{ $slotCountExpression }})" :key="cell">
+            <div class="inventory-slot" aria-hidden="true"></div>
+        </template>
+    @endif
 
     <template x-for="item in {{ $items }}" :key="`${item.slot}-${item.code}`">
         <button

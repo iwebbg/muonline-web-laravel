@@ -21,7 +21,7 @@ final class MuDevsSeason21BootstrapProfileTest extends TestCase
 
         self::assertSame([
             'dbo.MEMB_INFO', 'dbo.MEMB_STAT', 'dbo.AccountCharacter', 'dbo.Character',
-            'dbo.warehouse', 'dbo.ExtWarehouse', 'dbo.Guild', 'dbo.GuildMember',
+            'dbo.warehouse', 'dbo.ExtWarehouse', 'dbo.MuCastle_DATA', 'dbo.Guild', 'dbo.GuildMember',
             'dbo.MasterSkillTree', 'dbo.EnhanceSkillTree', 'dbo.AbilityEnhancementCore',
             'dbo.CashShopData', 'dbo.LuckyCoin', 'dbo.Gens_Rank', 'dbo.PentagramJewel',
             'dbo.MuunInventory', 'dbo.EventInventory', 'dbo.GremoryCase',

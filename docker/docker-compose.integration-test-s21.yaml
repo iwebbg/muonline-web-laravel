@@ -31,6 +31,7 @@ services:
                 sqlcmd=/opt/mssql-tools18/bin/sqlcmd
                 "$${sqlcmd}" -S sqlserver-test -U sa -P "$${MSSQL_SA_PASSWORD}" -C -b -Q "CREATE DATABASE [MuOnline_S21_Test]"
                 "$${sqlcmd}" -S sqlserver-test -U sa -P "$${MSSQL_SA_PASSWORD}" -C -b -d MuOnline_S21_Test -i /fixtures/mudevs-season-21-read-schema.sql
+                "$${sqlcmd}" -S sqlserver-test -U sa -P "$${MSSQL_SA_PASSWORD}" -C -b -d MuOnline_S21_Test -i /fixtures/mudevs-season-21-web-columns.sql
         depends_on:
             sqlserver-test:
                 condition: service_healthy
@@ -38,6 +39,7 @@ services:
             - integration
         volumes:
             - ../tests/Fixtures/SqlServer/mudevs-season-21-read-schema.sql:/fixtures/mudevs-season-21-read-schema.sql:ro
+            - ../tests/Fixtures/SqlServer/mudevs-season-21-web-columns.sql:/fixtures/mudevs-season-21-web-columns.sql:ro
 
     integration-test:
         build:

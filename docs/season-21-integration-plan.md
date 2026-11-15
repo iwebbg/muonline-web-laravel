@@ -238,6 +238,21 @@ client-tested. Predecessors skip missing stages and all forms reuse their
 family's existing portrait. Validation: 932 isolated tests / 19,346 assertions
 and all four profile smoke runs pass.
 
+Native account registration/activation, credential/recovery, reset/grand reset,
+stat allocation/reset, PK clear, move-to-town, moderation, Zen/Lucky Coin and
+Gens repositories have now been added separately from S6 implementations. Their
+bindings do not open mutation routes or SQL grants. Character-operation tests
+cover ownership, online refusal and retention of master/enhance, quest, mount,
+skill and inventory data. Native grand reset includes Dark Lord Command in its
+before/after stat result. Safe-town preview labels use a version-owned map lookup;
+legacy profiles retain their original mapping. S21 Gens joins stable
+CharacterIndex rather than potentially stale cached names.
+
+Castle Siege now reads native MuCastle_DATA cycle state using the pack's seven-day
+cycle and day-6 20:00–22:00 battle phase. Bootstrap was rerun with temporary local
+admin configuration to add SELECT on that table; runtime writes and persistent
+bootstrap credentials remain disabled. The real local home responds HTTP 200.
+
 | System | File or schema evidence | Website work and runtime acceptance |
 | --- | --- | --- |
 | Base progression | `Character.cLevel`, `LevelUpPoint`, `Experience`; per-family settings in Common.dat | Display actual base level, spendable points and experience; verify boundaries per stage. |
@@ -460,7 +475,38 @@ slot alongside the complete native attributes, including all 16 class flags,
 requirements and operation/stack metadata. Artwork remains null. This catalog
 deliberately does not implement the shared `ItemCatalog` contract yet: native
 option interpretation must be verified before creating legacy tooltip types.
-It is not bound to the selectable profile or generation/transfer services.
+The separate shared-contract bridge now binds the native catalog and codec to
+S21 storage. It supplies the exact source rectangles and native tooltip details;
+legacy option categories are not assigned to S21 items. Shared slots accept all
+25 bytes and preserve native presentation through rebasing/enrichment. Legacy
+encoders explicitly reject these wider records.
+
+The private account inventory/storage endpoint now reads the 239-record
+character blob, the unlocked 64 + 32-per-extension bag (maximum five extensions),
+and equipment slots 0–11 plus 236–238. Warehouse reads expose the client-visible
+120 cells from each complete 240-record main/extended blob and use
+AccountCharacter.ExtWarehouse for active-page selection. Foreign characters are
+rejected before warehouse reads. Unsupported nonempty identity headers fail
+closed rather than appearing as free cells. Inventory and vault tabs are active;
+missing artwork uses the existing fallback.
+
+A pure common-header encoder is checked byte-for-byte against the ten saved
+client captures, including index 270, ancient, Harmony and socket variants.
+It does not allocate serials or write game records. Higher group layouts, the
+380 flag and special item dependency persistence are not enabled. The existence
+of this encoder does not certify special-item generation or web shop delivery.
+
+Native warehouse escrow is separately implemented for ordinary tradable equipment
+(groups 0–11 with native Serial, Transaction and StoreWarehouse flags). It rejects
+unknown extension payloads, bound equipment and special item families whose
+external records cannot follow a blob-only transfer. Exact extraction, rectangle
+placement, active-page ownership, full-storage refusal, retries and offline checks
+are covered in isolated feature tests. Disposable SQL Server integration verifies
+6000-byte extraction/deposit, byte-for-byte reserved-state retention, idempotency
+and outer-transaction rollback (seven S21 integration tests / 47 assertions).
+These repository bindings do not open market/web-storage routes or game DML grants.
+Complete inventory custody, special dependencies, serial allocation and end-to-end
+market/shop certification remain pending.
 
 ### Client-matched warehouse commissioning
 

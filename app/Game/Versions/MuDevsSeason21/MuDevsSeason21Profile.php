@@ -2,16 +2,54 @@
 
 namespace App\Game\Versions\MuDevsSeason21;
 
+use App\Game\Contracts\AccountActivationRepository;
+use App\Game\Contracts\AccountCredentialRepository;
+use App\Game\Contracts\AccountPasswordRecoveryRepository;
 use App\Game\Contracts\AccountReadRepository;
+use App\Game\Contracts\AccountRegistrationRepository;
+use App\Game\Contracts\CastleSiegeReadRepository;
+use App\Game\Contracts\CharacterGrandResetRepository;
+use App\Game\Contracts\CharacterMoveRepository;
+use App\Game\Contracts\CharacterPkClearRepository;
+use App\Game\Contracts\CharacterResetRepository;
+use App\Game\Contracts\CharacterStatAllocationRepository;
+use App\Game\Contracts\CharacterStatResetRepository;
 use App\Game\Contracts\GameCurrencyBalanceRepository;
+use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemCodec;
+use App\Game\Contracts\ItemEscrowRepository;
 use App\Game\Contracts\ItemGeneratorCatalog;
+use App\Game\Contracts\ItemStorageRepository;
+use App\Game\Contracts\LuckyCoinBalanceRepository;
+use App\Game\Contracts\MapNameLookup;
+use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Game\Contracts\MasterProgressionRepository;
+use App\Game\Contracts\ModerationRepository;
 use App\Game\Contracts\OnlineAccountRepository;
 use App\Game\Contracts\RealmReadRepository;
+use App\Game\Contracts\ZenBankRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21AccountActivationRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21AccountCredentialRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21AccountPasswordRecoveryRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountReadRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21AccountRegistrationRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CastleSiegeReadRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterGrandResetRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterMoveRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterPkClearRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterResetRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterStatAllocationRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterStatResetRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CurrencyBalanceRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21GensMembershipRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21ItemStorageRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21LuckyCoinBalanceRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21MarketItemEscrowRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21MasterProgressionRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21ModerationRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21RealmReadRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21ZenBankRepository;
 use App\Game\Repositories\SqlServerOnlineAccountRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
@@ -54,11 +92,14 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionPro
             billingRecord: false,
             itemGenerator: false,
             masterProgression: true,
+            castleSiege: true,
+            gens: true,
+            luckyCoin: true,
             readOnly: true,
             availableRoutes: [
                 'home', 'ready', 'server.status', 'rankings', 'rankings.*',
                 'characters.*', 'guilds.*', 'news.*', 'guides.*', 'pages.*',
-                'downloads.*', 'login', 'login.store', 'logout', 'account.dashboard', 'locale.update',
+                'downloads.*', 'login', 'login.store', 'logout', 'account.dashboard', 'account.item-storage', 'locale.update',
                 'admin.login', 'admin.login.store', 'admin.logout', 'admin.dashboard', 'admin.audit-log',
                 'admin.s21-warehouse', 'admin.event-schedules.*',
                 'admin.news-posts.*', 'admin.downloads.*', 'admin.website-settings.*',
@@ -387,7 +428,12 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionPro
      */
     public function itemServiceBindings(): array
     {
-        return [ItemGeneratorCatalog::class => UnavailableItemGeneratorCatalog::class];
+        return [
+            ItemCodec::class => ItemCodecAdapterMuDevsSeason21::class,
+            ItemCatalog::class => ItemCatalogAdapterMuDevsSeason21::class,
+            ItemGeneratorCatalog::class => UnavailableItemGeneratorCatalog::class,
+            MapNameLookup::class => MapNameMapperMuDevsSeason21::class,
+        ];
     }
 
     /**
@@ -398,6 +444,24 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionPro
     public function repositoryBindings(): array
     {
         return [
+            AccountRegistrationRepository::class => SqlServerMuDevsSeason21AccountRegistrationRepository::class,
+            AccountActivationRepository::class => SqlServerMuDevsSeason21AccountActivationRepository::class,
+            AccountCredentialRepository::class => SqlServerMuDevsSeason21AccountCredentialRepository::class,
+            AccountPasswordRecoveryRepository::class => SqlServerMuDevsSeason21AccountPasswordRecoveryRepository::class,
+            CharacterResetRepository::class => SqlServerMuDevsSeason21CharacterResetRepository::class,
+            CharacterGrandResetRepository::class => SqlServerMuDevsSeason21CharacterGrandResetRepository::class,
+            CharacterStatAllocationRepository::class => SqlServerMuDevsSeason21CharacterStatAllocationRepository::class,
+            CharacterStatResetRepository::class => SqlServerMuDevsSeason21CharacterStatResetRepository::class,
+            CharacterPkClearRepository::class => SqlServerMuDevsSeason21CharacterPkClearRepository::class,
+            CharacterMoveRepository::class => SqlServerMuDevsSeason21CharacterMoveRepository::class,
+            ModerationRepository::class => SqlServerMuDevsSeason21ModerationRepository::class,
+            ZenBankRepository::class => SqlServerMuDevsSeason21ZenBankRepository::class,
+            LuckyCoinBalanceRepository::class => SqlServerMuDevsSeason21LuckyCoinBalanceRepository::class,
+            GensMembershipRepository::class => SqlServerMuDevsSeason21GensMembershipRepository::class,
+            ItemEscrowRepository::class => SqlServerMuDevsSeason21MarketItemEscrowRepository::class,
+            MarketItemEscrowRepository::class => SqlServerMuDevsSeason21MarketItemEscrowRepository::class,
+            ItemStorageRepository::class => SqlServerMuDevsSeason21ItemStorageRepository::class,
+            CastleSiegeReadRepository::class => SqlServerMuDevsSeason21CastleSiegeReadRepository::class,
             AccountReadRepository::class => SqlServerMuDevsSeason21AccountReadRepository::class,
             RealmReadRepository::class => SqlServerMuDevsSeason21RealmReadRepository::class,
             MasterProgressionRepository::class => SqlServerMuDevsSeason21MasterProgressionRepository::class,

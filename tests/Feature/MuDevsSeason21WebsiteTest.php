@@ -71,10 +71,10 @@ final class MuDevsSeason21WebsiteTest extends TestCase
             ->assertSee('OldKnight')
             ->assertSee('Blade Master')
             ->assertDontSee('Hidden')
-            ->assertDontSee("selectSection('inventory')", false)
+            ->assertSee("selectSection('inventory')", false)
             ->assertDontSee("selectSection('reset')", false)
             ->assertViewHas('readOnlyGameProfile', true);
-        $this->assertSame('overview', $response->viewData('accountPanelConfiguration')['initialSection']);
+        $this->assertSame('inventory', $response->viewData('accountPanelConfiguration')['initialSection']);
         $this->assertSame(240, $connection->table('Character')->where('Name', 'Crusader')->value('Class'));
     }
 
@@ -158,6 +158,23 @@ final class MuDevsSeason21WebsiteTest extends TestCase
 
         $this->get('/')->assertOk()->assertSee('Crusader')->assertSee('Group Boss Battle');
         $this->get('/rankings')->assertOk()->assertSee('Crusader');
+    }
+
+    /**
+     * Publishes Castle Siege from the native database cycle and configured battle phase.
+     */
+    public function test_castle_siege_uses_the_native_database_cycle(): void
+    {
+        $this->app->make(DatabaseManager::class)->connection('game')->table('MuCastle_DATA')->insert([
+            'MAP_SVR_GROUP' => 0,
+            'SIEGE_START_DATE' => '2026-11-01 00:00:00',
+            'SIEGE_END_DATE' => '2026-11-08 00:00:00',
+            'SIEGE_ENDED' => 0,
+            'CASTLE_OCCUPY' => 1,
+            'OWNER_GUILD' => 'Guard',
+        ]);
+
+        $this->get('/')->assertOk()->assertSee('Castle Siege');
     }
 
     /**

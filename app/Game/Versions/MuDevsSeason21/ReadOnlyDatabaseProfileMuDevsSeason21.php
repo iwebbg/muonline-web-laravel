@@ -30,6 +30,7 @@ final class ReadOnlyDatabaseProfileMuDevsSeason21 implements GameDatabaseProfile
             ],
             'warehouse' => ['AccountID', 'AccountIndex', 'Items', 'Money'],
             'ExtWarehouse' => ['AccountID', 'AccountIndex', 'Number', 'Items', 'Money'],
+            'MuCastle_DATA' => ['MAP_SVR_GROUP', 'SIEGE_START_DATE', 'SIEGE_END_DATE', 'SIEGE_ENDED', 'CASTLE_OCCUPY', 'OWNER_GUILD'],
             'Guild' => ['G_Name', 'G_Master', 'G_Mark', 'G_Score', 'G_Count', 'G_Notice'],
             'GuildMember' => ['Name', 'G_Name'],
             'MasterSkillTree' => ['CharacterIndex', 'Name', 'MasterLevel', 'MasterPoint', 'MasterExperience', 'MasterSkill'],

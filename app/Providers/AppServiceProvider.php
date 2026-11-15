@@ -10,6 +10,7 @@ use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\GameServerStatus;
 use App\Game\Contracts\GensMembershipRepository;
 use App\Game\Contracts\LuckyCoinBalanceRepository;
+use App\Game\Contracts\MapNameLookup;
 use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
@@ -24,6 +25,7 @@ use App\Game\Status\TcpGameServerStatus;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Version1_0M\DarksTeamMd5PasswordCodec;
+use App\Game\Versions\Version97d99i\MapNameMapper;
 use App\Installation\Contracts\ApplicationDatabaseInstaller;
 use App\Installation\Contracts\GameDatabaseInstaller;
 use App\Installation\SqlServerApplicationDatabaseInstaller;
@@ -80,6 +82,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $versionProfile = $this->app->make(GameVersionProfile::class);
+
+        $this->app->bind(MapNameLookup::class, MapNameMapper::class);
 
         $this->app->bind(
             CastleSiegeReadRepository::class,

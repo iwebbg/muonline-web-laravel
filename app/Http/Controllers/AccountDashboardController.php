@@ -65,9 +65,9 @@ final class AccountDashboardController extends Controller
         $gensMembershipByCharacter = $this->gensMembershipRepository->forAccount(
             $account->username,
         );
-        $luckyCoinBalance = $this->luckyCoinBalanceRepository->balanceFor($account->username);
         $nativeCurrencyBalances = $this->currencyBalanceRepository?->forAccount($account->username);
-        $luckyCoinBalance = $nativeCurrencyBalances?->luckyCoins ?? $luckyCoinBalance;
+        $luckyCoinBalance = $nativeCurrencyBalances?->luckyCoins
+            ?? $this->luckyCoinBalanceRepository->balanceFor($account->username);
         $characters = [];
         $characterNames = [];
 
@@ -193,7 +193,7 @@ final class AccountDashboardController extends Controller
         }
 
         $readOnlyGameProfile = $this->versionProfile->capabilities()->readOnly;
-        $allowedSections = $readOnlyGameProfile ? ['overview'] : [
+        $allowedSections = $readOnlyGameProfile ? ['overview', 'inventory', 'vaults'] : [
             'overview',
             'inventory',
             'stats',

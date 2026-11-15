@@ -2,10 +2,12 @@
 
 namespace App\Game\Versions\MuDevsSeason21;
 
+use App\Game\Contracts\MapNameLookup;
+
 /**
  * Resolves location labels from the supplied MUDevs S21.1-2 MapManager records.
  */
-final class MapNameMapperMuDevsSeason21
+final class MapNameMapperMuDevsSeason21 implements MapNameLookup
 {
     /**
      * Returns a configured location name without granting movement eligibility.

@@ -93,20 +93,19 @@
                 <x-account-character-portrait x-show="activeSection !== 'vaults'" x-cloak />
 
                 <section class="min-w-0">
-                    @if (! $readOnlyGameProfile)
                         <x-account-character-tabs
                         :character-services-enabled="$characterServicesEnabled"
-                        x-show="activeSection !== 'vaults'"
+                        :read-only="$readOnlyGameProfile"
+                        x-show="activeSection !== 'vaults' || {{ $readOnlyGameProfile ? 'true' : 'false' }}"
                         x-cloak
                         />
-                    @endif
 
                     <x-account-overview-panel :economy-settings="$economySettings" :character-services-enabled="$characterServicesEnabled" :read-only="$readOnlyGameProfile" />
-                    @if (! $readOnlyGameProfile)
                     <x-account-inventory-panel />
 
-                    <x-account-vaults-panel />
+                    <x-account-vaults-panel :read-only="$readOnlyGameProfile" />
 
+                    @if (! $readOnlyGameProfile)
                     <x-account-stats-panel />
 
                     <x-account-stat-reset-panel />

@@ -115,6 +115,9 @@ const equipmentSlotLayout = {
         vertical: 'start',
         dynamic: false,
     },
+    236: { column: 4, row: 9, width: 2, height: 2, dynamic: false },
+    237: { column: 2, row: 9, width: 1, height: 1, dynamic: false },
+    238: { column: 7, row: 9, width: 1, height: 1, dynamic: false },
 };
 
 /**
@@ -2455,6 +2458,10 @@ export function itemInspector(itemOptionLabels, item = null) {
          * @returns {string}
          */
         itemTitle(inspectedItem) {
+            if (inspectedItem.nativePresentation) {
+                return inspectedItem.nativePresentation.title;
+            }
+
             const level = inspectedItem.level > 0 ? ` +${inspectedItem.level}` : '';
             const prefix = inspectedItem.excellentMask > 0 && inspectedItem.excellentType !== 4
                 ? `${this.itemOptionLabels.excellentPrefix} `

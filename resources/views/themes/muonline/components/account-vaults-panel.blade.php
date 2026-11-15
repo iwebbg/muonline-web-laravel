@@ -1,5 +1,6 @@
 @props([
     'showEmptyCharacterNotice' => false,
+    'readOnly' => false,
 ])
 
 <div {{ $attributes->class(['mt-5']) }} x-show="activeSection === 'vaults'" x-cloak>
@@ -59,7 +60,7 @@
                         class="mt-4"
                         :slots="120"
                         items="selectedWarehouseVault?.items ?? []"
-                        item-action="openWarehouseItemActions"
+                        :item-action="$readOnly ? null : 'openWarehouseItemActions'"
                         x-show="selectedWarehouseVault !== null"
                     />
                 </section>
@@ -91,5 +92,7 @@
         </template>
     </article>
 
-    <x-account-item-action-modal />
+    @if (! $readOnly)
+        <x-account-item-action-modal />
+    @endif
 </div>

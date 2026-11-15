@@ -17,6 +17,7 @@
                     <x-equipment-layout
                         class="mt-3"
                         items="itemStorage.character.equipment"
+                        slot-numbers-expression="itemStorage.character.equipmentSlotNumbers ?? null"
                     />
                 </section>
 
@@ -25,6 +26,7 @@
                     <x-item-grid
                         class="mt-3"
                         :slots="64"
+                        slot-count-expression="itemStorage.character.inventorySlotCount ?? 64"
                         items="itemStorage.character.inventory"
                     />
                 </section>
