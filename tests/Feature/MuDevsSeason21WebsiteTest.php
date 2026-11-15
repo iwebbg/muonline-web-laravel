@@ -173,7 +173,7 @@ final class MuDevsSeason21WebsiteTest extends TestCase
         $this->get('/account/zen-bank')->assertOk();
         $this->get('/account')->assertOk()->assertSee(route('account.security.index'), false)
             ->assertSee(route('account.zen-bank.index'), false);
-        $this->get('/market')->assertNotFound();
+        $this->get('/market')->assertOk();
     }
 
     /**
@@ -184,11 +184,12 @@ final class MuDevsSeason21WebsiteTest extends TestCase
         ModuleProfile::query()->create([
             'profile_key' => 'mudevs_season_21',
             'game_version' => 'S21.1-2',
-            'modules' => ['market' => true, 'registration' => false, 'account_security' => true],
+            'modules' => ['market' => false, 'vip' => true, 'registration' => false, 'account_security' => true],
             'revision' => 1,
         ]);
         $this->app->make(ModuleManager::class)->forget();
 
+        $this->assertFalse($this->app->make(ModuleManager::class)->enabled(ServerModule::Vip));
         $this->assertFalse($this->app->make(ModuleManager::class)->enabled(ServerModule::Market));
         $this->assertFalse($this->app->make(ModuleManager::class)->enabled(ServerModule::Registration));
         $this->assertTrue($this->app->make(ModuleManager::class)->enabled(ServerModule::AccountSecurity));
@@ -226,7 +227,7 @@ final class MuDevsSeason21WebsiteTest extends TestCase
 
         foreach (ServerModule::cases() as $module) {
             $this->assertSame(
-                in_array($module, [ServerModule::Registration, ServerModule::PasswordRecovery, ServerModule::AccountSecurity, ServerModule::ZenBank], true),
+                $module !== ServerModule::Vip,
                 $this->app->make(ModuleManager::class)->enabled($module),
             );
         }

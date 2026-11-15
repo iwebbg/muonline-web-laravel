@@ -562,6 +562,10 @@ export function creditExchangeOfferEditor(configuration) {
 
         /** Returns excellent choices appropriate for the selected item family. */
         get excellentOptions() {
+            if (this.selectedItem?.nativeOptions) {
+                return this.selectedItem.nativeOptions.excellent;
+            }
+
             const type = Number(this.selectedItem?.excellentType ?? 0);
             let labels = this.itemOptionLabels.excellent.weapon;
 
@@ -581,6 +585,17 @@ export function creditExchangeOfferEditor(configuration) {
 
         /** Returns safe additional-option choices labeled for the selected family. */
         get additionalOptionChoices() {
+            if (this.selectedItem?.nativeOptions) {
+                const native = this.selectedItem.nativeOptions;
+
+                return this.optionLevels
+                    .filter((level) => level === 0 || native.additional)
+                    .map((level) => ({
+                        value: level,
+                        label: level === 0 ? '0' : native.additionalLabel.replace('{value}', String(level * native.additionalValue)),
+                    }));
+            }
+
             return this.optionLevels.map((optionLevel) => {
                 if (optionLevel === 0) {
                     return {

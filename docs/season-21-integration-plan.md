@@ -573,6 +573,29 @@ reject unsupported native construction before charging Credits. Automatic genera
 item pricing remains unavailable until explicitly configured; operator-priced
 shop offers use their configured web Credits, separately from native coins.
 
+### Website economy commissioning
+
+S21 now exposes Credits, Vote Rewards, Web Vault, the physical-item Jewel Bank,
+Market/Auction, operator-priced Shop, Mystery Boxes and Rewards through the
+existing module switches. Their game boundaries use native S21 inventory,
+warehouse and serial adapters; web Credits remain independent of WCoinC/WCoinP,
+Goblin Points, Lucky Coins and Ruud. The bank counts original physical records
+and returns complete records; it does not split stacks or synthesize jewels.
+
+End-to-end disposable tests cover seller extraction/buyer delivery, auction
+settlement, a one-charge/one-serial Shop purchase, unsupported-offer rejection
+before charging, online-account Web Vault fallback and grouped jewel custody.
+Exact inventory-for-Credits exchange receives one native batch receipt and one
+ledger award. Native Harmony/socket/opaque extensions cannot match a basic
+exchange signature that has no fields to price those options.
+
+Public/private economy pages and eight administration pages render with S21
+bindings. Persisted paid-character-service flags are filtered by route support;
+unfinished native rename/class/purchased-progression endpoints cannot become
+visible through a saved setting. This filter leaves legacy profiles unrestricted.
+Native VIP remains gated because the source grants account-wide AccountLevel /
+AccountExpireDate, not the existing per-character entitlement model.
+
 ### Client-matched warehouse commissioning
 
 Owner-supplied client screenshots and read-only reads now match ten distinct
