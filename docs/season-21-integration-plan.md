@@ -15,8 +15,8 @@ may be absent; verified dimensions and readable presentation are required.
 The native bundle exposes registration/recovery/security, inventory/vault reads,
 all six core character preview/action endpoints, Zen/Jewel Bank, Web Vault,
 Credits/Votes, Market/Auction, Shop, Mystery Boxes and Rewards. All 76 class forms
-are represented. Game writes remain closed globally and the current runtime game
-role still has SELECT-only grants. The latest completed economy checkpoint passes
+are represented. Game writes remain closed globally. The runtime game role now has the narrow
+permissions required by the reviewed account/core/item adapters. The latest completed economy checkpoint passes
 1046 isolated tests / 19788 assertions and all four profile smoke runs. Native SQL
 Server coverage now passes 20 tests / 102 assertions, including item receipts,
 serial allocation and both application-schema migrations.
@@ -55,6 +55,20 @@ SELECTs and does not invoke those procedures. Live read-only commissioning succe
 with zero current registrations/rewards. SQLite privacy tests and native SQL Server
 tests cover foreign realms, foreign accounts, claimed rewards, unknown states,
 missing sources and escaped stored names.
+
+Runtime SQL bootstrap has now applied the reviewed native write grants: MEMB_INFO
+SELECT/INSERT/UPDATE; Character and warehouse/ExtWarehouse SELECT/UPDATE; custody
+receipts SELECT/INSERT; native serial procedure EXECUTE/VIEW DEFINITION. All other
+reviewed game tables retain SELECT only, including native coins and special-item
+state. Receipts cannot be updated or deleted by the application role. BattleCore
+remains SELECT-only. The separate commissioning-only profile is unchanged.
+
+A fresh disposable database built from the exact required native column types
+and a dedicated non-administrator login verifies actual registration/activation,
+serial allocation and journaled item deposit/extraction through this role. The
+installer is idempotent; the role is neither sysadmin nor db_owner. SQL integration
+coverage is now 22 tests / 123 assertions. Live bootstrap changed permissions only;
+no game account, serial counter or item row was mutated during commissioning.
 
 ## Sources and evidence
 
@@ -570,7 +584,8 @@ Disposable SQL Server tests cover concurrent delivery (one item/one receipt),
 receipt-insert permission failure rollback, exact 6000-byte retention and schema
 bootstrap after runtime principals exist. The opt-in S21 schema hook leaves the
 production entrypoint order and older bootstrap profiles unchanged. Runtime game
-permissions remain SELECT-only until write commissioning. Real application-action
+permissions are limited to the reviewed mutation boundaries; global write
+switches still control commissioning. Real application-action
 tests exercise both inventory and warehouse extraction through Web Vault and back.
 Special dependencies, serial allocation and end-to-end market/shop certification
 remain pending.

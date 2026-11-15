@@ -539,12 +539,20 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
     }
 
     /**
-     * Retains SELECT-only game access while the version bundle is under development.
+     * Grants mutations only to the native account, core-character and journaled item boundaries.
      *
      * @return array<string, list<string>>
      */
     public function databaseObjectPermissions(): array
     {
-        return (new ReadOnlyDatabaseProfileMuDevsSeason21)->databaseObjectPermissions();
+        $permissions = (new ReadOnlyDatabaseProfileMuDevsSeason21)->databaseObjectPermissions();
+        $permissions['dbo.MEMB_INFO'] = ['SELECT', 'INSERT', 'UPDATE'];
+        $permissions['dbo.Character'] = ['SELECT', 'UPDATE'];
+        $permissions['dbo.warehouse'] = ['SELECT', 'UPDATE'];
+        $permissions['dbo.ExtWarehouse'] = ['SELECT', 'UPDATE'];
+        $permissions['dbo.IWEB_S21_ItemOperation'] = ['SELECT', 'INSERT'];
+        $permissions['dbo.WZ_GetItemSerial'] = ['EXECUTE', 'VIEW DEFINITION'];
+
+        return $permissions;
     }
 }
