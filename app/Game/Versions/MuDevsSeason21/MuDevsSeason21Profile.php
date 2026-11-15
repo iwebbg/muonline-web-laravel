@@ -4,6 +4,7 @@ namespace App\Game\Versions\MuDevsSeason21;
 
 use App\Game\Contracts\AccountActivationRepository;
 use App\Game\Contracts\AccountCredentialRepository;
+use App\Game\Contracts\AccountMembershipReadRepository;
 use App\Game\Contracts\AccountPasswordRecoveryRepository;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\AccountRegistrationRepository;
@@ -35,6 +36,7 @@ use App\Game\Contracts\RealmReadRepository;
 use App\Game\Contracts\ZenBankRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountActivationRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountCredentialRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21AccountMembershipReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountPasswordRecoveryRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountRegistrationRepository;
@@ -511,6 +513,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
             MarketItemEscrowRepository::class => SqlServerMuDevsSeason21MarketItemEscrowRepository::class,
             ItemStorageRepository::class => SqlServerMuDevsSeason21ItemStorageRepository::class,
             BattleCoreReadRepository::class => SqlServerMuDevsSeason21BattleCoreReadRepository::class,
+            AccountMembershipReadRepository::class => SqlServerMuDevsSeason21AccountMembershipReadRepository::class,
             CastleSiegeReadRepository::class => SqlServerMuDevsSeason21CastleSiegeReadRepository::class,
             AccountReadRepository::class => SqlServerMuDevsSeason21AccountReadRepository::class,
             RealmReadRepository::class => SqlServerMuDevsSeason21RealmReadRepository::class,

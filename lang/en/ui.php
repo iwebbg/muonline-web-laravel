@@ -675,6 +675,12 @@ return [
     ],
     'account' => [
         'battle_core_heading' => 'Inter-server participation',
+        'native_membership_heading' => 'Game account membership',
+        'native_membership_standard' => 'Standard account',
+        'native_membership_tier' => 'VIP tier :level',
+        'native_membership_unknown' => 'Status unavailable',
+        'native_membership_expiry' => 'Expires: :date (game server time)',
+        'native_membership_expired' => 'The saved VIP membership has expired.',
         'battle_core_help' => 'Recorded registrations and reward items for your account. Join events and collect these rewards in game.',
         'battle_core_rewards' => 'Reward items awaiting collection',
         'battle_core_unavailable' => 'Battle Core information is temporarily unavailable.',

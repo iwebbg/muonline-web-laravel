@@ -29,8 +29,8 @@ final readonly class SqlServerMuDevsSeason21GensMembershipRepository implements 
     /**
      * Returns only Gens memberships belonging to the supplied account.
      *
-     * Rank follows the server function: contribution below 10,000 remains
-     * unranked, while higher contributors receive a dense family rank.
+     * Rank follows Gens_Duprian/Gens_Varnert: each family uses sequential
+     * positions ordered by contribution and the native cached name.
      *
      * @return array<string, GensMembership>
      */
@@ -169,9 +169,7 @@ final readonly class SqlServerMuDevsSeason21GensMembershipRepository implements 
                 'Contribution as contribution',
             ])
             ->selectRaw(
-                'CASE WHEN Contribution > 9999 '
-                .'THEN DENSE_RANK() OVER (PARTITION BY Family ORDER BY Contribution DESC) '
-                .'ELSE 0 END as gens_rank',
+                'ROW_NUMBER() OVER (PARTITION BY Family ORDER BY Contribution DESC, Name ASC) as gens_rank',
             );
     }
 

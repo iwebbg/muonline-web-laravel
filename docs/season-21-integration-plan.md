@@ -17,8 +17,8 @@ all six core character preview/action endpoints, Zen/Jewel Bank, Web Vault,
 Credits/Votes, Market/Auction, Shop, Mystery Boxes and Rewards. All 76 class forms
 are represented. Game writes remain closed globally. The runtime game role now has the narrow
 permissions required by the reviewed account/core/item adapters. The latest completed economy checkpoint passes
-1064 isolated tests / 19870 assertions and all four profile smoke runs. Native SQL
-Server coverage now passes 22 tests / 123 assertions, including item receipts,
+1076 isolated tests / 19931 assertions and all four profile smoke runs. Native SQL
+Server coverage now passes 24 tests / 137 assertions, including item receipts,
 serial allocation and both application-schema migrations.
 
 Adapter availability is an explicit module/route allow-list combined with
@@ -67,7 +67,7 @@ A fresh disposable database built from the exact required native column types
 and a dedicated non-administrator login verifies actual registration/activation,
 serial allocation and journaled item deposit/extraction through this role. The
 installer is idempotent; the role is neither sysadmin nor db_owner. SQL integration
-coverage is now 22 tests / 123 assertions. Live bootstrap changed permissions only;
+coverage is now 24 tests / 137 assertions. Live bootstrap changed permissions only;
 no game account, serial counter or item row was mutated during commissioning.
 
 ### Unknown item display and custody boundary
@@ -92,6 +92,42 @@ presentation. Full-suite/profile and native SQL checks pass. Real special-item
 fixtures remain required for extended identities and dependent-table custody;
 this change does not certify Pentagram/Errtel, Muun, Artifact or wing-core
 transfers. Artwork extraction and new character portraits remain deferred.
+
+### Native account membership and Gens verification
+
+The private dashboard now displays account-wide native membership from
+MEMB_INFO.AccountLevel/AccountExpireDate. This is independent of character VIP
+purchases and does not enable the website VIP purchase module. Numeric VIP tiers
+retain their native value rather than inventing Silver/Gold/Platinum labels.
+Standard, active, expired and incomplete states are represented; the expiry
+label explicitly retains game-server time without assuming the Windows SQL
+Server time zone.
+
+The source WZ_GetAccountLevel resets AccountLevel when GETDATE() is strictly
+later than AccountExpireDate. The website never executes that mutating procedure;
+a SELECT CASE uses SQL Server CURRENT_TIMESTAMP (the same database clock) to
+project effective membership while preserving stored account data. Only the
+signed-in account's row is queried. Null dates and negative tiers remain unknown.
+Live read-only commissioning returns HTTP 200 and displays the account's native
+standard tier correctly. Tests verify ownership, literal SQL-shaped identifiers,
+expiry, read-only queries, unchanged stored values and the legacy dashboard.
+
+A source review of Gens_Duprian/Gens_Varnert exposed an incorrect inherited rank
+assumption. This distribution uses ROW_NUMBER ordered by Contribution DESC,
+Name ASC within each family, including contributors below 10,000; it does not
+use a dense rank or that threshold. The S21 adapter now follows those native
+views while joining ownership by CharacterIndex and displaying current character
+names. Tests cover tied contributions, cached-name collisions, low contributions,
+separate/invalid families and search retaining global rank. Native SQL Server
+coverage verifies both corrected readers. S6 behavior remains unchanged.
+
+The complete isolated suite passes 1,076 tests / 19,931 assertions and all four
+profile smoke runs; native SQL integration passes 24 tests / 137 assertions.
+Pint and the frontend build pass. Native paid identity/progression services remain
+gated: the legacy rename path references absent MarryName and omits S21 index
+caches; reset/point purchases also need native durable retry receipts before
+opening their payment boundary. No paid operation or live game mutation was
+performed during this work.
 
 ## Sources and evidence
 

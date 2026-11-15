@@ -675,6 +675,12 @@ return [
     ],
     'account' => [
         'battle_core_heading' => 'Участие между сървъри',
+        'native_membership_heading' => 'Статус на игровия акаунт',
+        'native_membership_standard' => 'Стандартен акаунт',
+        'native_membership_tier' => 'VIP ниво :level',
+        'native_membership_unknown' => 'Статусът не е наличен',
+        'native_membership_expiry' => 'Изтича: :date (време на игровия сървър)',
+        'native_membership_expired' => 'Записаният VIP статус е изтекъл.',
         'battle_core_help' => 'Записани регистрации и наградни предмети за акаунта ти. Участвай в евентите и получи наградите през играта.',
         'battle_core_rewards' => 'Наградни предмети за получаване',
         'battle_core_unavailable' => 'Информацията за Battle Core временно не е достъпна.',

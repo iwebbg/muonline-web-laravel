@@ -70,6 +70,7 @@ final class AccountDashboardTest extends TestCase
             ->actingAs($this->account('owner'))
             ->get('/account');
 
+        $response->assertDontSee('Game account membership');
         $response->assertOk();
         $response->assertSee('OwnedKnight');
         $response->assertDontSee('HiddenWizard');

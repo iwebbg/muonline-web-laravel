@@ -41,6 +41,28 @@
                         </div>
                     @endforeach
                 @endif
+                @if ($nativeAccountMembership !== null)
+                    <div class="resource-chip">
+                        <span>{{ __('ui.account.native_membership_heading') }}</span>
+                        <strong class="text-gold">
+                            @if ($nativeAccountMembership->effectiveLevel === null)
+                                {{ __('ui.account.native_membership_unknown') }}
+                            @elseif ($nativeAccountMembership->effectiveLevel === 0)
+                                {{ __('ui.account.native_membership_standard') }}
+                            @else
+                                {{ __('ui.account.native_membership_tier', ['level' => $nativeAccountMembership->effectiveLevel]) }}
+                            @endif
+                        </strong>
+                        @if (($nativeAccountMembership->storedLevel ?? 0) > 0 && $nativeAccountMembership->expiresAt !== null)
+                            <span class="text-xs text-steel">
+                                {{ __('ui.account.native_membership_expiry', ['date' => $nativeAccountMembership->expiresAt]) }}
+                            </span>
+                        @endif
+                        @if ($nativeAccountMembership->expired)
+                            <span class="text-xs text-steel">{{ __('ui.account.native_membership_expired') }}</span>
+                        @endif
+                    </div>
+                @endif
             </div>
         </div>
 

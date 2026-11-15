@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Auth\GameAccount;
 use App\CharacterServices\CharacterClassChangeResolver;
 use App\Economy\WalletCurrency;
+use App\Game\Contracts\AccountMembershipReadRepository;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\BattleCoreReadRepository;
 use App\Game\Contracts\GameCurrencyBalanceRepository;
@@ -49,6 +50,7 @@ final class AccountDashboardController extends Controller
         private readonly LuckyCoinBalanceRepository $luckyCoinBalanceRepository,
         private readonly ?GameCurrencyBalanceRepository $currencyBalanceRepository = null,
         private readonly ?BattleCoreReadRepository $battleCoreReadRepository = null,
+        private readonly ?AccountMembershipReadRepository $accountMembershipReadRepository = null,
     ) {}
 
     /**
@@ -265,6 +267,7 @@ final class AccountDashboardController extends Controller
             'luckyCoinBalance' => $luckyCoinBalance,
             'nativeCurrencyBalances' => $nativeCurrencyBalances,
             'battleCore' => $this->battleCoreReadRepository?->forAccount($account->username),
+            'nativeAccountMembership' => $this->accountMembershipReadRepository?->forAccount($account->username),
             'vipPlans' => $vipPlans,
             'vipEntitlements' => $vipEntitlements,
             'activeVipEntitlementCount' => $activeVipEntitlementCount,

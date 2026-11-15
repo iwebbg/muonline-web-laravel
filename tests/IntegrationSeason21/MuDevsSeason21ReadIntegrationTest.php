@@ -2,7 +2,9 @@
 
 namespace Tests\IntegrationSeason21;
 
+use App\Game\Repositories\SqlServerMuDevsSeason21AccountMembershipReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountReadRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21GensMembershipRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21MasterProgressionRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21RealmReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21WarehouseInspectionRepository;
@@ -114,6 +116,36 @@ final class MuDevsSeason21ReadIntegrationTest extends TestCase
     }
 
     /**
+     * Applies native SQL Server expiry rules without invoking the mutating VIP procedure.
+     */
+    public function test_reads_account_membership_using_the_native_database_clock_without_updates(): void
+    {
+        $connection = $this->gameConnection();
+        $connection->table('MEMB_INFO')->insert([
+            ['memb_guid' => 1, 'memb___id' => 's21active', 'AccountLevel' => 2, 'AccountExpireDate' => '2070-01-01 12:30:00'],
+            ['memb_guid' => 2, 'memb___id' => 's21expired', 'AccountLevel' => 3, 'AccountExpireDate' => '2000-01-01 12:30:00'],
+        ]);
+        $reader = $this->app->make(SqlServerMuDevsSeason21AccountMembershipReadRepository::class);
+        $connection->enableQueryLog();
+        $connection->flushQueryLog();
+
+        $active = $reader->forAccount('s21active');
+        $expired = $reader->forAccount('s21expired');
+
+        self::assertSame(2, $active->effectiveLevel);
+        self::assertFalse($active->expired);
+        self::assertSame(0, $expired->effectiveLevel);
+        self::assertTrue($expired->expired);
+        self::assertSame(3, $expired->storedLevel);
+        self::assertStringStartsWith('2000-01-01 12:30:00', $expired->expiresAt);
+        foreach ($connection->getQueryLog() as $query) {
+            self::assertStringStartsWith('select', strtolower($query['query']));
+        }
+        self::assertSame(3, (int) $connection->table('MEMB_INFO')->where('memb___id', 's21expired')->value('AccountLevel'));
+        self::assertNull($reader->forAccount('missing'));
+    }
+
+    /**
      * Confirms private queries preserve Command and never return foreign characters.
      */
     public function test_reads_owned_characters_with_native_sql_server_types(): void
@@ -133,6 +165,30 @@ final class MuDevsSeason21ReadIntegrationTest extends TestCase
         self::assertFalse($character?->online);
         self::assertNull($reader->characterFor('s21owner', 'S21Hidden'));
         self::assertCount(1, $reader->charactersFor('s21owner'));
+    }
+
+    /**
+     * Keeps native sequential family rank and low-contribution standings on SQL Server.
+     */
+    public function test_reads_native_gens_ties_and_low_contribution_by_character_index(): void
+    {
+        $this->seedCharacters();
+        $connection = $this->gameConnection();
+        $connection->table('Gens_Rank')->insert([
+            ['Name' => 'Alpha', 'CharacterIndex' => 202, 'Family' => 1, 'Contribution' => 9999],
+            ['Name' => 'Zcached', 'CharacterIndex' => 101, 'Family' => 1, 'Contribution' => 9999],
+        ]);
+        $reader = new SqlServerMuDevsSeason21GensMembershipRepository(
+            $this->app->make(DatabaseManager::class),
+            new MuDevsSeason21Profile,
+        );
+
+        $memberships = $reader->forAccount('s21owner');
+
+        self::assertSame(['S21Lord'], array_keys($memberships));
+        self::assertSame(2, $memberships['S21Lord']->rank);
+        self::assertSame(9999, $memberships['S21Lord']->contribution);
+        self::assertSame(1, $reader->forCharacter('S21Hidden')->rank);
     }
 
     /**
