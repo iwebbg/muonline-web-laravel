@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Game\Events\EventActivityAvailability;
 use App\Game\Events\EventProfileReader;
 use App\Game\Events\EventSchedule;
 use App\Models\EventScheduleEntry;
@@ -39,8 +40,11 @@ final class MuDevsSeason21EventProfileTest extends TestCase
             'blood-castle', 'devil-square', 'chaos-castle', 'castle-deep',
             'moss-merchant', 'group-boss-battle', 'skeleton-king-invasion',
             'red-dragon-invasion', 'golden-invasion', 'white-wizard-invasion', 'medusa',
+            'doppelganger-renewal', 'arca-battle', 'crywolf',
+            'chaos-castle-survival-qualifiers', 'chaos-castle-survival-semifinals', 'chaos-castle-survival-final',
+            'tormented-square-qualifiers', 'tormented-square-semifinals', 'tormented-square-final', 'tormented-square-battle',
         ], array_column($definitions, 'key'));
-        $this->assertCount(11, $events);
+        $this->assertCount(21, $events);
         $this->assertSame('group-boss-battle', $events[0]->key);
         $this->assertSame('2026-11-14T00:05:00+02:00', $events[0]->toClientArray()['occurrences'][0]);
     }
@@ -109,9 +113,56 @@ final class MuDevsSeason21EventProfileTest extends TestCase
         $definitions = app(EventProfileReader::class)->definitions();
         $events = collect((new EventSchedule)->upcoming($definitions, new DateTimeImmutable('2026-11-14T00:00:00+02:00')))->keyBy('key');
 
-        $this->assertCount(11, $definitions);
-        $this->assertCount(10, $events);
+        $this->assertCount(21, $definitions);
+        $this->assertCount(20, $events);
         $this->assertFalse($events->has('blood-castle'));
         $this->assertTrue($events->has('devil-square'));
+    }
+
+    /**
+     * Keeps monthly stages and explicit preparation/start anchors separate from daily timers.
+     */
+    public function test_native_tournament_stages_keep_their_calendar_days_and_exact_anchors(): void
+    {
+        $events = collect((new EventSchedule)->upcoming(app(EventProfileReader::class)->definitions(), new DateTimeImmutable('2026-11-14T00:00:00+02:00')))->keyBy('key');
+
+        self::assertSame('2026-12-13T01:25:00+02:00', $events['chaos-castle-survival-final']->nextOccurrence()->format(DATE_ATOM));
+        self::assertSame('2026-11-18T11:44:00+02:00', $events['tormented-square-qualifiers']->nextOccurrence()->format(DATE_ATOM));
+        self::assertSame('2026-11-23T22:00:00+02:00', $events['tormented-square-final']->nextOccurrence()->format(DATE_ATOM));
+        self::assertSame([23], $events['tormented-square-final']->daysOfMonth);
+        self::assertSame('2026-11-14T20:35:00+02:00', $events['doppelganger-renewal']->nextOccurrence()->format(DATE_ATOM));
+        self::assertSame(0, $events['doppelganger-renewal']->durationMinutes);
+        self::assertSame('2026-11-14T20:30:00+02:00', $events['crywolf']->nextOccurrence()->format(DATE_ATOM));
+    }
+
+    /**
+     * Describes standard non-timed activities while correctly closing expired campaigns.
+     */
+    public function test_activity_catalog_keeps_dungeons_available_and_expired_campaigns_closed(): void
+    {
+        $activities = collect(app(EventProfileReader::class)->activities(new DateTimeImmutable('2026-11-15T12:00:00+02:00')))->keyBy('key');
+
+        self::assertCount(16, $activities);
+        self::assertSame(EventActivityAvailability::OnDemand, $activities['imperial-guardian-renewal']->availability);
+        self::assertStringContainsString('1000', $activities['imperial-guardian-renewal']->description);
+        self::assertSame(EventActivityAvailability::Closed, $activities['anniversary']->availability);
+        self::assertSame(EventActivityAvailability::Closed, $activities['battle-pass']->availability);
+        self::assertSame(EventActivityAvailability::Disabled, $activities['illusion-temple-league']->availability);
+        self::assertSame(EventActivityAvailability::InGame, $activities['acheron-guardian']->availability);
+    }
+
+    /**
+     * Uses explicit campaign years rather than automatically repeating a prior year's pass.
+     */
+    public function test_battle_pass_availability_changes_only_within_its_configured_dates(): void
+    {
+        $reader = app(EventProfileReader::class);
+        $future = collect($reader->activities(new DateTimeImmutable('2024-12-01T12:00:00+02:00')))->keyBy('key');
+        $active = collect($reader->activities(new DateTimeImmutable('2025-06-01T12:00:00+02:00')))->keyBy('key');
+
+        self::assertSame(EventActivityAvailability::Scheduled, $future['battle-pass']->availability);
+        self::assertSame(EventActivityAvailability::InGame, $active['battle-pass']->availability);
+        config()->set('game.event_profile', 'darksteam_97d99i');
+        self::assertSame([], $reader->activities(new DateTimeImmutable('2026-11-15T12:00:00+02:00')));
     }
 }

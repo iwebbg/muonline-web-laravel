@@ -226,6 +226,8 @@
                                 <span>{{ __('ui.home.every_days', ['count' => $event['cycleDays']]) }}</span>
                             @elseif ($event['intervalMinutes'] !== null)
                                 <span>{{ __('ui.home.every_minutes', ['count' => $event['intervalMinutes']]) }}</span>
+                            @elseif (($event['daysOfMonth'] ?? []) !== [])
+                                <span>{{ __('ui.home.month_days', ['days' => implode(', ', $event['daysOfMonth'])]) }}</span>
                             @elseif ($event['daysOfWeek'] === [])
                                 <span>{{ __('ui.home.every_day') }}</span>
                             @else
@@ -253,6 +255,29 @@
             </div>
         </div>
     </section>
+
+    @if ($eventActivities !== [])
+        <section class="shell pb-14">
+            <div class="section-heading">
+                <div>
+                    <p class="kicker">{{ __('ui.home.activities_kicker') }}</p>
+                    <h2>{{ __('ui.home.activities_heading') }}</h2>
+                </div>
+            </div>
+            <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                @foreach ($eventActivities as $activity)
+                    <article class="panel-card p-5">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <p class="kicker">{{ $activity->location }}</p>
+                            <span class="rounded-lg border border-white/10 px-2 py-1 text-xs text-silver">{{ __('ui.home.activity_availability.'.$activity->availability->value) }}</span>
+                        </div>
+                        <h3 class="mt-3 text-lg font-semibold text-white">{{ $activity->name }}</h3>
+                        <p class="mt-3 text-sm leading-6 text-silver">{{ $activity->description }}</p>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+    @endif
 
     <section id="rankings" class="shell scroll-mt-28 py-14" x-data="rankingBoard('players')">
         <div class="section-heading">

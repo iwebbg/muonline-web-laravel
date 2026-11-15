@@ -12,16 +12,20 @@ may be absent; verified dimensions and readable presentation are required.
 
 ## Current staged website surface
 
-The native bundle now exposes registration/recovery/security, inventory/vault
-reads, Zen Bank and all six core character preview/action endpoints. Game writes
-remain closed globally and the runtime game role still has SELECT-only grants.
-Checkpoint validation: 1004 isolated tests / 19638 assertions, all four profile
-smoke runs, and 14 native SQL Server tests / 74 assertions pass. Native adapter
-availability is now an explicit module allow-list, combined with
-persisted operator switches; persisted settings cannot enable unfinished modules.
-Admin navigation uses the same reviewed route surface as the middleware, so it
-shows character rules, moderation, module management, Game Master identities,
-events and content without links to unfinished item/economy actions.
+The native bundle exposes registration/recovery/security, inventory/vault reads,
+all six core character preview/action endpoints, Zen/Jewel Bank, Web Vault,
+Credits/Votes, Market/Auction, Shop, Mystery Boxes and Rewards. All 76 class forms
+are represented. Game writes remain closed globally and the current runtime game
+role still has SELECT-only grants. The latest completed economy checkpoint passes
+1046 isolated tests / 19788 assertions and all four profile smoke runs. Native SQL
+Server coverage now passes 20 tests / 102 assertions, including item receipts,
+serial allocation and both application-schema migrations.
+
+Adapter availability is an explicit module/route allow-list combined with
+persisted operator switches. Administration includes native item grants, reviewed
+economy pages, events, character rules, moderation, module management, Game Masters
+and content. Unimplemented per-character VIP and paid identity/progression routes
+remain gated rather than falling through to a legacy repository.
 
 The native default and administrator stat limit are 65000. The application-owned
 reset_profiles.maximum_stat column was originally SQL Server SMALLINT; a new
@@ -390,40 +394,47 @@ converting schedules; the source includes non-round-minute start times.
 
 ### Implemented recurring profile
 
-`game_events.profiles.mudevs_season_21` now contains 11 source-backed recurring
-definitions: Blood Castle, Devil Square, Chaos Castle, Castle Deep, Moss Merchant,
-Group Boss Battle, Skeleton King, Red Dragon, Golden, White Wizard and Medusa.
-The existing `EventProfileReader` and `EventSchedule` consume this profile without
-changes; administrator overrides retain profile/version isolation. The S21 game
-bundle is still incomplete, but its reviewed read bundle and this event profile
-are now selected locally. These are configured recurrences,
-not evidence of live event execution or a complete standard-activity implementation.
+`game_events.profiles.mudevs_season_21` contains 21 source-backed recurring
+entries, plus the database-anchored Castle Siege cycle. It preserves the original
+11 schedules and adds Doppelganger Renewal, Arca Battle, Crywolf, three monthly
+Chaos Castle Survival stages, three monthly Tormented Square stages and Tormented
+Square Battle. Monthly stages retain their actual day-of-month restrictions;
+the next valid date skips nonexistent dates rather than rolling into another month.
+Weekday/calendar intersections and Sofia daylight-saving transitions are tested.
+
+Doppelganger Renewal is **scheduled in this pack**, correcting the initial
+on-demand classification: notify 20:25, ready 20:30, start 20:35, at least two
+parties of two users. The new phase anchors use duration zero when a complete
+active window is not established. They never manufacture an ongoing battle from
+a warning/registration time or one round's duration.
+
+Sixteen additional standard-activity cards explain entry, dungeon-state or
+campaign availability without inventing countdowns. Imperial Guardian Renewal
+requires level 1000 and accepts all sixteen families. Illusion Temple League is
+disabled in its selected XML. Anniversary quests end in 2023 and the supplied
+Battle Pass periods end on 30 December 2025; at the current date both are shown
+as ended. No server campaign dates were altered. Acheron and ambiguous Temple
+variants retain an in-game availability check.
+
+The application-owned `days_of_month` JSON column is optional for existing event
+overrides. Administrator forms and immutable revisions retain calendar days. The
+SQL Server migration preserves old entries and refuses to drop populated calendar
+restrictions. Empty calendar restrictions retain old schedule behavior and the
+legacy client payload shape.
 
 ### Website activation milestone
 
-`GAME_SERVER_PROFILE=mudevs_season_21` now selects native account, public realm,
-Master progression and currency reads. The private dashboard displays account
-WCoin(C), WCoin(P), GoblinPoint, Lucky Coin and per-character Ruud independently
-of web Credits. The profile permits reviewed public pages, login/logout,
-account overview, event/content administration and the opt-in warehouse preview.
-Unsupported routes return 404 before unimplemented services are resolved;
-economy modules and character-operation controls remain unavailable even if
-the global writes flag or persisted module settings are changed. The three
-existing adapters retain their full route/module behavior.
+`GAME_SERVER_PROFILE=mudevs_season_21` selects native repositories throughout the
+reviewed website surface. Native WCoin(C), WCoin(P), GoblinPoint, Lucky Coin and
+per-character Ruud remain separate from web Credits. Unsupported routes return
+404 before unresolved services are constructed. The three legacy adapters retain
+their original module and route availability.
 
-The local account contains persisted class 18 in addition to base classes
-176–240. The owner matched code 18 to Blade Master in the client; it now has its
-own ranking filter and the existing Knight stat family. Its predecessor code
-and other advancements remain unverified. Other unverified codes are still
-rejected. A manual authenticated read of the actual account,
-including Crusader, returns HTTP 200. No game records were changed.
-
-Validation: the full suite passes 931 tests / 18,817 assertions, and the
-four-profile smoke matrix passes. The
-native SQL Server suite passes five cases/38 assertions. Focused tests cover
-native login, mixed-class ownership, empty accounts, private currency balances,
-unavailable operations, event permissions and audited S21 schedule overrides.
-Item artwork batch extraction is deferred until the web adapter is complete.
+The owner matched persisted class 18 to Blade Master. All remaining advancement
+names now come from the supplied client's text catalog, with source-backed code
+transitions; the class section records evidence and runtime verification limits.
+A manual native account/inventory render returns HTTP 200. Automated tests use
+only disposable SQLite projections and the internal SQL Server service.
 
 Each definition identifies its switch/host and active source. Blood Castle,
 Devil Square, Chaos Castle and Castle Deep use the enabled `GameServerCS` host.
@@ -431,7 +442,8 @@ Moss uses `GameServer`'s enabled 120-minute setting; the CS host disables Moss
 and has a different 300-minute value, which must not override the active host.
 All starts are explicit times: retain Blood Castle's 01:06/15:03 and Chaos
 Castle's 11:24/16:50/17:13 rather than replacing them with regular intervals.
-Invasions use XML IDs 0, 1, 2, 3 and 8, preserving their exact schedules and
+Invasions use the enabled GameServer host (GameServerCS InvasionManagerSwitch=0)
+and XML IDs 0, 1, 2, 3 and 8, preserving their exact schedules and
 converting the configured 600-second duration to ten minutes.
 
 Warning, notify, play and close values are retained in definition provenance;
@@ -445,15 +457,15 @@ daily countdowns:
 
 | Systems | Current disposition / next requirement |
 | --- | --- |
-| Acheron Guardian, Crywolf | Timed source exists; confirm host/activation, weekday numbering and phase anchors. |
+| Acheron Guardian / Crywolf | Crywolf first-phase anchors are scheduled on ISO Wednesday/Saturday. Acheron timings are listed as entry information; activation remains a client check. |
 | Illusion Temple / renewal / League | Resolve the selected variant; League XML disables it despite the global switch. |
-| Castle Siege, Arca Battle, Chaos Castle Survival, Tormented Square / Battle Core | Implement cycle/stage/phase models and verified native result/state dependencies. Arca XML enables all weekdays at 10:45 with EventType=0; that anchor is not yet interpreted as a battle phase. |
-| Doppelganger renewal, Imperial Guardian renewal, Labyrinth | On-demand activity sources; dedicated entry/availability/progression views remain pending rather than recurring dungeon starts. |
+| Castle Siege, Arca Battle, Chaos Castle Survival, Tormented Square / Battle Core | Castle Siege uses its database cycle. Arca and Battle use exact anchors; monthly tournament stages are implemented. Live result/state dependencies and distinct runtime phase interpretation still need commissioning. |
+| Doppelganger renewal, Imperial Guardian renewal, Labyrinth | Doppelganger has an explicit daily start. Imperial Guardian and Labyrinth have entry-information cards without recurring timers. Private progression is separate from entry information. |
 | Kanturu, Raklion and world bosses | Read native states or verify respawn semantics before publishing an exact next occurrence. |
 | Evolution Monster, seasonal invasions/minigames, anniversary, Battle/Season Pass and Play Time | Verify activation periods, triggers and private ownership/reward state. Invasion IDs 4–7 and 9–10 remain excluded pending this review, not relabeled as custom events. |
 
 Custom-event files remain outside this standard profile. Tests exercise the
-11 definitions through the normal reader/calculator, irregular times, midnight
+21 definitions through the normal reader/calculator, irregular times, midnight
 rollover, active-host duration and isolated persisted overrides without reading
 or writing the live game database.
 

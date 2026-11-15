@@ -94,6 +94,7 @@ class PreviewController extends Controller
             'server' => $server,
             'serverDirectory' => $serverDirectory['entries'],
             'events' => $events,
+            'eventActivities' => $this->eventProfileReader->activities($serverNow),
             'allEvents' => $allEvents,
             'additionalEventCount' => $additionalEventCount,
             'eventServerNow' => $serverNow->format(DATE_ATOM),
