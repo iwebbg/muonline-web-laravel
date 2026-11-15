@@ -18,6 +18,24 @@ database boundaries and auditable operations.
 Read the [complete project documentation](docs/README.md) for installation,
 configuration, compatibility, development and testing guidance.
 
+## Local installation on Ubuntu / WSL
+
+From the cloned repository, run:
+
+```bash
+bash docker/install.sh
+```
+
+The interactive installer can install Docker Engine and Compose, creates missing
+environment files, lists the registered game profiles, asks for SQL connection
+details and generates runtime passwords and the application key. It checks the
+existing game database, provisions web access, builds frontend assets and starts
+the local stack. It then removes temporary SQL administrator passwords and offers
+to create a website administrator. SQL Server and the restored game database must
+already be available over TCP; SQL Server installation and Windows firewall
+configuration remain separate steps. Existing runtime passwords and application
+keys are preserved when rerunning the installer.
+
 ## Support the project
 
 If MuOnline Web is useful to your server or community, you can support ongoing
