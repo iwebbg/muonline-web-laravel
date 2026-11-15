@@ -30,6 +30,20 @@ final class ModuleManager
     }
 
     /**
+     * Reports whether the active adapter implements a module before operator settings apply.
+     */
+    public function supports(ServerModule $module): bool
+    {
+        $capabilities = $this->versionProfile->capabilities();
+
+        if ($capabilities->availableModules === null) {
+            return ! $capabilities->readOnly;
+        }
+
+        return in_array($module, $capabilities->availableModules, true);
+    }
+
+    /**
      * Returns the active persisted snapshot or the configured defaults.
      */
     public function current(): ModuleSettings
@@ -38,7 +52,8 @@ final class ModuleManager
             return $this->resolvedSettings;
         }
 
-        if ($this->versionProfile->capabilities()->readOnly) {
+        if ($this->versionProfile->capabilities()->readOnly
+            && $this->versionProfile->capabilities()->availableModules === null) {
             $states = [];
 
             foreach (ServerModule::cases() as $module) {
@@ -49,7 +64,7 @@ final class ModuleManager
         }
 
         if (! $this->moduleProfilesTableExists()) {
-            $this->resolvedSettings = ModuleSettings::defaults();
+            $this->resolvedSettings = $this->supportedSettings(ModuleSettings::defaults());
 
             return $this->resolvedSettings;
         }
@@ -60,7 +75,7 @@ final class ModuleManager
             ->first();
 
         $modules = is_array($profile?->modules) ? $profile->modules : [];
-        $this->resolvedSettings = ModuleSettings::fromArray($modules);
+        $this->resolvedSettings = $this->supportedSettings(ModuleSettings::fromArray($modules));
 
         return $this->resolvedSettings;
     }
@@ -102,6 +117,28 @@ final class ModuleManager
     public function gameVersion(): string
     {
         return (string) config('game.profile.version', '97d + 99i');
+    }
+
+    /**
+     * Keeps unsupported adapter modules disabled even if persisted settings enable them.
+     */
+    private function supportedSettings(ModuleSettings $settings): ModuleSettings
+    {
+        $availableModules = $this->versionProfile->capabilities()->availableModules;
+
+        if ($availableModules === null) {
+            return $settings;
+        }
+
+        $states = $settings->toArray();
+
+        foreach (ServerModule::cases() as $module) {
+            if (! in_array($module, $availableModules, true)) {
+                $states[$module->value] = false;
+            }
+        }
+
+        return new ModuleSettings($states);
     }
 
     /**

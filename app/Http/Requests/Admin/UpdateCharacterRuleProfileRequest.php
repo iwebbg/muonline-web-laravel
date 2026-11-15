@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Game\Versions\CharacterStatDefinition;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\GrandReset\GrandResetPointsMode;
 use App\Models\Administrator;
 use App\PkClear\PkClearPriceMode;
@@ -32,22 +34,30 @@ final class UpdateCharacterRuleProfileRequest extends FormRequest
      *
      * @return array<string, list<mixed>>
      */
-    public function rules(ResetProfileReader $resetProfileReader): array
+    public function rules(ResetProfileReader $resetProfileReader, GameVersionProfile $versionProfile): array
     {
         $current = $resetProfileReader->current();
+        $maximumStat = max(array_map(
+            static fn (CharacterStatDefinition $stat): int => $stat->maximum,
+            $versionProfile->stats(),
+        ));
+        $inventoryPolicies = $versionProfile->capabilities()->resetInventoryPolicies;
+        $inventoryPolicyRule = $inventoryPolicies === null
+            ? Rule::enum(InventoryPolicy::class)
+            : Rule::in(array_map(static fn (InventoryPolicy $policy): string => $policy->value, $inventoryPolicies));
 
         return match ($this->profile()) {
             'reset' => [
                 'enabled' => ['required', 'boolean'],
                 'requiredLevel' => ['required', 'integer', 'min:1', 'max:400'],
                 'maximumResets' => ['required', 'integer', 'min:'.max(1, $current->grandResetRequiredResets, $current->statResetRequiredResets), 'max:10000'],
-                'maximumStat' => ['required', 'integer', 'min:1', 'max:32767'],
+                'maximumStat' => ['required', 'integer', 'min:1', 'max:'.$maximumStat],
                 'baseZenCost' => ['required', 'integer', 'min:0', 'max:2000000000'],
                 'multiplyCostByReset' => ['required', 'boolean'],
                 'clearStats' => ['required', 'boolean'],
                 'pointsMode' => ['required', Rule::enum(PointsMode::class)],
-                'pointsPerReset' => ['required', 'integer', 'min:0', 'max:32767'],
-                'inventoryPolicy' => ['required', Rule::enum(InventoryPolicy::class)],
+                'pointsPerReset' => ['required', 'integer', 'min:0', 'max:'.$maximumStat],
+                'inventoryPolicy' => ['required', $inventoryPolicyRule],
                 'resetRewardType' => ['required', Rule::enum(ResetRewardType::class)],
                 'resetRewardCredits' => ['nullable', 'required_if:resetRewardType,credits', 'integer', 'min:1', 'max:9000000000000000'],
                 'resetRewardShopOfferId' => [
@@ -67,7 +77,7 @@ final class UpdateCharacterRuleProfileRequest extends FormRequest
                 'grandResetClearStats' => ['required', 'boolean'],
                 'grandResetPointsMode' => ['required', Rule::enum(GrandResetPointsMode::class)],
                 'grandResetPoints' => ['required', 'integer', 'min:0', 'max:2000000000'],
-                'grandResetInventoryPolicy' => ['required', Rule::enum(InventoryPolicy::class)],
+                'grandResetInventoryPolicy' => ['required', $inventoryPolicyRule],
                 'grandResetConsumeRequiredResets' => ['required', 'boolean'],
                 'grandResetRewardType' => ['required', Rule::enum(ResetRewardType::class)],
                 'grandResetRewardCredits' => ['nullable', 'required_if:grandResetRewardType,credits', 'integer', 'min:1', 'max:9000000000000000'],

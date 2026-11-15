@@ -11,11 +11,13 @@ use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\Administrator;
 use App\Models\EventScheduleEntry;
 use App\Models\EventScheduleEntryRevision;
+use App\Models\ModuleProfile;
 use App\Modules\ModuleManager;
 use App\Modules\ServerModule;
 use App\Providers\AppServiceProvider;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -46,10 +48,9 @@ final class MuDevsSeason21WebsiteTest extends TestCase
         $this->app->make(DatabaseManager::class)->connection('game')->unprepared(
             file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-read-schema.sql')),
         );
-        $connection = $this->app->make(DatabaseManager::class)->connection('game');
-        $connection->statement('ALTER TABLE Character ADD RuudMoney INT NULL');
-        $connection->statement('CREATE TABLE CashShopData (AccountID VARCHAR(10) PRIMARY KEY, WCoinC INT, WCoinP INT, GoblinPoint INT)');
-        $connection->statement('CREATE TABLE LuckyCoin (AccountID VARCHAR(10) PRIMARY KEY, LuckyCoin INT)');
+        $this->app->make(DatabaseManager::class)->connection('game')->unprepared(
+            file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-web-columns.sql')),
+        );
     }
 
     /**
@@ -72,8 +73,8 @@ final class MuDevsSeason21WebsiteTest extends TestCase
             ->assertSee('Blade Master')
             ->assertDontSee('Hidden')
             ->assertSee("selectSection('inventory')", false)
-            ->assertDontSee("selectSection('reset')", false)
-            ->assertViewHas('readOnlyGameProfile', true);
+            ->assertSee("selectSection('reset')", false)
+            ->assertViewHas('readOnlyGameProfile', false);
         $this->assertSame('inventory', $response->viewData('accountPanelConfiguration')['initialSection']);
         $this->assertSame(240, $connection->table('Character')->where('Name', 'Crusader')->value('Class'));
     }
@@ -86,7 +87,7 @@ final class MuDevsSeason21WebsiteTest extends TestCase
         $response = $this->actingAs($this->account())->get('/account');
 
         $response->assertOk()->assertSee(__('ui.account.no_characters_heading'));
-        $this->assertSame('overview', $response->viewData('accountPanelConfiguration')['initialSection']);
+        $this->assertSame('vaults', $response->viewData('accountPanelConfiguration')['initialSection']);
     }
 
     /**
@@ -161,6 +162,41 @@ final class MuDevsSeason21WebsiteTest extends TestCase
     }
 
     /**
+     * Restores supported account menus without exposing unfinished economy modules.
+     */
+    public function test_supported_account_pages_and_registration_are_available(): void
+    {
+        $this->get('/register')->assertOk();
+        $this->get('/forgot-password')->assertOk();
+        $this->actingAs($this->account());
+        $this->get('/account/security')->assertOk();
+        $this->get('/account/zen-bank')->assertOk();
+        $this->get('/account')->assertOk()->assertSee(route('account.security.index'), false)
+            ->assertSee(route('account.zen-bank.index'), false);
+        $this->get('/market')->assertNotFound();
+    }
+
+    /**
+     * Prevents persisted settings from activating an unfinished native adapter module.
+     */
+    public function test_persisted_module_settings_cannot_bypass_native_availability(): void
+    {
+        ModuleProfile::query()->create([
+            'profile_key' => 'mudevs_season_21',
+            'game_version' => 'S21.1-2',
+            'modules' => ['market' => true, 'registration' => false, 'account_security' => true],
+            'revision' => 1,
+        ]);
+        $this->app->make(ModuleManager::class)->forget();
+
+        $this->assertFalse($this->app->make(ModuleManager::class)->enabled(ServerModule::Market));
+        $this->assertFalse($this->app->make(ModuleManager::class)->enabled(ServerModule::Registration));
+        $this->assertTrue($this->app->make(ModuleManager::class)->enabled(ServerModule::AccountSecurity));
+        $this->get('/market')->assertNotFound();
+        $this->get('/register')->assertNotFound();
+    }
+
+    /**
      * Publishes Castle Siege from the native database cycle and configured battle phase.
      */
     public function test_castle_siege_uses_the_native_database_cycle(): void
@@ -186,14 +222,105 @@ final class MuDevsSeason21WebsiteTest extends TestCase
         $this->actingAs($this->account());
 
         $this->getJson('/account/item-storage')->assertNotFound();
-        $this->postJson('/account/reset-preview', ['characterName' => 'Crusader'])->assertNotFound();
-        $this->postJson('/account/character-reset', ['characterName' => 'Crusader'])->assertNotFound();
-        $this->postJson('/register', [])->assertNotFound();
         $this->get('/shop')->assertNotFound();
 
         foreach (ServerModule::cases() as $module) {
-            $this->assertFalse($this->app->make(ModuleManager::class)->enabled($module));
+            $this->assertSame(
+                in_array($module, [ServerModule::Registration, ServerModule::PasswordRecovery, ServerModule::AccountSecurity, ServerModule::ZenBank], true),
+                $this->app->make(ModuleManager::class)->enabled($module),
+            );
         }
+    }
+
+    /**
+     * Resolves each native character preview without writing game state.
+     */
+    #[DataProvider('nativePreviewRoutes')]
+    public function test_native_character_preview_endpoints_are_available(string $path): void
+    {
+        $connection = $this->app->make(DatabaseManager::class)->connection('game');
+        $connection->table('Character')->insert($this->character('owner', 'Crusader', 1, 244));
+        $connection->table('MEMB_STAT')->insert(['memb___id' => 'owner', 'ConnectStat' => 0]);
+        $before = $connection->table('Character')->first();
+        $token = 's21-preview';
+
+        $this->actingAs($this->account())->withSession(['_token' => $token])->postJson($path, [
+            '_token' => $token, 'characterName' => 'Crusader', 'strength' => 1,
+        ])->assertOk()->assertJsonPath('preview.characterName', 'Crusader');
+        $this->assertEquals($before, $connection->table('Character')->first());
+    }
+
+    /**
+     * Covers all currently implemented native core character previews.
+     *
+     * @return iterable<string, array{string}>
+     */
+    public static function nativePreviewRoutes(): iterable
+    {
+        foreach (['reset', 'grand-reset', 'stat-allocation', 'stat-reset', 'pk-clear', 'move-to-town'] as $operation) {
+            yield $operation => ['/account/'.$operation.'-preview'];
+        }
+    }
+
+    /**
+     * Returns an explicit write-disabled result without changing the owned native character.
+     */
+    #[DataProvider('nativeMutationRoutes')]
+    public function test_native_character_endpoint_respects_the_closed_write_switch(string $path): void
+    {
+        config()->set('game.writes_enabled', false);
+        $connection = $this->app->make(DatabaseManager::class)->connection('game');
+        $connection->table('Character')->insert($this->character('owner', 'Crusader', 1, 244));
+        $before = $connection->table('Character')->first();
+        $token = 's21-reset';
+
+        $this->actingAs($this->account())->withSession(['_token' => $token])->postJson($path, [
+            '_token' => $token, 'characterName' => 'Crusader', 'idempotencyKey' => 'd224d36c-3214-49f7-a5c0-04c315fe3d68', 'strength' => 1,
+        ])->assertStatus(503)->assertJsonPath('reason', 'writes_disabled');
+        $this->assertEquals($before, $connection->table('Character')->first());
+        $this->assertDatabaseCount('character_reset_operations', 0);
+    }
+
+    /**
+     * Covers each native core mutation endpoint while its global write switch stays closed.
+     *
+     * @return iterable<string, array{string}>
+     */
+    public static function nativeMutationRoutes(): iterable
+    {
+        foreach (['character-reset', 'character-grand-reset', 'stat-allocations', 'character-stat-reset', 'character-pk-clear', 'character-move'] as $operation) {
+            yield $operation => ['/account/'.$operation];
+        }
+    }
+
+    /**
+     * Uses native stat bounds and exposes only inventory modes whose state is preserved.
+     */
+    public function test_native_character_rules_accept_65000_and_reject_destructive_inventory_modes(): void
+    {
+        $this->actingAs(Administrator::factory()->create(), 'admin');
+        $this->get('/admin/character-rules/reset')->assertOk()
+            ->assertViewHas('maximumStatLimit', 65000)
+            ->assertSee('value="keep_all"', false)
+            ->assertDontSee('value="clear_all"', false);
+        $token = 's21-rule';
+        $payload = [
+            '_token' => $token, 'enabled' => true, 'requiredLevel' => 400,
+            'maximumResets' => 999, 'maximumStat' => 65000, 'baseZenCost' => 0,
+            'multiplyCostByReset' => false, 'clearStats' => true, 'pointsMode' => 'cumulative',
+            'pointsPerReset' => 500, 'inventoryPolicy' => 'keep_all', 'resetRewardType' => 'none',
+        ];
+
+        $this->withSession(['_token' => $token])->putJson('/admin/character-rules/reset', $payload)
+            ->assertOk()->assertJsonPath('settings.maximumStat', 65000);
+        $this->putJson('/admin/character-rules/reset', [...$payload, 'inventoryPolicy' => 'clear_all'])
+            ->assertUnprocessable()->assertJsonValidationErrors('inventoryPolicy');
+        $this->putJson('/admin/character-rules/reset', [...$payload, 'maximumStat' => 65001])
+            ->assertUnprocessable()->assertJsonValidationErrors('maximumStat');
+        $this->assertDatabaseCount('reset_profile_revisions', 1);
+        $this->get('/admin/moderation')->assertOk();
+        $this->get('/admin/game-masters')->assertOk();
+        $this->get('/admin/modules')->assertOk();
     }
 
     /**
@@ -207,7 +334,7 @@ final class MuDevsSeason21WebsiteTest extends TestCase
             ->assertOk()
             ->assertSee('Group Boss Battle')
             ->assertDontSee('href="'.route('admin.item-grants.index').'"', false)
-            ->assertDontSee('href="'.route('admin.modules.index').'"', false);
+            ->assertSee('href="'.route('admin.modules.index').'"', false);
         $this->get(route('admin.item-grants.index'))->assertNotFound();
     }
 

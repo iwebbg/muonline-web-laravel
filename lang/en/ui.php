@@ -1457,6 +1457,7 @@ return [
         'modules_intro' => 'Control player-facing capabilities for the active server profile and version from one audited snapshot.',
         'modules_profile' => 'Active compatibility profile',
         'modules_server_authoritative' => 'Server-authoritative',
+        'module_not_supported' => 'This module is not available for the selected game adapter yet.',
         'modules_disabled_help' => 'Disabled player endpoints return 404 and disappear from navigation. Existing audit and custody data is preserved.',
         'modules_save' => 'Publish module revision',
         'modules_updated' => 'Module availability was saved as a new audited revision.',

@@ -17,7 +17,7 @@ final class ReadOnlyDatabaseProfileMuDevsSeason21 implements GameDatabaseProfile
     public function requiredDatabaseSchema(): array
     {
         return [
-            'MEMB_INFO' => ['memb___id', 'memb__pwd', 'memb_guid', 'AccountLevel', 'AccountExpireDate'],
+            'MEMB_INFO' => ['memb___id', 'memb__pwd', 'memb_guid', 'memb_name', 'sno__numb', 'mail_addr', 'bloc_code', 'ctl1_code', 'AccountLevel', 'AccountExpireDate'],
             'MEMB_STAT' => ['memb___id', 'ConnectStat', 'ConnectTM', 'DisConnectTM', 'OnlineHours'],
             'AccountCharacter' => ['Id', 'AccountIndex', 'ExtWarehouse', 'GameID1', 'CharacterIndex_1'],
             'Character' => [
@@ -26,7 +26,7 @@ final class ReadOnlyDatabaseProfileMuDevsSeason21 implements GameDatabaseProfile
                 'Inventory', 'ExtInventory', 'Money', 'RuudMoney', 'ResetCount',
                 'MasterResetCount', 'EnhanceResetCount', 'MapNumber', 'MapPosX', 'MapPosY',
                 'GiantMountType', 'GiantMountStatus',
-                'PkCount', 'PkLevel',
+                'PkCount', 'PkLevel', 'PkTime', 'CtlCode', 'Quest', 'MagicList',
             ],
             'warehouse' => ['AccountID', 'AccountIndex', 'Items', 'Money'],
             'ExtWarehouse' => ['AccountID', 'AccountIndex', 'Number', 'Items', 'Money'],

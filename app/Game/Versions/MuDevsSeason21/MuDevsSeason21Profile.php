@@ -58,15 +58,17 @@ use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
 use App\Game\Versions\UnavailableItemGeneratorCatalog;
+use App\Modules\ServerModule;
+use App\Reset\InventoryPolicy;
 use App\Stats\CharacterStats;
 use InvalidArgumentException;
 use RuntimeException;
 
 /**
- * Defines the verified read-model foundation for the supplied MUDevs S21.1-2 pack.
+ * Selects the reviewed native account, character and item services for MUDevs S21.1-2.
  *
- * The selectable bundle exposes reviewed reads and website content management.
- * Native game mutations and unverified storage services remain unavailable.
+ * Route and module allow-lists keep incomplete systems unavailable. Live write
+ * commissioning remains separate from enabling the reviewed account tools.
  */
 final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionProfile
 {
@@ -82,7 +84,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionPro
     }
 
     /**
-     * Returns only optional systems implemented by the current read bundle.
+     * Returns reviewed optional systems and the staged website availability.
      */
     public function capabilities(): GameVersionCapabilities
     {
@@ -95,12 +97,27 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionPro
             castleSiege: true,
             gens: true,
             luckyCoin: true,
-            readOnly: true,
+            readOnly: false,
+            resetInventoryPolicies: [InventoryPolicy::KeepAll],
+            availableModules: [
+                ServerModule::Registration,
+                ServerModule::PasswordRecovery,
+                ServerModule::AccountSecurity,
+                ServerModule::ZenBank,
+            ],
             availableRoutes: [
                 'home', 'ready', 'server.status', 'rankings', 'rankings.*',
                 'characters.*', 'guilds.*', 'news.*', 'guides.*', 'pages.*',
+                'register', 'register.store', 'password.*', 'account.activation*',
+                'account.security.index', 'account.credentials.update', 'account.deletion-requests.*',
+                'account.zen-bank.*',
+                'account.reset-preview', 'account.character-reset', 'account.grand-reset-preview',
+                'account.character-grand-reset', 'account.stat-allocation-preview', 'account.stat-allocations.store',
+                'account.stat-reset-preview', 'account.character-stat-reset', 'account.pk-clear-preview',
+                'account.character-pk-clear', 'account.move-to-town-preview', 'account.character-move',
                 'downloads.*', 'login', 'login.store', 'logout', 'account.dashboard', 'account.item-storage', 'locale.update',
                 'admin.login', 'admin.login.store', 'admin.logout', 'admin.dashboard', 'admin.audit-log',
+                'admin.character-rules.*', 'admin.moderation*', 'admin.game-masters.*', 'admin.modules.*',
                 'admin.s21-warehouse', 'admin.event-schedules.*',
                 'admin.news-posts.*', 'admin.downloads.*', 'admin.website-settings.*',
                 'admin.game-servers.*',

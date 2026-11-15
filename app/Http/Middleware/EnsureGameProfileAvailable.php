@@ -24,11 +24,10 @@ final readonly class EnsureGameProfileAvailable
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $availableRoutes = $this->versionProfile->capabilities()->availableRoutes;
-
-        if ($availableRoutes !== null) {
-            abort_unless($request->routeIs(...$availableRoutes), 404);
-        }
+        abort_unless(
+            $this->versionProfile->capabilities()->allowsRoute($request->route()?->getName() ?? ''),
+            404,
+        );
 
         return $next($request);
     }

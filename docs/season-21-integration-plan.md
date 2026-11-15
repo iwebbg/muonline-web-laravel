@@ -10,6 +10,32 @@ The implementation must preserve the three existing adapters and use the
 current Laravel, Blade, Alpine and Tailwind architecture. Initial item images
 may be absent; verified dimensions and readable presentation are required.
 
+## Current staged website surface
+
+The native bundle now exposes registration/recovery/security, inventory/vault
+reads, Zen Bank and all six core character preview/action endpoints. Game writes
+remain closed globally and the runtime game role still has SELECT-only grants.
+Checkpoint validation: 1004 isolated tests / 19638 assertions, all four profile
+smoke runs, and 14 native SQL Server tests / 74 assertions pass. Native adapter
+availability is now an explicit module allow-list, combined with
+persisted operator switches; persisted settings cannot enable unfinished modules.
+Admin navigation uses the same reviewed route surface as the middleware, so it
+shows character rules, moderation, module management, Game Master identities,
+events and content without links to unfinished item/economy actions.
+
+The native default and administrator stat limit are 65000. The application-owned
+reset_profiles.maximum_stat column was originally SQL Server SMALLINT; a new
+forward migration widens it to INT while retaining existing values and the
+legacy database default. Its rollback refuses values above 32767. The migration
+was tested on disposable SQL Server and applied to MuOnline_S21_Web. Old adapters
+retain their existing 32767 profile limit. Only KeepAll inventory policies are
+selectable for S21 until dependent-item deletion semantics are implemented.
+
+Enabling the activation route exposed a missing global write guard in the shared
+activation action. Activation now leaves both account and token untouched if
+writes are disabled or the game connection is read-only; existing enabled-write
+activation behavior remains covered by regression tests.
+
 ## Sources and evidence
 
 The local reference root is
@@ -503,7 +529,7 @@ external records cannot follow a blob-only transfer. Exact extraction, rectangle
 placement, active-page ownership, full-storage refusal, retries and offline checks
 are covered in isolated feature tests. Disposable SQL Server integration verifies
 6000-byte extraction/deposit, byte-for-byte reserved-state retention, idempotency
-and outer-transaction rollback (seven S21 integration tests / 47 assertions).
+and outer-transaction rollback (14 S21 integration tests / 74 assertions across reads, custody, core operations and the stat-limit migration).
 These repository bindings do not open market/web-storage routes or game DML grants.
 Complete inventory custody, special dependencies, serial allocation and end-to-end
 market/shop certification remain pending.

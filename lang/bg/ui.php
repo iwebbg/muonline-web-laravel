@@ -1457,6 +1457,7 @@ return [
         'modules_intro' => 'Управлявай player функциите за активния сървърен профил и версия чрез един проследим snapshot.',
         'modules_profile' => 'Активен compatibility профил',
         'modules_server_authoritative' => 'Server-authoritative',
+        'module_not_supported' => 'Този модул още не е наличен за избрания игрови адаптер.',
         'modules_disabled_help' => 'Изключените player endpoints връщат 404 и изчезват от навигацията. Съществуващите audit и custody данни се запазват.',
         'modules_save' => 'Публикувай модулна ревизия',
         'modules_updated' => 'Достъпността на модулите беше запазена като нова audit ревизия.',
