@@ -129,6 +129,28 @@ other seed levels, special dependencies and full-storage recovery remain separat
 
 The local baselines are stored privately under storage/app/private/s21-live-checks.
 
+### Lucky Coin commissioning discrepancy
+
+The owner successfully purchased and received a Cash Shop item using exchanged
+WCoin. Lucky Coin spending has not passed acceptance. The database contains the
+exchanged registered balance of 1000, while iwebbg has no physical 14:100 coins.
+Delgado opens the client dialog "20th Anniversary Lucky Coin Event" and rejects
+its 10-coin exchange with "You are lack of Exchange Items."
+
+Both the supplied server Item.xml and decoded client Item.bmd contain Lucky Coin
+14:100 (client model coin7.bmd). Its presence does not establish active creation
+or spending support. The documented full /make 14 100 command produces no item
+and no response. The same full command syntax successfully creates ordinary
+Kris 0:0 after closing NPC interfaces, isolating the discrepancy to the coin or
+its runtime handling. The source Lucky Coin monster drop has DropRate=0. No
+explicit make-specific block was found in the supplied ItemDropLimit rules.
+
+Physical-item consumption by this Anniversary dialog remains a hypothesis;
+neither switching web delivery to physical coins nor claiming the registered
+balance is spendable is justified yet. The next evidence required is the running
+GameServer/DataServer log or a confirmed runtime creation path for 14:100. No
+refund, conversion or modification of the exchanged 1000 has been performed.
+
 ### Native identity, account VIP and currency exchange
 
 The private `account/game-services` page offers one-way Credits exchange for
