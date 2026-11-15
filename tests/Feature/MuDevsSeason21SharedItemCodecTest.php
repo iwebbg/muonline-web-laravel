@@ -81,6 +81,25 @@ class MuDevsSeason21SharedItemCodecTest extends TestCase
     }
 
     /**
+     * Matches the separately captured native Creation jewel without interpreting stack quantities.
+     */
+    public function test_native_creation_jewel_matches_its_saved_record(): void
+    {
+        $fixture = json_decode(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-creation-jewel.json')), true, flags: JSON_THROW_ON_ERROR);
+        $codec = $this->app->make(ItemCodecAdapterMuDevsSeason21::class);
+        $binary = hex2bin($fixture['hex']);
+        $item = $codec->decode($binary, 1)[0];
+
+        $this->assertSame($fixture['code'], $item->code());
+        $this->assertSame($fixture['name'], $item->name);
+        $this->assertSame(1, $item->durability);
+        $this->assertSame($binary, $codec->create(
+            group: 14, index: 22, level: 0, durability: 1, optionLevel: 0,
+            hasSkill: false, hasLuck: false, excellentMask: 0, ancientOption: 0, serial: 0x01020301,
+        ));
+    }
+
+    /**
      * Refuses generation outside the verified common-header and catalog boundaries.
      *
      * @param  array<string, mixed>  $overrides

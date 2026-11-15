@@ -3,6 +3,7 @@
 namespace App\Market\Actions;
 
 use App\Game\Contracts\MarketItemEscrowRepository;
+use App\Game\Operations\ItemEscrowCoordinator;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use App\Market\MarketListingStatus;
@@ -21,6 +22,7 @@ final readonly class SynchronizeMarketListing
     public function __construct(
         private MarketItemEscrowRepository $escrowRepository,
         private FallbackMarketListingToWebStorage $fallbackMarketListingToWebStorage,
+        private ItemEscrowCoordinator $itemEscrowCoordinator,
     ) {}
 
     /**
@@ -39,11 +41,13 @@ final readonly class SynchronizeMarketListing
 
         try {
             if ($listing->status === MarketListingStatus::Extracting) {
-                $this->escrowRepository->extract(
+                $this->itemEscrowCoordinator->extractWarehouse(
+                    repository: $this->escrowRepository,
                     accountId: $listing->seller_account_id,
                     vault: $listing->source_vault,
                     slot: $listing->source_slot,
                     expectedBinary: $listing->item_binary,
+                    operationKey: 'market:'.$listing->public_id,
                 );
                 $listing->forceFill([
                     'status' => MarketListingStatus::Active,
@@ -52,11 +56,13 @@ final readonly class SynchronizeMarketListing
                 ]);
             } elseif ($listing->status === MarketListingStatus::DeliveryPending) {
                 $snapshot = $listing->item_snapshot;
-                $this->escrowRepository->deposit(
+                $this->itemEscrowCoordinator->depositWarehouse(
+                    repository: $this->escrowRepository,
                     accountId: (string) $listing->buyer_account_id,
                     itemBinary: $listing->item_binary,
                     width: (int) ($snapshot['width'] ?? 1),
                     height: (int) ($snapshot['height'] ?? 1),
+                    operationKey: 'market:'.$listing->public_id,
                 );
                 $listing->forceFill([
                     'status' => MarketListingStatus::Delivered,
@@ -67,11 +73,13 @@ final readonly class SynchronizeMarketListing
                 ]);
             } elseif ($listing->status === MarketListingStatus::ReturnPending) {
                 $snapshot = $listing->item_snapshot;
-                $this->escrowRepository->deposit(
+                $this->itemEscrowCoordinator->depositWarehouse(
+                    repository: $this->escrowRepository,
                     accountId: $listing->seller_account_id,
                     itemBinary: $listing->item_binary,
                     width: (int) ($snapshot['width'] ?? 1),
                     height: (int) ($snapshot['height'] ?? 1),
+                    operationKey: 'market:'.$listing->public_id,
                 );
                 $listing->forceFill([
                     'status' => MarketListingStatus::Returned,
@@ -95,6 +103,8 @@ final readonly class SynchronizeMarketListing
                         MarketListingBlockReason::ItemChanged,
                         MarketListingBlockReason::ItemNotFound,
                         MarketListingBlockReason::WarehouseNotFound,
+                        MarketListingBlockReason::UnsupportedItem,
+                        MarketListingBlockReason::IdempotencyConflict,
                     ],
                     true,
                 );

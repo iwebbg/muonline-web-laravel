@@ -53,3 +53,13 @@ CREATE TABLE LuckyCoin (
     AccountID VARCHAR(10) NOT NULL PRIMARY KEY,
     LuckyCoin INT NULL
 );
+
+-- Application-owned native custody receipts; not part of the emulator source schema.
+CREATE TABLE IWEB_S21_ItemOperation (
+    OperationKey VARCHAR(128) NOT NULL,
+    Direction VARCHAR(32) NOT NULL,
+    AccountID VARCHAR(10) NOT NULL,
+    PayloadHash CHAR(64) NOT NULL,
+    AppliedAt DATETIME2 NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (OperationKey, Direction)
+);

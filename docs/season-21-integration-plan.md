@@ -516,23 +516,36 @@ rejected before warehouse reads. Unsupported nonempty identity headers fail
 closed rather than appearing as free cells. Inventory and vault tabs are active;
 missing artwork uses the existing fallback.
 
-A pure common-header encoder is checked byte-for-byte against the ten saved
+A pure common-header encoder is checked byte-for-byte against eleven saved
 client captures, including index 270, ancient, Harmony and socket variants.
 It does not allocate serials or write game records. Higher group layouts, the
 380 flag and special item dependency persistence are not enabled. The existence
 of this encoder does not certify special-item generation or web shop delivery.
 
-Native warehouse escrow is separately implemented for ordinary tradable equipment
-(groups 0–11 with native Serial, Transaction and StoreWarehouse flags). It rejects
-unknown extension payloads, bound equipment and special item families whose
-external records cannot follow a blob-only transfer. Exact extraction, rectangle
-placement, active-page ownership, full-storage refusal, retries and offline checks
-are covered in isolated feature tests. Disposable SQL Server integration verifies
-6000-byte extraction/deposit, byte-for-byte reserved-state retention, idempotency
-and outer-transaction rollback (14 S21 integration tests / 74 assertions across reads, custody, core operations and the stat-limit migration).
-These repository bindings do not open market/web-storage routes or game DML grants.
-Complete inventory custody, special dependencies, serial allocation and end-to-end
-market/shop certification remain pending.
+Native warehouse and inventory escrow now support ordinary tradable equipment
+(groups 0–11 with native Serial, Transaction and StoreWarehouse flags) and the
+five standard physical jewels. The Creation capture confirms a 25-byte, level-0
+record; whole jewel stacks retain their quantity byte without splitting.
+Unknown extension payloads, bound equipment and special item dependencies remain
+rejected. Inventory custody preserves all 239 records and never places a rectangle
+across the main bag/extension page boundary.
+
+S21 custody requires a stable operation identity. A native receipt in
+`IWEB_S21_ItemOperation` commits in the same game transaction as the blob change.
+A matching receipt acknowledges retries even after the item leaves its destination;
+an empty source cell without a receipt cannot establish a completed extraction.
+The shared coordinator preserves the original repository calls for all older
+adapters. Web Vault, market, rewards, administrator grants and credit exchanges
+pass their existing durable operation identities through that coordinator.
+
+Disposable SQL Server tests cover concurrent delivery (one item/one receipt),
+receipt-insert permission failure rollback, exact 6000-byte retention and schema
+bootstrap after runtime principals exist. The opt-in S21 schema hook leaves the
+production entrypoint order and older bootstrap profiles unchanged. Runtime game
+permissions remain SELECT-only until write commissioning. Real application-action
+tests exercise both inventory and warehouse extraction through Web Vault and back.
+Special dependencies, serial allocation and end-to-end market/shop certification
+remain pending.
 
 ### Client-matched warehouse commissioning
 

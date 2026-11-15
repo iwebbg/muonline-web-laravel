@@ -3,10 +3,12 @@
 namespace App\Game\Repositories;
 
 use App\Game\Contracts\MarketItemEscrowRepository;
+use App\Game\Contracts\OperationAwareItemEscrowRepository;
 use App\Game\Data\ItemSlot;
 use App\Game\GameAccountWriteStatus;
 use App\Game\Versions\MuDevsSeason21\ItemCatalogAdapterMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\ItemCodecAdapterMuDevsSeason21;
+use App\Game\Versions\MuDevsSeason21\ItemOperationJournalMuDevsSeason21;
 use App\Game\Versions\MuDevsSeason21\ItemTransferRulesMuDevsSeason21;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketEscrowResult;
@@ -14,13 +16,14 @@ use App\Market\MarketListingBlockReason;
 use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Query\Builder;
+use LogicException;
 use stdClass;
 use UnexpectedValueException;
 
 /**
  * Moves original item bytes between MUDevs Season 21 warehouses and application escrow.
  */
-final readonly class SqlServerMuDevsSeason21MarketItemEscrowRepository implements MarketItemEscrowRepository
+final readonly class SqlServerMuDevsSeason21MarketItemEscrowRepository implements MarketItemEscrowRepository, OperationAwareItemEscrowRepository
 {
     private const USABLE_WAREHOUSE_SLOTS = 120;
 
@@ -36,12 +39,83 @@ final readonly class SqlServerMuDevsSeason21MarketItemEscrowRepository implement
         private ItemCodecAdapterMuDevsSeason21 $codec,
         private ItemCatalogAdapterMuDevsSeason21 $catalog,
         private ItemTransferRulesMuDevsSeason21 $transferRules,
+        private ItemOperationJournalMuDevsSeason21 $journal,
     ) {}
+
+    /**
+     * Requires callers to retain their custody operation identity for native extraction.
+     */
+    public function extract(
+        string $accountId,
+        int $vault,
+        int $slot,
+        string $expectedBinary,
+    ): MarketEscrowResult {
+        throw new LogicException('Native S21 custody requires an operation identity.');
+    }
+
+    /**
+     * Requires callers to retain their custody operation identity for native delivery.
+     */
+    public function deposit(
+        string $accountId,
+        string $itemBinary,
+        int $width,
+        int $height,
+    ): MarketEscrowResult {
+        throw new LogicException('Native S21 custody requires an operation identity.');
+    }
+
+    /**
+     * Commits exact warehouse extraction and its durable receipt atomically.
+     */
+    public function extractForOperation(
+        string $accountId,
+        int $vault,
+        int $slot,
+        string $expectedBinary,
+        string $operationKey,
+    ): MarketEscrowResult {
+        $payloadHash = hash('sha256', serialize([$accountId, $vault, $slot, $expectedBinary]));
+
+        return $this->journal->run(
+            connection: $this->database->connection('game'),
+            operationKey: $operationKey,
+            accountId: $accountId,
+            direction: 'warehouse-extract',
+            payloadHash: $payloadHash,
+            appliedResult: MarketEscrowResult::Extracted,
+            apply: fn (): MarketEscrowResult => $this->extractNative($accountId, $vault, $slot, $expectedBinary),
+        );
+    }
+
+    /**
+     * Acknowledges a committed delivery even if its item has since moved or changed.
+     */
+    public function depositForOperation(
+        string $accountId,
+        string $itemBinary,
+        int $width,
+        int $height,
+        string $operationKey,
+    ): MarketEscrowResult {
+        $payloadHash = hash('sha256', serialize([$accountId, $itemBinary, $width, $height]));
+
+        return $this->journal->run(
+            connection: $this->database->connection('game'),
+            operationKey: $operationKey,
+            accountId: $accountId,
+            direction: 'warehouse-deposit',
+            payloadHash: $payloadHash,
+            appliedResult: MarketEscrowResult::Deposited,
+            apply: fn (): MarketEscrowResult => $this->depositNative($accountId, $itemBinary, $width, $height),
+        );
+    }
 
     /**
      * Removes the exact expected item from one offline account warehouse slot.
      */
-    public function extract(
+    private function extractNative(
         string $accountId,
         int $vault,
         int $slot,
@@ -104,7 +178,7 @@ final readonly class SqlServerMuDevsSeason21MarketItemEscrowRepository implement
     /**
      * Deposits an escrowed item into the first free active-vault rectangle.
      */
-    public function deposit(
+    private function depositNative(
         string $accountId,
         string $itemBinary,
         int $width,
@@ -174,8 +248,10 @@ final readonly class SqlServerMuDevsSeason21MarketItemEscrowRepository implement
     /**
      * Rejects escrow writes while the owning account is connected.
      */
-    private function assertOffline(Connection $connection, string $accountId): void
-    {
+    private function assertOffline(
+        Connection $connection,
+        string $accountId,
+    ): void {
         $status = $connection
             ->table('MEMB_STAT')
             ->where('memb___id', $accountId)
@@ -190,8 +266,10 @@ final readonly class SqlServerMuDevsSeason21MarketItemEscrowRepository implement
     /**
      * Resolves the account's active MuEMU warehouse page.
      */
-    private function activeVault(Connection $connection, string $accountId): int
-    {
+    private function activeVault(
+        Connection $connection,
+        string $accountId,
+    ): int {
         $account = $connection
             ->table('AccountCharacter')
             ->where('Id', $accountId)
@@ -251,8 +329,9 @@ final readonly class SqlServerMuDevsSeason21MarketItemEscrowRepository implement
      * @param  list<ItemSlot>  $slots
      * @return array<int, bool>
      */
-    private function occupiedGrid(array $slots): array
-    {
+    private function occupiedGrid(
+        array $slots,
+    ): array {
         $occupied = array_fill(0, self::USABLE_WAREHOUSE_SLOTS, false);
 
         foreach ($slots as $slot) {

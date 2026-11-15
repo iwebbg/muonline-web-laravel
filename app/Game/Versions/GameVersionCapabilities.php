@@ -31,6 +31,7 @@ final readonly class GameVersionCapabilities
         public ?array $availableRoutes = null,
         public ?array $availableModules = null,
         public ?array $resetInventoryPolicies = null,
+        public ?string $schemaExtensionResource = null,
     ) {}
 
     /**

@@ -45,6 +45,7 @@ final class ReadOnlyDatabaseProfileMuDevsSeason21 implements GameDatabaseProfile
             'GremoryCase' => ['Account', 'Name', 'AccountIndex', 'CharacterIndex', 'ItemInfo', 'ExpireDate'],
             'ArtifactSystem' => ['Name', 'CharacterIndex', 'GroupIndex', 'Slot', 'ItemInfo'],
             'WingCoreItem' => ['coreSerial', 'lastCharacterIndex', 'itemInfo'],
+            'IWEB_S21_ItemOperation' => ['OperationKey', 'Direction', 'AccountID', 'PayloadHash', 'AppliedAt'],
         ];
     }
 

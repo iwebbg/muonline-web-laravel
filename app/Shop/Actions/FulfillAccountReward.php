@@ -5,6 +5,7 @@ namespace App\Shop\Actions;
 use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
+use App\Game\Operations\ItemEscrowCoordinator;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use App\Models\AccountReward;
@@ -34,6 +35,7 @@ final readonly class FulfillAccountReward
         private ItemCodec $codec,
         private MarketItemEscrowRepository $itemEscrowRepository,
         private ModuleManager $moduleManager,
+        private ItemEscrowCoordinator $itemEscrowCoordinator,
     ) {}
 
     /**
@@ -62,11 +64,13 @@ final readonly class FulfillAccountReward
             $preparedReward = $this->prepareExactItem($reward);
             $item = $preparedReward->selected_item_snapshot;
 
-            $this->itemEscrowRepository->deposit(
+            $this->itemEscrowCoordinator->depositWarehouse(
+                repository: $this->itemEscrowRepository,
                 accountId: $preparedReward->account_id,
                 itemBinary: (string) $preparedReward->item_binary,
                 width: (int) ($item['item_width'] ?? 1),
                 height: (int) ($item['item_height'] ?? 1),
+                operationKey: 'reward:'.$preparedReward->public_id,
             );
 
             $preparedReward->update([

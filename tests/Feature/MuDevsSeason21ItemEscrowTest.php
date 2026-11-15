@@ -9,6 +9,7 @@ use App\Market\MarketEscrowResult;
 use App\Market\MarketListingBlockReason;
 use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
+use Illuminate\Database\QueryException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
@@ -39,9 +40,9 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
         $original = $this->seedWarehouse($item);
         $repository = $this->repository();
 
-        $this->assertSame(MarketEscrowResult::Extracted, $repository->extract('owner', 0, 0, $item));
+        $this->assertSame(MarketEscrowResult::Extracted, $repository->extractForOperation('owner', 0, 0, $item, operationKey: __FUNCTION__));
         $this->assertSame(substr_replace($original, str_repeat("\xFF", 25), 0, 25), $this->warehouseBinary());
-        $this->assertSame(MarketEscrowResult::AlreadyExtracted, $repository->extract('owner', 0, 0, $item));
+        $this->assertSame(MarketEscrowResult::AlreadyExtracted, $repository->extractForOperation('owner', 0, 0, $item, operationKey: __FUNCTION__));
     }
 
     /**
@@ -53,9 +54,9 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
         $original = $this->seedWarehouse(str_repeat("\xFF", 25));
         $repository = $this->repository();
 
-        $this->assertSame(MarketEscrowResult::Deposited, $repository->deposit('owner', $item, 1, 4));
+        $this->assertSame(MarketEscrowResult::Deposited, $repository->depositForOperation('owner', $item, 1, 4, operationKey: __FUNCTION__));
         $this->assertSame(substr_replace($original, $item, 0, 25), $this->warehouseBinary());
-        $this->assertSame(MarketEscrowResult::AlreadyDeposited, $repository->deposit('owner', $item, 1, 4));
+        $this->assertSame(MarketEscrowResult::AlreadyDeposited, $repository->depositForOperation('owner', $item, 1, 4, operationKey: __FUNCTION__));
     }
 
     /**
@@ -69,7 +70,7 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
         $this->game()->table('MEMB_STAT')->update(['ConnectStat' => $status]);
 
         try {
-            $this->repository()->extract('owner', 0, 0, $item);
+            $this->repository()->extractForOperation('owner', 0, 0, $item, operationKey: __FUNCTION__);
             $this->fail('Uncertain or online status must prevent a custody change.');
         } catch (MarketListingRejected $exception) {
             $this->assertSame(MarketListingBlockReason::CharacterOnline, $exception->reason);
@@ -98,7 +99,7 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
         $changed = substr_replace($item, "\x01", 2, 1);
 
         try {
-            $this->repository()->extract('owner', 0, 0, $changed);
+            $this->repository()->extractForOperation('owner', 0, 0, $changed, operationKey: __FUNCTION__);
             $this->fail('A changed slot must not be extracted.');
         } catch (MarketListingRejected $exception) {
             $this->assertSame(MarketListingBlockReason::ItemChanged, $exception->reason);
@@ -115,7 +116,7 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
         $original = $this->seedWarehouse($item);
 
         try {
-            $this->repository()->extract('owner', 0, 0, $item);
+            $this->repository()->extractForOperation('owner', 0, 0, $item, operationKey: __FUNCTION__);
             $this->fail('Unknown native extensions must stay in game.');
         } catch (MarketListingRejected $exception) {
             $this->assertSame(MarketListingBlockReason::UnsupportedItem, $exception->reason);
@@ -131,7 +132,7 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
         $original = $this->seedWarehouse(str_repeat("\xFF", 25));
 
         try {
-            $this->repository()->deposit('owner', hex2bin(self::FLAMEBERGE), 1, 1);
+            $this->repository()->depositForOperation('owner', hex2bin(self::FLAMEBERGE), 1, 1, operationKey: __FUNCTION__);
             $this->fail('Catalog geometry must be authoritative.');
         } catch (MarketListingRejected $exception) {
             $this->assertSame(MarketListingBlockReason::UnsupportedItem, $exception->reason);
@@ -151,7 +152,7 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
         $original = $this->seedWarehouse($item);
 
         try {
-            $this->repository()->extract('owner', 0, 0, $item);
+            $this->repository()->extractForOperation('owner', 0, 0, $item, operationKey: __FUNCTION__);
             $this->fail('Pentagram dependent records must not be left behind.');
         } catch (MarketListingRejected $exception) {
             $this->assertSame(MarketListingBlockReason::UnsupportedItem, $exception->reason);
@@ -170,7 +171,7 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
         $newItem = substr_replace(hex2bin(self::FLAMEBERGE), "\x07", 6, 1);
 
         try {
-            $this->repository()->deposit('owner', $newItem, 1, 4);
+            $this->repository()->depositForOperation('owner', $newItem, 1, 4, operationKey: __FUNCTION__);
             $this->fail('Full storage must reject delivery.');
         } catch (MarketListingRejected $exception) {
             $this->assertSame(MarketListingBlockReason::StorageFull, $exception->reason);
@@ -190,7 +191,7 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
         ]);
         $item = hex2bin(self::FLAMEBERGE);
 
-        $this->assertSame(MarketEscrowResult::Deposited, $this->repository()->deposit('owner', $item, 1, 4));
+        $this->assertSame(MarketEscrowResult::Deposited, $this->repository()->depositForOperation('owner', $item, 1, 4, operationKey: __FUNCTION__));
         $this->assertSame($original, $this->warehouseBinary());
         $this->assertSame(substr_replace($original, $item, 0, 25), $this->game()->table('ExtWarehouse')->value('Items'));
     }
@@ -207,11 +208,96 @@ class MuDevsSeason21ItemEscrowTest extends TestCase
         $original = $this->seedWarehouse($item);
 
         try {
-            $this->repository()->extract('owner', 0, 0, $item);
+            $this->repository()->extractForOperation('owner', 0, 0, $item, operationKey: __FUNCTION__);
             $this->fail('Bound equipment cannot be transferred.');
         } catch (MarketListingRejected $exception) {
             $this->assertSame(MarketListingBlockReason::UnsupportedItem, $exception->reason);
             $this->assertSame($original, $this->warehouseBinary());
+        }
+    }
+
+    /**
+     * Moves a native physical jewel without converting it to a different currency or stack.
+     */
+    public function test_standard_jewel_custody_preserves_the_complete_native_record(): void
+    {
+        $fixture = json_decode(file_get_contents(base_path('tests/Fixtures/SqlServer/mudevs-season-21-creation-jewel.json')), true, flags: JSON_THROW_ON_ERROR);
+        $item = hex2bin($fixture['hex']);
+        $original = $this->seedWarehouse($item);
+
+        $this->assertSame(MarketEscrowResult::Extracted, $this->repository()->extractForOperation('owner', 0, 0, $item, operationKey: __FUNCTION__));
+        $this->assertSame(MarketEscrowResult::Deposited, $this->repository()->depositForOperation('owner', $item, 1, 1, operationKey: __FUNCTION__));
+        $this->assertSame($original, $this->warehouseBinary());
+    }
+
+    /**
+     * Refuses an empty source cell when no native receipt proves prior extraction.
+     */
+    public function test_empty_source_without_receipt_does_not_establish_web_ownership(): void
+    {
+        $original = $this->seedWarehouse(str_repeat("\xFF", 25));
+
+        try {
+            $this->repository()->extractForOperation('owner', 0, 0, hex2bin(self::FLAMEBERGE), __FUNCTION__);
+            $this->fail('An empty source alone must not create an extracted-item acknowledgement.');
+        } catch (MarketListingRejected $exception) {
+            $this->assertSame(MarketListingBlockReason::ItemChanged, $exception->reason);
+            $this->assertSame($original, $this->warehouseBinary());
+            $this->assertSame(0, $this->game()->table('IWEB_S21_ItemOperation')->count());
+        }
+    }
+
+    /**
+     * Recognizes committed delivery after the player moves or consumes its item.
+     */
+    public function test_delivery_receipt_prevents_recreation_after_the_item_leaves_its_slot(): void
+    {
+        $original = $this->seedWarehouse(str_repeat("\xFF", 25));
+        $item = hex2bin(self::FLAMEBERGE);
+        $this->assertSame(MarketEscrowResult::Deposited, $this->repository()->depositForOperation('owner', $item, 1, 4, __FUNCTION__));
+        $this->game()->table('warehouse')->update(['Items' => $original]);
+        $this->game()->table('MEMB_STAT')->update(['ConnectStat' => 1]);
+
+        $this->assertSame(MarketEscrowResult::AlreadyDeposited, $this->repository()->depositForOperation('owner', $item, 1, 4, __FUNCTION__));
+        $this->assertSame($original, $this->warehouseBinary());
+        $this->assertSame(1, $this->game()->table('IWEB_S21_ItemOperation')->count());
+    }
+
+    /**
+     * Rolls back item extraction when its receipt cannot be persisted.
+     */
+    public function test_receipt_failure_rolls_back_the_native_item_write(): void
+    {
+        $item = hex2bin(self::FLAMEBERGE);
+        $original = $this->seedWarehouse($item);
+        $this->game()->unprepared("CREATE TRIGGER reject_receipt BEFORE INSERT ON IWEB_S21_ItemOperation BEGIN SELECT RAISE(ABORT, 'receipt denied'); END");
+
+        try {
+            $this->repository()->extractForOperation('owner', 0, 0, $item, __FUNCTION__);
+            $this->fail('Receipt failure must abort the complete native transaction.');
+        } catch (QueryException) {
+            $this->assertSame($original, $this->warehouseBinary());
+            $this->assertSame(0, $this->game()->table('IWEB_S21_ItemOperation')->count());
+        }
+    }
+
+    /**
+     * Rejects another payload reusing the identity of an already committed extraction.
+     */
+    public function test_receipt_identity_cannot_be_reused_for_a_different_item(): void
+    {
+        $item = hex2bin(self::FLAMEBERGE);
+        $this->seedWarehouse($item);
+        $this->repository()->extractForOperation('owner', 0, 0, $item, __FUNCTION__);
+        $afterExtraction = $this->warehouseBinary();
+
+        try {
+            $this->repository()->extractForOperation('owner', 0, 1, $item, __FUNCTION__);
+            $this->fail('A committed extraction identity cannot be reused at another slot.');
+        } catch (MarketListingRejected $exception) {
+            $this->assertSame(MarketListingBlockReason::IdempotencyConflict, $exception->reason);
+            $this->assertSame($afterExtraction, $this->warehouseBinary());
+            $this->assertSame(1, $this->game()->table('IWEB_S21_ItemOperation')->count());
         }
     }
 

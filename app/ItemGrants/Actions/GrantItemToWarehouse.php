@@ -8,6 +8,7 @@ use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemEscrowRepository;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Operations\CharacterOperationStatus;
+use App\Game\Operations\ItemEscrowCoordinator;
 use App\ItemGrants\Exceptions\ItemGrantRejected;
 use App\ItemGrants\ItemGrantBlockReason;
 use App\ItemGrants\ItemGrantResult;
@@ -31,6 +32,7 @@ final readonly class GrantItemToWarehouse
         private ItemEscrowRepository $itemEscrowRepository,
         private ItemCatalog $catalog,
         private ItemCodec $codec,
+        private ItemEscrowCoordinator $itemEscrowCoordinator,
     ) {}
 
     /**
@@ -140,11 +142,13 @@ final readonly class GrantItemToWarehouse
         }
 
         try {
-            $this->itemEscrowRepository->deposit(
+            $this->itemEscrowCoordinator->depositWarehouse(
+                repository: $this->itemEscrowRepository,
                 accountId: $operation->account_id,
                 itemBinary: $operation->item_binary,
                 width: $width,
                 height: $height,
+                operationKey: 'grant:'.$operation->idempotency_key,
             );
         } catch (MarketListingRejected $exception) {
             $reason = $this->mapWarehouseFailure($exception->reason);

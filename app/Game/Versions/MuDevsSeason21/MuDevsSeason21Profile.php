@@ -9,6 +9,7 @@ use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\AccountRegistrationRepository;
 use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\CharacterGrandResetRepository;
+use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Contracts\CharacterMoveRepository;
 use App\Game\Contracts\CharacterPkClearRepository;
 use App\Game\Contracts\CharacterResetRepository;
@@ -36,6 +37,7 @@ use App\Game\Repositories\SqlServerMuDevsSeason21AccountReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountRegistrationRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CastleSiegeReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterGrandResetRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21CharacterInventoryEscrowRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterMoveRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterPkClearRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterResetRepository;
@@ -54,6 +56,7 @@ use App\Game\Repositories\SqlServerOnlineAccountRepository;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\CharacterStatDefinition;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
+use App\Game\Versions\Contracts\GameDatabaseSchemaBootstrap;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
@@ -70,8 +73,10 @@ use RuntimeException;
  * Route and module allow-lists keep incomplete systems unavailable. Live write
  * commissioning remains separate from enabling the reviewed account tools.
  */
-final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionProfile
+final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSchemaBootstrap, GameVersionProfile
 {
+    private const SCHEMA_EXTENSION_RESOURCE = 'game/mudevs_season_21/schema-extensions.sql';
+
     /** @var list<CharacterClassDefinition>|null */
     private ?array $resolvedClasses = null;
 
@@ -98,6 +103,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionPro
             gens: true,
             luckyCoin: true,
             readOnly: false,
+            schemaExtensionResource: self::SCHEMA_EXTENSION_RESOURCE,
             resetInventoryPolicies: [InventoryPolicy::KeepAll],
             availableModules: [
                 ServerModule::Registration,
@@ -475,6 +481,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionPro
             ZenBankRepository::class => SqlServerMuDevsSeason21ZenBankRepository::class,
             LuckyCoinBalanceRepository::class => SqlServerMuDevsSeason21LuckyCoinBalanceRepository::class,
             GensMembershipRepository::class => SqlServerMuDevsSeason21GensMembershipRepository::class,
+            CharacterInventoryEscrowRepository::class => SqlServerMuDevsSeason21CharacterInventoryEscrowRepository::class,
             ItemEscrowRepository::class => SqlServerMuDevsSeason21MarketItemEscrowRepository::class,
             MarketItemEscrowRepository::class => SqlServerMuDevsSeason21MarketItemEscrowRepository::class,
             ItemStorageRepository::class => SqlServerMuDevsSeason21ItemStorageRepository::class,
@@ -485,6 +492,14 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionPro
             GameCurrencyBalanceRepository::class => SqlServerMuDevsSeason21CurrencyBalanceRepository::class,
             OnlineAccountRepository::class => SqlServerOnlineAccountRepository::class,
         ];
+    }
+
+    /**
+     * Prepares native custody receipts after runtime principals exist and before object grants.
+     */
+    public function bootstrapSchemaExtensionResource(): string
+    {
+        return self::SCHEMA_EXTENSION_RESOURCE;
     }
 
     /**

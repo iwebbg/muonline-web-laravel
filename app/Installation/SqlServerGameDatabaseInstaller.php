@@ -3,6 +3,7 @@
 namespace App\Installation;
 
 use App\Game\Versions\Contracts\GameDatabaseProfile;
+use App\Game\Versions\Contracts\GameDatabaseSchemaBootstrap;
 use App\Installation\Contracts\GameDatabaseInstaller;
 use Illuminate\Database\DatabaseManager;
 use InvalidArgumentException;
@@ -74,6 +75,17 @@ final class SqlServerGameDatabaseInstaller implements GameDatabaseInstaller
 
             if ((int) $isRoleMember !== 1) {
                 $pdo->exec("ALTER ROLE {$roleName} ADD MEMBER {$loginName}");
+            }
+
+            if ($this->profile instanceof GameDatabaseSchemaBootstrap) {
+                $resource = $this->profile->bootstrapSchemaExtensionResource();
+                $sql = file_get_contents(resource_path($resource));
+
+                if (! is_string($sql) || trim($sql) === '') {
+                    throw new InvalidArgumentException('The selected game bootstrap schema extension is unavailable.');
+                }
+
+                $pdo->exec($sql);
             }
 
             foreach ($this->profile->databaseObjectPermissions() as $object => $permissions) {
