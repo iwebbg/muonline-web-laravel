@@ -50,6 +50,10 @@
             :vip-modal-available="$vipEnabled"
         />
 
+        @if ($battleCore !== null)
+            <x-account-battle-core-panel :snapshot="$battleCore" />
+        @endif
+
         @if ($vipEnabled)
             <x-account-vip-modal
                 :characters="$characters"

@@ -40,6 +40,22 @@ activation action. Activation now leaves both account and token untouched if
 writes are disabled or the game connection is read-only; existing enabled-write
 activation behavior remains covered by regression tests.
 
+The optional Battle Core account panel now uses the separate read-only
+connection. `GAME_BATTLE_CORE_READS_ENABLED` enables recorded registrations and
+unclaimed reward quantities; `GAME_BATTLE_CORE_SERVER_CODES=19,20` matches this
+pack's CS/main server codes. Every query requires both account ownership and
+that realm allow-list, preventing collisions with equal account names from other
+realms. Unknown registration states remain unknown; dates retain month/day because
+the native rows do not store a year. Missing optional sources degrade to an
+unavailable panel. Legacy profiles have no native reader binding.
+
+The source `WZ_BattleCore_CancelToJoin` establishes registered state 1 and cancelled
+state 0; reward procedures select unclaimed TookState 0. The website executes only
+SELECTs and does not invoke those procedures. Live read-only commissioning succeeds
+with zero current registrations/rewards. SQLite privacy tests and native SQL Server
+tests cover foreign realms, foreign accounts, claimed rewards, unknown states,
+missing sources and escaped stored names.
+
 ## Sources and evidence
 
 The local reference root is

@@ -58,6 +58,17 @@ return [
         'battle_core' => 'battle_core',
     ],
 
+    'battle_core' => [
+        'reads_enabled' => filter_var(env('GAME_BATTLE_CORE_READS_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'server_codes' => array_values(array_unique(array_map(
+            'intval',
+            array_filter(
+                explode(',', (string) env('GAME_BATTLE_CORE_SERVER_CODES', '19,20')),
+                static fn (string $code): bool => ctype_digit(trim($code)),
+            ),
+        ))),
+    ],
+
     'event_timezone' => env('GAME_EVENT_TIMEZONE', 'Europe/Sofia'),
 
     'content_timezone' => env(

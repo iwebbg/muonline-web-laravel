@@ -674,6 +674,17 @@ return [
         'delivery_pending' => 'Delivery is still pending. Your selected item remains safe in Rewards.',
     ],
     'account' => [
+        'battle_core_heading' => 'Inter-server participation',
+        'battle_core_help' => 'Recorded registrations and reward items for your account. Join events and collect these rewards in game.',
+        'battle_core_rewards' => 'Reward items awaiting collection',
+        'battle_core_unavailable' => 'Battle Core information is temporarily unavailable.',
+        'battle_core_date' => 'Recorded date: :day/:month',
+        'battle_core_empty' => 'No recorded registrations for this account.',
+        'battle_core_states' => [
+            'registered' => 'Registered',
+            'not_registered' => 'Not registered',
+            'unknown' => 'Check in game',
+        ],
         'title' => 'Character command center · MuOnline Web',
         'eyebrow' => 'Account panel · test',
         'heading' => 'Character command center',

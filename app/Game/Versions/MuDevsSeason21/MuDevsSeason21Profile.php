@@ -7,6 +7,7 @@ use App\Game\Contracts\AccountCredentialRepository;
 use App\Game\Contracts\AccountPasswordRecoveryRepository;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\AccountRegistrationRepository;
+use App\Game\Contracts\BattleCoreReadRepository;
 use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\CharacterGrandResetRepository;
 use App\Game\Contracts\CharacterInventoryEscrowRepository;
@@ -37,6 +38,7 @@ use App\Game\Repositories\SqlServerMuDevsSeason21AccountCredentialRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountPasswordRecoveryRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21AccountRegistrationRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21BattleCoreReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CastleSiegeReadRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterGrandResetRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterInventoryEscrowRepository;
@@ -508,6 +510,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
             ItemEscrowRepository::class => SqlServerMuDevsSeason21MarketItemEscrowRepository::class,
             MarketItemEscrowRepository::class => SqlServerMuDevsSeason21MarketItemEscrowRepository::class,
             ItemStorageRepository::class => SqlServerMuDevsSeason21ItemStorageRepository::class,
+            BattleCoreReadRepository::class => SqlServerMuDevsSeason21BattleCoreReadRepository::class,
             CastleSiegeReadRepository::class => SqlServerMuDevsSeason21CastleSiegeReadRepository::class,
             AccountReadRepository::class => SqlServerMuDevsSeason21AccountReadRepository::class,
             RealmReadRepository::class => SqlServerMuDevsSeason21RealmReadRepository::class,

@@ -18,8 +18,8 @@ final class BattleCoreDatabaseProfileMuDevsSeason21 implements GameDatabaseProfi
     {
         return [
             'BattleCoreInfo' => ['AccountID', 'Name', 'ServerCode', 'RegisterState'],
-            'BattleCoreUser' => ['AccountID', 'Name', 'ServerCode', 'RegisterState'],
-            'BattleCoreReward' => ['AccountID', 'RealName', 'ServerCode', 'TookState'],
+            'BattleCoreUser' => ['AccountID', 'Name', 'ServerCode', 'RegisterState', 'RegisterMonth', 'RegisterDay'],
+            'BattleCoreReward' => ['AccountID', 'RealName', 'ServerCode', 'TookState', 'ItemCount'],
             'DevilSquareFinal_Ranking' => ['mRank', 'mAccountID1', 'mAccountID2', 'mUserName1', 'mUserName2', 'mPoint'],
             'DevilSquareFinal_Scores' => ['mAccountID1', 'mAccountID2', 'mName1', 'mName2', 'mPoint'],
         ];

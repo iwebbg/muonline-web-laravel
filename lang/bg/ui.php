@@ -674,6 +674,17 @@ return [
         'delivery_pending' => 'Доставката още изчаква. Избраният предмет остава защитен в Rewards.',
     ],
     'account' => [
+        'battle_core_heading' => 'Участие между сървъри',
+        'battle_core_help' => 'Записани регистрации и наградни предмети за акаунта ти. Участвай в евентите и получи наградите през играта.',
+        'battle_core_rewards' => 'Наградни предмети за получаване',
+        'battle_core_unavailable' => 'Информацията за Battle Core временно не е достъпна.',
+        'battle_core_date' => 'Записана дата: :day/:month',
+        'battle_core_empty' => 'Няма записани регистрации за този акаунт.',
+        'battle_core_states' => [
+            'registered' => 'Регистриран',
+            'not_registered' => 'Нерегистриран',
+            'unknown' => 'Провери в играта',
+        ],
         'title' => 'Команден център на героя · MuOnline Web',
         'eyebrow' => 'Акаунт панел · тест',
         'heading' => 'Команден център на героя',
