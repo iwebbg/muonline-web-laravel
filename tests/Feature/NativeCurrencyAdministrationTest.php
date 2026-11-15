@@ -52,6 +52,47 @@ final class NativeCurrencyAdministrationTest extends TestCase
     }
 
     /**
+     * Shows currency context and exact changed terms in the shared before/after revision dialog.
+     */
+    public function test_exchange_rate_history_uses_the_shared_revision_dialog_and_filters_other_profiles(): void
+    {
+        $this->app->setLocale('en');
+        $this->travelTo('2026-11-15 12:00:00');
+        $administrator = Administrator::factory()->gameMaster([AdministratorPermission::ManageEconomy])->create();
+        $rate = GameCurrencyExchangeRate::query()->where('currency', 'wcoin_c')->sole();
+        $before = $rate->snapshot();
+        GameCurrencyExchangeRateRevision::factory()->create([
+            'game_currency_exchange_rate_id' => $rate->getKey(), 'revision' => 2,
+            'before_snapshot' => $before,
+            'snapshot' => [...$before, 'credit_units' => 10, 'coin_units' => 2, 'minimum_units' => 5,
+                'maximum_units' => 500, 'enabled' => false, 'revision' => 2],
+            'created_at' => now()->subHour(),
+        ]);
+        $foreignRate = GameCurrencyExchangeRate::factory()->create(['game_profile_key' => 'muemu_season_6']);
+        GameCurrencyExchangeRateRevision::factory()->create(['game_currency_exchange_rate_id' => $foreignRate->getKey()]);
+
+        $response = $this->actingAs($administrator, 'admin')->get(route('admin.game-currency-rates.index'));
+
+        $response->assertOk()->assertSee('Recent revisions')->assertSee('Changed settings')
+            ->assertSee('Before')->assertSee('After')->assertSee('WCoin(C)');
+        $response->assertViewHas('recentRevisions', function (array $revisions): bool {
+            self::assertCount(1, $revisions);
+            self::assertSame(2, $revisions[0]['revision']);
+            self::assertSame('WCoin(C)', $revisions[0]['context']);
+            self::assertSame('1 hour ago', $revisions[0]['createdAt']);
+            self::assertSame([
+                ['label' => 'Credits per exchange unit', 'before' => '1', 'after' => '10'],
+                ['label' => 'Game coins per exchange unit', 'before' => '1', 'after' => '2'],
+                ['label' => 'Minimum units', 'before' => '1', 'after' => '5'],
+                ['label' => 'Maximum units', 'before' => '1,000,000', 'after' => '500'],
+                ['label' => 'Exchange enabled', 'before' => 'Enabled', 'after' => 'Disabled'],
+            ], $revisions[0]['changes']);
+
+            return true;
+        });
+    }
+
+    /**
      * Rejects administrators without economy permission and invalid ratios without writing history.
      */
     public function test_permissions_and_ratio_validation_prevent_rate_changes(): void

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Economy\GameCurrencyExchangeRateRevisionPresenter;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateGameCurrencyExchangeRateRequest;
@@ -21,11 +22,16 @@ final class GameCurrencyExchangeRateController extends Controller
     /**
      * Shows native exchange policy and recent purchases without modifying game balances.
      */
-    public function index(GameVersionProfile $profile): View
+    public function index(GameVersionProfile $profile, GameCurrencyExchangeRateRevisionPresenter $revisionPresenter): View
     {
+        $revisions = GameCurrencyExchangeRateRevision::query()
+            ->whereIn('game_currency_exchange_rate_id', GameCurrencyExchangeRate::query()
+                ->where('game_profile_key', $profile->key())->select('id'))
+            ->latest('id')->limit(25)->get();
+
         return view('admin.game-currency-rates', [
             'rates' => GameCurrencyExchangeRate::query()->where('game_profile_key', $profile->key())->orderBy('id')->get(),
-            'revisions' => GameCurrencyExchangeRateRevision::query()->whereIn('game_currency_exchange_rate_id', GameCurrencyExchangeRate::query()->where('game_profile_key', $profile->key())->select('id'))->latest('id')->limit(25)->get(),
+            'recentRevisions' => $revisionPresenter->present($revisions),
             'purchases' => NativeAccountPurchase::query()->where('game_profile_key', $profile->key())->latest('id')->limit(25)->get(),
         ]);
     }

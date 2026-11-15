@@ -25,6 +25,8 @@ return [
         'recovery_help' => 'If a purchase was interrupted, resume its original operation. Its captured price and grant are applied once.',
         'rates_title' => 'Game coin exchange rates',
         'rate_admin_help' => 'Set the Credits and coin amounts for one exchange unit. The initial ratio is 1:1. Existing purchases keep their original rate.',
+        'credit_units' => 'Credits per exchange unit',
+        'coin_units' => 'Game coins per exchange unit',
         'minimum_units' => 'Minimum units',
         'maximum_units' => 'Maximum units',
         'enabled' => 'Exchange enabled',

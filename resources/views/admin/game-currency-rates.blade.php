@@ -34,11 +34,17 @@
                 @endforeach
             </tbody></table>
         </section>
-        <section class="panel-card mt-8 p-5">
-            <h2 class="text-xl font-semibold text-white">{{ __('ui.native_services.rate_revisions') }}</h2>
-            @foreach ($revisions as $revision)
-                <p class="mt-3 text-sm text-silver">#{{ $revision->game_currency_exchange_rate_id }} · {{ $revision->revision }} · {{ $revision->snapshot['credit_units'] }} Credits → {{ $revision->snapshot['coin_units'] }} {{ $revision->snapshot['currency'] }} · {{ $revision->created_at }}</p>
-            @endforeach
+        <section class="mt-8 rounded-2xl border border-emerald-300/15 bg-emerald-300/6 p-4 text-sm leading-6 text-emerald-100">
+            <strong class="block text-emerald-200">{{ __('ui.admin.active_configuration') }}</strong>
+            {{ __('ui.admin.active_configuration_help') }}
         </section>
+        <div class="mt-6">
+            <x-admin-revision-history
+                :revisions="$recentRevisions"
+                :title="__('ui.admin.revision_history')"
+                :empty-message="__('ui.admin.no_revisions')"
+                wide
+            />
+        </div>
     </div>
 @endsection
