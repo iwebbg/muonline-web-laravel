@@ -21,6 +21,8 @@ use App\Game\Contracts\ItemCatalog;
 use App\Game\Contracts\ItemCodec;
 use App\Game\Contracts\ItemEscrowRepository;
 use App\Game\Contracts\ItemGeneratorCatalog;
+use App\Game\Contracts\ItemGrantRules;
+use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Contracts\LuckyCoinBalanceRepository;
 use App\Game\Contracts\MapNameLookup;
@@ -45,6 +47,7 @@ use App\Game\Repositories\SqlServerMuDevsSeason21CharacterStatAllocationReposito
 use App\Game\Repositories\SqlServerMuDevsSeason21CharacterStatResetRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21CurrencyBalanceRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21GensMembershipRepository;
+use App\Game\Repositories\SqlServerMuDevsSeason21ItemSerialRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21ItemStorageRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21LuckyCoinBalanceRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21MarketItemEscrowRepository;
@@ -124,7 +127,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
                 'downloads.*', 'login', 'login.store', 'logout', 'account.dashboard', 'account.item-storage', 'locale.update',
                 'admin.login', 'admin.login.store', 'admin.logout', 'admin.dashboard', 'admin.audit-log',
                 'admin.character-rules.*', 'admin.moderation*', 'admin.game-masters.*', 'admin.modules.*',
-                'admin.s21-warehouse', 'admin.event-schedules.*',
+                'admin.s21-warehouse', 'admin.event-schedules.*', 'admin.item-grants.*',
                 'admin.news-posts.*', 'admin.downloads.*', 'admin.website-settings.*',
                 'admin.game-servers.*',
             ],
@@ -384,9 +387,11 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
     {
         $scopes = ['all' => new ShopClassScopeDefinition('all', 'All classes')];
 
+        $legacyScopes = ['wizard' => 'dw_sm', 'knight' => 'dk_bk', 'elf' => 'elf_me', 'magic-gladiator' => 'mg', 'dark-lord' => 'dl_le', 'summoner' => 'su_bs', 'rage-fighter' => 'rf_fm'];
+
         foreach ($this->classes() as $definition) {
             if (! isset($scopes[$definition->family])) {
-                $scopes[$definition->family] = new ShopClassScopeDefinition($definition->family, $definition->name);
+                $scopes[$definition->family] = new ShopClassScopeDefinition($legacyScopes[$definition->family] ?? $definition->family, $definition->name);
             }
         }
 
@@ -454,6 +459,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
         return [
             ItemCodec::class => ItemCodecAdapterMuDevsSeason21::class,
             ItemCatalog::class => ItemCatalogAdapterMuDevsSeason21::class,
+            ItemGrantRules::class => ItemGrantRulesMuDevsSeason21::class,
             ItemGeneratorCatalog::class => UnavailableItemGeneratorCatalog::class,
             MapNameLookup::class => MapNameMapperMuDevsSeason21::class,
         ];
@@ -482,6 +488,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
             LuckyCoinBalanceRepository::class => SqlServerMuDevsSeason21LuckyCoinBalanceRepository::class,
             GensMembershipRepository::class => SqlServerMuDevsSeason21GensMembershipRepository::class,
             CharacterInventoryEscrowRepository::class => SqlServerMuDevsSeason21CharacterInventoryEscrowRepository::class,
+            ItemSerialRepository::class => SqlServerMuDevsSeason21ItemSerialRepository::class,
             ItemEscrowRepository::class => SqlServerMuDevsSeason21MarketItemEscrowRepository::class,
             MarketItemEscrowRepository::class => SqlServerMuDevsSeason21MarketItemEscrowRepository::class,
             ItemStorageRepository::class => SqlServerMuDevsSeason21ItemStorageRepository::class,

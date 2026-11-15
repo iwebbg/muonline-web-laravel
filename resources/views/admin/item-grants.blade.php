@@ -186,11 +186,11 @@
                                 <input type="hidden" name="ancient_option" value="0">
                                 <input type="hidden" name="excellent_mask" x-bind:value="excellentMask">
                                 <label class="flex items-center gap-3 text-sm text-silver">
-                                    <input type="checkbox" name="has_skill" value="1" x-model="hasSkill">
+                                    <input type="checkbox" name="has_skill" value="1" x-model="hasSkill" x-bind:disabled="selectedItem?.nativeOptions?.skill === false">
                                     {{ __('ui.admin.item_grant_skill') }}
                                 </label>
                                 <label class="flex items-center gap-3 text-sm text-silver">
-                                    <input type="checkbox" name="has_luck" value="1" x-model="hasLuck">
+                                    <input type="checkbox" name="has_luck" value="1" x-model="hasLuck" x-bind:disabled="selectedItem?.nativeOptions?.luck === false">
                                     {{ __('ui.admin.item_grant_luck') }}
                                 </label>
 

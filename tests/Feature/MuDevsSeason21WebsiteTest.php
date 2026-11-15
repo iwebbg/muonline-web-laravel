@@ -333,9 +333,9 @@ final class MuDevsSeason21WebsiteTest extends TestCase
         $this->actingAs($administrator, 'admin')->get(route('admin.event-schedules.index'))
             ->assertOk()
             ->assertSee('Group Boss Battle')
-            ->assertDontSee('href="'.route('admin.item-grants.index').'"', false)
+            ->assertSee('href="'.route('admin.item-grants.index').'"', false)
             ->assertSee('href="'.route('admin.modules.index').'"', false);
-        $this->get(route('admin.item-grants.index'))->assertNotFound();
+        $this->get(route('admin.item-grants.index'))->assertOk();
     }
 
     /**

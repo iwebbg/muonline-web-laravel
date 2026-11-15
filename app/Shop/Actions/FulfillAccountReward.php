@@ -3,6 +3,8 @@
 namespace App\Shop\Actions;
 
 use App\Game\Contracts\ItemCodec;
+use App\Game\Contracts\ItemConstructionPolicy;
+use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Contracts\MarketItemEscrowRepository;
 use App\Game\Operations\ItemEscrowCoordinator;
@@ -19,6 +21,7 @@ use App\WebStorage\WebStorageContext;
 use App\WebStorage\WebStorageItemStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 
@@ -33,6 +36,7 @@ final readonly class FulfillAccountReward
     public function __construct(
         private ItemSerialRepository $itemSerialRepository,
         private ItemCodec $codec,
+        private ItemGrantRules $itemGrantRules,
         private MarketItemEscrowRepository $itemEscrowRepository,
         private ModuleManager $moduleManager,
         private ItemEscrowCoordinator $itemEscrowCoordinator,
@@ -117,6 +121,10 @@ final readonly class FulfillAccountReward
                 '0',
             );
             [$group, $index] = array_map('intval', $itemCodeParts);
+            if ($this->itemGrantRules instanceof ItemConstructionPolicy && ! $this->itemGrantRules->allowsConstruction($item)) {
+                throw new InvalidArgumentException('The reward cannot be constructed by the active game profile.');
+            }
+
             $serial = $this->itemSerialRepository->nextSerial();
             $itemBinary = $this->codec->create(
                 group: $group,

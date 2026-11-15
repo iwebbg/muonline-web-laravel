@@ -12,7 +12,10 @@ final class WarehousePreviewMuDevsSeason21
     /**
      * Supplies native metadata for explicitly client-matched socket descriptions.
      */
-    public function __construct(private readonly ItemCatalogMuDevsSeason21 $catalog) {}
+    public function __construct(
+        private readonly ItemCatalogMuDevsSeason21 $catalog,
+        private readonly ItemOptionsMuDevsSeason21 $options,
+    ) {}
 
     /**
      * Builds occupied-item previews without exposing serials or raw native bytes.
@@ -112,6 +115,21 @@ final class WarehousePreviewMuDevsSeason21
 
         foreach ($fields as $key => $value) {
             $details[] = ['label' => __('ui.s21_warehouse.'.$key), 'value' => $value];
+        }
+
+        $nativeOptions = $this->options->definitionFor($record->group ?? -1, $record->index ?? -1);
+
+        if ($record->optionLevel > 0 && $nativeOptions['additionalLabel'] !== null) {
+            $details[] = [
+                'label' => __('ui.s21_warehouse.option'),
+                'value' => str_replace('{value}', (string) ($record->optionLevel * $nativeOptions['additionalValue']), $nativeOptions['additionalLabel']),
+            ];
+        }
+
+        foreach ($nativeOptions['excellent'] as $option) {
+            if (($record->excellentMask & $option['bit']) !== 0) {
+                $details[] = ['label' => __('ui.s21_warehouse.excellent'), 'value' => $option['label']];
+            }
         }
 
         foreach ($record->socketOptions as $position => $value) {

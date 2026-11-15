@@ -367,6 +367,13 @@ export function shopOfferEditor(configuration) {
 
             item.item_code = definition.code;
             item.item_search = definition.name;
+
+            if (definition.nativeOptions) {
+                item.has_skill = definition.nativeOptions.skill && item.has_skill;
+                item.has_luck = definition.nativeOptions.luck && item.has_luck;
+                item.option_level = definition.nativeOptions.additional ? item.option_level : 0;
+            }
+
             const allowedBits = new Set(this.excellentOptions(item).map((option) => option.bit));
             item.excellent_option_bits = item.excellent_option_bits.filter(
                 (bit) => allowedBits.has(Number(bit)),
@@ -427,6 +434,11 @@ export function shopOfferEditor(configuration) {
          */
         excellentOptions(item) {
             const definition = this.selectedItem(item);
+
+            if (definition?.nativeOptions) {
+                return definition.nativeOptions.excellent;
+            }
+
             let labels = this.itemOptionLabels.excellent.weapon;
 
             if (definition?.excellentType === 4) {
@@ -465,6 +477,17 @@ export function shopOfferEditor(configuration) {
          */
         additionalOptionChoices(item) {
             const definition = this.selectedItem(item);
+
+            if (definition?.nativeOptions) {
+                const native = definition.nativeOptions;
+
+                return this.optionLevels
+                    .filter((level) => level === 0 || native.additional)
+                    .map((level) => ({
+                        value: level,
+                        label: level === 0 ? '0' : native.additionalLabel.replace('{value}', String(level * native.additionalValue)),
+                    }));
+            }
 
             return this.optionLevels.map((optionLevel) => {
                 if (optionLevel === 0) {
@@ -601,6 +624,12 @@ export function creditExchangeOfferEditor(configuration) {
         get additionalOption() {
             if (this.optionLevel <= 0 || this.selectedItem === null) {
                 return null;
+            }
+
+            if (this.selectedItem.nativeOptions) {
+                const native = this.selectedItem.nativeOptions;
+
+                return native.additionalLabel?.replace('{value}', String(this.optionLevel * native.additionalValue)) ?? null;
             }
 
             if (this.selectedItem.optionType === 1) {
@@ -1255,6 +1284,10 @@ export function itemGrantManager(configuration) {
          * @returns {Array<object>}
          */
         get excellentOptions() {
+            if (this.selectedItem?.nativeOptions) {
+                return this.selectedItem.nativeOptions.excellent;
+            }
+
             let labels = this.itemOptionLabels.excellent.weapon;
 
             if (this.selectedItem?.excellentType === 4) {
@@ -1312,6 +1345,12 @@ export function itemGrantManager(configuration) {
                 return null;
             }
 
+            if (this.selectedItem.nativeOptions) {
+                const native = this.selectedItem.nativeOptions;
+
+                return native.additionalLabel?.replace('{value}', String(this.optionLevel * native.additionalValue)) ?? null;
+            }
+
             if (this.selectedItem.optionType === 1) {
                 return `${this.itemOptionLabels.automaticHpRecovery} +${this.optionLevel}%`;
             }
@@ -1333,6 +1372,17 @@ export function itemGrantManager(configuration) {
          * @returns {Array<{value: number, label: string}>}
          */
         get additionalOptionChoices() {
+            if (this.selectedItem?.nativeOptions) {
+                const native = this.selectedItem.nativeOptions;
+
+                return this.optionLevels
+                    .filter((level) => level === 0 || native.additional)
+                    .map((level) => ({
+                        value: level,
+                        label: level === 0 ? '0' : native.additionalLabel.replace('{value}', String(level * native.additionalValue)),
+                    }));
+            }
+
             const maximum = this.selectedItem?.maxOption ?? Math.max(...this.optionLevels);
 
             return this.optionLevels
@@ -1468,8 +1518,12 @@ export function itemGrantManager(configuration) {
             this.itemSearch = item.name;
             this.level = Math.min(this.level, item.maxLevel ?? this.level);
             this.optionLevel = Math.min(this.optionLevel, item.maxOption ?? this.optionLevel);
-            this.hasSkill = item.allowsSkill === false ? false : this.hasSkill;
-            this.hasLuck = item.allowsLuck === false ? false : this.hasLuck;
+
+            if (item.nativeOptions?.additional === false) {
+                this.optionLevel = 0;
+            }
+            this.hasSkill = (item.allowsSkill === false || item.nativeOptions?.skill === false) ? false : this.hasSkill;
+            this.hasLuck = (item.allowsLuck === false || item.nativeOptions?.luck === false) ? false : this.hasLuck;
             const allowedBits = new Set(this.excellentOptions.map((option) => option.bit));
             this.excellentOptionBits = this.excellentOptionBits.filter(
                 (bit) => allowedBits.has(Number(bit)),
@@ -2505,6 +2559,14 @@ export function itemInspector(itemOptionLabels, item = null) {
          * @returns {string|null}
          */
         itemAdditionalOption(inspectedItem) {
+            if (inspectedItem.nativeOptions) {
+                const native = inspectedItem.nativeOptions;
+
+                return inspectedItem.optionLevel > 0
+                    ? native.additionalLabel?.replace('{value}', String(inspectedItem.optionLevel * native.additionalValue)) ?? null
+                    : null;
+            }
+
             if (inspectedItem.optionLevel <= 0) {
                 return null;
             }
@@ -2531,6 +2593,12 @@ export function itemInspector(itemOptionLabels, item = null) {
          * @returns {Array<string>}
          */
         itemExcellentOptions(inspectedItem) {
+            if (inspectedItem.nativeOptions) {
+                return inspectedItem.nativeOptions.excellent
+                    .filter((option) => (inspectedItem.excellentMask & option.bit) !== 0)
+                    .map((option) => option.label);
+            }
+
             if (inspectedItem.excellentMask <= 0) {
                 return [];
             }

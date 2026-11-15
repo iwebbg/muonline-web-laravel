@@ -14,6 +14,14 @@ final readonly class ItemGrantRulesMuEmuSeason6 implements ItemGrantRules
     public const MAX_OPTION_LEVEL = 7;
 
     /**
+     * Returns the highest item index represented by this native format.
+     */
+    public function maxItemIndex(): int
+    {
+        return 255;
+    }
+
+    /**
      * Returns the highest item level supported by the native item format.
      */
     public function maxItemLevel(): int

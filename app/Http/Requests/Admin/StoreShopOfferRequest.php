@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
 use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemConstructionPolicy;
 use App\Game\Contracts\ItemGrantRules;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\Administrator;
@@ -55,7 +56,7 @@ class StoreShopOfferRequest extends FormRequest
             'available_from' => ['nullable', 'date'],
             'available_until' => ['nullable', 'date', 'after:available_from'],
             'items' => ['required', 'array', 'between:1,50'],
-            'items.*.item_code' => ['required', 'string', 'regex:/\A(?:[0-9]|1[0-5]):(?:[0-9]|[12][0-9]|3[01])\z/'],
+            'items.*.item_code' => ['required', 'string', 'regex:/\A(?:[0-9]|1[0-5]):(?:0|[1-9][0-9]{0,2})\z/'],
             'items.*.level' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxItemLevel()],
             'items.*.durability' => ['required', 'integer', 'between:0,255'],
             'items.*.option_level' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxOptionLevel()],
@@ -101,7 +102,11 @@ class StoreShopOfferRequest extends FormRequest
 
                     [$group, $itemIndex] = array_pad(explode(':', (string) $item['item_code'], 2), 2, null);
 
-                    if ($catalog->definitionFor((int) $group, (int) $itemIndex) === null) {
+                    $constructionRules = app(ItemGrantRules::class);
+
+                    if ((int) $itemIndex > $constructionRules->maxItemIndex()
+                        || $catalog->definitionFor((int) $group, (int) $itemIndex) === null
+                        || ($constructionRules instanceof ItemConstructionPolicy && ! $constructionRules->allowsConstruction($item))) {
                         $validator->errors()->add('items.'.$index.'.item_code', __('ui.admin.shop_unknown_item'));
                     }
                 }

@@ -13,4 +13,15 @@ enum ShopClassScope: string
     case FairyElf = 'elf_me';
     case MagicGladiator = 'mg';
     case DarkLord = 'dl_le';
+    case Summoner = 'su_bs';
+    case RageFighter = 'rf_fm';
+    case GrowLancer = 'grow-lancer';
+    case RuneWizard = 'rune-wizard';
+    case Slayer = 'slayer';
+    case GunCrusher = 'gun-crusher';
+    case KundunMephis = 'kundun-mephis';
+    case Lemuria = 'lemuria';
+    case IllusionKnight = 'illusion-knight';
+    case Alchemist = 'alchemist';
+    case Crusader = 'crusader';
 }

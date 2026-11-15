@@ -13,7 +13,10 @@ final readonly class ItemCatalogAdapterMuDevsSeason21 implements ItemCatalog
     /**
      * Retains the complete native catalog as the source of item metadata.
      */
-    public function __construct(private ItemCatalogMuDevsSeason21 $catalog) {}
+    public function __construct(
+        private ItemCatalogMuDevsSeason21 $catalog,
+        private ItemOptionsMuDevsSeason21 $options,
+    ) {}
 
     /**
      * Looks up a native identity without narrowing its nine-bit index.
@@ -49,6 +52,7 @@ final readonly class ItemCatalogAdapterMuDevsSeason21 implements ItemCatalog
             image: $metadata->image,
             excellentType: 0,
             optionType: 0,
+            nativeOptions: $this->options->definitionFor($metadata->group, $metadata->index),
         );
     }
 }

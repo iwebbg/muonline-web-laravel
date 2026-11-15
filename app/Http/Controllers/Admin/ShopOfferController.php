@@ -161,6 +161,7 @@ final class ShopOfferController extends Controller
             'image' => $definition->image,
             'excellentType' => $definition->excellentType,
             'optionType' => $definition->optionType,
+            ...($definition->nativeOptions === null ? [] : ['nativeOptions' => $definition->nativeOptions]),
         ], $catalog->allDefinitions());
 
         return [

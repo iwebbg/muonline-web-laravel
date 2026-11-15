@@ -8,6 +8,11 @@ namespace App\Game\Contracts;
 interface ItemGrantRules
 {
     /**
+     * Returns the highest item index supported by the native identity header.
+     */
+    public function maxItemIndex(): int;
+
+    /**
      * Returns the highest supported item level.
      */
     public function maxItemLevel(): int;

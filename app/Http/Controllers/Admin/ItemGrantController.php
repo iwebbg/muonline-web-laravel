@@ -49,6 +49,7 @@ final class ItemGrantController extends Controller
                 'height' => $definition->height,
                 'excellentType' => $definition->excellentType,
                 'optionType' => $definition->optionType,
+                ...($definition->nativeOptions === null ? [] : ['nativeOptions' => $definition->nativeOptions]),
             ];
         }
         $definitionsByCode = [];

@@ -151,8 +151,8 @@
                                         <input type="hidden" x-bind:name="`items[${index}][weight]`" value="1">
                                     </template>
                                     <div class="flex flex-wrap items-end gap-5 pb-2">
-                                        <label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_skill]`" x-model="item.has_skill">{{ __('ui.admin.shop_offer_skill') }}</label>
-                                        <label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_luck]`" x-model="item.has_luck">{{ __('ui.admin.shop_offer_luck') }}</label>
+                                        <label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_skill]`" x-model="item.has_skill" x-bind:disabled="selectedItem(item)?.nativeOptions?.skill === false">{{ __('ui.admin.shop_offer_skill') }}</label>
+                                        <label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_luck]`" x-model="item.has_luck" x-bind:disabled="selectedItem(item)?.nativeOptions?.luck === false">{{ __('ui.admin.shop_offer_luck') }}</label>
                                     </div>
                                     <input type="hidden" x-bind:name="`items[${index}][ancient_option]`" value="0">
                                     <input type="hidden" x-bind:name="`items[${index}][excellent_mask]`" x-bind:value="excellentMask(item)">

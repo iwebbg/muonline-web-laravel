@@ -2,6 +2,7 @@
 
 namespace Tests\IntegrationSeason21;
 
+use App\Game\Repositories\SqlServerMuDevsSeason21ItemSerialRepository;
 use App\Game\Repositories\SqlServerMuDevsSeason21MarketItemEscrowRepository;
 use App\Market\MarketEscrowResult;
 use Illuminate\Database\ConnectionInterface;
@@ -162,6 +163,28 @@ final class MuDevsSeason21NativeItemEscrowTest extends TestCase
                 proc_terminate($process);
                 proc_close($process);
             }
+        }
+    }
+
+    /**
+     * Reserves serials through the supplied server procedure without touching a live counter.
+     */
+    public function test_native_serial_repository_advances_the_authoritative_counter(): void
+    {
+        $connection = $this->game();
+        $connection->statement('CREATE TABLE GameServerInfo (Number INT NOT NULL, ItemCount INT NOT NULL, ZenCount INT NULL, AceItemCount INT NULL)');
+        $connection->unprepared('CREATE PROCEDURE dbo.WZ_GetItemSerial AS BEGIN DECLARE @ItemSerial INT; SET NOCOUNT ON; BEGIN TRANSACTION; UPDATE GameServerInfo SET @ItemSerial = ItemCount = ItemCount + 1; IF (@@ERROR <> 0) BEGIN ROLLBACK TRANSACTION; SELECT -1; END ELSE BEGIN COMMIT TRANSACTION; SELECT @ItemSerial; END END');
+
+        try {
+            $connection->table('GameServerInfo')->insert(['Number' => 0, 'ItemCount' => 100]);
+            $repository = $this->app->make(SqlServerMuDevsSeason21ItemSerialRepository::class);
+
+            self::assertSame(101, $repository->nextSerial());
+            self::assertSame(102, $repository->nextSerial());
+            self::assertSame(102, (int) $connection->table('GameServerInfo')->value('ItemCount'));
+        } finally {
+            $connection->statement('DROP PROCEDURE dbo.WZ_GetItemSerial');
+            $connection->statement('DROP TABLE GameServerInfo');
         }
     }
 

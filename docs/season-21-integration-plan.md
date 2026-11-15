@@ -547,6 +547,32 @@ tests exercise both inventory and warehouse extraction through Web Vault and bac
 Special dependencies, serial allocation and end-to-end market/shop certification
 remain pending.
 
+### Native construction and administrator grants
+
+The native serial adapter calls the supplied `WZ_GetItemSerial` procedure and
+accepts only positive signed-INT serials. A disposable SQL Server test verifies
+consecutive reservations against its sanitized procedure and counter; no live
+serials were reserved during development. The common-header encoder and native
+warehouse journal now deliver a high-index `7:270` administrator grant through
+the actual HTTP endpoint, with one reserved serial on replay.
+
+`construction-options.json` contains 2,718 per-item option declarations from the
+active nested `Data/Item/ItemOption - Settings/ItemOption.xml` selected by
+GameServerInfo - Path.dat (SHA-256
+`daba4898361dbfca771d950864f3be7c75a0ea5d001fc7b3a5a46a169b27683f`).
+The source controls skill/luck/additional/excellent choices, tooltip effect values
+and construction validation. Kris has no skill. Native armor Zen uses its source
+30% rather than a legacy default. Construction rejects special dependencies,
+ancient generation, 380 and uncommissioned Harmony generation before serial
+allocation. Existing items retain their original options during custody.
+
+Shared grant limits now retain the old 31/31/255 index boundaries and add S21's
+511 boundary. Native editor metadata is optional; old catalog payloads and option
+labels retain their previous behavior. Shop offer validation and purchase actions
+reject unsupported native construction before charging Credits. Automatic generated
+item pricing remains unavailable until explicitly configured; operator-priced
+shop offers use their configured web Credits, separately from native coins.
+
 ### Client-matched warehouse commissioning
 
 Owner-supplied client screenshots and read-only reads now match ten distinct

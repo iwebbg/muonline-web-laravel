@@ -34,9 +34,9 @@ final class PurchaseGeneratedItemRequest extends FormRequest
         $itemGrantRules = app(ItemGrantRules::class);
 
         return [
-            'item_code' => ['required', 'string', 'regex:/\A(?:[0-9]|1[0-5]):(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\z/'],
+            'item_code' => ['required', 'string', 'regex:/\A(?:[0-9]|1[0-5]):(?:0|[1-9][0-9]{0,2})\z/'],
             'group' => ['required', 'integer', 'between:0,15'],
-            'index' => ['required', 'integer', 'between:0,255'],
+            'index' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxItemIndex()],
             'level' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxItemLevel()],
             'durability' => ['required', 'integer', 'between:0,255'],
             'option_level' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxOptionLevel()],

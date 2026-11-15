@@ -9,6 +9,8 @@ final readonly class ItemDefinition
 {
     /**
      * Creates immutable presentation metadata for one item group and index.
+     *
+     * @param  array{skill: bool, luck: bool, additional: bool, excellentMask: int, additionalLabel: string|null, additionalValue: int, excellent: list<array{bit: int, label: string}>}|null  $nativeOptions
      */
     public function __construct(
         public int $group,
@@ -19,6 +21,7 @@ final readonly class ItemDefinition
         public ?string $image,
         public int $excellentType,
         public int $optionType,
+        public ?array $nativeOptions = null,
     ) {}
 
     /**

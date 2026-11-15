@@ -5,7 +5,9 @@ namespace App\ItemGrants\Actions;
 use App\Admin\Authorization\AdministratorPermission;
 use App\Game\Contracts\ItemCatalog;
 use App\Game\Contracts\ItemCodec;
+use App\Game\Contracts\ItemConstructionPolicy;
 use App\Game\Contracts\ItemEscrowRepository;
+use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Operations\CharacterOperationStatus;
 use App\Game\Operations\ItemEscrowCoordinator;
@@ -32,6 +34,7 @@ final readonly class GrantItemToWarehouse
         private ItemEscrowRepository $itemEscrowRepository,
         private ItemCatalog $catalog,
         private ItemCodec $codec,
+        private ItemGrantRules $itemGrantRules,
         private ItemEscrowCoordinator $itemEscrowCoordinator,
     ) {}
 
@@ -55,7 +58,8 @@ final readonly class GrantItemToWarehouse
             $options['index'],
         );
 
-        if ($definition === null) {
+        if ($definition === null
+            || ($this->itemGrantRules instanceof ItemConstructionPolicy && ! $this->itemGrantRules->allowsConstruction($options))) {
             throw new ItemGrantRejected(ItemGrantBlockReason::UnknownItem);
         }
 
