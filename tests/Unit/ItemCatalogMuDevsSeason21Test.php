@@ -17,13 +17,17 @@ final class ItemCatalogMuDevsSeason21Test extends TestCase
     public function test_loads_all_source_items_without_inventing_artwork(): void
     {
         $definitions = $this->catalog()->allDefinitions();
+        $verifiedImages = [
+            '0:26' => '/images/items/mudevs_season_21/flameberge.png',
+            '8:29' => '/images/items/mudevs_season_21/dragon-knight-armor.png',
+        ];
 
         self::assertCount(4701, $definitions);
         self::assertCount(20, array_unique(array_column($definitions, 'group')));
         foreach ($definitions as $definition) {
             self::assertGreaterThan(0, $definition->width);
             self::assertGreaterThan(0, $definition->height);
-            self::assertNull($definition->image);
+            self::assertSame($verifiedImages[$definition->code()] ?? null, $definition->image);
         }
     }
 

@@ -89,6 +89,8 @@ final class AdminMuDevsSeason21WarehouseTest extends TestCase
         $response->assertOk()
             ->assertSee('Brilliant Knight Helm [S] +15')
             ->assertSee("Warrior's Leather Armor +9")
+            ->assertSee('/images/items/mudevs_season_21/flameberge.png')
+            ->assertSee('/images/items/mudevs_season_21/dragon-knight-armor.png')
             ->assertSee('images/items/unknown-item.svg')
             ->assertSee('width: calc(var(--inventory-cell-size) * 2 - 0.36rem)', false)
             ->assertSee('height: calc(var(--inventory-cell-size) * 4 - 0.36rem)', false)

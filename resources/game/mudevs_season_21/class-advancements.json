@@ -1,0 +1,542 @@
+[
+  {
+    "code": 1,
+    "baseCode": 0,
+    "tier": 2,
+    "previousCode": 0,
+    "name": "Soul Master",
+    "key": "soul-master",
+    "textIndex": 25
+  },
+  {
+    "code": 2,
+    "baseCode": 0,
+    "tier": 3,
+    "previousCode": 1,
+    "name": "Grand Master",
+    "key": "grand-master",
+    "textIndex": 1669
+  },
+  {
+    "code": 3,
+    "baseCode": 0,
+    "tier": 4,
+    "previousCode": 2,
+    "name": "Soul Wizard",
+    "key": "soul-wizard",
+    "textIndex": 5163
+  },
+  {
+    "code": 4,
+    "baseCode": 0,
+    "tier": 5,
+    "previousCode": 3,
+    "name": "Darkness Wizard",
+    "key": "darkness-wizard",
+    "textIndex": 6286
+  },
+  {
+    "code": 17,
+    "baseCode": 16,
+    "tier": 2,
+    "previousCode": 16,
+    "name": "Blade Knight",
+    "key": "blade-knight",
+    "textIndex": 26
+  },
+  {
+    "code": 18,
+    "baseCode": 16,
+    "tier": 3,
+    "previousCode": 17,
+    "name": "Blade Master",
+    "key": "bm",
+    "textIndex": 1668
+  },
+  {
+    "code": 19,
+    "baseCode": 16,
+    "tier": 4,
+    "previousCode": 18,
+    "name": "Dragon Knight",
+    "key": "dragon-knight",
+    "textIndex": 5164
+  },
+  {
+    "code": 20,
+    "baseCode": 16,
+    "tier": 5,
+    "previousCode": 19,
+    "name": "Ignition Knight",
+    "key": "ignition-knight",
+    "textIndex": 6287
+  },
+  {
+    "code": 33,
+    "baseCode": 32,
+    "tier": 2,
+    "previousCode": 32,
+    "name": "Muse Elf",
+    "key": "muse-elf",
+    "textIndex": 27
+  },
+  {
+    "code": 34,
+    "baseCode": 32,
+    "tier": 3,
+    "previousCode": 33,
+    "name": "High Elf",
+    "key": "high-elf",
+    "textIndex": 1670
+  },
+  {
+    "code": 35,
+    "baseCode": 32,
+    "tier": 4,
+    "previousCode": 34,
+    "name": "Noble Elf",
+    "key": "noble-elf",
+    "textIndex": 5165
+  },
+  {
+    "code": 36,
+    "baseCode": 32,
+    "tier": 5,
+    "previousCode": 35,
+    "name": "Royal Elf",
+    "key": "royal-elf",
+    "textIndex": 6288
+  },
+  {
+    "code": 50,
+    "baseCode": 48,
+    "tier": 3,
+    "previousCode": 48,
+    "name": "Dual Master",
+    "key": "dual-master",
+    "textIndex": 1671
+  },
+  {
+    "code": 51,
+    "baseCode": 48,
+    "tier": 4,
+    "previousCode": 50,
+    "name": "Magic Knight",
+    "key": "magic-knight",
+    "textIndex": 5167
+  },
+  {
+    "code": 52,
+    "baseCode": 48,
+    "tier": 5,
+    "previousCode": 51,
+    "name": "Duple Knight",
+    "key": "duple-knight",
+    "textIndex": 6290
+  },
+  {
+    "code": 66,
+    "baseCode": 64,
+    "tier": 3,
+    "previousCode": 64,
+    "name": "Lord Emperor",
+    "key": "lord-emperor",
+    "textIndex": 1672
+  },
+  {
+    "code": 67,
+    "baseCode": 64,
+    "tier": 4,
+    "previousCode": 66,
+    "name": "Empire Lord",
+    "key": "empire-lord",
+    "textIndex": 5168
+  },
+  {
+    "code": 68,
+    "baseCode": 64,
+    "tier": 5,
+    "previousCode": 67,
+    "name": "Force Empire",
+    "key": "force-empire",
+    "textIndex": 6291
+  },
+  {
+    "code": 81,
+    "baseCode": 80,
+    "tier": 2,
+    "previousCode": 80,
+    "name": "Bloody Summoner",
+    "key": "bloody-summoner",
+    "textIndex": 1688
+  },
+  {
+    "code": 82,
+    "baseCode": 80,
+    "tier": 3,
+    "previousCode": 81,
+    "name": "Dimension Master",
+    "key": "dimension-master",
+    "textIndex": 1689
+  },
+  {
+    "code": 83,
+    "baseCode": 80,
+    "tier": 4,
+    "previousCode": 82,
+    "name": "Dimension Summoner",
+    "key": "dimension-summoner",
+    "textIndex": 5166
+  },
+  {
+    "code": 84,
+    "baseCode": 80,
+    "tier": 5,
+    "previousCode": 83,
+    "name": "Endless Summoner",
+    "key": "endless-summoner",
+    "textIndex": 6289
+  },
+  {
+    "code": 98,
+    "baseCode": 96,
+    "tier": 3,
+    "previousCode": 96,
+    "name": "Fist Master",
+    "key": "fist-master",
+    "textIndex": 3151
+  },
+  {
+    "code": 99,
+    "baseCode": 96,
+    "tier": 4,
+    "previousCode": 98,
+    "name": "Fist Blazer",
+    "key": "fist-blazer",
+    "textIndex": 5169
+  },
+  {
+    "code": 100,
+    "baseCode": 96,
+    "tier": 5,
+    "previousCode": 99,
+    "name": "Bloody Fighter",
+    "key": "bloody-fighter",
+    "textIndex": 6292
+  },
+  {
+    "code": 114,
+    "baseCode": 112,
+    "tier": 3,
+    "previousCode": 112,
+    "name": "Mirage Lancer",
+    "key": "mirage-lancer",
+    "textIndex": 4589
+  },
+  {
+    "code": 115,
+    "baseCode": 112,
+    "tier": 4,
+    "previousCode": 114,
+    "name": "Shining Lancer",
+    "key": "shining-lancer",
+    "textIndex": 5170
+  },
+  {
+    "code": 116,
+    "baseCode": 112,
+    "tier": 5,
+    "previousCode": 115,
+    "name": "Arcane Lancer",
+    "key": "arcane-lancer",
+    "textIndex": 6293
+  },
+  {
+    "code": 129,
+    "baseCode": 128,
+    "tier": 2,
+    "previousCode": 128,
+    "name": "Rune Spell Master",
+    "key": "rune-spell-master",
+    "textIndex": 5400
+  },
+  {
+    "code": 130,
+    "baseCode": 128,
+    "tier": 3,
+    "previousCode": 129,
+    "name": "Rune Grand Master",
+    "key": "rune-grand-master",
+    "textIndex": 5401
+  },
+  {
+    "code": 131,
+    "baseCode": 128,
+    "tier": 4,
+    "previousCode": 130,
+    "name": "Majestic Rune Mage",
+    "key": "majestic-rune-mage",
+    "textIndex": 5414
+  },
+  {
+    "code": 132,
+    "baseCode": 128,
+    "tier": 5,
+    "previousCode": 131,
+    "name": "Infinity Rune Wizard",
+    "key": "infinity-rune-wizard",
+    "textIndex": 6294
+  },
+  {
+    "code": 145,
+    "baseCode": 144,
+    "tier": 2,
+    "previousCode": 144,
+    "name": "Royal Slayer",
+    "key": "royal-slayer",
+    "textIndex": 5527
+  },
+  {
+    "code": 146,
+    "baseCode": 144,
+    "tier": 3,
+    "previousCode": 145,
+    "name": "Master Slayer",
+    "key": "master-slayer",
+    "textIndex": 5528
+  },
+  {
+    "code": 147,
+    "baseCode": 144,
+    "tier": 4,
+    "previousCode": 146,
+    "name": "Slaughterer",
+    "key": "slaughterer",
+    "textIndex": 5529
+  },
+  {
+    "code": 148,
+    "baseCode": 144,
+    "tier": 5,
+    "previousCode": 147,
+    "name": "Rogue Slayer",
+    "key": "rogue-slayer",
+    "textIndex": 6295
+  },
+  {
+    "code": 161,
+    "baseCode": 160,
+    "tier": 2,
+    "previousCode": 160,
+    "name": "Gun Breaker",
+    "key": "gun-breaker",
+    "textIndex": 5787
+  },
+  {
+    "code": 162,
+    "baseCode": 160,
+    "tier": 3,
+    "previousCode": 161,
+    "name": "Master Gun Breaker",
+    "key": "master-gun-breaker",
+    "textIndex": 5788
+  },
+  {
+    "code": 163,
+    "baseCode": 160,
+    "tier": 4,
+    "previousCode": 162,
+    "name": "Heist Gun Crusher",
+    "key": "heist-gun-crusher",
+    "textIndex": 5789
+  },
+  {
+    "code": 164,
+    "baseCode": 160,
+    "tier": 5,
+    "previousCode": 163,
+    "name": "Magnus Gun Crusher",
+    "key": "magnus-gun-crusher",
+    "textIndex": 6296
+  },
+  {
+    "code": 177,
+    "baseCode": 176,
+    "tier": 2,
+    "previousCode": 176,
+    "name": "Light Master",
+    "key": "light-master",
+    "textIndex": 5915
+  },
+  {
+    "code": 178,
+    "baseCode": 176,
+    "tier": 3,
+    "previousCode": 177,
+    "name": "Shine Wizard",
+    "key": "shine-wizard",
+    "textIndex": 5916
+  },
+  {
+    "code": 179,
+    "baseCode": 176,
+    "tier": 4,
+    "previousCode": 178,
+    "name": "Luminous Wizard",
+    "key": "luminous-wizard",
+    "textIndex": 5917
+  },
+  {
+    "code": 180,
+    "baseCode": 176,
+    "tier": 5,
+    "previousCode": 179,
+    "name": "Glory Wizard",
+    "key": "glory-wizard",
+    "textIndex": 6297
+  },
+  {
+    "code": 193,
+    "baseCode": 192,
+    "tier": 2,
+    "previousCode": 192,
+    "name": "War Mage",
+    "key": "war-mage",
+    "textIndex": 5924
+  },
+  {
+    "code": 194,
+    "baseCode": 192,
+    "tier": 3,
+    "previousCode": 193,
+    "name": "Archmage",
+    "key": "archmage",
+    "textIndex": 5925
+  },
+  {
+    "code": 195,
+    "baseCode": 192,
+    "tier": 4,
+    "previousCode": 194,
+    "name": "Mystic Mage",
+    "key": "mystic-mage",
+    "textIndex": 5926
+  },
+  {
+    "code": 196,
+    "baseCode": 192,
+    "tier": 5,
+    "previousCode": 195,
+    "name": "Battle Mage",
+    "key": "battle-mage",
+    "textIndex": 6298
+  },
+  {
+    "code": 209,
+    "baseCode": 208,
+    "tier": 2,
+    "previousCode": 208,
+    "name": "Mirage Knight",
+    "key": "mirage-knight",
+    "textIndex": 6059
+  },
+  {
+    "code": 210,
+    "baseCode": 208,
+    "tier": 3,
+    "previousCode": 209,
+    "name": "Illusion Master",
+    "key": "illusion-master",
+    "textIndex": 6060
+  },
+  {
+    "code": 211,
+    "baseCode": 208,
+    "tier": 4,
+    "previousCode": 210,
+    "name": "Mystic Knight",
+    "key": "mystic-knight",
+    "textIndex": 6061
+  },
+  {
+    "code": 212,
+    "baseCode": 208,
+    "tier": 5,
+    "previousCode": 211,
+    "name": "Phantom Pain Knight",
+    "key": "phantom-pain-knight",
+    "textIndex": 6299
+  },
+  {
+    "code": 225,
+    "baseCode": 224,
+    "tier": 2,
+    "previousCode": 224,
+    "name": "Alchemist Mage",
+    "key": "alchemist-mage",
+    "textIndex": 6653
+  },
+  {
+    "code": 226,
+    "baseCode": 224,
+    "tier": 3,
+    "previousCode": 225,
+    "name": "Alchemist Master",
+    "key": "alchemist-master",
+    "textIndex": 6654
+  },
+  {
+    "code": 227,
+    "baseCode": 224,
+    "tier": 4,
+    "previousCode": 226,
+    "name": "Alchemist Force",
+    "key": "alchemist-force",
+    "textIndex": 6655
+  },
+  {
+    "code": 228,
+    "baseCode": 224,
+    "tier": 5,
+    "previousCode": 227,
+    "name": "Alchemist Creator",
+    "key": "alchemist-creator",
+    "textIndex": 6656
+  },
+  {
+    "code": 241,
+    "baseCode": 240,
+    "tier": 2,
+    "previousCode": 240,
+    "name": "Impact Crusader",
+    "key": "impact-crusader",
+    "textIndex": 6803
+  },
+  {
+    "code": 242,
+    "baseCode": 240,
+    "tier": 3,
+    "previousCode": 241,
+    "name": "Master Paladin",
+    "key": "master-paladin",
+    "textIndex": 6804
+  },
+  {
+    "code": 243,
+    "baseCode": 240,
+    "tier": 4,
+    "previousCode": 242,
+    "name": "Sacred Paladin",
+    "key": "sacred-paladin",
+    "textIndex": 6805
+  },
+  {
+    "code": 244,
+    "baseCode": 240,
+    "tier": 5,
+    "previousCode": 243,
+    "name": "Templar Commander",
+    "key": "templar-commander",
+    "textIndex": 6806
+  }
+]

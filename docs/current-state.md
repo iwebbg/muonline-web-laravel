@@ -8,7 +8,9 @@ together with `AGENTS.md`, `docs/coding-standards.md`, `docs/product-ux.md` and
 
 MuOnline Web is a Laravel 13 monolith running on PHP 8.5. It supports the
 DarksTeam `darksteam_97d99i` and `darksteam_1_0m` profiles plus the isolated
-`muemu_season_6` game and event profile. The frontend is server-rendered Blade
+`muemu_season_6` game and event profile. `mudevs_season_21` is now selectable for
+reviewed reads, event schedules and content administration; game mutations and
+the full storage/economy bundle remain in development. The frontend is server-rendered Blade
 enhanced with Alpine.js and Tailwind CSS v4; it is intentionally not a separate
 SPA or Next.js application.
 
@@ -361,14 +363,14 @@ Development started on `feat/mudevs-season-21` from `origin/develop` at
 `955c754`. The initial code provides the 16 native base-family identifiers,
 base stats and normal level-up points, the 121 configured map labels, and a
 read-only repository for WCoinC, WCoinP, Goblin Points, Lucky Coin and owned
-character Ruud. These components are not yet bound to a selectable profile or
-player interface. The first foundation commit is `6dcd812`.
+character Ruud. These initial components were not yet bound to a selectable
+profile; see the subsequent activation milestone below. The first foundation commit is `6dcd812`.
 
-The next read-model stage adds `MuDevsSeason21Profile` outside the selectable
+The next read-model stage initially added `MuDevsSeason21Profile` outside the
 registry, private character and public realm/guild/ranking repositories, and
 Master/enhancement reads joined through `CharacterIndex`. Its class catalog
-currently contains only the 16 base codes explicitly seeded by the supplied
-SQL; advanced evolution codes remain a commissioning task. Nine owner-supplied
+contains the 16 SQL-seeded base codes and now includes client-confirmed Blade
+Master (18); other evolution codes remain a commissioning task. Nine owner-supplied
 portraits live under `public/images/characters/mudevs_season_21`, with
 profile-owned focal points for the landscape/full-body sources. Shared DTOs
 keep their previous serialized shape when no custom focal point or enhancement
@@ -520,12 +522,28 @@ ancient state was incorrect for this socket item. The native record now retains
 socket header context separately and excludes the verified 0x40 socket bit from
 ancient options on source-declared socket gear. The preview names only the
 matched first-position tier-7 tuple (+1.7), leaves unsupported contexts/tails
-unverified and preserves every original byte. The owner is transferring the
-matching S21 client for item-art inspection; no client artwork has been exported.
+unverified and preserves every original byte.
 Validation for the tier-7 correction: 920 isolated unit/feature tests with
 18,743 assertions, five native S21 SQL Server cases with 38 assertions and Pint
 pass. A separate live read/presentation check shows Fire level 7 +1.7 with ancient
 option 0 and socket header context 64, preserving the original saved bytes.
+
+The supplied `ucrtbased` S21 client contains 2,930 Item BMD models and their
+textures rather than a complete ready-made item icon collection. A local pilot
+decoded BMD v15 geometry, frame-zero bone transforms and OZJ/OZT textures and
+rendered transparent PNGs for Flameberge (0:26, 1x4) and Dragon Knight Armor
+(8:29, 2x3). The native catalog now supplies those two images to the existing
+warehouse preview; other identities retain nullable artwork and the shared
+fallback. Model/texture hashes and rendering limits are recorded in
+`resources/game/mudevs_season_21/item-image-provenance.json`. These are static
+base images; game lighting, +level glow and option-dependent colors are not
+reproduced. Cyclone Sword's model mapping and bulk extraction remain open;
+filenames cannot safely be inferred from item indices. The client files were
+read only and no application dependencies were added. Validation: 22 isolated
+catalog/warehouse tests with 14,208 assertions and Pint pass.
+The owner confirmed that recognizable static icons are sufficient, matching
+existing adapters. Exact model fidelity, animated effects and +level/option
+colors are outside scope; no 3D rendering is needed in the website.
 
 Read-only commissioning confirmed `MuOnline_S21` and `BattleCore_S21` at
 `192.168.0.104:1433`. The existing bootstrap installers created
@@ -536,9 +554,25 @@ tables, with no sysadmin/db_owner membership or game mutation permissions.
 `GAME_DB_BATTLE_CORE=BattleCore_S21` configures the optional `battle_core`
 connection. Bootstrap is disabled and temporary administrator credentials are
 removed from active `.env`; its previous values are preserved in ignored
-`.env.backup`. Game writes are closed, and `GAME_DATA_SOURCE=fixture` retains
-the existing fixture profile until the complete S21 bundle is registered.
-Do not switch to real game data using the retained S6 fixture profile.
+`.env.backup`. Game writes remain closed. The active local environment now uses
+`GAME_DATA_SOURCE=database`, `GAME_SERVER_PROFILE=mudevs_season_21` and
+`GAME_EVENT_PROFILE=mudevs_season_21` for the reviewed read bundle. Do not use
+S6 adapters with S21 data.
+
+The S21 website read bundle is now active: native login, account overview,
+Master/enhancement data, owned native balances, public rankings/profiles and
+11 reviewed event recurrences. Code 18 is client-confirmed Blade Master and
+appears with its own ranking filter; a manual authenticated request with all
+six live classes now returns HTTP 200. The website keeps unfinished storage,
+character mutations and economy routes unavailable before resolving missing
+adapters, and hides their controls. Existing adapters retain their previous
+behavior. Event overrides remain permission-checked, audited and scoped to
+`mudevs_season_21` / `S21.1-2`; changing website timing does not change the game
+server's configuration. Full item artwork extraction is deferred.
+Validation: 931 isolated unit/feature tests (18,817 assertions), all four profile
+smoke runs, five native S21 SQL Server cases (38 assertions), Pint and Vite build
+pass. Separate manual read checks return HTTP 200 for the actual private account,
+home and rankings; these checks do not mutate game records.
 
 Eight inspected MuOnline procedures retain unbracketed `BattleCore.dbo` references, and the
 BattleCore database contains only ten tables. Resolve the dependencies before

@@ -1,7 +1,7 @@
 # MUDevs Season 21 compatibility and implementation plan
 
-Status: foundation in development, 14 November 2026. The S21 adapter is not
-selectable yet. The target is the owner-supplied MUDevs S21.1-2 distribution,
+Status: read bundle selectable and active locally, 15 November 2026. Full S21
+support remains in development. The target is the owner-supplied MUDevs S21.1-2 distribution,
 including its standard inherited game systems, all playable class families and
 their advancements. A read-only panel is an intermediate milestone, not the
 definition of complete support.
@@ -40,14 +40,14 @@ The first components cover:
 - Portable tests for class stats, map boundaries, currency ownership, absent
   rows, malformed balances, SQL-shaped account identifiers and absence of writes.
 
-These components do not register a partial game profile. Native currency reads
-are not yet exposed in the account UI. Market and Web Shop remain later
-compatibility tests; no existing module settings have been changed.
+These initial components did not register a game profile. The later activation
+stage below now exposes reviewed reads and native balances. Market and Web Shop
+remain later compatibility tests.
 
 The first foundation commit is `6dcd812`. The subsequent read-model stage adds:
 
 - `MuDevsSeason21Profile`, containing the 16 SQL-seeded base class codes,
-  source stats, portraits and read bindings. It remains outside the selectable
+  source stats, portraits and read bindings. It initially remained outside the
   registry; unavailable advancement codes are not guessed.
 - Private account character reads plus public rankings, profiles, guilds and
   realm analytics through S21-owned adapters.
@@ -102,9 +102,9 @@ isolated memory or clear it in the SQL integration bootstrap.
 
 Active `.env` contains the S21 database targets and independently generated
 runtime passwords. `APP_DB_BOOTSTRAP=false`; temporary administrator fields are
-blank and game writes remain closed. `GAME_DATA_SOURCE=fixture` keeps the
-existing fixture profile usable until the S21 bundle can be registered; this
-retained S6 selector must not be used with real S21 data. The previous local
+blank and game writes remain closed. The active local selection is now
+`GAME_DATA_SOURCE=database`, with both game and event profiles set to
+`mudevs_season_21`. The S6 selector must not be used with S21 data. The previous local
 configuration is preserved in ignored `.env.backup` with restricted file access.
 
 Do not recreate `MuOnline_S21` or
@@ -213,6 +213,30 @@ Extend its consumers only where necessary; do not impose an artificial
 three-stage maximum on the new profile.
 
 ## Levels and progression
+
+### Complete advancement catalog
+
+The read profile now exposes 76 valid forms across all sixteen families,
+including every third/fourth/fifth form. Four families (MG, DL, RF, GL) skip
+second advancement; those missing codes remain invalid. Advancement display
+names and text indices come from the supplied client's
+`Data/Lang.mpr` -> `Eng/Text(Kor).txt`, not an unrelated emulator's labels.
+The archive SHA-256 is
+`f9243111a740b69b9b93522c2a10e408747b934c88eb15f73cfd18970331dd2a`;
+the selected text SHA-256 is
+`8247a5e476ee63378c289c10cc0794b290244668cbcf0ee4dd9b5de14036037f`.
+Only the sixty advancement records and source text indices are bundled in
+`class-advancements.json`; no archive password or whole client text is shipped.
+
+Database identities use the supplied sixteen-family stride and contiguous
+promotion offsets (`base + tier - 1`), consistent with MUDevs' separate family
+and ChangeUp values, the existing MuEMU family encoding and the owner's runtime
+Blade Master (18). Fourth/fifth names are cross-checked against official guides
+and the pack's quest requirements. This is a source-backed mapping; a live
+character of each advanced form has not been manufactured or independently
+client-tested. Predecessors skip missing stages and all forms reuse their
+family's existing portrait. Validation: 932 isolated tests / 19,346 assertions
+and all four profile smoke runs pass.
 
 | System | File or schema evidence | Website work and runtime acceptance |
 | --- | --- | --- |
@@ -330,9 +354,35 @@ definitions: Blood Castle, Devil Square, Chaos Castle, Castle Deep, Moss Merchan
 Group Boss Battle, Skeleton King, Red Dragon, Golden, White Wizard and Medusa.
 The existing `EventProfileReader` and `EventSchedule` consume this profile without
 changes; administrator overrides retain profile/version isolation. The S21 game
-bundle is still incomplete and not selectable, and the active environment remains
-on its existing fixture/game/event profile. These are configured recurrences,
+bundle is still incomplete, but its reviewed read bundle and this event profile
+are now selected locally. These are configured recurrences,
 not evidence of live event execution or a complete standard-activity implementation.
+
+### Website activation milestone
+
+`GAME_SERVER_PROFILE=mudevs_season_21` now selects native account, public realm,
+Master progression and currency reads. The private dashboard displays account
+WCoin(C), WCoin(P), GoblinPoint, Lucky Coin and per-character Ruud independently
+of web Credits. The profile permits reviewed public pages, login/logout,
+account overview, event/content administration and the opt-in warehouse preview.
+Unsupported routes return 404 before unimplemented services are resolved;
+economy modules and character-operation controls remain unavailable even if
+the global writes flag or persisted module settings are changed. The three
+existing adapters retain their full route/module behavior.
+
+The local account contains persisted class 18 in addition to base classes
+176–240. The owner matched code 18 to Blade Master in the client; it now has its
+own ranking filter and the existing Knight stat family. Its predecessor code
+and other advancements remain unverified. Other unverified codes are still
+rejected. A manual authenticated read of the actual account,
+including Crusader, returns HTTP 200. No game records were changed.
+
+Validation: the full suite passes 931 tests / 18,817 assertions, and the
+four-profile smoke matrix passes. The
+native SQL Server suite passes five cases/38 assertions. Focused tests cover
+native login, mixed-class ownership, empty accounts, private currency balances,
+unavailable operations, event permissions and audited S21 schedule overrides.
+Item artwork batch extraction is deferred until the web adapter is complete.
 
 Each definition identifies its switch/host and active source. Blood Castle,
 Devil Square, Chaos Castle and Castle Deep use the enabled `GameServerCS` host.
@@ -493,15 +543,15 @@ coverage verifies the shared flag survives loading and exact re-encoding.
 
 ### Client item artwork
 
-The owner is transferring the matching S21 client so its actual resources can
-be inspected. The current server pack and legacy client-source samples are not
+The owner supplied the matching S21 client for inspection; artwork extraction
+is now deferred until the website adapter is complete. The current server pack and legacy client-source samples are not
 a substitute for that client's models/textures. Check for ready-made icons
 first; otherwise map native item identities to models and textures, render
 consistent transparent PNG/WebP previews, and attach verified paths to the
 native catalog while preserving source rectangles and the shared fallback.
 Compatibility with the actual S21 model/texture formats must be tested on a few
-known items before claiming a complete export. No client assets have been
-exported or replaced by this stage.
+known items before claiming a complete export. Only the two pilot icons
+described below have been imported; no bulk export is part of the current work.
 
 | Item | Native code | Level | Rectangle | Matched option evidence |
 | --- | --- | --- | --- | --- |
@@ -616,6 +666,16 @@ Required shared changes identified in the existing implementation:
   an already failed load is checked on Alpine initialization, and a failed
   fallback cannot cause a retry loop. Grid geometry and tooltips stay intact.
   Canonical catalog/snapshot artwork remains nullable.
+- Client-art pilot: the supplied `ucrtbased` BMD v15 models and OZJ/OZT textures
+  now provide transparent base images for Flameberge (0:26) and Dragon Knight
+  Armor (8:29), preserving their 1x4 and 2x3 source geometry. Only these matched
+  identities are assigned in the native catalog. The bundled
+  `item-image-provenance.json` records model/texture hashes and static-rendering
+  limits. Cyclone Sword mapping, v14 models and bulk extraction remain
+  unverified; use the shared fallback elsewhere. Per owner direction, the web
+  needs recognizable static icons as in existing versions. Exact 3D fidelity,
+  animated effects, +level glow and option-dependent colors are outside the
+  artwork scope; models are only an offline source for PNG generation.
 - Audit serial types and reservation semantics, custody snapshots, reward/grant
   persistence and schema limits before accepting S21 bytes. The supplied
   `WZ_GetItemSerial` returns an int, while WingCore uses bigint references;

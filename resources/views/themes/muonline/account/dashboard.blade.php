@@ -33,6 +33,14 @@
                         <strong class="text-gold">{{ number_format($luckyCoinBalance) }} {{ __('ui.account.lucky_coins') }}</strong>
                     </div>
                 @endif
+                @if ($nativeCurrencyBalances !== null)
+                    @foreach (['WCoin(C)' => $nativeCurrencyBalances->wCoinC, 'WCoin(P)' => $nativeCurrencyBalances->wCoinP, 'GoblinPoint' => $nativeCurrencyBalances->goblinPoints] as $currencyLabel => $balance)
+                        <div class="resource-chip">
+                            <span>{{ $currencyLabel }}</span>
+                            <strong class="text-gold">{{ number_format($balance) }}</strong>
+                        </div>
+                    @endforeach
+                @endif
             </div>
         </div>
 
@@ -71,7 +79,11 @@
 
         @if ($characters === [])
             <section class="mt-6 min-w-0">
-                <x-account-vaults-panel :show-empty-character-notice="true" />
+                @if ($readOnlyGameProfile)
+                    <p class="text-silver">{{ __('ui.account.no_characters_heading') }}</p>
+                @else
+                    <x-account-vaults-panel :show-empty-character-notice="true" />
+                @endif
             </section>
         @else
             <div
@@ -81,13 +93,16 @@
                 <x-account-character-portrait x-show="activeSection !== 'vaults'" x-cloak />
 
                 <section class="min-w-0">
-                    <x-account-character-tabs
+                    @if (! $readOnlyGameProfile)
+                        <x-account-character-tabs
                         :character-services-enabled="$characterServicesEnabled"
                         x-show="activeSection !== 'vaults'"
                         x-cloak
-                    />
+                        />
+                    @endif
 
-                    <x-account-overview-panel :economy-settings="$economySettings" :character-services-enabled="$characterServicesEnabled" />
+                    <x-account-overview-panel :economy-settings="$economySettings" :character-services-enabled="$characterServicesEnabled" :read-only="$readOnlyGameProfile" />
+                    @if (! $readOnlyGameProfile)
                     <x-account-inventory-panel />
 
                     <x-account-vaults-panel />
@@ -103,6 +118,7 @@
                     <x-account-reset-panel />
 
                     <x-account-grand-reset-panel />
+                    @endif
 
                     @if ($characterServicesEnabled)
                         <x-account-character-services-panel

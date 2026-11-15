@@ -3,7 +3,10 @@
     'resetRevision' => null,
 ])
 
+@inject('versionProfile', 'App\Game\Versions\Contracts\GameVersionProfile')
+
 @php
+    $readOnlyGameProfile = $versionProfile->capabilities()->readOnly;
     $active ??= match (true) {
         request()->routeIs('admin.dashboard') => 'overview',
         request()->routeIs('admin.character-rules.*') => 'character-rules-'.request()->route('profile'),
@@ -49,6 +52,7 @@
             <a href="{{ route('admin.dashboard') }}" class="admin-nav-link {{ $active === 'overview' ? 'admin-nav-link-active' : '' }}">
                 <span>⌁</span>{{ __('ui.admin.overview') }}
             </a>
+            @if (! $readOnlyGameProfile)
             <div class="mt-2 border-t border-white/8 pt-2">
                 <p class="flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-steel">
                     <span>↻</span>{{ __('ui.admin.character_rules') }}
@@ -67,6 +71,7 @@
                     @endforeach
                 </div>
             </div>
+            @endif
         @endif
         @if (
             auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageSettings)
@@ -91,19 +96,21 @@
                         @endif
                     @endif
                     @if (
-                        auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateAccounts)
-                        || auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateCharacters)
+                        ! $readOnlyGameProfile && (
+                            auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateAccounts)
+                            || auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateCharacters)
+                        )
                     )
                         <a href="{{ route('admin.moderation') }}" class="admin-nav-link {{ $active === 'moderation' ? 'admin-nav-link-active' : '' }}">
                             <span>⚑</span>{{ __('ui.admin.moderation') }}
                         </a>
                     @endif
-                    @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::GrantItems))
+                    @if (! $readOnlyGameProfile && auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::GrantItems))
                         <a href="{{ route('admin.item-grants.index') }}" class="admin-nav-link {{ $active === 'item-grants' ? 'admin-nav-link-active' : '' }}">
                             <span>✧</span>{{ __('ui.admin.item_grants_nav') }}
                         </a>
                     @endif
-                    @if (auth('admin')->user()?->role === \App\Admin\Authorization\AdministratorRole::Administrator)
+                    @if (! $readOnlyGameProfile && auth('admin')->user()?->role === \App\Admin\Authorization\AdministratorRole::Administrator)
                         <a href="{{ route('admin.game-masters.index') }}" class="admin-nav-link {{ $active === 'game-masters' ? 'admin-nav-link-active' : '' }}">
                             <span>♜</span>{{ __('ui.admin.game_masters') }}
                         </a>
@@ -111,7 +118,7 @@
                 </div>
             </div>
         @endif
-        @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageEconomy))
+        @if (! $readOnlyGameProfile && auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageEconomy))
             <div class="mt-2 border-t border-white/8 pt-2">
                 <p class="flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-steel">
                     <span>◈</span>{{ __('ui.admin.economy') }}
@@ -174,9 +181,11 @@
                         <a href="{{ route('admin.website-settings.edit') }}" class="admin-nav-link {{ $active === 'website-settings' ? 'admin-nav-link-active' : '' }}">
                             <span>◆</span>{{ __('ui.admin.website_settings_nav') }}
                         </a>
+                        @if (! $readOnlyGameProfile)
                         <a href="{{ route('admin.modules.index') }}" class="admin-nav-link {{ $active === 'modules' ? 'admin-nav-link-active' : '' }}">
                             <span>◫</span>{{ __('ui.admin.modules') }}
                         </a>
+                        @endif
                     @endif
                     @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageContent))
                         <a href="{{ route('admin.news-posts.index') }}" class="admin-nav-link {{ $active === 'content' ? 'admin-nav-link-active' : '' }}">

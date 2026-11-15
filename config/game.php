@@ -1,11 +1,16 @@
 <?php
 
+use App\Game\Versions\MuDevsSeason21\MuDevsSeason21Profile;
 use App\Game\Versions\MuEmuSeason6\MuEmuSeason6Profile;
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use App\Game\Versions\Version97d99i\Version97d99iProfile;
 
 $serverProfileKey = env('GAME_SERVER_PROFILE', 'darksteam_97d99i');
 $serverProfileDefaults = match ($serverProfileKey) {
+    'mudevs_season_21' => [
+        'name' => 'MuOnline MUDevs Season 21',
+        'version' => 'S21.1-2',
+    ],
     'darksteam_1_0m' => [
         'name' => 'MuOnline DarksTeam 1.0M',
         'version' => '0.99.60/62T (1.0M)',
@@ -92,6 +97,7 @@ return [
     ],
 
     'version_profiles' => [
+        'mudevs_season_21' => MuDevsSeason21Profile::class,
         'darksteam_97d99i' => Version97d99iProfile::class,
         'darksteam_1_0m' => Version1_0MProfile::class,
         'muemu_season_6' => MuEmuSeason6Profile::class,

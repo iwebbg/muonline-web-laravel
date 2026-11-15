@@ -44,7 +44,7 @@ driver and database before database-refresh traits can run. Tests stop before
 migrations when any of those checks fail.
 
 The main suite contains profile-independent application tests plus direct unit
-and portable-adapter coverage for all three supported profiles. It is not a
+and portable-adapter coverage for all four registered profiles. It is not a
 replacement for the dedicated 97d+99i and 1.0M SQL Server suites or manual
 MuEMU Season 6 commissioning against a cloned database and test server.
 
@@ -173,10 +173,12 @@ progression joins, packed binary guild marks, full 6,000-byte warehouse reads,
 extended-vault ownership and lossless preservation of the client-matched records.
 `mudevs-season-21-warehouse-items.json` contains serial-anonymized item captures
 and expected metadata from owner-supplied tooltips; unit tests use these without
-connecting to the game server. The S21 profile is not yet
-selectable: shared test infrastructure boots with an existing registered
-profile, and every S21 adapter is explicitly instantiated with its own profile.
-That bootstrap profile does not select the tested S21 queries or fixture schema.
+connecting to the game server. The S21 read bundle is now registered and included
+in `tests/profile-matrix.txt`; `test-all` checks all four profiles. The native
+integration suite still explicitly selects its S21 repositories and sanitized
+schema. `MuDevsSeason21WebsiteTest` separately exercises native login, the
+private dashboard, balances, public pages, event administration and unavailable
+operations through isolated SQLite HTTP requests.
 
 The opt-in administrator warehouse preview is covered separately:
 

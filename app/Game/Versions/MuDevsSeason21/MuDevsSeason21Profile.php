@@ -22,15 +22,19 @@ use App\Game\Versions\ShopClassScopeDefinition;
 use App\Game\Versions\UnavailableItemGeneratorCatalog;
 use App\Stats\CharacterStats;
 use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Defines the verified read-model foundation for the supplied MUDevs S21.1-2 pack.
  *
- * This bundle remains outside the selectable profile registry until native
- * advancement codes, storage and remaining repository bindings are verified.
+ * The selectable bundle exposes reviewed reads and website content management.
+ * Native game mutations and unverified storage services remain unavailable.
  */
 final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionProfile
 {
+    /** @var list<CharacterClassDefinition>|null */
+    private ?array $resolvedClasses = null;
+
     /**
      * Returns the stable identity reserved for this emulator distribution.
      */
@@ -50,15 +54,82 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameVersionPro
             billingRecord: false,
             itemGenerator: false,
             masterProgression: true,
+            readOnly: true,
+            availableRoutes: [
+                'home', 'ready', 'server.status', 'rankings', 'rankings.*',
+                'characters.*', 'guilds.*', 'news.*', 'guides.*', 'pages.*',
+                'downloads.*', 'login', 'login.store', 'logout', 'account.dashboard', 'locale.update',
+                'admin.login', 'admin.login.store', 'admin.logout', 'admin.dashboard', 'admin.audit-log',
+                'admin.s21-warehouse', 'admin.event-schedules.*',
+                'admin.news-posts.*', 'admin.downloads.*', 'admin.website-settings.*',
+                'admin.game-servers.*',
+            ],
         );
     }
 
     /**
-     * Lists base class codes explicitly seeded by the supplied DefaultClassType SQL.
+     * Combines SQL-seeded families with the supplied client's advancement names.
      *
      * @return list<CharacterClassDefinition>
      */
     public function classes(): array
+    {
+        if ($this->resolvedClasses !== null) {
+            return $this->resolvedClasses;
+        }
+
+        $definitions = [];
+
+        foreach ($this->baseClasses() as $definition) {
+            $definitions[$definition->code] = $definition;
+        }
+
+        $path = dirname(__DIR__, 4).'/resources/game/mudevs_season_21/class-advancements.json';
+        $contents = file_get_contents($path);
+
+        if ($contents === false) {
+            throw new RuntimeException('The MUDevs S21 class advancement catalog could not be read.');
+        }
+
+        /** @var list<array{code: int, baseCode: int, tier: int, previousCode: int, name: string, key: string, textIndex: int}> $advancements */
+        $advancements = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
+
+        foreach ($advancements as $advancement) {
+            $base = $definitions[$advancement['baseCode']] ?? null;
+
+            if ($base === null || $base->evolutionTier !== 1
+                || $advancement['tier'] < 2 || $advancement['tier'] > 5
+                || $advancement['code'] !== $base->code + $advancement['tier'] - 1
+                || isset($definitions[$advancement['code']])
+                || ! isset($definitions[$advancement['previousCode']])) {
+                throw new RuntimeException('The MUDevs S21 class advancement catalog contains an invalid transition.');
+            }
+
+            $definitions[$advancement['code']] = new CharacterClassDefinition(
+                code: $advancement['code'],
+                key: $advancement['key'],
+                abbreviation: $advancement['code'] === 18 ? 'BM' : $base->abbreviation.' '.$advancement['tier'],
+                name: $advancement['name'],
+                image: $base->image,
+                family: $base->family,
+                evolutionTier: $advancement['tier'],
+                previousClassCode: $advancement['previousCode'],
+                imagePosition: $base->imagePosition,
+            );
+        }
+
+        ksort($definitions);
+        $this->resolvedClasses = array_values($definitions);
+
+        return $this->resolvedClasses;
+    }
+
+    /**
+     * Keeps the original portraits and identifiers for the sixteen SQL-seeded families.
+     *
+     * @return list<CharacterClassDefinition>
+     */
+    private function baseClasses(): array
     {
         return [
             new CharacterClassDefinition(

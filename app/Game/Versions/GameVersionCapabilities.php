@@ -9,6 +9,8 @@ final readonly class GameVersionCapabilities
 {
     /**
      * Creates one immutable set of version-owned persistence capabilities.
+     *
+     * @param  list<string>|null  $availableRoutes  Reviewed route names for a staged adapter; null permits the complete website.
      */
     public function __construct(
         public bool $grandResets,
@@ -19,5 +21,7 @@ final readonly class GameVersionCapabilities
         public bool $masterProgression = false,
         public bool $gens = false,
         public bool $luckyCoin = false,
+        public bool $readOnly = false,
+        public ?array $availableRoutes = null,
     ) {}
 }

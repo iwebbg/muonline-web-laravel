@@ -1,0 +1,78 @@
+{
+  "clientDirectory": "ucrtbased",
+  "method": "BMD v15 LEA decoding; action 0 frame 0 bone hierarchy; software orthographic texture rendering; transparent PNG",
+  "readerReference": "https://github.com/xulek/muonline-bmd-viewer",
+  "mappingReference": "https://github.com/sven-n/MuMain/tree/main/src/bin/Data/Items/Models",
+  "limitations": [
+    "Static base artwork; game lighting, excellent/ancient tint, +level glow and animated effects are not reproduced.",
+    "Only manually matched identities are assigned; filenames are not inferred from item indices."
+  ],
+  "items": {
+    "0:26": {
+      "image": "/public/images/items/mudevs_season_21/flameberge.png",
+      "model": "Data/Item/Sword_27.bmd",
+      "modelSha256": "9ba37838fd9b784e44c9c9713e0965eee8d9a6fecde6f5a5a7e7aba4f5e4ead0",
+      "textures": [
+        {
+          "file": "Data/Item/soketnight_mulagzuberuzu.OZJ",
+          "sha256": "e79a8343cc2f70b528688d557968bfd213c3960dad2a8bd34feccfca94f00df4"
+        },
+        {
+          "file": "Data/Item/gra.OZJ",
+          "sha256": "e7c6d3f1706d3296ab1ff848570a21232c207d4a03ad5e1ac480ec2381ec1e65"
+        },
+        {
+          "file": "Data/Item/RingPenOfLordEvent.OZJ",
+          "sha256": "307c277a708cfebff79278656896ae2cd192eb68496b39ada498f112a473fe40"
+        },
+        {
+          "file": "Data/Item/gold.OZJ",
+          "sha256": "e33c4dd49e9e1926f79f7dd2f2c4ab2ea696839992a99a60bf81dc11463745e1"
+        },
+        {
+          "file": "Data/Item/a_2.OZJ",
+          "sha256": "dd1a0d2b591aee750530a60761cc2f09ffc4fd3d294c47e45a1e86b993aac9dd"
+        },
+        {
+          "file": "Data/Item/flamestani.OZJ",
+          "sha256": "d27d2bbec5a8e2dc5b2f197ce560a7edfa8efc9d3a3b494bb8b7ce488068caba"
+        }
+      ],
+      "canvas": [
+        128,
+        512
+      ],
+      "render": {
+        "rotationX": -1.570796,
+        "cameraAzimuth": 1.5708,
+        "effects": "black-key threshold 35; static frame zero"
+      },
+      "outputSha256": "f7ba771eb2c5459416b9db63a8f7fd32ff0357b04cd59b54c8d4e5bbeaa32636"
+    },
+    "8:29": {
+      "image": "/public/images/items/mudevs_season_21/dragon-knight-armor.png",
+      "model": "Data/Player/HDK_ArmorMale01.bmd",
+      "modelSha256": "8e06d41f92a3ec0693c87705cb9a5ebd7e679a3b5d25cb11644ba098ba80c24e",
+      "textures": [
+        {
+          "file": "Data/Item/texture/blackdrager_lower.ozj",
+          "sha256": "b96f713833d36ca2714d792e8aea3ce31aecd801d5165ba3171763f36910b8f9"
+        },
+        {
+          "file": "Data/Item/texture/blackdrager_upper.ozj",
+          "sha256": "53e3d58acf192f110e07595ebc1dbaca88be0c94700c7ab9a19b70c975f18079"
+        }
+      ],
+      "canvas": [
+        256,
+        384
+      ],
+      "render": {
+        "rotationX": 0,
+        "cameraAzimuth": 0,
+        "effects": "base textures; no item-level glow"
+      },
+      "outputSha256": "96593e52520e656910ef36cd12d3c816be357c97a4cb1758296344813d55479c"
+    }
+  }
+}

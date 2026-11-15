@@ -4,6 +4,7 @@ use App\Http\Middleware\ApplyTheme;
 use App\Http\Middleware\EnforceDemoMode;
 use App\Http\Middleware\EnsureAdministratorPermission;
 use App\Http\Middleware\EnsureFullAdministrator;
+use App\Http\Middleware\EnsureGameProfileAvailable;
 use App\Http\Middleware\EnsureModuleEnabled;
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'module.enabled' => EnsureModuleEnabled::class,
         ]);
         $middleware->web(append: [
+            EnsureGameProfileAvailable::class,
             SetLocale::class,
             ApplyTheme::class,
         ]);

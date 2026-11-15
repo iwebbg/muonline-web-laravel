@@ -2,6 +2,7 @@
 
 namespace App\Modules;
 
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\ModuleProfile;
 use Illuminate\Database\DatabaseManager;
 
@@ -17,6 +18,7 @@ final class ModuleManager
      */
     public function __construct(
         private readonly DatabaseManager $database,
+        private readonly GameVersionProfile $versionProfile,
     ) {}
 
     /**
@@ -34,6 +36,16 @@ final class ModuleManager
     {
         if ($this->resolvedSettings instanceof ModuleSettings) {
             return $this->resolvedSettings;
+        }
+
+        if ($this->versionProfile->capabilities()->readOnly) {
+            $states = [];
+
+            foreach (ServerModule::cases() as $module) {
+                $states[$module->value] = false;
+            }
+
+            return $this->resolvedSettings = new ModuleSettings($states);
         }
 
         if (! $this->moduleProfilesTableExists()) {

@@ -14,6 +14,19 @@ use RuntimeException;
 final class ItemCatalogMuDevsSeason21
 {
     /**
+     * Assigns only artwork matched to the supplied client's models and textures.
+     *
+     * Source hashes and rendering limits are recorded in the bundled
+     * item-image-provenance.json. Other identities retain the shared fallback.
+     *
+     * @var array<string, string>
+     */
+    private const VERIFIED_ITEM_IMAGES = [
+        '0:26' => '/images/items/mudevs_season_21/flameberge.png',
+        '8:29' => '/images/items/mudevs_season_21/dragon-knight-armor.png',
+    ];
+
+    /**
      * Contains only socket seed codes matched to saved bytes and client tooltips.
      *
      * Code 0 matches active SocketItemOption.xml Index=0, Element=1, Value1=11
@@ -284,6 +297,7 @@ final class ItemCatalogMuDevsSeason21
                 height: (int) $attributes['Height'],
                 equipmentSlot: (int) $attributes['Slot'],
                 sourceAttributes: $attributes,
+                image: self::VERIFIED_ITEM_IMAGES[$code] ?? null,
             );
 
             if ($definition->code() !== $code || trim($definition->name) === ''
