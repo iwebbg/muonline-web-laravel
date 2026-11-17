@@ -14,7 +14,7 @@ import tempfile
 import zipfile
 
 PROJECT = Path(__file__).resolve().parents[1]
-DIRECTORIES = {'app', 'bootstrap', 'config', 'database', 'docker', 'lang', 'public', 'resources', 'routes', 'storage'}
+DIRECTORIES = {'app', 'bootstrap', 'config', 'database', 'docker', 'lang', 'public', 'resources', 'routes'}
 ROOT_FILES = {'artisan', 'composer.json', 'composer.lock', 'package.json', 'package-lock.json', 'vite.config.js', '.env.example', '.dockerignore', 'LICENSE', 'README.md'}
 
 
@@ -34,8 +34,6 @@ def permitted(relative):
         return False
     if relative.suffix.lower() in {'.pem', '.key', '.pfx', '.p12', '.bak', '.log'}:
         return False
-    if parts[0] == 'storage':
-        return relative.name == '.gitignore'
     if parts[:2] in {('bootstrap', 'cache'), ('public', 'build'), ('public', 'storage')}:
         return relative.name == '.gitignore'
     return relative.as_posix() != 'public/hot'
@@ -83,7 +81,11 @@ def package(runtime, output, version, cdn):
         archive_path = output / (name + '.zip')
         with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as archive:
             for root, directories, filenames in os.walk(runtime, followlinks=False):
-                directories[:] = sorted(directory for directory in directories if not (Path(root) / directory).is_symlink())
+                directories[:] = sorted(
+                    directory for directory in directories
+                    if not (Path(root) / directory).is_symlink()
+                    and not (Path(root) == runtime and directory == 'storage')
+                )
                 for filename in sorted(filenames):
                     file = Path(root) / filename
                     relative = file.relative_to(runtime)
@@ -99,7 +101,7 @@ def package(runtime, output, version, cdn):
         with archive_path.open('rb') as stream:
             digest = hashlib.file_digest(stream, 'sha256').hexdigest()
         artifacts[name] = {'url': f'{cdn.rstrip("/")}/muonline-web/releases/v{version}/{archive_path.name}', 'sha256': digest, 'size': archive_path.stat().st_size}
-    manifest = {'schema': 1, 'kind': 'web', 'version': version, 'compatibility': {'managerMin': '0.1.0', 'runtime': 'wsl2-docker-v1', 'php': '8.5', 'database': 'sqlsrv', 'architecture': 'amd64'}, 'profiles': profiles, 'artifacts': artifacts}
+    manifest = {'schema': 1, 'kind': 'web', 'version': version, 'compatibility': {'managerMin': '1.4.0', 'runtime': 'wsl2-docker-v1', 'php': '8.5', 'database': 'sqlsrv', 'architecture': 'amd64'}, 'profiles': profiles, 'artifacts': artifacts}
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
 
 
