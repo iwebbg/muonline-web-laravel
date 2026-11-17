@@ -10590,6 +10590,14 @@
       {
         "bit": 32,
         "label": "Increase Excellent Damage Chance by 10%"
+      },
+      {
+        "bit": 8,
+        "label": "Curse damage increases by 2%"
+      },
+      {
+        "bit": 16,
+        "label": "Curse damage increases by 20 every 20Lv"
       }
     ]
   },
@@ -10616,6 +10624,14 @@
       {
         "bit": 32,
         "label": "Increase Excellent Damage Chance by 10%"
+      },
+      {
+        "bit": 8,
+        "label": "Curse damage increases by 2%"
+      },
+      {
+        "bit": 16,
+        "label": "Curse damage increases by 20 every 20Lv"
       }
     ]
   },
@@ -10642,6 +10658,14 @@
       {
         "bit": 32,
         "label": "Increase Excellent Damage Chance by 10%"
+      },
+      {
+        "bit": 8,
+        "label": "Curse damage increases by 2%"
+      },
+      {
+        "bit": 16,
+        "label": "Curse damage increases by 20 every 20Lv"
       }
     ]
   },
@@ -11060,6 +11084,14 @@
       {
         "bit": 32,
         "label": "Increase Excellent Damage Chance by 10%"
+      },
+      {
+        "bit": 8,
+        "label": "Curse damage increases by 2%"
+      },
+      {
+        "bit": 16,
+        "label": "Curse damage increases by 20 every 20Lv"
       }
     ]
   },
@@ -64823,6 +64855,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
       }
     ]
   },
@@ -64837,6 +64899,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
       }
     ]
   },
@@ -64851,6 +64943,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
       }
     ]
   },
@@ -64865,6 +64987,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
       }
     ]
   },
@@ -64875,7 +65027,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:28": {
     "skill": false,
@@ -64884,7 +65073,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:36": {
     "skill": false,
@@ -64893,7 +65119,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:37": {
     "skill": false,
@@ -64902,7 +65165,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:38": {
     "skill": false,
@@ -64911,7 +65211,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:39": {
     "skill": false,
@@ -64920,7 +65257,38 @@
     "excellentMask": 47,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 32,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:40": {
     "skill": false,
@@ -64929,7 +65297,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:41": {
     "skill": false,
@@ -64951,6 +65356,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Curse damage",
+        "label": "Additional Curse Spell +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
       }
     ]
   },
@@ -64961,7 +65396,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Curse damage",
+        "label": "Additional Curse Spell +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:49": {
     "skill": false,
@@ -64970,7 +65442,34 @@
     "excellentMask": 39,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 32,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:50": {
     "skill": false,
@@ -64979,7 +65478,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:51": {
     "skill": false,
@@ -65132,7 +65668,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:154": {
     "skill": false,
@@ -65163,6 +65719,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
       }
     ]
   },
@@ -65177,6 +65763,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
       }
     ]
   },
@@ -65187,7 +65803,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:159": {
     "skill": false,
@@ -65196,7 +65849,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:160": {
     "skill": false,
@@ -65205,7 +65895,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:172": {
     "skill": false,
@@ -65236,6 +65946,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
       }
     ]
   },
@@ -65250,6 +65990,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
       }
     ]
   },
@@ -65260,7 +66030,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:177": {
     "skill": false,
@@ -65269,7 +66076,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:178": {
     "skill": false,
@@ -65278,7 +66122,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:180": {
     "skill": false,
@@ -65287,7 +66151,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:181": {
     "skill": false,
@@ -65296,7 +66180,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:182": {
     "skill": false,
@@ -65305,7 +66209,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:183": {
     "skill": false,
@@ -65314,7 +66238,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage / Wizardry damage",
+        "label": "Additional Dmg +{value} / Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:184": {
     "skill": false,
@@ -65323,7 +66267,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:185": {
     "skill": false,
@@ -65332,7 +66296,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Curse damage / Defense",
+        "label": "Additional Curse Spell +{value} / Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:186": {
     "skill": false,
@@ -65341,7 +66325,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:187": {
     "skill": false,
@@ -65350,7 +66354,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:188": {
     "skill": false,
@@ -65359,7 +66383,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:189": {
     "skill": false,
@@ -65368,7 +66412,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:190": {
     "skill": false,
@@ -65377,7 +66441,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:191": {
     "skill": false,
@@ -65386,7 +66470,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:192": {
     "skill": false,
@@ -65395,7 +66499,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:193": {
     "skill": false,
@@ -65404,7 +66528,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:194": {
     "skill": false,
@@ -65413,7 +66557,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:195": {
     "skill": false,
@@ -65422,7 +66603,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:196": {
     "skill": false,
@@ -65431,7 +66649,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:198": {
     "skill": false,
@@ -65440,7 +66678,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:262": {
     "skill": false,
@@ -65449,7 +66707,30 @@
     "excellentMask": 19,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:263": {
     "skill": false,
@@ -65458,7 +66739,30 @@
     "excellentMask": 19,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:264": {
     "skill": false,
@@ -65467,7 +66771,30 @@
     "excellentMask": 19,
     "additionalLabel": "Additional Wizardry Dmg +{value}",
     "additionalValue": 4,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 16,
+        "name": "Curse damage",
+        "label": "Additional Curse Spell +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:265": {
     "skill": false,
@@ -65476,7 +66803,30 @@
     "excellentMask": 19,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:266": {
     "skill": false,
@@ -65485,7 +66835,24 @@
     "excellentMask": 15,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ]
   },
   "12:267": {
     "skill": false,
@@ -65494,7 +66861,20 @@
     "excellentMask": 7,
     "additionalLabel": null,
     "additionalValue": 0,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of Double damage rate by 4%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of True Damage by 4%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 4%"
+      }
+    ]
   },
   "12:268": {
     "skill": false,
@@ -65503,7 +66883,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:269": {
     "skill": false,
@@ -65512,7 +66929,34 @@
     "excellentMask": 39,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 32,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:270": {
     "skill": false,
@@ -65521,7 +66965,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:278": {
     "skill": false,
@@ -65539,7 +67020,16 @@
     "excellentMask": 3,
     "additionalLabel": "Additional Dmg +{value}",
     "additionalValue": 4,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ]
   },
   "12:280": {
     "skill": false,
@@ -65548,7 +67038,16 @@
     "excellentMask": 3,
     "additionalLabel": "Additional Dmg +{value}",
     "additionalValue": 4,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ]
   },
   "12:281": {
     "skill": false,
@@ -65557,7 +67056,16 @@
     "excellentMask": 3,
     "additionalLabel": "Additional Wizardry Dmg +{value} - Additional Curse Spell +{value}",
     "additionalValue": 4,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ]
   },
   "12:282": {
     "skill": false,
@@ -65566,7 +67074,16 @@
     "excellentMask": 3,
     "additionalLabel": "Additional Dmg +{value}",
     "additionalValue": 4,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ]
   },
   "12:283": {
     "skill": false,
@@ -65575,7 +67092,20 @@
     "excellentMask": 7,
     "additionalLabel": null,
     "additionalValue": 0,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of Double damage rate by 4%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of True Damage by 4%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 4%"
+      }
+    ]
   },
   "12:284": {
     "skill": false,
@@ -65584,7 +67114,30 @@
     "excellentMask": 19,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:285": {
     "skill": false,
@@ -65593,7 +67146,30 @@
     "excellentMask": 19,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:286": {
     "skill": false,
@@ -65602,7 +67178,30 @@
     "excellentMask": 19,
     "additionalLabel": "Additional Wizardry Dmg +{value}",
     "additionalValue": 4,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 16,
+        "name": "Curse damage",
+        "label": "Additional Curse Spell +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:287": {
     "skill": false,
@@ -65611,7 +67210,30 @@
     "excellentMask": 19,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:414": {
     "skill": false,
@@ -65620,7 +67242,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:415": {
     "skill": false,
@@ -65629,7 +67271,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:416": {
     "skill": false,
@@ -65638,7 +67300,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:417": {
     "skill": false,
@@ -65647,7 +67329,21 @@
     "excellentMask": 32,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 32,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:418": {
     "skill": false,
@@ -65656,7 +67352,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:419": {
     "skill": false,
@@ -65665,7 +67381,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Curse damage",
+        "label": "Additional Curse Spell +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:420": {
     "skill": false,
@@ -65674,7 +67410,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:421": {
     "skill": false,
@@ -65683,7 +67439,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:422": {
     "skill": false,
@@ -65696,6 +67472,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
       }
     ]
   },
@@ -65710,6 +67516,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
       }
     ]
   },
@@ -65724,6 +67560,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
       }
     ]
   },
@@ -65738,6 +67604,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
       }
     ]
   },
@@ -65748,7 +67644,24 @@
     "excellentMask": 15,
     "additionalLabel": "Additional Dmg +{value}",
     "additionalValue": 4,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Command by 5"
+      }
+    ]
   },
   "12:427": {
     "skill": false,
@@ -65761,6 +67674,36 @@
       {
         "bit": 16,
         "label": "Increase 5 Attack (Wizardry) speed"
+      },
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Maximum AG by 50"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "Curse damage",
+        "label": "Additional Curse Spell +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
       }
     ]
   },
@@ -65771,7 +67714,34 @@
     "excellentMask": 39,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 32,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:429": {
     "skill": false,
@@ -65780,7 +67750,34 @@
     "excellentMask": 39,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 32,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:430": {
     "skill": false,
@@ -65789,7 +67786,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:431": {
     "skill": false,
@@ -65798,7 +67832,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:432": {
     "skill": false,
@@ -65807,7 +67878,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:433": {
     "skill": false,
@@ -65816,7 +67924,38 @@
     "excellentMask": 47,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 32,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:434": {
     "skill": false,
@@ -65825,7 +67964,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:435": {
     "skill": false,
@@ -65834,7 +68010,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Curse damage",
+        "label": "Additional Curse Spell +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:436": {
     "skill": false,
@@ -65843,7 +68056,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:437": {
     "skill": false,
@@ -65852,7 +68102,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:465": {
     "skill": false,
@@ -65929,7 +68216,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:468": {
     "skill": false,
@@ -65938,7 +68262,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:469": {
     "skill": false,
@@ -65947,7 +68308,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:471": {
     "skill": false,
@@ -65965,7 +68346,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:473": {
     "skill": false,
@@ -65974,7 +68392,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:474": {
     "skill": false,
@@ -65983,7 +68438,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Damage",
+        "label": "Additional Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:480": {
     "skill": false,
@@ -65992,7 +68467,20 @@
     "excellentMask": 7,
     "additionalLabel": null,
     "additionalValue": 0,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of Double damage rate by 6%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to Deflect Enemy Defense by 6%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase Life Recovery Rate by 6%"
+      }
+    ]
   },
   "12:483": {
     "skill": false,
@@ -66019,7 +68507,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:490": {
     "skill": false,
@@ -66028,7 +68553,27 @@
     "excellentMask": 48,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "12:496": {
     "skill": false,
@@ -66037,7 +68582,44 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ],
+    "additionalVariants": [
+      {
+        "mask": 0,
+        "name": "HP recovery",
+        "label": "Automatic HP recovery {value}%",
+        "value": 1
+      },
+      {
+        "mask": 16,
+        "name": "Wizardry damage",
+        "label": "Additional Wizardry Dmg +{value}",
+        "value": 4
+      },
+      {
+        "mask": 32,
+        "name": "Defense",
+        "label": "Additional defense +{value}",
+        "value": 4
+      }
+    ]
   },
   "13:0": {
     "skill": false,
@@ -66517,7 +69099,24 @@
     "excellentMask": 15,
     "additionalLabel": "Additional Dmg +{value}",
     "additionalValue": 4,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increases Life by 5"
+      },
+      {
+        "bit": 2,
+        "label": "Increases Mana by 5"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of True Damage by 3%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase Command by 5"
+      }
+    ]
   },
   "13:37": {
     "skill": true,
@@ -67301,7 +69900,24 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ]
   },
   "21:2": {
     "skill": false,
@@ -67310,7 +69926,24 @@
     "excellentMask": 63,
     "additionalLabel": "Automatic HP recovery {value}%",
     "additionalValue": 1,
-    "excellent": []
+    "excellent": [
+      {
+        "bit": 1,
+        "label": "Increase chance of True Damage by 5%"
+      },
+      {
+        "bit": 2,
+        "label": "Increase chance to return incoming damage by 5%"
+      },
+      {
+        "bit": 4,
+        "label": "Increase chance of Fully Recovering Life by 5%"
+      },
+      {
+        "bit": 8,
+        "label": "Increase chance of Fully Recovering Mana by 5%"
+      }
+    ]
   },
   "21:3": {
     "skill": false,

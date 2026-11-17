@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemConstructionPolicy;
 use App\Game\Contracts\ItemGrantRules;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\AccountPanelConfiguration;
@@ -161,6 +162,7 @@ final class ShopOfferController extends Controller
             'image' => $definition->image,
             'excellentType' => $definition->excellentType,
             'optionType' => $definition->optionType,
+            ...($rules instanceof ItemConstructionPolicy ? $rules->optionsFor($definition->group, $definition->index) : []),
             ...($definition->nativeOptions === null ? [] : ['nativeOptions' => $definition->nativeOptions]),
         ], $catalog->allDefinitions());
 

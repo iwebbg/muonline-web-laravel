@@ -3,10 +3,12 @@
 namespace App\Http\Requests\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
+use App\Game\Contracts\ItemConstructionPolicy;
 use App\Game\Contracts\ItemGrantRules;
 use App\Models\Administrator;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 /**
  * Authorizes and validates one catalog-backed administrator item grant.
@@ -49,10 +51,40 @@ final class StoreItemGrantRequest extends FormRequest
             'has_skill' => ['nullable', 'boolean'],
             'has_luck' => ['nullable', 'boolean'],
             'excellent_mask' => ['required', 'integer', 'between:0,63'],
-            'ancient_option' => ['required', 'integer', 'in:0'],
+            'ancient_option' => ['required', 'integer', $itemGrantRules instanceof ItemConstructionPolicy ? 'between:0,15' : 'in:0'],
+            'harmony_option' => ['sometimes', 'integer', 'between:0,254'],
+            'socket_count' => ['sometimes', 'integer', 'between:0,5'],
+            'has_380_option' => ['sometimes', 'boolean'],
             'reason' => ['required', 'string', 'between:5,500'],
             'idempotency_key' => ['required', 'uuid'],
         ];
+    }
+
+    /**
+     * Validates advanced combinations against the selected adapter before reserving serials.
+     *
+     * @return list<callable(Validator): void>
+     */
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            if ($validator->errors()->isNotEmpty()) {
+                return;
+            }
+
+            $rules = app(ItemGrantRules::class);
+            $options = $this->itemOptions();
+            $hasAdvanced = $this->integer('ancient_option') !== 0
+                || $this->integer('harmony_option') !== 0
+                || $this->integer('socket_count') !== 0 || $this->boolean('has_380_option');
+            $allowed = $rules instanceof ItemConstructionPolicy
+                ? $rules->allowsConstruction($options)
+                : ! $hasAdvanced;
+
+            if (! $allowed) {
+                $validator->errors()->add('item_code', __('ui.admin.item_grant_options_invalid'));
+            }
+        }];
     }
 
     /**
@@ -72,7 +104,7 @@ final class StoreItemGrantRequest extends FormRequest
     /**
      * Returns normalized item options for the version-specific item factory.
      *
-     * @return array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int}
+     * @return array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int, harmony_option?: int, socket_count?: int, has_380_option?: bool}
      */
     public function itemOptions(): array
     {
@@ -86,6 +118,11 @@ final class StoreItemGrantRequest extends FormRequest
             'has_luck' => $this->boolean('has_luck'),
             'excellent_mask' => $this->integer('excellent_mask'),
             'ancient_option' => $this->integer('ancient_option'),
+            ...array_filter([
+                'harmony_option' => $this->integer('harmony_option'),
+                'socket_count' => $this->integer('socket_count'),
+                'has_380_option' => $this->boolean('has_380_option'),
+            ]),
         ];
     }
 }

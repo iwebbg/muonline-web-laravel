@@ -1006,6 +1006,11 @@
         filter: drop-shadow(0 0.2rem 0.3rem rgb(0 0 0 / 0.8));
     }
 
+    .inventory-item-compact .inventory-item-image {
+        width: 75%;
+        height: 75%;
+    }
+
     .equipment-layout {
         --equipment-cell-size: clamp(2.65rem, 5vw, 3.35rem);
 

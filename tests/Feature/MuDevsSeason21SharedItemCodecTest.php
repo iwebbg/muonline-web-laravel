@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Game\Contracts\ItemCodec;
 use App\Game\Versions\MuDevsSeason21\ItemCodecAdapterMuDevsSeason21;
+use App\Game\Versions\MuDevsSeason21\ItemCodecMuDevsSeason21;
+use App\Game\Versions\MuDevsSeason21\ItemTransferRulesMuDevsSeason21;
 use App\Game\Versions\MuEmuSeason6\ItemCodecMuEmuSeason6;
 use App\Game\Versions\Version1_0M\ItemCodec1_0M;
 use App\Game\Versions\Version97d99i\ItemCodec97d99i;
@@ -16,6 +18,26 @@ use Tests\TestCase;
  */
 class MuDevsSeason21SharedItemCodecTest extends TestCase
 {
+    /**
+     * Matches a separately game-created third-generation wing and rejects dependent header state.
+     */
+    public function test_standard_wing_capture_matches_generation_and_rejects_unknown_state(): void
+    {
+        $captured = hex2bin('247FFF0000003D4000C000FFFFFFFFFFFFFFFFFFFFFFFFFFFF');
+        $codec = $this->app->make(ItemCodecAdapterMuDevsSeason21::class);
+        $nativeCodec = $this->app->make(ItemCodecMuDevsSeason21::class);
+        $rules = $this->app->make(ItemTransferRulesMuDevsSeason21::class);
+
+        $generated = $codec->create(12, 36, 15, 255, 7, false, true, 0, 0, 61);
+        self::assertSame($captured, $generated);
+        self::assertTrue($rules->allowsTransfer($nativeCodec->decode($captured, 1)[0]));
+
+        foreach ([8, 10, 11, 16, 24] as $position) {
+            $changed = substr_replace($captured, "\x01", $position, 1);
+            self::assertFalse($rules->allowsTransfer($nativeCodec->decode($changed, 1)[0]));
+        }
+    }
+
     /**
      * Carries client-matched identities, geometry and options through shared item slots.
      */

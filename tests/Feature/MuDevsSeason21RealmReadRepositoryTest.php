@@ -140,6 +140,52 @@ final class MuDevsSeason21RealmReadRepositoryTest extends TestCase
     }
 
     /**
+     * Ranks and displays S21 totals without replacing the normal gameplay level.
+     */
+    public function test_combines_master_levels_for_rankings_profiles_and_guild_members(): void
+    {
+        $connection = $this->createGameSchema();
+        $connection->table('Character')->where('Name', 'RuneHero')->update(['cLevel' => 3]);
+        $connection->table('Character')->where('Name', 'Crusader')->update(['cLevel' => 400]);
+        $connection->table('MasterSkillTree')->insert([
+            ['Name' => 'StaleName', 'CharacterIndex' => 2, 'MasterLevel' => 400],
+            ['Name' => 'RuneHero', 'CharacterIndex' => 3, 'MasterLevel' => -10],
+        ]);
+        $connection->table('GuildMember')->insert(['Name' => 'RuneHero', 'G_Name' => 'S21Guild']);
+        $repository = $this->repository();
+
+        $entries = $repository->topCharacters(3);
+
+        self::assertSame(['RuneHero', 'Crusader', 'Slayer'], array_column($entries, 'name'));
+        self::assertSame(3, $entries[0]->level);
+        self::assertSame(403, $entries[0]->displayLevel());
+        self::assertSame(400, $entries[0]->toArray()['masterLevel']);
+        self::assertSame(403, $entries[0]->toArray()['displayLevel']);
+        self::assertSame(400, $entries[1]->displayLevel());
+        self::assertSame(0, $entries[2]->masterLevel);
+        self::assertSame(403, $repository->publicCharacter('RuneHero')->displayLevel());
+        self::assertSame(403, $repository->publicGuild('S21Guild')->members[1]->displayLevel());
+
+        $this->app->instance(RealmReadRepository::class, $repository);
+        $this->get('/characters/RuneHero')->assertOk()->assertSee('Normal: 3 · Master: 400')->assertSee('403');
+        $this->get('/guilds/S21Guild')->assertOk()
+            ->assertSee('rankingLevelDetails()', false)
+            ->assertSee('Level breakdown')
+            ->assertDontSee('Normal: 3 · Master: 400');
+        $home = $this->get('/');
+        $home->assertOk()
+            ->assertSee('rankingLevelDetails()', false)
+            ->assertSee('Normal level')
+            ->assertDontSee('Normal: 3 · Master: 400');
+        $document = new \DOMDocument;
+        @$document->loadHTML($home->getContent());
+        $xpath = new \DOMXPath($document);
+
+        self::assertSame(0, $xpath->query('//a//button[@x-ref="levelTrigger"]')->length);
+        self::assertGreaterThan(0, $xpath->query('//a[contains(@href, "/characters/RuneHero")]')->length);
+    }
+
+    /**
      * Creates deterministic public read fixtures in the isolated game connection.
      */
     private function createGameSchema(): ConnectionInterface

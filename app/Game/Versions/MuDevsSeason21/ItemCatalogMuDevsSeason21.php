@@ -2,6 +2,7 @@
 
 namespace App\Game\Versions\MuDevsSeason21;
 
+use Illuminate\Container\Attributes\Scoped;
 use JsonException;
 use RuntimeException;
 
@@ -10,7 +11,9 @@ use RuntimeException;
  *
  * This native metadata catalog deliberately remains separate from the shared
  * ItemCatalog contract until S21 option presentation and storage decoding are verified.
+ * One request/job shares its decoded source data across every codec and custody reader.
  */
+#[Scoped]
 final class ItemCatalogMuDevsSeason21
 {
     /**

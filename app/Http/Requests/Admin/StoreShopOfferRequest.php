@@ -63,7 +63,10 @@ class StoreShopOfferRequest extends FormRequest
             'items.*.has_skill' => ['nullable', 'boolean'],
             'items.*.has_luck' => ['nullable', 'boolean'],
             'items.*.excellent_mask' => ['required', 'integer', 'between:0,63'],
-            'items.*.ancient_option' => ['required', 'integer', 'in:0'],
+            'items.*.ancient_option' => ['required', 'integer', $itemGrantRules instanceof ItemConstructionPolicy ? 'between:0,15' : 'in:0'],
+            'items.*.harmony_option' => ['sometimes', 'integer', 'between:0,254'],
+            'items.*.socket_count' => ['sometimes', 'integer', 'between:0,5'],
+            'items.*.has_380_option' => ['sometimes', 'boolean'],
             'items.*.weight' => ['required', 'integer', 'between:1,1000000'],
         ];
     }
@@ -103,8 +106,12 @@ class StoreShopOfferRequest extends FormRequest
                     [$group, $itemIndex] = array_pad(explode(':', (string) $item['item_code'], 2), 2, null);
 
                     $constructionRules = app(ItemGrantRules::class);
+                    $legacyAdvanced = ! $constructionRules instanceof ItemConstructionPolicy
+                        && ((int) ($item['harmony_option'] ?? 0) !== 0
+                            || (int) ($item['socket_count'] ?? 0) !== 0
+                            || (bool) ($item['has_380_option'] ?? false));
 
-                    if ((int) $itemIndex > $constructionRules->maxItemIndex()
+                    if ($legacyAdvanced || (int) $itemIndex > $constructionRules->maxItemIndex()
                         || $catalog->definitionFor((int) $group, (int) $itemIndex) === null
                         || ($constructionRules instanceof ItemConstructionPolicy && ! $constructionRules->allowsConstruction($item))) {
                         $validator->errors()->add('items.'.$index.'.item_code', __('ui.admin.shop_unknown_item'));
@@ -161,6 +168,9 @@ class StoreShopOfferRequest extends FormRequest
                 'has_luck' => filter_var($item['has_luck'] ?? false, FILTER_VALIDATE_BOOL),
                 'excellent_mask' => (int) $item['excellent_mask'],
                 'ancient_option' => (int) $item['ancient_option'],
+                'harmony_option' => (int) ($item['harmony_option'] ?? 0),
+                'socket_count' => (int) ($item['socket_count'] ?? 0),
+                'has_380_option' => filter_var($item['has_380_option'] ?? false, FILTER_VALIDATE_BOOL),
                 'weight' => (int) $item['weight'],
                 'sort_order' => $sortOrder,
             ];

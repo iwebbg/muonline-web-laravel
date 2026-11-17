@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -83,5 +84,71 @@ final class RankingsPageTest extends TestCase
             ->assertSee('Само онлайн')
             ->assertSee('Топ PK')
             ->assertSee('Гилдии');
+    }
+
+    /**
+     * Keeps native S21 reset terminology separate from legacy adapter labels.
+     */
+    #[DataProvider('resetTerminologyProfiles')]
+    public function test_reset_labels_follow_the_profile_without_changing_internal_keys(
+        string $profile,
+        string $locale,
+        string $resetLabel,
+        string $rankingLabel,
+        string $adminHeading,
+        string $completedMessage,
+    ): void {
+        config()->set('game.profile.key', $profile);
+
+        $this->withSession(['locale' => $locale])
+            ->get('/rankings')
+            ->assertOk()
+            ->assertSee('>'.$rankingLabel.'</span>', false)
+            ->assertSee('entry.grand_resets', false);
+
+        $this->assertSame($resetLabel, __('ui.account.grand_reset'));
+        $this->assertSame($adminHeading, __('ui.admin.grand_reset_profile'));
+        $this->assertSame($completedMessage, __('ui.account.grand_reset_completed'));
+    }
+
+    /**
+     * Keeps level details accessible without nesting controls in profile links.
+     */
+    public function test_level_breakdown_uses_an_accessible_panel_instead_of_inline_text(): void
+    {
+        $response = $this->get('/rankings');
+
+        $response->assertOk()
+            ->assertSee('rankingLevelDetails()', false)
+            ->assertSee('role="tooltip"', false)
+            ->assertSee('aria-describedby', false)
+            ->assertSee('Level breakdown')
+            ->assertSee('Normal level')
+            ->assertDontSee("replace(':normal', entry.level)", false);
+        $document = new \DOMDocument;
+        @$document->loadHTML($response->getContent());
+        $xpath = new \DOMXPath($document);
+
+        $this->assertSame(0, $xpath->query('//a//button[@x-ref="levelTrigger"]')->length);
+    }
+
+    /**
+     * Supplies both locales for every currently supported game adapter.
+     *
+     * @return array<string, array{string, string, string, string, string, string}>
+     */
+    public static function resetTerminologyProfiles(): array
+    {
+        $profiles = [];
+
+        foreach (['darksteam_97d99i', 'darksteam_1_0m', 'muemu_season_6'] as $profile) {
+            $profiles[$profile.' English'] = [$profile, 'en', 'Grand reset', 'grand', 'Grand reset profile', 'Character grand reset completed successfully.'];
+            $profiles[$profile.' Bulgarian'] = [$profile, 'bg', 'Гранд ресет', 'гранд', 'Grand Reset профил', 'Гранд ресетът на героя завърши успешно.'];
+        }
+
+        $profiles['S21 English'] = ['mudevs_season_21', 'en', 'Master reset', 'master', 'Master reset profile', 'Character master reset completed successfully.'];
+        $profiles['S21 Bulgarian'] = ['mudevs_season_21', 'bg', 'Мастър ресет', 'мастър', 'Master Reset профил', 'Мастър ресетът на героя завърши успешно.'];
+
+        return $profiles;
     }
 }

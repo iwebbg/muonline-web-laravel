@@ -39,9 +39,12 @@
     </section>
 
     <section class="shell py-10 lg:py-14">
+        @if ($character->masterLevel !== null)
+            <p class="mb-4 text-sm text-steel">{{ __('ui.account.level_breakdown', ['normal' => $character->level, 'master' => $character->masterLevel]) }}</p>
+        @endif
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             @foreach ([
-                [__('ui.profiles.level'), $character->level],
+                [__('ui.profiles.level'), $character->displayLevel()],
                 [__('ui.home.resets'), $character->resets],
                 [__('ui.home.grand'), $character->grandResets],
                 [__('ui.profiles.location'), $character->map],

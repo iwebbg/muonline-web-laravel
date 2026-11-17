@@ -32,6 +32,7 @@ final readonly class AccountCharacter
         public bool $online,
         public array $additionalStats = [],
         public string $imagePosition = 'center top',
+        public ?int $masterLevel = null,
     ) {}
 
     /**
@@ -46,6 +47,14 @@ final readonly class AccountCharacter
             energy: $this->energy,
             additional: $this->additionalStats,
         );
+    }
+
+    /**
+     * Returns the displayed total while preserving the normal level for game operations.
+     */
+    public function displayLevel(): int
+    {
+        return $this->level + ($this->masterLevel ?? 0);
     }
 
     /**
@@ -64,6 +73,10 @@ final readonly class AccountCharacter
             'image' => $this->image,
             ...($this->imagePosition === 'center top' ? [] : ['imagePosition' => $this->imagePosition]),
             'level' => $this->level,
+            ...($this->masterLevel === null ? [] : [
+                'masterLevel' => $this->masterLevel,
+                'displayLevel' => $this->displayLevel(),
+            ]),
             'resets' => $this->resets,
             'grandResets' => $this->grandResets,
             'zen' => $this->zen,

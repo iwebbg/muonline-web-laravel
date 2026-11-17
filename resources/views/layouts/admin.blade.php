@@ -39,7 +39,7 @@
 
         <div @class(['relative z-10 min-w-0', 'xl:pl-72' => auth('admin')->check()])>
             <header class="sticky top-0 z-50 border-b border-white/8 bg-void/90 backdrop-blur-xl">
-                <div class="admin-shell flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
+                <div @class(['flex min-h-16 flex-wrap items-center justify-between gap-3 py-3', 'admin-shell' => auth('admin')->check(), 'shell' => ! auth('admin')->check()])>
                     @auth('admin')
                         <button
                             type="button"

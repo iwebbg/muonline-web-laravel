@@ -130,6 +130,8 @@ Route::get('/rankings/data', [RankingsController::class, 'data'])
     ->name('rankings.data');
 Route::get('/rankings', RankingsController::class)
     ->name('rankings');
+Route::get('/events', [PreviewController::class, 'events'])
+    ->name('events.index');
 Route::get('/characters/{characterName}', CharacterProfileController::class)
     ->where('characterName', '[A-Za-z0-9_-]{1,10}')
     ->name('characters.show');

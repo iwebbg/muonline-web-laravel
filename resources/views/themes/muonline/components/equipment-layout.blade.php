@@ -23,7 +23,7 @@
         <button
             type="button"
             class="inventory-item equipment-item"
-            :class="[`equipment-slot-${item.slot}`, `inventory-item-${item.rarity}`]"
+            :class="{ [`equipment-slot-${item.slot}`]: true, [`inventory-item-${item.rarity}`]: true, 'inventory-item-compact': (String(item.code).startsWith('7:') || String(item.code).startsWith('10:')) || (Number(item.width) === 1 && Number(item.height) === 1) }"
             :style="equipmentSlotStyle(item.slot, item)"
             :aria-label="item.name"
         >

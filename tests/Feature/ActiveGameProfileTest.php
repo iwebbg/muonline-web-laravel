@@ -78,6 +78,7 @@ final class ActiveGameProfileTest extends TestCase
     {
         $this->get(route('home'))->assertOk();
         $this->get(route('rankings'))->assertOk();
+        $this->get(route('events.index'))->assertOk();
     }
 
     /**

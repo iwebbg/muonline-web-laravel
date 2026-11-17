@@ -69,6 +69,7 @@ final readonly class SqlServerMuDevsSeason21AccountReadRepository implements Acc
         return $this->database
             ->connection('game')
             ->table('Character as characters')
+            ->leftJoin('MasterSkillTree as master_levels', 'characters.CharacterIndex', '=', 'master_levels.CharacterIndex')
             ->leftJoin('MEMB_STAT as account_status', 'characters.AccountID', '=', 'account_status.memb___id')
             ->where('characters.AccountID', $accountId)
             ->select($this->characterColumns());
@@ -84,6 +85,7 @@ final readonly class SqlServerMuDevsSeason21AccountReadRepository implements Acc
         $columns = [
             'characters.Name as name',
             'characters.cLevel as level',
+            'master_levels.MasterLevel as master_level',
             'characters.Class as class_code',
             'characters.Money as zen',
             'characters.LevelUpPoint as level_up_points',
@@ -130,6 +132,7 @@ final readonly class SqlServerMuDevsSeason21AccountReadRepository implements Acc
             image: $classDefinition?->image ?? '/images/characters/muonline-web-dark-knight.png',
             imagePosition: $classDefinition?->imagePosition ?? 'center top',
             level: (int) $row->level,
+            masterLevel: max(0, (int) ($row->master_level ?? 0)),
             resets: (int) $row->resets,
             grandResets: (int) $row->grand_resets,
             zen: (int) $row->zen,

@@ -11,16 +11,19 @@ import {
     gameServerManager,
     gameMasterManager,
     itemInspector,
+    itemAdvancedOptions,
     itemGrantManager,
     marketExpiry,
     moderationPanel,
     rankingBoard,
     rankingExplorer,
+    rankingLevelDetails,
     registrationRecaptcha,
     serverSwitcher,
     shopOfferEditor,
     walletManager,
     vipPurchaseManager,
+    zenBankPanel,
 } from './muonline';
 
 window.Alpine = Alpine;
@@ -35,15 +38,18 @@ Alpine.data('eventSchedule', eventSchedule);
 Alpine.data('gameServerManager', gameServerManager);
 Alpine.data('gameMasterManager', gameMasterManager);
 Alpine.data('itemInspector', itemInspector);
+Alpine.data('itemAdvancedOptions', itemAdvancedOptions);
 Alpine.data('itemGrantManager', itemGrantManager);
 Alpine.data('marketExpiry', marketExpiry);
 Alpine.data('moderationPanel', moderationPanel);
 Alpine.data('rankingBoard', rankingBoard);
 Alpine.data('rankingExplorer', rankingExplorer);
+Alpine.data('rankingLevelDetails', rankingLevelDetails);
 Alpine.data('registrationRecaptcha', registrationRecaptcha);
 Alpine.data('serverSwitcher', serverSwitcher);
 Alpine.data('shopOfferEditor', shopOfferEditor);
 Alpine.data('walletManager', walletManager);
 Alpine.data('vipPurchaseManager', vipPurchaseManager);
+Alpine.data('zenBankPanel', zenBankPanel);
 
 Alpine.start();

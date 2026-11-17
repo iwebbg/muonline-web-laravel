@@ -139,7 +139,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
                 ServerModule::Rewards,
             ],
             availableRoutes: [
-                'home', 'ready', 'server.status', 'rankings', 'rankings.*',
+                'home', 'ready', 'server.status', 'rankings', 'rankings.*', 'events.index',
                 'characters.*', 'guilds.*', 'news.*', 'guides.*', 'pages.*',
                 'register', 'register.store', 'password.*', 'account.activation*',
                 'account.security.index', 'account.credentials.update', 'account.deletion-requests.*',

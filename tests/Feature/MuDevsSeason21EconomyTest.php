@@ -29,9 +29,11 @@ use App\Models\WebStorageItem;
 use App\Modules\ModuleManager;
 use App\Providers\AppServiceProvider;
 use App\Shop\AccountRewardStatus;
+use App\Shop\Actions\OpenAccountReward;
 use App\Shop\Actions\PurchaseShopOffer;
 use App\Shop\EconomySettingReader;
 use App\Shop\Exceptions\ShopPurchaseRejected;
+use App\Shop\ShopOfferType;
 use App\Shop\ShopPurchaseBlockReason;
 use App\WebStorage\ItemStorageLocation;
 use App\WebStorage\WebStorageContext;
@@ -147,6 +149,59 @@ final class MuDevsSeason21EconomyTest extends TestCase
     }
 
     /**
+     * Delivers standard capes from paid offers and opened boxes without duplicate charges or serials.
+     */
+    #[DataProvider('wingOfferTypes')]
+    public function test_standard_cape_shop_rewards_are_delivered_once(ShopOfferType $type, int $variantMask, string $additionalLabel): void
+    {
+        $this->seedAccount('buyer', 2);
+        AccountWallet::factory()->create(['account_id' => 'buyer', 'balance' => 500]);
+        $offer = ShopOffer::factory()->create(['type' => $type, 'price_credits' => 100]);
+        ShopOfferItem::factory()->for($offer, 'offer')->create([
+            'item_code' => '12:40', 'item_name' => 'Cape of Emperor',
+            'item_width' => 2, 'item_height' => 3,
+            'level' => 15, 'option_level' => 7, 'has_luck' => true, 'excellent_mask' => 15 | $variantMask,
+        ]);
+        $this->mock(ItemSerialRepository::class)->shouldReceive('nextSerial')->once()->andReturn(61);
+        $purchase = $this->app->make(PurchaseShopOffer::class);
+        $key = (string) Str::uuid();
+        $reward = $purchase->execute('buyer', $offer, $key);
+
+        if ($type === ShopOfferType::MysteryBox) {
+            self::assertSame(AccountRewardStatus::Sealed, $reward->status);
+            $reward = $this->app->make(OpenAccountReward::class)->execute('buyer', $reward);
+        }
+
+        $purchase->execute('buyer', $offer, $key);
+        self::assertSame(AccountRewardStatus::Claimed, $reward->refresh()->status, $reward->last_delivery_error ?? '');
+        $item = $this->app->make(ItemCodec::class)->decode($reward->item_binary, 1)[0];
+        self::assertSame('12:40', $item->code());
+        self::assertSame(15 | $variantMask, $item->excellentMask);
+        self::assertContains($additionalLabel, array_column($item->nativePresentation['details'], 'value'));
+        self::assertSame($reward->item_binary.str_repeat("\xFF", 5975), $this->warehouse('buyer'));
+        self::assertSame(400, AccountWallet::query()->where('account_id', 'buyer')->value('balance'));
+        self::assertSame(1, WalletTransaction::query()->count());
+        self::assertSame(1, $this->game()->table('IWEB_S21_ItemOperation')->count());
+    }
+
+    /**
+     * Supplies both administrator-priced wing purchase paths.
+     *
+     * @return array<string, array{ShopOfferType, int, string}>
+     */
+    public static function wingOfferTypes(): array
+    {
+        return [
+            'item HP' => [ShopOfferType::Item, 0, 'Automatic HP recovery 7%'],
+            'item damage' => [ShopOfferType::Item, 16, 'Additional Dmg +28'],
+            'item defense' => [ShopOfferType::Item, 32, 'Additional defense +28'],
+            'box HP' => [ShopOfferType::MysteryBox, 0, 'Automatic HP recovery 7%'],
+            'box damage' => [ShopOfferType::MysteryBox, 16, 'Additional Dmg +28'],
+            'box defense' => [ShopOfferType::MysteryBox, 32, 'Additional defense +28'],
+        ];
+    }
+
+    /**
      * Rejects stale unsupported offers before charging or reserving serials.
      */
     public function test_unsupported_native_shop_offer_does_not_charge_credits(): void
@@ -154,7 +209,7 @@ final class MuDevsSeason21EconomyTest extends TestCase
         $this->seedAccount('buyer', 2);
         AccountWallet::factory()->create(['account_id' => 'buyer', 'balance' => 500]);
         $offer = ShopOffer::factory()->create();
-        ShopOfferItem::factory()->for($offer, 'offer')->create(['item_code' => '12:0']);
+        ShopOfferItem::factory()->for($offer, 'offer')->create(['item_code' => '12:414']);
         $this->mock(ItemSerialRepository::class)->shouldNotReceive('nextSerial');
 
         try {

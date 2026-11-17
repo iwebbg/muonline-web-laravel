@@ -59,9 +59,9 @@ final class UpdateCharacterRuleProfileRequest extends FormRequest
                 'pointsPerReset' => ['required', 'integer', 'min:0', 'max:'.$maximumStat],
                 'inventoryPolicy' => ['required', $inventoryPolicyRule],
                 'resetRewardType' => ['required', Rule::enum(ResetRewardType::class)],
-                'resetRewardCredits' => ['nullable', 'required_if:resetRewardType,credits', 'integer', 'min:1', 'max:9000000000000000'],
+                'resetRewardCredits' => ['exclude_unless:resetRewardType,credits', 'required_if:resetRewardType,credits', 'integer', 'min:1', 'max:9000000000000000'],
                 'resetRewardShopOfferId' => [
-                    'nullable',
+                    'exclude_unless:resetRewardType,mystery_box',
                     'required_if:resetRewardType,mystery_box',
                     'integer',
                     Rule::exists('shop_offers', 'id')->where('type', ShopOfferType::MysteryBox->value),
@@ -80,9 +80,9 @@ final class UpdateCharacterRuleProfileRequest extends FormRequest
                 'grandResetInventoryPolicy' => ['required', $inventoryPolicyRule],
                 'grandResetConsumeRequiredResets' => ['required', 'boolean'],
                 'grandResetRewardType' => ['required', Rule::enum(ResetRewardType::class)],
-                'grandResetRewardCredits' => ['nullable', 'required_if:grandResetRewardType,credits', 'integer', 'min:1', 'max:9000000000000000'],
+                'grandResetRewardCredits' => ['exclude_unless:grandResetRewardType,credits', 'required_if:grandResetRewardType,credits', 'integer', 'min:1', 'max:9000000000000000'],
                 'grandResetRewardShopOfferId' => [
-                    'nullable',
+                    'exclude_unless:grandResetRewardType,mystery_box',
                     'required_if:grandResetRewardType,mystery_box',
                     'integer',
                     Rule::exists('shop_offers', 'id')->where('type', ShopOfferType::MysteryBox->value),

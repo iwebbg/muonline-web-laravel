@@ -185,6 +185,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
         $connection = $this->database->connection($this->rankingConnectionName());
         $builder = $connection
             ->table('Character as characters')
+            ->leftJoin('MasterSkillTree as master_levels', 'characters.CharacterIndex', '=', 'master_levels.CharacterIndex')
             ->leftJoin('MEMB_STAT as account_status', 'characters.AccountID', '=', 'account_status.memb___id');
 
         if ($query->classFilter !== null) {
@@ -209,7 +210,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
             $builder
                 ->orderByDesc('characters.MasterResetCount')
                 ->orderByDesc('characters.ResetCount')
-                ->orderByDesc('characters.cLevel');
+                ->orderByRaw('characters.cLevel + CASE WHEN master_levels.MasterLevel > 0 THEN master_levels.MasterLevel ELSE 0 END DESC');
         }
 
         $rows = $builder
@@ -221,6 +222,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
                 'characters.Name as name',
                 'characters.Class as class_code',
                 'characters.cLevel as level',
+                'master_levels.MasterLevel as master_level',
                 'characters.ResetCount as resets',
                 'characters.MasterResetCount as grand_resets',
                 'characters.PkCount as pk_count',
@@ -320,6 +322,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
             image: $classDefinition?->image ?? '/images/characters/muonline-web-dark-knight.png',
             imagePosition: $classDefinition?->imagePosition ?? 'center top',
             level: (int) $row->level,
+            masterLevel: max(0, (int) ($row->master_level ?? 0)),
             resets: (int) $row->resets,
             grandResets: (int) $row->grand_resets,
             pkCount: (int) $row->pk_count,
@@ -352,6 +355,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
         $row = $this->database
             ->connection($this->rankingConnectionName())
             ->table('Character as characters')
+            ->leftJoin('MasterSkillTree as master_levels', 'characters.CharacterIndex', '=', 'master_levels.CharacterIndex')
             ->leftJoin('MEMB_STAT as account_status', 'characters.AccountID', '=', 'account_status.memb___id')
             ->leftJoin('MEMB_INFO as accounts', 'characters.AccountID', '=', 'accounts.memb___id')
             ->leftJoin('GuildMember as guild_member', 'characters.Name', '=', 'guild_member.Name')
@@ -359,6 +363,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
             ->select([
                 'characters.Name as name',
                 'characters.cLevel as level',
+                'master_levels.MasterLevel as master_level',
                 'characters.Class as class_code',
                 'characters.ResetCount as resets',
                 'characters.MasterResetCount as grand_resets',
@@ -384,6 +389,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
             image: $classDefinition?->image ?? '/images/characters/muonline-web-dark-knight.png',
             imagePosition: $classDefinition?->imagePosition ?? 'center top',
             level: (int) $row->level,
+            masterLevel: max(0, (int) ($row->master_level ?? 0)),
             resets: (int) $row->resets,
             grandResets: (int) $row->grand_resets,
             map: $this->mapNameMapper->nameFor((int) $row->map_number),
@@ -418,6 +424,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
         $rows = $connection
             ->table('GuildMember as guild_members')
             ->join('Character as characters', 'guild_members.Name', '=', 'characters.Name')
+            ->leftJoin('MasterSkillTree as master_levels', 'characters.CharacterIndex', '=', 'master_levels.CharacterIndex')
             ->leftJoin('MEMB_STAT as account_status', 'characters.AccountID', '=', 'account_status.memb___id')
             ->where('guild_members.G_Name', $guildName)
             ->orderByDesc('characters.MasterResetCount')
@@ -427,6 +434,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
                 'characters.Name as name',
                 'characters.Class as class_code',
                 'characters.cLevel as level',
+                'master_levels.MasterLevel as master_level',
                 'characters.ResetCount as resets',
                 'characters.MasterResetCount as grand_resets',
                 'account_status.ConnectStat as connect_stat',
@@ -442,6 +450,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
                 name: (string) $row->name,
                 className: $classDefinition?->name ?? sprintf('Unknown class (%d)', $classCode),
                 level: (int) $row->level,
+                masterLevel: max(0, (int) ($row->master_level ?? 0)),
                 resets: (int) $row->resets,
                 grandResets: (int) $row->grand_resets,
                 online: (int) ($row->connect_stat ?? 0) === 1,

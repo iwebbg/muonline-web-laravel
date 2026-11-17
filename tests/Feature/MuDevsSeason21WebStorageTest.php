@@ -48,10 +48,10 @@ final class MuDevsSeason21WebStorageTest extends TestCase
      * Moves both source locations into custody and back without changing the record.
      */
     #[DataProvider('sourceLocations')]
-    public function test_store_and_withdraw_preserve_native_bytes_and_create_one_receipt_per_direction(ItemStorageLocation $source): void
+    public function test_store_and_withdraw_preserve_native_bytes_and_create_one_receipt_per_direction(ItemStorageLocation $source, string $hex): void
     {
         $game = $this->app->make(DatabaseManager::class)->connection('game');
-        $binary = hex2bin('1A00FF01020306000000FFFEFEFEFFFFFFFFFFFFFFFFFFFFFF');
+        $binary = hex2bin($hex);
         $emptyWarehouse = str_repeat("\xFF", 6000);
         $emptyInventory = str_repeat("\xFF", 5975);
         $warehouse = $source === ItemStorageLocation::Warehouse ? substr_replace($emptyWarehouse, $binary, 0, 25) : $emptyWarehouse;
@@ -86,12 +86,20 @@ final class MuDevsSeason21WebStorageTest extends TestCase
     }
 
     /**
-     * Covers both supported extraction boundaries.
+     * Covers both extraction boundaries with socket gear and independently captured game-created wings.
      *
-     * @return array<string, array{ItemStorageLocation}>
+     * @return array<string, array{ItemStorageLocation, string}>
      */
     public static function sourceLocations(): array
     {
-        return ['warehouse' => [ItemStorageLocation::Warehouse], 'inventory' => [ItemStorageLocation::Inventory]];
+        $flameberge = '1A00FF01020306000000FFFEFEFEFFFFFFFFFFFFFFFFFFFFFF';
+        $wingOfStorm = '247FFF0000003D4000C000FFFFFFFFFFFFFFFFFFFFFFFFFFFF';
+
+        return [
+            'warehouse' => [ItemStorageLocation::Warehouse, $flameberge],
+            'inventory' => [ItemStorageLocation::Inventory, $flameberge],
+            'wing warehouse' => [ItemStorageLocation::Warehouse, $wingOfStorm],
+            'wing inventory' => [ItemStorageLocation::Inventory, $wingOfStorm],
+        ];
     }
 }

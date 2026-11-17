@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Models\Administrator;
 use App\Models\ResetProfile;
 use App\Models\ResetProfileRevision;
+use App\Models\ShopOffer;
 use App\Reset\ResetProfileSettings;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -193,6 +195,75 @@ final class AdminResetProfileTest extends TestCase
         $this->actingAs($administrator, 'admin')
             ->get('/admin/character-rules/not-real')
             ->assertNotFound();
+    }
+
+    /**
+     * Validates reward inputs only for the selected completion reward type.
+     */
+    #[DataProvider('completionRewardInputs')]
+    public function test_completion_reward_fields_follow_the_selected_type(
+        string $section,
+        string $rewardType,
+        ?int $credits,
+        bool $provideBox,
+        ?string $invalidSuffix,
+    ): void {
+        $administrator = Administrator::factory()->create();
+        $this->actingAs($administrator, 'admin');
+        $prefix = $section === 'reset' ? 'resetReward' : 'grandResetReward';
+        $payload = $section === 'reset' ? $this->resetPayload() : $this->grandResetPayload();
+        $box = $provideBox ? ShopOffer::factory()->mysteryBox()->create() : null;
+        $payload[$prefix.'Type'] = $rewardType;
+        $payload[$prefix.'Credits'] = $credits;
+        $payload[$prefix.'ShopOfferId'] = $box?->getKey();
+
+        if ($rewardType === 'none') {
+            $payload[$prefix.'ShopOfferId'] = 999999;
+        }
+
+        $response = $this->putJsonWithCsrf('/admin/character-rules/'.$section, $payload);
+
+        if ($invalidSuffix !== null) {
+            $response->assertUnprocessable()->assertJsonValidationErrors($prefix.$invalidSuffix);
+            $this->assertDatabaseCount('reset_profiles', 0);
+            $this->assertDatabaseCount('reset_profile_revisions', 0);
+
+            return;
+        }
+
+        $response->assertOk()
+            ->assertJsonPath('settings.'.$prefix.'Type', $rewardType)
+            ->assertJsonPath('settings.'.$prefix.'Credits', $rewardType === 'credits' ? $credits : 0)
+            ->assertJsonPath('settings.'.$prefix.'ShopOfferId', $box?->getKey());
+        $columnPrefix = $section === 'reset' ? 'reset_reward' : 'grand_reset_reward';
+        $this->assertDatabaseHas('reset_profiles', [
+            $columnPrefix.'_type' => $rewardType,
+            $columnPrefix.'_credits' => $rewardType === 'credits' ? $credits : 0,
+            $columnPrefix.'_shop_offer_id' => $box?->getKey(),
+        ]);
+        $this->assertDatabaseCount('reset_profile_revisions', 1);
+    }
+
+    /**
+     * Covers absent rewards, positive Credits and required Mystery Box selection.
+     *
+     * @return array<string, array{string, string, ?int, bool, ?string}>
+     */
+    public static function completionRewardInputs(): array
+    {
+        $cases = [];
+
+        foreach (['reset', 'grand-reset'] as $section) {
+            $cases[$section.' no reward with zero'] = [$section, 'none', 0, false, null];
+            $cases[$section.' no reward with blank credits'] = [$section, 'none', null, false, null];
+            $cases[$section.' Credits cannot be zero'] = [$section, 'credits', 0, false, 'Credits'];
+            $cases[$section.' Credits cannot be blank'] = [$section, 'credits', null, false, 'Credits'];
+            $cases[$section.' positive Credits'] = [$section, 'credits', 100, false, null];
+            $cases[$section.' Mystery Box with zero credits'] = [$section, 'mystery_box', 0, true, null];
+            $cases[$section.' Mystery Box must be selected'] = [$section, 'mystery_box', 0, false, 'ShopOfferId'];
+        }
+
+        return $cases;
     }
 
     /**

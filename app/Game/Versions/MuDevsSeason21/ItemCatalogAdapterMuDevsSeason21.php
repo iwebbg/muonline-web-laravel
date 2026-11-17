@@ -16,6 +16,8 @@ final readonly class ItemCatalogAdapterMuDevsSeason21 implements ItemCatalog
     public function __construct(
         private ItemCatalogMuDevsSeason21 $catalog,
         private ItemOptionsMuDevsSeason21 $options,
+        private ItemTransferRulesMuDevsSeason21 $transferRules,
+        private ItemAdvancedOptionsMuDevsSeason21 $advancedOptions,
     ) {}
 
     /**
@@ -52,7 +54,11 @@ final readonly class ItemCatalogAdapterMuDevsSeason21 implements ItemCatalog
             image: $metadata->image,
             excellentType: 0,
             optionType: 0,
-            nativeOptions: $this->options->definitionFor($metadata->group, $metadata->index),
+            nativeOptions: [
+                ...$this->options->definitionFor($metadata->group, $metadata->index),
+                ...$this->advancedOptions->optionsFor($metadata->group, $metadata->index),
+                'constructionSupported' => $this->transferRules->supportsIdentity($metadata),
+            ],
         );
     }
 }

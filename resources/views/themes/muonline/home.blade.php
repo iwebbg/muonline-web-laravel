@@ -138,146 +138,21 @@
     <section
         id="events"
         class="shell scroll-mt-28 py-14"
-        x-data="eventSchedule(
-            {{ Js::from($events) }},
-            {{ Js::from($eventServerNow) }}
-        )"
-        @keydown.escape.window="closeSchedule"
+        x-data="eventSchedule({{ Js::from($events) }}, {{ Js::from($eventServerNow) }})"
     >
         <div class="section-heading">
             <div>
                 <p class="kicker">{{ __('ui.home.events_kicker') }}</p>
                 <h2>{{ __('ui.home.upcoming_events') }}</h2>
             </div>
-            <button
-                type="button"
-                class="button button-ghost"
-                :aria-expanded="scheduleOpen"
-                aria-controls="full-event-schedule"
-                @click="toggleSchedule"
-            >
-                <span x-text="scheduleOpen
-                    ? @js(__('ui.home.hide_schedule'))
-                    : @js($additionalEventCount > 0
-                        ? __('ui.home.view_more_events', ['count' => $additionalEventCount])
-                        : __('ui.home.full_schedule'))"
-                >
-                    {{ $additionalEventCount > 0
-                        ? __('ui.home.view_more_events', ['count' => $additionalEventCount])
-                        : __('ui.home.full_schedule') }}
-                </span>
-            </button>
+            <a href="{{ route('events.index') }}" class="button button-ghost">
+                {{ $additionalEventCount > 0
+                    ? __('ui.home.view_more_events', ['count' => $additionalEventCount])
+                    : __('ui.home.full_schedule') }}
+            </a>
         </div>
-
-        <div class="mt-8 grid gap-4 lg:grid-cols-3">
-            @foreach ($events as $eventIndex => $event)
-                <article class="event-card event-card-{{ $event['accent'] }}">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <p class="kicker">{{ $event['location'] }}</p>
-                            <h3 class="mt-2 text-xl font-semibold text-white">{{ $event['name'] }}</h3>
-                        </div>
-                        <span class="event-rune" aria-hidden="true">✦</span>
-                    </div>
-                    <div class="mt-10 flex items-end justify-between gap-3">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.2em] text-steel">{{ __('ui.home.opens_in') }}</p>
-                            <p
-                                class="mt-1 font-mono text-3xl text-white"
-                                x-text="formattedCountdown(events[{{ $eventIndex }}])"
-                            >--:--</p>
-                        </div>
-                        <span class="text-xs uppercase tracking-[0.18em] text-steel">{{ __('ui.home.live_timer') }}</span>
-                    </div>
-                    <div class="mt-5 h-1 overflow-hidden rounded-full bg-white/8">
-                        <div
-                            class="event-progress"
-                            :style="`width: ${progressPercent(events[{{ $eventIndex }}])}%`"
-                        ></div>
-                    </div>
-                </article>
-            @endforeach
-        </div>
-
-        <div
-            id="full-event-schedule"
-            class="panel-card mt-5"
-            x-show="scheduleOpen"
-            x-transition
-            x-cloak
-        >
-            <div class="flex flex-col gap-2 border-b border-white/8 pb-5 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                    <p class="kicker">{{ __('ui.home.daily_schedule') }}</p>
-                    <h3 class="mt-2 text-xl font-semibold text-white">{{ __('ui.home.full_schedule') }}</h3>
-                </div>
-                <p class="text-sm text-steel">
-                    {{ __('ui.home.schedule_timezone', ['timezone' => $eventTimezone]) }}
-                </p>
-            </div>
-
-            <div class="mt-5 grid gap-4 lg:grid-cols-3">
-                @foreach ($allEvents as $event)
-                    <article class="rounded-2xl border border-white/8 bg-black/20 p-4">
-                        <p class="kicker">{{ $event['location'] }}</p>
-                        <h4 class="mt-2 font-semibold text-white">{{ $event['name'] }}</h4>
-                        <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-steel">
-                            @if ($event['cycleDays'] !== null)
-                                <span>{{ __('ui.home.every_days', ['count' => $event['cycleDays']]) }}</span>
-                            @elseif ($event['intervalMinutes'] !== null)
-                                <span>{{ __('ui.home.every_minutes', ['count' => $event['intervalMinutes']]) }}</span>
-                            @elseif (($event['daysOfMonth'] ?? []) !== [])
-                                <span>{{ __('ui.home.month_days', ['days' => implode(', ', $event['daysOfMonth'])]) }}</span>
-                            @elseif ($event['daysOfWeek'] === [])
-                                <span>{{ __('ui.home.every_day') }}</span>
-                            @else
-                                <span>
-                                    @foreach ($event['daysOfWeek'] as $dayIndex => $dayOfWeek)
-                                        @if ($dayIndex > 0), @endif
-                                        {{ __('ui.home.weekdays.'.$dayOfWeek) }}
-                                    @endforeach
-                                </span>
-                            @endif
-
-                            @if ($event['durationMinutes'] > 0)
-                                <span>{{ __('ui.home.duration_minutes', ['count' => $event['durationMinutes']]) }}</span>
-                            @endif
-                        </div>
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            @foreach ($event['dailyTimes'] as $dailyTime)
-                                <time class="rounded-lg border border-white/8 bg-white/4 px-2.5 py-1.5 font-mono text-xs text-silver">
-                                    {{ $dailyTime }}
-                                </time>
-                            @endforeach
-                        </div>
-                    </article>
-                @endforeach
-            </div>
-        </div>
+        <x-event-cards :events="$events" />
     </section>
-
-    @if ($eventActivities !== [])
-        <section class="shell pb-14">
-            <div class="section-heading">
-                <div>
-                    <p class="kicker">{{ __('ui.home.activities_kicker') }}</p>
-                    <h2>{{ __('ui.home.activities_heading') }}</h2>
-                </div>
-            </div>
-            <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                @foreach ($eventActivities as $activity)
-                    <article class="panel-card p-5">
-                        <div class="flex flex-wrap items-center justify-between gap-2">
-                            <p class="kicker">{{ $activity->location }}</p>
-                            <span class="rounded-lg border border-white/10 px-2 py-1 text-xs text-silver">{{ __('ui.home.activity_availability.'.$activity->availability->value) }}</span>
-                        </div>
-                        <h3 class="mt-3 text-lg font-semibold text-white">{{ $activity->name }}</h3>
-                        <p class="mt-3 text-sm leading-6 text-silver">{{ $activity->description }}</p>
-                    </article>
-                @endforeach
-            </div>
-        </section>
-    @endif
 
     <section id="rankings" class="shell scroll-mt-28 py-14" x-data="rankingBoard('players')">
         <div class="section-heading">
@@ -306,14 +181,13 @@
         <div class="mt-8">
             <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3" x-show="activeTab === 'players'" x-transition.opacity>
                 @foreach (array_slice($rankings['players'], 0, 3) as $index => $player)
-                    <a
-                        href="{{ route('characters.show', $player['name']) }}"
+                    <article
                         @class([
                             'ranking-showcase-card',
                             'ranking-showcase-card-champion' => $index === 0,
                         ])
                     >
-                        <div class="ranking-showcase-media">
+                        <a href="{{ route('characters.show', $player['name']) }}" aria-label="{{ $player['name'] }}" class="ranking-showcase-media block">
                             <img src="{{ $player['image'] }}" alt="{{ $player['class'] }}" loading="lazy">
                             <div class="ranking-medal">
                                 <div>
@@ -327,15 +201,21 @@
                                     {{ __('ui.home.online_status') }}
                                 </span>
                             @endif
-                        </div>
+                        </a>
                         <div class="ranking-showcase-body">
                             <p class="kicker">{{ $player['class'] }}</p>
-                            <h3 class="mt-2 truncate font-display text-3xl text-white">{{ $player['name'] }}</h3>
+                            <h3 class="mt-2 truncate font-display text-3xl text-white"><a href="{{ route('characters.show', $player['name']) }}" class="transition hover:text-gold">{{ $player['name'] }}</a></h3>
                             <div class="ranking-showcase-metrics">
-                                <div class="ranking-showcase-metric">
-                                    <strong>{{ $player['level'] }}</strong>
-                                    <span>{{ __('ui.home.level') }}</span>
-                                </div>
+                                @if (isset($player['masterLevel']))
+                                    <div x-data="{ entry: @js($player) }">
+                                        <x-ranking-level />
+                                    </div>
+                                @else
+                                    <div class="ranking-showcase-metric">
+                                        <strong>{{ $player['level'] }}</strong>
+                                        <span>{{ __('ui.home.level') }}</span>
+                                    </div>
+                                @endif
                                 <div class="ranking-showcase-metric">
                                     <strong>{{ $player['resets'] }}</strong>
                                     <span>{{ __('ui.home.resets') }}</span>
@@ -346,7 +226,7 @@
                                 </div>
                             </div>
                         </div>
-                    </a>
+                    </article>
                 @endforeach
             </div>
 

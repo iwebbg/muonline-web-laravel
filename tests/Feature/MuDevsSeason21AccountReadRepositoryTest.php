@@ -74,6 +74,28 @@ final class MuDevsSeason21AccountReadRepositoryTest extends TestCase
     }
 
     /**
+     * Displays combined S21 levels while reset eligibility uses the normal level.
+     */
+    public function test_master_progression_changes_display_without_changing_reset_eligibility(): void
+    {
+        $connection = $this->createGameSchema();
+        $connection->table('Character')->insert([
+            'AccountID' => 'owner', 'Name' => 'DuelMaster', 'CharacterIndex' => 1,
+            'Class' => 50, 'cLevel' => 3,
+        ]);
+        $connection->table('MasterSkillTree')->insert([
+            'Name' => 'OldName', 'CharacterIndex' => 1, 'MasterLevel' => 400,
+        ]);
+        $character = $this->repository()->characterFor('owner', 'DuelMaster');
+
+        self::assertSame(3, $character->level);
+        self::assertSame(403, $character->displayLevel());
+        self::assertSame(400, $character->toArray()['masterLevel']);
+        self::assertSame(403, $character->toArray()['displayLevel']);
+
+    }
+
+    /**
      * Loads only sanitized read-model tables into the isolated game connection.
      */
     private function createGameSchema(): ConnectionInterface

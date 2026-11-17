@@ -19,7 +19,18 @@ final class ItemGrantRulesMuDevsSeason21 implements ItemConstructionPolicy, Item
         private readonly ItemCodecAdapterMuDevsSeason21 $codec,
         private readonly ItemTransferRulesMuDevsSeason21 $transferRules,
         private readonly ItemOptionsMuDevsSeason21 $itemOptions,
+        private readonly ItemAdvancedOptionsMuDevsSeason21 $advancedOptions,
     ) {}
+
+    /**
+     * Exposes source-backed advanced choices shared with the native item inspector.
+     *
+     * @return array<string, mixed>
+     */
+    public function optionsFor(int $group, int $index): array
+    {
+        return $this->advancedOptions->optionsFor($group, $index);
+    }
 
     /**
      * Returns the nine-bit native identity limit.
@@ -77,15 +88,47 @@ final class ItemGrantRulesMuDevsSeason21 implements ItemConstructionPolicy, Item
         $index = (int) ($options['index'] ?? $identity[1] ?? -1);
         $support = $this->itemOptions->definitionFor($group, $index);
         $excellentMask = (int) ($options['excellent_mask'] ?? 0);
+        $advanced = $this->optionsFor($group, $index);
+        $ancientOption = (int) ($options['ancient_option'] ?? 0);
+        $harmonyOption = (int) ($options['harmony_option'] ?? 0);
+        $socketCount = (int) ($options['socket_count'] ?? 0);
 
-        if ((int) ($options['socket_count'] ?? 0) < 0
-            || (int) ($options['socket_count'] ?? 0) > 3
-            || (int) ($options['harmony_option'] ?? 0) !== 0
+        if ($ancientOption !== 0 && (! in_array($ancientOption, $advanced['ancientOptions'], true)
+            || $excellentMask !== 0 || $harmonyOption !== 0 || $socketCount !== 0)) {
+            return false;
+        }
+
+        if ($harmonyOption !== 0) {
+            $effect = $harmonyOption >> 4;
+            $harmonyLevel = $harmonyOption & 15;
+            $allowedEffects = array_column($advanced['harmonyOptions'], null, 'value');
+            $minimumItemLevel = $advanced['harmonyMinimumItemLevel'];
+
+            if ($harmonyOption < 0 || $harmonyOption > 254 || $socketCount !== 0
+                || ! isset($allowedEffects[$effect])
+                || $harmonyLevel < $allowedEffects[$effect]['minimumLevel']
+                || $harmonyLevel > (int) ($options['level'] ?? 0)
+                || (int) ($options['level'] ?? 0) < $minimumItemLevel) {
+                return false;
+            }
+        }
+        $variantMasks = array_column($support['additionalVariants'] ?? [], 'mask');
+        $selectorMask = 0;
+
+        foreach ($variantMasks as $variantMask) {
+            $selectorMask |= $variantMask;
+        }
+
+        if ($variantMasks !== [] && ! in_array($excellentMask & $selectorMask, $variantMasks, true)) {
+            return false;
+        }
+
+        if ($socketCount < 0
+            || $socketCount > $advanced['maxSockets']
             || ((bool) ($options['has_skill'] ?? false) && ! $support['skill'])
             || ((bool) ($options['has_luck'] ?? false) && ! $support['luck'])
             || ((int) ($options['option_level'] ?? 0) > 0 && ! $support['additional'])
-            || ($excellentMask & ~$support['excellentMask']) !== 0
-            || (int) ($options['ancient_option'] ?? 0) !== 0) {
+            || ($excellentMask & ~$support['excellentMask']) !== 0) {
             return false;
         }
 
@@ -95,7 +138,7 @@ final class ItemGrantRulesMuDevsSeason21 implements ItemConstructionPolicy, Item
                 level: (int) ($options['level'] ?? 0), durability: (int) ($options['durability'] ?? 255),
                 optionLevel: (int) ($options['option_level'] ?? 0), hasSkill: (bool) ($options['has_skill'] ?? false),
                 hasLuck: (bool) ($options['has_luck'] ?? false), excellentMask: $excellentMask,
-                ancientOption: 0, serial: 1,
+                ancientOption: $ancientOption, serial: 1,
                 harmonyOption: (int) ($options['harmony_option'] ?? 0),
                 socketOptions: array_fill(0, max(0, min(6, (int) ($options['socket_count'] ?? 0))), 254),
                 has380Option: (bool) ($options['has_380_option'] ?? false),

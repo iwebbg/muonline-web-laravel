@@ -151,6 +151,9 @@ final class MuDevsSeason21ReadIntegrationTest extends TestCase
     public function test_reads_owned_characters_with_native_sql_server_types(): void
     {
         $this->seedCharacters();
+        $this->gameConnection()->table('MasterSkillTree')->insert([
+            'Name' => 'StaleName', 'CharacterIndex' => 101, 'MasterLevel' => 400,
+        ]);
         $reader = new SqlServerMuDevsSeason21AccountReadRepository(
             $this->app->make(DatabaseManager::class),
             new MuDevsSeason21Profile,
@@ -162,6 +165,7 @@ final class MuDevsSeason21ReadIntegrationTest extends TestCase
         self::assertSame(['command' => 620], $character?->additionalStats);
         self::assertSame('Aquilas Temple', $character?->map);
         self::assertSame(200, $character?->level);
+        self::assertSame(600, $character?->displayLevel());
         self::assertFalse($character?->online);
         self::assertNull($reader->characterFor('s21owner', 'S21Hidden'));
         self::assertCount(1, $reader->charactersFor('s21owner'));
@@ -227,6 +231,9 @@ final class MuDevsSeason21ReadIntegrationTest extends TestCase
     {
         $this->seedCharacters();
         $connection = $this->gameConnection();
+        $connection->table('MasterSkillTree')->insert([
+            'Name' => 'S21Lord', 'CharacterIndex' => 101, 'MasterLevel' => 400,
+        ]);
         $connection->table('Guild')->insert([
             'G_Name' => 'S21Test', 'G_Master' => 'S21Lord', 'G_Score' => 10,
             'G_Count' => 1, 'G_Notice' => 'Test',
@@ -250,6 +257,8 @@ final class MuDevsSeason21ReadIntegrationTest extends TestCase
         self::assertSame('S21Hidden', $rankings[0]->name);
         self::assertSame('center top', $rankings[0]->imagePosition);
         self::assertSame('S21Test', $character?->guildName);
+        self::assertSame(600, $character?->displayLevel());
+        self::assertSame(600, $guild?->members[0]->displayLevel());
         self::assertArrayNotHasKey('accountId', get_object_vars($character));
         self::assertSame(array_fill(0, 64, '#000000'), $guild?->markColors);
         self::assertSame(2, $reader->overview()->characters);

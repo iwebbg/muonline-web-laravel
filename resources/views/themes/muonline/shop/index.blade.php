@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('title', $type === \App\Shop\ShopOfferType::Item ? __('ui.shop.items_title') : __('ui.shop.boxes_title'))
 
+@inject('classScopePresenter', 'App\Shop\ShopClassScopePresenter')
+
 @section('content')
     <div class="shell py-10 lg:py-14">
         <header class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -25,7 +27,7 @@
                 <span>{{ __('ui.shop.all_classes') }}</span>
                 <select name="class">
                     @foreach ($classScopes as $scope)
-                        <option value="{{ $scope->value }}" @selected($selectedClassScope->value === $scope->value)>{{ __('ui.shop.class_scopes.'.$scope->value) }}</option>
+                        <option value="{{ $scope->value }}" @selected($selectedClassScope->value === $scope->value)>{{ $classScopePresenter->label($scope->value) }}</option>
                     @endforeach
                 </select>
             </label>
@@ -47,7 +49,7 @@
                     @endif
                 >
                     <div class="flex items-start justify-between gap-4">
-                        <span class="resource-chip">{{ __('ui.shop.class_scopes.'.$offer->class_scope->value) }}</span>
+                        <span class="resource-chip">{{ $classScopePresenter->label($offer->class_scope->value) }}</span>
                         @if ($itemPresentation !== null)
                             <div
                                 class="shop-item-preview relative grid size-16 place-items-center"

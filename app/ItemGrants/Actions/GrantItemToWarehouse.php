@@ -41,7 +41,7 @@ final readonly class GrantItemToWarehouse
     /**
      * Grants one catalog item to an offline account's active warehouse.
      *
-     * @param  array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int}  $options
+     * @param  array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int, harmony_option?: int, socket_count?: int, has_380_option?: bool}  $options
      *
      * @throws JsonException When the canonical request snapshot cannot be encoded.
      */
@@ -117,6 +117,10 @@ final readonly class GrantItemToWarehouse
                 excellentMask: $options['excellent_mask'],
                 ancientOption: $options['ancient_option'],
                 serial: $serial,
+                harmonyOption: (int) ($options['harmony_option'] ?? 0),
+                socketBonus: (int) ($options['socket_count'] ?? 0) > 0 ? 255 : null,
+                socketOptions: array_fill(0, (int) ($options['socket_count'] ?? 0), 254),
+                has380Option: (bool) ($options['has_380_option'] ?? false),
             );
             $operation->update([
                 'serial' => $serial,

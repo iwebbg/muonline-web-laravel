@@ -39,9 +39,10 @@ class InteractiveShellTest extends TestCase
         $response->assertSee('online-badge', false);
         $response->assertSee('Blood Castle');
         $response->assertSee('eventSchedule(', false);
-        $response->assertSee('Server event schedule');
+        $response->assertDontSee('Server event schedule');
+        $response->assertSee(route('events.index'), false);
         $response->assertSee('View 5 more');
-        $response->assertSee('Sky Event');
+        $response->assertDontSee('full-event-schedule', false);
         $response->assertDontSee('12:48');
         $response->assertSee('Top players');
         $response->assertDontSee(route('admin.dashboard'), false);

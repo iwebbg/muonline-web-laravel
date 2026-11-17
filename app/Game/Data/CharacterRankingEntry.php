@@ -23,12 +23,21 @@ final readonly class CharacterRankingEntry
         public int $pkLevel,
         public bool $online,
         public string $imagePosition = 'center top',
+        public ?int $masterLevel = null,
     ) {}
+
+    /**
+     * Returns the displayed total while preserving the normal level for game operations.
+     */
+    public function displayLevel(): int
+    {
+        return $this->level + ($this->masterLevel ?? 0);
+    }
 
     /**
      * Converts the entry to the stable shape consumed by the ranking view.
      *
-     * @return array{name: string, class_code: int, class: string, class_abbreviation: string, image: string, imagePosition?: string, level: int, resets: int, grand_resets: int, pk_count: int, pk_level: int, online: bool}
+     * @return array{name: string, class_code: int, class: string, class_abbreviation: string, image: string, imagePosition?: string, level: int, masterLevel?: int, displayLevel?: int, resets: int, grand_resets: int, pk_count: int, pk_level: int, online: bool}
      */
     public function toArray(): array
     {
@@ -40,6 +49,10 @@ final readonly class CharacterRankingEntry
             'image' => $this->image,
             ...($this->imagePosition === 'center top' ? [] : ['imagePosition' => $this->imagePosition]),
             'level' => $this->level,
+            ...($this->masterLevel === null ? [] : [
+                'masterLevel' => $this->masterLevel,
+                'displayLevel' => $this->displayLevel(),
+            ]),
             'resets' => $this->resets,
             'grand_resets' => $this->grandResets,
             'pk_count' => $this->pkCount,

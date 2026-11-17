@@ -15,6 +15,7 @@ final class WarehousePreviewMuDevsSeason21
     public function __construct(
         private readonly ItemCatalogMuDevsSeason21 $catalog,
         private readonly ItemOptionsMuDevsSeason21 $options,
+        private readonly ItemAdvancedOptionsMuDevsSeason21 $advancedOptions,
     ) {}
 
     /**
@@ -45,11 +46,17 @@ final class WarehousePreviewMuDevsSeason21
     {
         $name = $record->metadata?->name ?? __('ui.s21_warehouse.unknown_item');
         $rarity = 'normal';
+        $nativeOptions = $this->options->definitionFor($record->group ?? -1, $record->index ?? -1, $record->excellentMask);
+        $excellentOptionMask = 0;
+
+        foreach ($nativeOptions['excellent'] as $option) {
+            $excellentOptionMask |= $option['bit'];
+        }
 
         if ($record->ancientSetName !== null) {
             $name = $record->ancientSetName.' '.$name;
             $rarity = 'ancient';
-        } elseif ($record->excellentMask > 0) {
+        } elseif (($record->excellentMask & $excellentOptionMask) > 0) {
             $name = __('ui.s21_warehouse.excellent').' '.$name;
             $rarity = 'excellent';
         } elseif (($record->level ?? 0) >= 9 || $record->hasLuck) {
@@ -105,6 +112,17 @@ final class WarehousePreviewMuDevsSeason21
 
         if (($record->harmonyOption ?? 0) > 0) {
             $fields['harmony_byte'] = (string) $record->harmonyOption;
+            $metadata = $this->advancedOptions->optionsFor($record->group ?? -1, $record->index ?? -1);
+            $effectIndex = $record->harmonyOption >> 4;
+            $level = $record->harmonyOption & 15;
+
+            foreach ($metadata['harmonyOptions'] as $effect) {
+                if ($effect['value'] === $effectIndex && isset($effect['values'][$level])) {
+                    $fields['harmony_effect'] = $effect['label'].' +'.$effect['values'][$level];
+
+                    break;
+                }
+            }
         }
 
         if ($record->socketExtensionFlags !== 0) {
@@ -117,7 +135,7 @@ final class WarehousePreviewMuDevsSeason21
             $details[] = ['label' => __('ui.s21_warehouse.'.$key), 'value' => $value];
         }
 
-        $nativeOptions = $this->options->definitionFor($record->group ?? -1, $record->index ?? -1);
+        $nativeOptions = $this->options->definitionFor($record->group ?? -1, $record->index ?? -1, $record->excellentMask);
 
         if ($record->optionLevel > 0 && $nativeOptions['additionalLabel'] !== null) {
             $details[] = [
