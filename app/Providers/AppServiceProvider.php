@@ -27,8 +27,10 @@ use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Version1_0M\DarksTeamMd5PasswordCodec;
 use App\Game\Versions\Version97d99i\MapNameMapper;
 use App\Installation\Contracts\ApplicationDatabaseInstaller;
+use App\Installation\Contracts\ApplicationDatabaseUninstaller;
 use App\Installation\Contracts\GameDatabaseInstaller;
 use App\Installation\SqlServerApplicationDatabaseInstaller;
+use App\Installation\SqlServerApplicationDatabaseUninstaller;
 use App\Installation\SqlServerGameDatabaseInstaller;
 use App\Modules\ModuleManager;
 use App\Servers\CurrentGameServer;
@@ -140,6 +142,7 @@ class AppServiceProvider extends ServiceProvider
             ),
         );
         $this->app->bind(ApplicationDatabaseInstaller::class, SqlServerApplicationDatabaseInstaller::class);
+        $this->app->bind(ApplicationDatabaseUninstaller::class, SqlServerApplicationDatabaseUninstaller::class);
         $this->app->bind(GameDatabaseInstaller::class, SqlServerGameDatabaseInstaller::class);
     }
 
