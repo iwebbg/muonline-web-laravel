@@ -157,7 +157,9 @@ final class MuDevsSeason21WebsiteTest extends TestCase
         $connection = $this->app->make(DatabaseManager::class)->connection('game');
         $connection->table('Character')->insert($this->character('owner', 'Crusader', 1, 240));
 
-        $this->get('/')->assertOk()->assertSee('Crusader')->assertSee('Group Boss Battle')
+        $this->get('/')->assertOk()->assertSee('Crusader')->assertSee(route('events.index'), false)
+            ->assertDontSee('Imperial Guardian Renewal');
+        $this->get('/events')->assertOk()->assertSee('Group Boss Battle')
             ->assertSee('Imperial Guardian Renewal')->assertSee('Labyrinth of Dimensions')->assertSee('Campaign ended');
         $this->get('/rankings')->assertOk()->assertSee('Crusader');
     }
@@ -212,7 +214,7 @@ final class MuDevsSeason21WebsiteTest extends TestCase
             'OWNER_GUILD' => 'Guard',
         ]);
 
-        $this->get('/')->assertOk()->assertSee('Castle Siege');
+        $this->get('/events')->assertOk()->assertSee('Castle Siege');
     }
 
     /**
