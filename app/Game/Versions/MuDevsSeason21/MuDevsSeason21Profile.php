@@ -155,7 +155,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
                 'account.stat-reset-preview', 'account.character-stat-reset', 'account.pk-clear-preview',
                 'account.character-pk-clear', 'account.move-to-town-preview', 'account.character-move',
                 'downloads.*', 'login', 'login.store', 'logout', 'account.dashboard', 'account.item-storage', 'locale.update',
-                'admin.login', 'admin.login.store', 'admin.logout', 'admin.dashboard', 'admin.audit-log',
+                'admin.login', 'admin.login.store', 'admin.logout', 'admin.dashboard', 'admin.audit-log', 'admin.support',
                 'admin.character-rules.*', 'admin.moderation*', 'admin.game-masters.*', 'admin.modules.*',
                 'admin.s21-warehouse', 'admin.event-schedules.*', 'admin.item-grants.*',
                 'admin.news-posts.*', 'admin.downloads.*', 'admin.website-settings.*',

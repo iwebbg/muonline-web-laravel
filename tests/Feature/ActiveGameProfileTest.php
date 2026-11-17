@@ -6,6 +6,7 @@ use App\Game\Contracts\CastleSiegeReadRepository;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
 use App\Game\Versions\Contracts\GameVersionProfile;
+use App\Models\Administrator;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use PHPUnit\Framework\Attributes\Group;
 use Tests\TestCase;
@@ -17,6 +18,17 @@ use Tests\TestCase;
 final class ActiveGameProfileTest extends TestCase
 {
     use LazilyRefreshDatabase;
+
+    /**
+     * Keeps administrative support available independently of game-specific feature gates.
+     */
+    public function test_administrative_support_is_available_for_the_active_profile(): void
+    {
+        $this->actingAs(Administrator::factory()->create(), 'admin')
+            ->get('/admin/support')
+            ->assertOk()
+            ->assertSee('https://github.com/iwebbg/muonline-web-laravel/issues/new', false);
+    }
 
     /**
      * Confirms both profile contracts and event configuration select one key.

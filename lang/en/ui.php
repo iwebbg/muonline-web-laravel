@@ -3,6 +3,26 @@
 $usesMasterReset = config('game.profile.key') === 'mudevs_season_21';
 
 return [
+    'support' => [
+        'navigation' => 'Help & Support',
+        'eyebrow' => 'MuOnline Web community',
+        'description' => 'Find documentation, report a problem or support the development of MuOnline Web.',
+        'report_problem' => 'Report a problem',
+        'report_help' => 'Search existing issues first. When reporting a bug, include the web release, game profile, steps to reproduce, expected result and a redacted error or screenshot.',
+        'open_issue' => 'Submit an issue',
+        'repository' => 'View repository',
+        'contact' => 'Contact us',
+        'contact_help' => 'For a private enquiry, contact InterWeb Ltd. For reproducible bugs and feature requests, use GitHub issues so the community can follow the discussion.',
+        'documentation' => 'Documentation',
+        'before_reporting' => 'Before reporting',
+        'diagnostics' => 'Useful diagnostics',
+        'diagnostics_help' => 'Run these read-only commands from the project directory to inspect service status and recent logs. For SQL issues, include the SQL Server version and whether the connection fails from Windows, WSL or Docker.',
+        'privacy' => 'Review logs before sharing. Never publish .env files, passwords, tokens, private keys or player account data.',
+        'development' => 'Support development',
+        'donate' => 'Support the project',
+        'donate_help' => 'MuOnline Web is free and open source. Your support helps maintain the project and develop new features.',
+        'donate_notice' => 'These links support the software project. They do not purchase game Credits, items or VIP.',
+    ],
     'events' => [
         'title' => 'Events and activities',
         'heading' => 'Events and activities',

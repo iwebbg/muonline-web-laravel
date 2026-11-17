@@ -480,6 +480,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     });
 
     Route::middleware(['auth:admin', 'demo:unsafe'])->group(function (): void {
+        Route::view('/support', 'admin.support')->name('support');
         Route::get('/s21-warehouse', MuDevsSeason21WarehouseController::class)
             ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
             ->name('s21-warehouse');

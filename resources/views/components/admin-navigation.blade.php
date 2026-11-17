@@ -31,6 +31,7 @@
         request()->routeIs('admin.news-posts.*') => 'content',
         request()->routeIs('admin.downloads.*') => 'downloads',
         request()->routeIs('admin.audit-log') => 'audit-log',
+        request()->routeIs('admin.support') => 'support',
         default => 'overview',
     };
 @endphp
@@ -208,6 +209,11 @@
                 </div>
             </div>
         @endif
+        <div class="mt-2 border-t border-white/8 pt-2">
+            <a href="{{ route('admin.support') }}" class="admin-nav-link {{ $active === 'support' ? 'admin-nav-link-active' : '' }}">
+                <span aria-hidden="true">?</span>{{ __('ui.support.navigation') }}
+            </a>
+        </div>
     </nav>
 
     @if ($resetRevision !== null)
