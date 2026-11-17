@@ -1,7 +1,10 @@
 # MUDevs Season 21 compatibility and implementation plan
 
-Status: native website bundle selectable and active locally, 15 November 2026. Full S21
-support remains in development. The target is the owner-supplied MUDevs S21.1-2 distribution,
+Status: native website bundle selectable, with owner-confirmed character,
+storage, shop and bank operations as of 17 November 2026. See the
+[current acceptance checkpoint](current-state.md#current-acceptance-checkpoint--17-november-2026)
+for completed flows; historical milestones below retain their original evidence.
+Specialist events and unverified item families remain gated. The target is the owner-supplied MUDevs S21.1-2 distribution,
 including its standard inherited game systems, all playable class families and
 their advancements. A read-only panel is an intermediate milestone, not the
 definition of complete support.
@@ -18,7 +21,7 @@ Credits/Votes, Market/Auction, Shop, Mystery Boxes, Rewards, journaled rename/cl
 changes, native account VIP purchases and Credits-to-game-currency exchange. All 76 class forms
 are represented. The owner has enabled local game writes for supervised client
 acceptance checks; this is not a production commissioning approval. The runtime game role now has the narrow
-permissions required by the reviewed account/core/item adapters. The latest completed economy checkpoint passes
+permissions required by the reviewed account/core/item adapters. The historical economy checkpoint passed
 1133 isolated tests / 47250 assertions and all four profile smoke runs. Native SQL
 Server coverage passes 30 tests / 198 assertions, including native account purchases,
 identity services, restricted column grants and application-schema migrations. The
@@ -1142,11 +1145,11 @@ does not remove the system from the completion backlog.
 | Authentication | `MEMB_INFO`, JoinServer `MD5Encryption=0`, password column varchar(10) | Verify deployed mode and case/length behavior; implement matching registration, activation and recovery. |
 | Account/character identity | `AccountCharacter.AccountIndex`, `Character.CharacterIndex`, ten named slots and index columns | Use verified ownership joins and update both representations where required. |
 | Online sessions | `MEMB_STAT` | Enforce offline conditions inside every write and distinguish offline helper/shop states if applicable. |
-| VIP | AccountLevel and AccountExpireDate | Native account purchase/replay implemented; explicit tier/duration/price plans, clock and date limits verified. In-game acceptance remains. |
+| VIP | AccountLevel and AccountExpireDate | Native account purchase/replay implemented; owner confirmed purchased VIP tier and expiry in the client. |
 | Zen, Ruud, cash points and Lucky Coin | Character Money/RuudMoney, warehouse Money, CashShopData, LuckyCoin | Separate game balances from web Credits; read privately, add audited writes only for explicit supported workflows. |
 | Gens | `Gens_Rank`, `Gens_Left`, `Gens_Reward` | Family/contribution/rank and eligibility semantics verified independently of S6. |
-| Reset, grand reset, stats and PK | Native counters/stats, `EnhanceResetCount`, ResetTable/PkSystem | Preview and transactional execution with explicit progression preservation policies. |
-| Rename/class change | Indexed and name-based references throughout game schema | Journaled native actions, reviewed reference graph, advancement/skill/equipment guards and pending recovery implemented. In-game acceptance remains. |
+| Reset, Master Reset, stats and PK | Native counters/stats, `MasterResetCount`, `EnhanceResetCount`, ResetTable/PkSystem | Owner confirmed reset, Master Reset counter, allocation/refund and PK clear. S21 presents the shared grand-reset operation as Master Reset while retaining legacy schema support. Normal/Master level remain distinct operation inputs. |
+| Rename/class change | Indexed and name-based references throughout game schema | Owner confirmed rename and representative class changes including advancement preservation; skill/equipment guards and journaled recovery remain enforced. |
 | Quest progress, hunting and Monster Soul Converter | Quest/MuQuest/QuestGuide config, `MuQuestInfo`, `QuestWorld`, `T_HuntingRecord*`, `MonsterSoulConverter*` | Read verified progress privately and preserve it during services. |
 | Web economy | Existing shop/reward/bank/market/auction actions | Bind S21 repositories, capabilities and item rules; test idempotency, exact custody, full-storage recovery and concurrency. |
 

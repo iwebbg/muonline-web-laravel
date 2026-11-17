@@ -1,8 +1,48 @@
 # Testing
 
-MuOnline Web has a disposable main test environment plus one isolated SQL
-Server integration environment for each supported adapter. All are separate
+MuOnline Web has a disposable main test environment plus isolated SQL Server
+fixtures for 97d+99i, 1.0M and S21. S6 currently has portable fixture and profile
+matrix coverage rather than a separate native SQL workflow. All are separate
 from the long-running application containers and configured databases.
+
+## Regression checkpoint — 17 November 2026
+
+After the S21/shared UI changes and administrative Help & Support addition:
+
+| Check | Result |
+| --- | --- |
+| `./docker/compose test-all` main suite | 1,255 tests, 48,355 assertions passed |
+| Profile matrix: 97d+99i / 1.0M / S6 / S21 | 5 tests per profile; 36 / 36 / 39 / 45 assertions passed |
+| `./docker/compose test-integration` | 3 native 97d+99i tests, 40 assertions passed |
+| `./docker/compose test-integration-1.0m` | 10 native 1.0M tests, 51 assertions passed |
+| `./docker/compose test-integration-s21` | 30 native S21 tests, 201 assertions passed |
+| Laravel Pint and `npm run build` | Passed |
+
+The full regression caught three stale home-page assertions after moving full
+event details to `/events`. These now verify the home link and the standalone
+schedule, preserving database-anchored Castle Siege checks for 1.0M and S21.
+Help & Support is checked for authentication, both locales, GM/demo access,
+safe links and all four game profiles.
+
+### Edge cases and recovery coverage
+
+- `MarketPurchaseTest`, `MarketEscrowTest` and `ShopPurchaseTest` cover full-vault
+  delivery fallback, request replay, insufficient funds, interrupted delivery
+  and scheduler recovery. A second buyer using a stale sold listing is rejected
+  without another debit, seller credit or item delivery.
+- `WebStorageTest`, `JewelBankTest`, `ZenBankTest`, `RewardInventoryTest` and
+  `AdminEconomyRecoveryTest` cover exact-item replay, retained box results,
+  interrupted transfers, recovery commands and audited retries.
+- Native S21 SQL tests cover rollback of extraction and paid counter changes
+  when receipt writes fail. Separate SQL sessions race the same item delivery
+  and paid-point operation: each commits one mutation and one receipt.
+
+These are automated disposable-fixture checks, not a game-client session or a
+production load test. The stale-listing test executes buyers sequentially;
+the S21 concurrent tests exercise native receipts, not two complete Market
+purchases with different buyers racing the application SQL database. That
+end-to-end race/load rehearsal remains a production-readiness gate. S6 native
+SQL behavior is not certified by its portable/profile-matrix checks alone.
 
 ## Prerequisites
 
@@ -151,9 +191,9 @@ Run one integration file or method with the same argument style:
 
 ## Using the legacy schema fixture
 
-### Season 21 read-adapter development
+### Season 21 native adapter verification
 
-The in-development MUDevs S21 readers have a separate disposable SQL Server
+The MUDevs S21 adapters have a separate disposable SQL Server
 workflow:
 
 ```bash
@@ -166,8 +206,9 @@ the new internal database `MuOnline_S21_Test`, runs
 the containers, internal network and volume. It never imports the full external
 emulator scripts or connects to `MuOnline_S21`/`BattleCore_S21` on the LAN.
 
-This nine-table fixture is a sanitized read-model projection with explicit
-synthetic identities. The portable feature tests also load it into SQLite.
+This sanitized fixture contains synthetic identities and the native read/write
+structures needed by the adapter tests. Portable feature tests also load its
+read-model projection into SQLite.
 Native tests cover SQL Server pagination, bigint experience, index-based
 progression joins, packed binary guild marks, full 6,000-byte warehouse reads,
 extended-vault ownership and lossless preservation of the client-matched records.

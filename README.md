@@ -8,33 +8,29 @@ database boundaries and auditable operations.
 
 ## Features
 
-- Responsive bilingual public site, account panel and administration.
-- Rankings, profiles, events, news, guides and downloads.
-- Previewed character services, inventories and multi-vault storage.
-- Credits, payments, VIP, votes, banks, Market, Auctions and Web Shop.
-- Exact-item custody, recovery workflows and immutable audit history.
-- Directory-based, update-safe Blade themes with partial overrides.
+- Bilingual public site, player accounts and administration.
+- Rankings, profiles, events and configurable character services.
+- Inventories, banks, Market, Web Shop and auditable Credits operations.
+- Isolated adapters for DarksTeam 97d+99i, 1.0M, MuEMU S6 and MUDevs S21.1–2.
+- Extendable Blade themes and Docker deployment.
 
-Read the [complete project documentation](docs/README.md) for installation,
-configuration, compatibility, development and testing guidance.
+## Documentation
 
-## Local installation on Ubuntu / WSL
+Start with the [documentation index](docs/README.md):
 
-From the cloned repository, run:
+- [Installation](docs/installation.md)
+- [Features and compatibility](docs/features.md)
+- [Themes](docs/themes.md), [payments](docs/payments.md) and [testing](docs/testing.md)
 
-```bash
-bash docker/install.sh
-```
+## Help & Support
 
-The interactive installer can install Docker Engine and Compose, creates missing
-environment files, lists the registered game profiles, asks for SQL connection
-details and generates runtime passwords and the application key. It checks the
-existing game database, provisions web access, builds frontend assets and starts
-the local stack. It then removes temporary SQL administrator passwords and offers
-to create a website administrator. SQL Server and the restored game database must
-already be available over TCP; SQL Server installation and Windows firewall
-configuration remain separate steps. Existing runtime passwords and application
-keys are preserved when rerunning the installer.
+[Report a bug or request a feature](https://github.com/iwebbg/muonline-web-laravel/issues).
+The administration panel also includes **Help & Support**.
+
+## License
+
+[MIT License](LICENSE). Created by **InterWeb Ltd.** See the
+[compatibility reference](docs/reference-sources.md) for third-party ownership.
 
 ## Support the project
 

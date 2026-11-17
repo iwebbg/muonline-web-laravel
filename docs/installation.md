@@ -65,6 +65,41 @@ files directly on the server.
 
 ## Local installation
 
+### Interactive Ubuntu / WSL setup
+
+From a cloned checkout, run:
+
+```bash
+bash docker/install.sh
+```
+
+The installer checks Docker Engine and Compose, creates missing environment
+files, lets you select a registered game profile and asks for the SQL endpoint
+and temporary bootstrap credentials. It generates restricted-login passwords
+and APP_KEY, provisions web access to the existing game database, builds the
+frontend and starts the stack. After success it removes temporary SQL
+administrator passwords and offers to create a web administrator. Existing
+runtime passwords and APP_KEY are preserved on rerun. SQL Server, restored game
+databases, TCP access and Windows firewall configuration must be ready first.
+
+Signed archives for Windows Manager are built separately with
+`./deploy/release.sh 1.3.0`. This packages the current working tree through an
+isolated production Docker build and writes ignored ZIPs and a signed manifest
+under `deploy/`. It prompts for an Ed25519 private key path outside the checkout;
+the public key must be trusted by the manager. Archives contain production
+dependencies and compiled frontend assets, never the installation's `.env` or
+runtime storage. The archive excludes the entire `storage/` tree, including
+`.gitignore` placeholders; the manager creates these writable directories on
+installation and preserves them during updates. Use a new release version when
+publishing changed artifacts.
+
+The manager release supporting this S21 bundle is **1.4.0**. Generated web
+manifests therefore declare `compatibility.managerMin: "1.4.0"`. This is separate
+from the web artifact version passed to `release.sh`; the script never creates
+Git tags or changes the manager repository version.
+
+### Manual Docker setup
+
 After cloning the repository and selecting the desired branch or tag, create
 the two environment files:
 
@@ -246,7 +281,25 @@ container:
 ./docker/compose exec app php artisan admin:create
 ```
 
-The command asks for the administrator name, email address, password and
+Existing identities can be inspected and maintained through the manager-facing
+CLI without SQL edits:
+
+```bash
+./docker/compose exec app php artisan admin:list --json --no-interaction
+./docker/compose exec app php artisan admin:update 2 --active=0 --json --no-interaction
+./docker/compose exec app php artisan admin:update 2 --active=1 --json --no-interaction
+./docker/compose exec app php artisan admin:update 2 --password
+```
+
+Replace `2` with an ID returned by `admin:list`. Use `--name` and `--email` for
+identity changes. Automation can rotate passwords with `--password-stdin`,
+passing one password line through private stdin rather than command arguments.
+Use deactivation for identities referenced by audit history. `admin:delete ID`
+requires confirmation (`--force` for automation); the last active full
+administrator cannot be deleted or deactivated. JSON mutation errors return
+`errors` and exit code 1; successful commands return exit code 0.
+
+The `admin:create` command asks for the administrator name, email address, password and
 password confirmation. The password is hidden while it is entered and must be
 at least 12 characters long with uppercase and lowercase letters, a number and
 a symbol. The email address must not already belong to another website
@@ -572,6 +625,76 @@ For an application restore rehearsal:
 Never rehearse a restore over the only production copy. Record the Git commit,
 backup checksums, migration state, test results and rollback decision for every
 production release.
+
+## Removing the application database from Windows Manager
+
+The opt-in CLI boundary for SQL cleanup is:
+
+```bash
+php artisan app:database:uninstall --force --no-interaction
+```
+
+The manager must invoke it with argument arrays and send one JSON object through
+private stdin, then close stdin. Credentials must not appear in command-line
+arguments, process environment, saved files or logs:
+
+```json
+{
+  "host": "sql-host",
+  "port": 1433,
+  "database": "MuOnline_Web",
+  "login": "muonline_web_app",
+  "admin_username": "sa",
+  "admin_password": "<temporary password from the manager password field>",
+  "confirmed": true
+}
+```
+
+The host, port, database and login must exactly match the effective Laravel
+`database.connections.sqlsrv` configuration. A nonempty `DB_URL` override is
+refused; use explicit connection fields. Both `--force` and boolean
+`confirmed: true` are required. `APP_DB_BOOTSTRAP` does not need to be enabled.
+The temporary account must be `sysadmin` so metadata inspection cannot silently
+miss mappings into other databases; `sa` is not the only accepted admin login.
+Existing bootstrap credentials in the environment are never used as a fallback.
+
+Preflight refuses system/game databases, the configured game/ranking/BattleCore
+logins, privileged or shared runtime logins, non-web schemas and web databases
+containing other SQL users. It requires the bootstrap application role and user
+and checks for application/game table signatures. If the login exists, mappings
+and database ownership are inspected across every other database. If a database
+is offline or metadata cannot be inspected, removal fails closed. Game data,
+game login permissions and profile-added game schema are deliberately retained.
+
+The command always emits one JSON result and exits 0 only on complete success:
+
+```json
+{"ok":true,"code":"uninstalled","database":"removed","login":"removed","retryable":false}
+```
+
+Resource statuses are `not_checked`, `retained`, `removed`, `already_absent` or
+`unknown` after an uncertain SQL failure. Refusals and SQL failures exit 1, with
+a bounded code such as `confirmation_required`, `invalid_input`,
+`target_mismatch`, `protected_database`, `protected_login`, `sysadmin_required`,
+`privileged_login`, `shared_login`, `shared_database`, `cannot_verify_shared_login`,
+`unverified_web_database`, `database_unavailable` or `sql_operation_failed`.
+No raw SQL exception or credentials are returned. A repeated call rechecks the
+target and finishes any remaining resource; two absent resources are a success.
+DROP operations are not transactional: a removed database is never described as
+rolled back merely because login removal failed.
+
+Manager sequence:
+
+1. Obtain explicit confirmation of the displayed SQL endpoint and exact web
+   database/login. Offer backup before irreversible database removal.
+2. Stop web requests, scheduler and queue workers so they cannot reconnect.
+3. Run this CLI in a one-shot application container with `--entrypoint php`,
+   bypassing the bootstrap entrypoint; provide private JSON stdin. Keep the
+   application configuration and network available for this step and retries.
+4. If exit code is nonzero, JSON is missing/malformed or `ok` is not true, retain
+   the installation and show the refusal/progress; do not remove WSL/Docker yet.
+5. Only after successful SQL cleanup remove the manager-owned runtime resources.
+   Removing unrelated Docker/WSL installations is outside this command's scope.
 
 ## Updating
 

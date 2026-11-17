@@ -8,15 +8,61 @@ together with `AGENTS.md`, `docs/coding-standards.md`, `docs/product-ux.md` and
 
 MuOnline Web is a Laravel 13 monolith running on PHP 8.5. It supports the
 DarksTeam `darksteam_97d99i` and `darksteam_1_0m` profiles plus the isolated
-`muemu_season_6` game and event profile. `mudevs_season_21` is now selectable for
-reviewed reads, event schedules and content administration; game mutations and
-the full storage/economy bundle remain in development. The frontend is server-rendered Blade
+`muemu_season_6` and `mudevs_season_21` game and event profiles. S21 includes
+reviewed character mutations, exact-item storage and economy operations, with
+the owner-confirmed scope below. Specialist systems retain explicit runtime
+gates; this is not blanket production certification. The frontend is server-rendered Blade
 enhanced with Alpine.js and Tailwind CSS v4; it is intentionally not a separate
 SPA or Next.js application.
 
 English is the default and fallback locale. Every player-facing or
 administrator-facing string must also have a Bulgarian translation. Do not
 show framework, database-table or internal transaction terminology to players.
+
+## Current acceptance checkpoint — 17 November 2026
+
+This checkpoint supersedes the historical foundation-stage restrictions later
+in this document. The owner has confirmed these flows against the S21 client:
+
+- Normal reset and Master Reset, including the native `MasterResetCount`
+  increment; stat allocation/refund, PK clear and movement back to Lorencia.
+- Rename, paid class changes and preservation of representative third/fourth/
+  fifth advancements, plus purchases of resets and unallocated LevelUpPoints.
+- Native currency exchange and account VIP; Lucky Coin spending remains the
+  specific unresolved exception recorded in the S21 integration plan.
+- Original-item Web Vault round trips, including an excellent Kris and a
+  three-seed Flameberge with its socket bonus; Market sale to another account
+  with buyer debit, seller credit and matching in-game item.
+- All five Jewel Bank jewel types, Zen Bank deposit/withdrawal, Items Shop,
+  Mystery Boxes and administrator grants. Cape of Emperor excellent options
+  and HP recovery/damage/defense additional-option variants were client-checked.
+
+S21 displays normal plus Master Level as the combined level and exposes the
+breakdown through an info control. Operation requirements still use the native
+normal level. Its existing grand-reset operation is presented as Master Reset;
+the shared legacy grand-reset implementation/schema support remains available.
+Older adapters retain their existing progression presentation.
+
+Standard supported wings/capes and source-backed Ancient, Harmony and empty
+socket construction are available in reviewed grant/offer flows. Bound items,
+unverified higher wing families, S21 380 construction and unknown filled seed
+codes remain gated or uninterpreted. Image extraction and all-class portraits
+are integrated; final artwork polish does not block those workflows.
+
+All profiles use `/events` for the full schedule and activity catalogue; home
+retains a limited preview with a link. Shared Zen Bank transfer dialogs,
+portrait sizing, item image padding and localized class filters are implemented.
+Administration includes **Help & Support** with repository/issues,
+documentation, contact and the three existing project-support links. The new
+`admin:list`, `admin:update` and `admin:delete` Artisan commands expose a JSON
+contract for the manager. Audit-referenced identities should be deactivated
+rather than deleted. Signed web release tooling lives in `deploy/release.sh`.
+
+Remaining work: live specialist-event/Battle Core commissioning, unresolved
+Lucky Coin spending, unverified advanced item cases, payment-provider sandbox
+certification and production backup/restore and load rehearsal. Regression
+evidence and concurrency limits are recorded in [Testing](testing.md); client
+confirmation of representative flows does not certify every event or seed level.
 
 ## Required development workflow
 
@@ -349,7 +395,7 @@ checks against a cloned MuEMU database and dedicated test server. The main
 warehouse boundary is manually confirmed; creation and switching of every
 extended warehouse page remains part of that commissioning checklist.
 
-## Current next priorities
+## S21 implementation history
 
 ### MUDevs Season 21 integration foundation
 
@@ -369,14 +415,16 @@ profile; see the subsequent activation milestone below. The first foundation com
 The next read-model stage initially added `MuDevsSeason21Profile` outside the
 registry, private character and public realm/guild/ranking repositories, and
 Master/enhancement reads joined through `CharacterIndex`. Its class catalog
-contains the 16 SQL-seeded base codes and now includes client-confirmed Blade
-Master (18); other evolution codes remain a commissioning task. The initial nine portraits have since been replaced by 16 owner-generated
+contains the 16 SQL-seeded base codes and now includes all source-backed
+advancements, with representative client confirmations listed above. Blade
+Master (18) was the first confirmed mapping. The initial nine portraits have since been replaced by 16 owner-generated
 1024×1536 PNG portraits under `public/images/characters/muonline-web-*.png`.
 All four adapters, every advancement, demo data and fallback paths now use this
 shared collection. Old portraits and their source-specific focal offsets were removed. Shared DTOs
 keep their previous serialized shape when no custom focal point or enhancement
 points are present. Enhancement points are separate from native Master counters;
-no unverified total-level formula is applied. S21 VIP expiry uses the configured
+S21 displays normal plus Master Level while retaining both native values.
+S21 VIP expiry uses the configured
 game content timezone.
 
 The new `./docker/compose test-integration-s21` command checks these readers
@@ -452,7 +500,8 @@ calculating full-set activation. Diagnostic snapshots expose the ancient byte
 and set identity, plus non-socket weapon/armor Harmony byte/index/level. Socket
 items retain a separate socket-bonus interpretation. Unknown options/extension
 bytes still round-trip unchanged, and advanced-option certification, transfer,
-generation and complete S21 profile activation remain pending.
+generation and complete S21 profile activation were pending at this historical
+checkpoint; the current acceptance section above records the later delivery.
 Validation for the ancient/Harmony extension: 897 isolated unit/feature tests
 with 18,616 assertions, four native S21 SQL Server tests with 30 assertions,
 and Pint pass. A separate read-only probe through the updated inspector matched
@@ -578,8 +627,9 @@ home and rankings; these checks do not mutate game records.
 Eight inspected MuOnline procedures retain unbracketed `BattleCore.dbo` references, and the
 BattleCore database contains only ten tables. Resolve the dependencies before
 claiming BattleCore events work. No game data or procedure definitions were
-changed. Class evolution codes and visible item boundaries remain pending.
-Initial item presentation may omit images but must preserve catalog dimensions.
+changed during that initial review. Subsequent work added source-backed class
+evolutions, verified item boundaries and extracted artwork; see the current
+acceptance checkpoint for completed and unresolved cases.
 
 ### Character economy milestone
 
