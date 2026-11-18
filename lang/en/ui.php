@@ -538,6 +538,7 @@ return [
         'have_no_account' => 'New to the server?',
         'open_form' => 'Create an account',
         'completed' => 'Your game account is ready. You can sign in now.',
+        'temporarily_unavailable' => 'New registrations are temporarily unavailable.',
         'activation_sent' => 'Your account was created. Check your email to activate it before signing in.',
         'recaptcha_failed' => 'We could not verify this registration. Please try again.',
         'unavailable' => 'Account registration is temporarily unavailable.',

@@ -99,7 +99,8 @@ final readonly class RegisterGameAccount
      */
     private function ensureRegistrationIsSupported(): void
     {
-        if (! $this->moduleManager->enabled(ServerModule::Registration)) {
+        if (! $this->moduleManager->enabled(ServerModule::Registration)
+            || ! $this->websiteSettingsManager->current()->registrationEnabled) {
             throw new AccountRegistrationRejected(AccountRegistrationBlockReason::RegistrationDisabled, 404);
         }
 

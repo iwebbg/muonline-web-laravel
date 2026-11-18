@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Modules\ModuleManager;
 use App\Modules\ServerModule;
+use App\Website\WebsiteSettingsManager;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,10 +19,11 @@ final readonly class EnsureModuleEnabled
      */
     public function __construct(
         private ModuleManager $moduleManager,
+        private WebsiteSettingsManager $websiteSettingsManager,
     ) {}
 
     /**
-     * Returns a non-disclosing 404 response for unknown or disabled modules.
+     * Hides disabled modules and redirects paused registration submissions to their notice.
      *
      * @param  Closure(Request): Response  $next
      */
@@ -34,6 +36,12 @@ final readonly class EnsureModuleEnabled
             && $this->moduleManager->enabled($serverModule),
             404,
         );
+
+        if ($serverModule === ServerModule::Registration
+            && ! $request->isMethod('GET')
+            && ! $this->websiteSettingsManager->current()->registrationEnabled) {
+            return redirect()->route('register');
+        }
 
         return $next($request);
     }

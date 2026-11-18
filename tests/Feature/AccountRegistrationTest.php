@@ -151,15 +151,18 @@ final class AccountRegistrationTest extends TestCase
     }
 
     /**
-     * Hides registration and rejects direct HTTP or action writes when globally disabled.
+     * Keeps paused registration visible while rejecting HTTP and direct action writes.
      */
     public function test_disabled_registration_cannot_be_bypassed(): void
     {
         WebsiteSetting::query()->create(['registration_enabled' => false]);
 
-        $this->get('/login')->assertOk()->assertDontSee('href="'.route('register').'"', false);
-        $this->get('/register')->assertNotFound();
-        $this->postRegistration()->assertNotFound();
+        $this->get('/login')->assertOk()->assertSee('href="'.route('register').'"', false);
+        $this->get('/register')->assertOk()
+            ->assertSee('New registrations are temporarily unavailable.')
+            ->assertDontSee('name="username"', false)
+            ->assertDontSee('action="'.route('register.store').'"', false);
+        $this->postRegistration()->assertRedirect('/register');
         $this->assertDatabaseCount('account_registration_operations', 0);
         $this->assertSame(0, $this->gameDatabase()->table('MEMB_INFO')->count());
         Mail::assertNothingSent();

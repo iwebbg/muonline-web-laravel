@@ -10,6 +10,7 @@ use App\Game\Contracts\RealmReadRepository;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterAccountRequest;
 use App\Security\RecaptchaV3Verifier;
+use App\Website\WebsiteSettingsManager;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -29,7 +30,7 @@ final class RegisteredAccountController extends Controller
     /**
      * Displays the bilingual registration screen for unauthenticated players.
      */
-    public function create(): View
+    public function create(WebsiteSettingsManager $websiteSettingsManager): View
     {
         $overview = $this->realmReadRepository->overview();
         $realmStatistics = [
@@ -40,6 +41,7 @@ final class RegisteredAccountController extends Controller
 
         return view('auth.register', [
             'realmStatistics' => $realmStatistics,
+            'registrationEnabled' => $websiteSettingsManager->current()->registrationEnabled,
             'recaptchaEnabled' => (bool) config('services.recaptcha.enabled', false),
             'recaptchaSiteKey' => (string) config('services.recaptcha.site_key', ''),
         ]);
