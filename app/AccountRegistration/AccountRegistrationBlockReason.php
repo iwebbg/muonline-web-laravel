@@ -7,6 +7,7 @@ namespace App\AccountRegistration;
  */
 enum AccountRegistrationBlockReason: string
 {
+    case RegistrationDisabled = 'registration_disabled';
     case WritesDisabled = 'writes_disabled';
     case PasswordSchemeUnsupported = 'password_scheme_unsupported';
     case AccountAlreadyExists = 'account_already_exists';

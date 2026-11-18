@@ -82,13 +82,17 @@ final class RegisteredAccountController extends Controller
             abort($exception->httpStatus, __('ui.registration.unavailable'));
         }
 
-        $sendAccountActivationLink->handle(
-            accountId: $registration->accountId,
-            email: $request->email(),
-        );
+        if ($registration->requiresEmailVerification) {
+            $sendAccountActivationLink->handle(
+                accountId: $registration->accountId,
+                email: $request->email(),
+            );
+        }
 
         return redirect()
             ->route('login')
-            ->with('status', __('ui.registration.activation_sent'));
+            ->with('status', __($registration->requiresEmailVerification
+                ? 'ui.registration.activation_sent'
+                : 'ui.registration.completed'));
     }
 }

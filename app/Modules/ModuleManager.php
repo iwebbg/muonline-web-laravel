@@ -4,6 +4,7 @@ namespace App\Modules;
 
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\ModuleProfile;
+use App\Website\WebsiteSettingsManager;
 use Illuminate\Database\DatabaseManager;
 
 /**
@@ -19,6 +20,7 @@ final class ModuleManager
     public function __construct(
         private readonly DatabaseManager $database,
         private readonly GameVersionProfile $versionProfile,
+        private readonly WebsiteSettingsManager $websiteSettingsManager,
     ) {}
 
     /**
@@ -26,6 +28,10 @@ final class ModuleManager
      */
     public function enabled(ServerModule $module): bool
     {
+        if ($module === ServerModule::Registration && ! $this->websiteSettingsManager->current()->registrationEnabled) {
+            return false;
+        }
+
         return $this->current()->enabled($module);
     }
 

@@ -11,6 +11,7 @@ use App\Game\Versions\Version1_0M\MapNameMapper1_0M;
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use Illuminate\Database\ConnectionInterface;
 use Illuminate\Database\DatabaseManager;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\Integration\TestCase;
 
 /**
@@ -103,7 +104,9 @@ final class SqlServer1_0MAccountRepositoryTest extends TestCase
     /**
      * Confirms registration stores a 16-byte account-bound hash without VI_CURR_INFO.
      */
-    public function test_registers_account_with_game_server_compatible_hash(): void
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function test_registers_account_with_game_server_compatible_hash(bool $requiresEmailVerification): void
     {
         $repository = new SqlServer1_0MAccountRegistrationRepository(
             database: $this->app->make(DatabaseManager::class),
@@ -114,14 +117,17 @@ final class SqlServer1_0MAccountRepositoryTest extends TestCase
             username: self::ACCOUNT_ID,
             password: 'Password1',
             email: 'integration@example.test',
+            requiresEmailVerification: $requiresEmailVerification,
         );
         $account = $this->gameConnection()
             ->table('MEMB_INFO')
             ->where('memb___id', self::ACCOUNT_ID)
-            ->first(['memb__pwd']);
+            ->first(['memb__pwd', 'bloc_code']);
 
         $this->assertSame(self::ACCOUNT_ID, $result->accountId);
         $this->assertFalse($result->billingRecordCreated);
+        $this->assertSame($requiresEmailVerification ? '1' : '0', $account->bloc_code);
+        $this->assertSame($requiresEmailVerification, $result->requiresEmailVerification);
         $this->assertSame(16, strlen($account->memb__pwd));
         $this->assertSame(
             'EB2A61335FDAEDE4C5105E6ACED47FC7',

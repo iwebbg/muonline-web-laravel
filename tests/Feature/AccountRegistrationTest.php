@@ -2,9 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\AccountRegistration\AccountRegistrationBlockReason;
 use App\AccountRegistration\AccountRegistrationStatus;
+use App\AccountRegistration\Actions\RegisterGameAccount;
+use App\AccountRegistration\Exceptions\AccountRegistrationRejected;
 use App\Mail\GameAccountActivationMail;
 use App\Models\AccountRegistrationOperation;
+use App\Models\WebsiteSetting;
+use App\Website\WebsiteSettingsManager;
 use Illuminate\Database\Connection;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -85,6 +90,7 @@ final class AccountRegistrationTest extends TestCase
      */
     public function test_valid_request_creates_complete_game_account_and_audit(): void
     {
+        WebsiteSetting::query()->create(['require_email_verification' => true]);
         $response = $this->postRegistration([
             'username' => 'newhero',
             'email' => 'PLAYER@EXAMPLE.COM',
@@ -125,6 +131,63 @@ final class AccountRegistrationTest extends TestCase
         Mail::assertSent(GameAccountActivationMail::class, function (GameAccountActivationMail $mail): bool {
             return $mail->hasTo('player@example.com');
         });
+    }
+
+    /**
+     * Keeps the default registration usable immediately without sending activation mail.
+     */
+    public function test_registration_defaults_to_active_accounts_without_email_verification(): void
+    {
+        $this->postRegistration(['require_email_verification' => true, 'bloc_code' => '1'])
+            ->assertRedirect('/login')
+            ->assertSessionHas('status', __('ui.registration.completed'));
+
+        $this->assertSame('0', $this->gameDatabase()->table('MEMB_INFO')->value('bloc_code'));
+        $operation = AccountRegistrationOperation::query()->sole();
+        $this->assertFalse($operation->settings_snapshot['require_email_verification']);
+        $this->assertFalse($operation->after_snapshot['require_email_verification']);
+        $this->assertDatabaseCount('game_account_activations', 0);
+        Mail::assertNothingSent();
+    }
+
+    /**
+     * Hides registration and rejects direct HTTP or action writes when globally disabled.
+     */
+    public function test_disabled_registration_cannot_be_bypassed(): void
+    {
+        WebsiteSetting::query()->create(['registration_enabled' => false]);
+
+        $this->get('/login')->assertOk()->assertDontSee('href="'.route('register').'"', false);
+        $this->get('/register')->assertNotFound();
+        $this->postRegistration()->assertNotFound();
+        $this->assertDatabaseCount('account_registration_operations', 0);
+        $this->assertSame(0, $this->gameDatabase()->table('MEMB_INFO')->count());
+        Mail::assertNothingSent();
+
+        try {
+            $this->app->make(RegisterGameAccount::class)->handle('bypass', 'secret_1', 'test@example.com');
+            $this->fail('Disabled registration must reject direct action calls.');
+        } catch (AccountRegistrationRejected $exception) {
+            $this->assertSame(AccountRegistrationBlockReason::RegistrationDisabled, $exception->reason);
+        }
+        $this->assertDatabaseCount('account_registration_operations', 0);
+        $this->assertSame(0, $this->gameDatabase()->table('MEMB_INFO')->count());
+    }
+
+    /**
+     * Switching email verification affects new accounts without unblocking pending accounts.
+     */
+    public function test_email_policy_changes_leave_existing_pending_accounts_untouched(): void
+    {
+        $setting = WebsiteSetting::query()->create(['require_email_verification' => true]);
+        $this->postRegistration()->assertRedirect('/login');
+        $setting->update(['require_email_verification' => false]);
+        $this->app->make(WebsiteSettingsManager::class)->forget();
+        $this->postRegistration(['username' => 'second'])->assertRedirect('/login');
+
+        $this->assertSame('1', $this->gameDatabase()->table('MEMB_INFO')->where('memb___id', 'newhero')->value('bloc_code'));
+        $this->assertSame('0', $this->gameDatabase()->table('MEMB_INFO')->where('memb___id', 'second')->value('bloc_code'));
+        Mail::assertSentCount(1);
     }
 
     /**

@@ -25,6 +25,8 @@ final class WebsiteSettingRevisionPresenter
         'og_image_path' => 'website_og_image',
         'copyright_holder' => 'website_copyright_holder',
         'theme_slug' => 'website_theme',
+        'registration_enabled' => 'website_registration_enabled',
+        'require_email_verification' => 'website_require_email_verification',
     ];
 
     /** @var list<string> */
@@ -103,6 +105,10 @@ final class WebsiteSettingRevisionPresenter
      */
     private function formatValue(string $field, mixed $value): string
     {
+        if (is_bool($value)) {
+            return __($value ? 'ui.admin.revision_value_enabled' : 'ui.admin.revision_value_disabled');
+        }
+
         if ($value === null || $value === '') {
             return __('ui.admin.revision_value_not_set');
         }

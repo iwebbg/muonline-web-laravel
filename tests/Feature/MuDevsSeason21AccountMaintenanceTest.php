@@ -59,6 +59,18 @@ class MuDevsSeason21AccountMaintenanceTest extends TestCase
     }
 
     /**
+     * Creates an immediately usable native account when email activation is disabled.
+     */
+    public function test_registration_can_create_an_active_account(): void
+    {
+        $result = $this->app->make(SqlServerMuDevsSeason21AccountRegistrationRepository::class)
+            ->register('owner', 'secret', 'owner@example.test', requiresEmailVerification: false);
+
+        $this->assertSame('0', $this->game()->table('MEMB_INFO')->value('bloc_code'));
+        $this->assertFalse($result->requiresEmailVerification);
+    }
+
+    /**
      * Rejects duplicate registration without replacing the original credentials.
      */
     public function test_duplicate_registration_preserves_the_existing_account(): void

@@ -30,6 +30,7 @@ final readonly class SqlServerMuDevsSeason21AccountRegistrationRepository implem
         string $username,
         #[SensitiveParameter] string $password,
         string $email,
+        bool $requiresEmailVerification = true,
     ): AccountRegistrationResult {
         $connection = $this->database->connection('game');
 
@@ -39,6 +40,7 @@ final readonly class SqlServerMuDevsSeason21AccountRegistrationRepository implem
                 $username,
                 $password,
                 $email,
+                $requiresEmailVerification,
             ): AccountRegistrationResult {
                 $this->rejectExistingAccount($connection, $username);
                 $accountGuid = $connection
@@ -49,7 +51,7 @@ final readonly class SqlServerMuDevsSeason21AccountRegistrationRepository implem
                         'memb_name' => $username,
                         'sno__numb' => '111111111111111111',
                         'mail_addr' => $email,
-                        'bloc_code' => '1',
+                        'bloc_code' => $requiresEmailVerification ? '1' : '0',
                         'ctl1_code' => '0',
                         'AccountLevel' => 0,
                         'AccountExpireDate' => '1900-01-01 00:00:00',
@@ -59,6 +61,7 @@ final readonly class SqlServerMuDevsSeason21AccountRegistrationRepository implem
                     accountGuid: (int) $accountGuid,
                     accountId: $username,
                     billingRecordCreated: false,
+                    requiresEmailVerification: $requiresEmailVerification,
                 );
             }, 3);
         } catch (QueryException $exception) {
