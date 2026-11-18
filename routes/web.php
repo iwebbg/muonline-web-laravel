@@ -479,7 +479,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('login.store');
     });
 
-    Route::middleware(['auth:admin', 'demo:unsafe'])->group(function (): void {
+    Route::middleware(['auth:admin', 'admin.active', 'auth.session', 'demo:unsafe'])->group(function (): void {
         Route::view('/support', 'admin.support')->name('support');
         Route::get('/s21-warehouse', MuDevsSeason21WarehouseController::class)
             ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
