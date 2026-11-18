@@ -5,6 +5,7 @@ services:
         environment:
             ACCEPT_EULA: "Y"
             MSSQL_PID: Developer
+            MSSQL_COLLATION: ${INTEGRATION_SQLSERVER_COLLATION:-SQL_Latin1_General_CP1_CI_AS}
             MSSQL_SA_PASSWORD: Integration-only_Password123
         healthcheck:
             test:
@@ -29,7 +30,7 @@ services:
             - |
                 set -euo pipefail
                 sqlcmd=/opt/mssql-tools18/bin/sqlcmd
-                "$$sqlcmd" -S sqlserver-test -U sa -P "$${MSSQL_SA_PASSWORD}" -C -b -Q "CREATE DATABASE [MuOnline]"
+                "$$sqlcmd" -S sqlserver-test -U sa -P "$${MSSQL_SA_PASSWORD}" -C -b -Q "CREATE DATABASE [MuOnline] COLLATE SQL_Latin1_General_CP1_CI_AS"
                 iconv -f UTF-16LE -t UTF-8 /fixtures/97d99i-schema.sql \
                     | awk 'started || /^USE \[MuOnline\]/ { started = 1; print }' \
                     > /tmp/muonline-schema.sql

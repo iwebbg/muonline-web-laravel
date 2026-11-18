@@ -145,10 +145,11 @@ final class SqlServerApplicationDatabaseUninstaller implements ApplicationDataba
             throw new DomainException('privileged_login');
         }
 
-        $statement = $pdo->query('SELECT name, state_desc, owner_sid FROM sys.databases');
+        $targetDatabaseId = (int) $this->scalar($pdo, 'SELECT DB_ID(?)', [$removal->databaseName]);
+        $statement = $pdo->query('SELECT database_id, name, state_desc, owner_sid FROM sys.databases');
 
         foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $database) {
-            if (strcasecmp($database['name'], $removal->databaseName) === 0) {
+            if ((int) $database['database_id'] === $targetDatabaseId) {
                 continue;
             }
 

@@ -54,6 +54,7 @@ final class SqlServerApplicationDatabaseUninstallerTest extends TestCase
         if ($this->admin !== null) {
             $this->database()->purge('sqlsrv');
             $this->database()->purge('uninstall_test_active');
+            $this->admin->exec("IF DB_ID('iweb_uninstall_test') IS NOT NULL AND DB_ID('iweb_uninstall_test') <> ISNULL(DB_ID('Iweb_Uninstall_Test'), -1) BEGIN ALTER DATABASE [iweb_uninstall_test] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [iweb_uninstall_test]; END;");
             $this->admin->exec('USE [MuOnline]; IF USER_ID(\'iweb_uninstall_web\') IS NOT NULL DROP USER [iweb_uninstall_web]; USE [master];');
             $this->admin->exec('USE [MuOnline]; IF USER_ID(\'iweb_uninstall_game_keep\') IS NOT NULL DROP USER [iweb_uninstall_game_keep]; USE [master];');
             $this->admin->exec("IF DB_ID('Iweb_Uninstall_Test') IS NOT NULL BEGIN ALTER DATABASE [Iweb_Uninstall_Test] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [Iweb_Uninstall_Test]; END;");
@@ -102,6 +103,26 @@ final class SqlServerApplicationDatabaseUninstallerTest extends TestCase
         self::assertFalse($result->ok);
         self::assertSame('shared_login', $result->code);
         $this->assertResourcesRetained();
+    }
+
+    /**
+     * Refuses shared mappings in a distinct database whose name differs only by case.
+     */
+    public function test_case_distinct_database_mapping_is_not_skipped(): void
+    {
+        if ((int) $this->value("SELECT CASE WHEN N'A' = N'a' THEN 1 ELSE 0 END") === 1) {
+            $this->markTestSkipped('Requires the case-sensitive SQL Server integration collation.');
+        }
+
+        $this->admin->exec("CREATE DATABASE [iweb_uninstall_test] ON PRIMARY (NAME = N'iweb_case_distinct_data', FILENAME = N'/var/opt/mssql/data/iweb_case_distinct_data.mdf') LOG ON (NAME = N'iweb_case_distinct_log', FILENAME = N'/var/opt/mssql/data/iweb_case_distinct_log.ldf')");
+        $this->admin->exec('USE [iweb_uninstall_test]; CREATE USER [iweb_uninstall_web] FOR LOGIN [iweb_uninstall_web]; USE [master];');
+
+        $result = $this->remove();
+
+        self::assertFalse($result->ok);
+        self::assertSame('shared_login', $result->code);
+        $this->assertResourcesRetained();
+        self::assertNotNull($this->value("SELECT DB_ID('iweb_uninstall_test')"));
     }
 
     /**

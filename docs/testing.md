@@ -189,6 +189,19 @@ Run one integration file or method with the same argument style:
     tests/Integration1_0M/Game/Repositories/SqlServer1_0MAccountRepositoryTest.php
 ```
 
+The uninstall shared-login regression also runs against case-sensitive server
+metadata, where distinct databases may differ only by letter case:
+
+```bash
+INTEGRATION_SQLSERVER_COLLATION=SQL_Latin1_General_CP1_CS_AS \
+    ./docker/compose test-integration --filter=SqlServerApplicationDatabaseUninstallerTest
+```
+
+This still uses only the disposable internal SQL Server. The legacy `MuOnline`
+schema fixture retains its case-insensitive database collation independently
+of the server setting. The case-distinct database test skips on the default
+case-insensitive server and runs in the configuration above.
+
 ## Using the legacy schema fixture
 
 ### Season 21 native adapter verification
