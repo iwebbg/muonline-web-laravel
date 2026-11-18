@@ -18,6 +18,7 @@ use App\Market\Actions\PurchaseMarketListing;
 use App\Market\Actions\SettleExpiredAuction;
 use App\Market\MarketListingStatus;
 use App\Market\MarketSaleType;
+use App\Market\MarketStorageDestination;
 use App\Models\AccountWallet;
 use App\Models\Administrator;
 use App\Models\CreditExchangeOffer;
@@ -33,6 +34,7 @@ use App\Shop\Actions\OpenAccountReward;
 use App\Shop\Actions\PurchaseShopOffer;
 use App\Shop\EconomySettingReader;
 use App\Shop\Exceptions\ShopPurchaseRejected;
+use App\Shop\RewardDeliveryDestination;
 use App\Shop\ShopOfferType;
 use App\Shop\ShopPurchaseBlockReason;
 use App\WebStorage\ItemStorageLocation;
@@ -43,6 +45,7 @@ use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
 /**
@@ -102,6 +105,43 @@ final class MuDevsSeason21EconomyTest extends TestCase
     }
 
     /**
+     * Delivers to Web Vault before the buyer has ever created game session or storage rows.
+     */
+    public function test_new_account_market_purchase_uses_web_vault_without_creating_game_storage(): void
+    {
+        $this->seedAccount('owner', 1, hex2bin(self::FLAMEBERGE));
+        $this->game()->table('MEMB_INFO')->insert([
+            'memb_guid' => 2, 'memb___id' => 'newbuyer', 'memb_name' => 'newbuyer', 'bloc_code' => '0',
+        ]);
+        AccountWallet::factory()->create(['account_id' => 'newbuyer', 'balance' => 500]);
+        $listing = $this->app->make(CreateMarketListing::class)->execute('owner', 'ownerHero', 0, 0, 125, (string) Str::uuid());
+        $purchase = $this->app->make(PurchaseMarketListing::class);
+        $key = (string) Str::uuid();
+
+        $sold = $purchase->execute('newbuyer', (int) $listing->getKey(), $key);
+        $purchase->execute('newbuyer', (int) $listing->getKey(), $key);
+
+        self::assertSame(MarketListingStatus::Delivered, $sold->status);
+        self::assertSame(MarketStorageDestination::WebVault, $sold->storage_destination);
+        $storedItem = WebStorageItem::query()->sole();
+        self::assertSame('newbuyer', $storedItem->account_id);
+        self::assertSame(WebStorageItemStatus::Available, $storedItem->status);
+        self::assertSame(WebStorageContext::WebVault, $storedItem->storage_context);
+        self::assertSame(hex2bin(self::FLAMEBERGE), $storedItem->item_binary);
+        self::assertSame($listing->item_fingerprint, $storedItem->item_fingerprint);
+        self::assertNull($sold->last_sync_error);
+        self::assertNull($sold->escrow_key);
+        self::assertSame(375, AccountWallet::query()->where('account_id', 'newbuyer')->value('balance'));
+        self::assertSame(125, AccountWallet::query()->where('account_id', 'owner')->value('balance'));
+        self::assertSame(2, WalletTransaction::query()->count());
+        self::assertFalse($this->game()->table('warehouse')->where('AccountID', 'newbuyer')->exists());
+        self::assertFalse($this->game()->table('MEMB_STAT')->where('memb___id', 'newbuyer')->exists());
+        self::assertSame(1, $this->game()->table('IWEB_S21_ItemOperation')->count());
+        $this->actingAs(new GameAccount(2, 'newbuyer', 'newbuyer', null, false, false, ''))
+            ->get('/account?tab=vaults')->assertOk()->assertSee('Flameberge');
+    }
+
+    /**
      * Settles a native auction through the same receipt-protected delivery boundary.
      */
     public function test_native_auction_settlement_delivers_the_winning_item_once(): void
@@ -146,6 +186,44 @@ final class MuDevsSeason21EconomyTest extends TestCase
         self::assertSame(400, AccountWallet::query()->where('account_id', 'buyer')->value('balance'));
         self::assertSame(1, WalletTransaction::query()->count());
         self::assertSame(1, $this->game()->table('IWEB_S21_ItemOperation')->count());
+    }
+
+    /**
+     * Preserves paid items and claimed boxes in Web Vault for accounts never logged into the game.
+     */
+    #[TestWith([ShopOfferType::Item])]
+    #[TestWith([ShopOfferType::MysteryBox])]
+    public function test_new_account_shop_and_box_claim_use_web_vault(ShopOfferType $type): void
+    {
+        $this->game()->table('MEMB_INFO')->insert([
+            'memb_guid' => 2, 'memb___id' => 'newbuyer', 'memb_name' => 'newbuyer', 'bloc_code' => '0',
+        ]);
+        AccountWallet::factory()->create(['account_id' => 'newbuyer', 'balance' => 500]);
+        $offer = ShopOffer::factory()->create(['type' => $type, 'price_credits' => 100]);
+        ShopOfferItem::factory()->for($offer, 'offer')->create();
+        $this->mock(ItemSerialRepository::class)->shouldReceive('nextSerial')->once()->andReturn(123);
+        $purchase = $this->app->make(PurchaseShopOffer::class);
+        $key = (string) Str::uuid();
+        $reward = $purchase->execute('newbuyer', $offer, $key);
+
+        if ($type === ShopOfferType::MysteryBox) {
+            self::assertSame(AccountRewardStatus::Sealed, $reward->status);
+            $reward = $this->app->make(OpenAccountReward::class)->execute('newbuyer', $reward);
+            $this->app->make(OpenAccountReward::class)->execute('newbuyer', $reward);
+        }
+        $purchase->execute('newbuyer', $offer, $key);
+
+        self::assertSame(AccountRewardStatus::Claimed, $reward->refresh()->status);
+        self::assertSame(RewardDeliveryDestination::WebVault, $reward->delivery_destination);
+        $storedItem = WebStorageItem::query()->sole();
+        self::assertSame('newbuyer', $storedItem->account_id);
+        self::assertSame($reward->item_binary, $storedItem->item_binary);
+        self::assertSame(WebStorageItemStatus::Available, $storedItem->status);
+        self::assertSame(400, AccountWallet::query()->where('account_id', 'newbuyer')->value('balance'));
+        self::assertSame(1, WalletTransaction::query()->count());
+        self::assertSame(0, $this->game()->table('warehouse')->count());
+        self::assertSame(0, $this->game()->table('MEMB_STAT')->count());
+        self::assertSame(0, $this->game()->table('IWEB_S21_ItemOperation')->count());
     }
 
     /**

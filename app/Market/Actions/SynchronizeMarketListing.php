@@ -134,7 +134,7 @@ final readonly class SynchronizeMarketListing
     }
 
     /**
-     * Reports whether a terminal warehouse-capacity failure should use web custody.
+     * Routes unavailable game storage or unconfirmed offline state to web-only custody.
      */
     private function shouldUseWebStorageFallback(
         MarketListing $listing,
@@ -147,7 +147,11 @@ final readonly class SynchronizeMarketListing
         );
         $isStorageFailure = in_array(
             $exception->reason,
-            [MarketListingBlockReason::StorageFull, MarketListingBlockReason::WarehouseNotFound],
+            [
+                MarketListingBlockReason::StorageFull,
+                MarketListingBlockReason::WarehouseNotFound,
+                MarketListingBlockReason::CharacterOnline,
+            ],
             true,
         );
 
@@ -155,7 +159,7 @@ final readonly class SynchronizeMarketListing
     }
 
     /**
-     * Finalizes one full-warehouse delivery in recoverable web storage.
+     * Finalizes one unavailable game-vault delivery in recoverable web storage.
      */
     private function fallbackToWebStorage(MarketListing $listing): bool
     {
