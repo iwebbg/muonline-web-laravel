@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Database\QueryException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 /**
  * Removes an unreferenced web identity after explicit confirmation.
@@ -39,6 +40,8 @@ final class DeleteAdministrator extends Command
             $errors = $exception->errors();
         } catch (QueryException) {
             $errors = ['database' => ['Deletion failed. Check database availability; identities referenced by history must be deactivated with admin:update --active=0 instead.']];
+        } catch (Throwable) {
+            $errors = ['administrator' => ['Administrator deletion failed. Check the application database and identity data.']];
         }
 
         $this->output->writeln($this->option('json') ? json_encode(['errors' => $errors], JSON_THROW_ON_ERROR) : implode(' ', array_merge(...array_values($errors))), OutputInterface::OUTPUT_RAW);

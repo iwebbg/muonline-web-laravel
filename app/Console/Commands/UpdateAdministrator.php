@@ -10,6 +10,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Console\Input\StreamableInputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 /**
  * Updates web identities using explicit options and a private password input channel.
@@ -70,6 +71,8 @@ final class UpdateAdministrator extends Command
             $errors = $exception->errors();
         } catch (QueryException) {
             $errors = ['database' => ['Administrator update failed. Check database availability and identity constraints.']];
+        } catch (Throwable) {
+            $errors = ['administrator' => ['Administrator update failed. Check the application database and identity data.']];
         }
 
         $this->output->writeln($this->option('json') ? json_encode(['errors' => $errors], JSON_THROW_ON_ERROR) : implode(' ', array_merge(...array_values($errors))), OutputInterface::OUTPUT_RAW);

@@ -8,6 +8,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Output\OutputInterface;
+use Throwable;
 
 /**
  * Lists application identities without exposing password hashes or remember tokens.
@@ -21,25 +22,35 @@ final class ListAdministrators extends Command
      */
     public function handle(ManageAdministratorIdentity $manager): int
     {
-        $rows = [];
+        try {
+            $rows = [];
 
-        foreach (Administrator::query()->select(['id', 'name', 'email', 'role', 'is_active'])->orderBy('id')->get() as $identity) {
-            $rows[] = $manager->snapshot($identity);
+            foreach (Administrator::query()->select(['id', 'name', 'email', 'role', 'is_active'])->orderBy('id')->get() as $identity) {
+                $rows[] = $manager->snapshot($identity);
+            }
+
+            if ($this->option('json')) {
+                $this->output->writeln(json_encode(['administrators' => $rows], JSON_THROW_ON_ERROR), OutputInterface::OUTPUT_RAW);
+            } else {
+                $this->table(['ID', 'Name', 'Email', 'Role', 'Active'], array_map(
+                    static function (array $row): array {
+                        $row['is_active'] = $row['is_active'] ? 'Yes' : 'No';
+
+                        return array_values($row);
+                    },
+                    $rows,
+                ));
+            }
+
+            return self::SUCCESS;
+        } catch (Throwable) {
+            $message = 'Unable to list administrators. Check the application database and identity data.';
+            $result = $this->option('json')
+                ? json_encode(['errors' => ['administrator' => [$message]]], JSON_THROW_ON_ERROR)
+                : $message;
+            $this->output->writeln($result, OutputInterface::OUTPUT_RAW);
+
+            return self::FAILURE;
         }
-
-        if ($this->option('json')) {
-            $this->output->writeln(json_encode(['administrators' => $rows], JSON_THROW_ON_ERROR), OutputInterface::OUTPUT_RAW);
-        } else {
-            $this->table(['ID', 'Name', 'Email', 'Role', 'Active'], array_map(
-                static function (array $row): array {
-                    $row['is_active'] = $row['is_active'] ? 'Yes' : 'No';
-
-                    return array_values($row);
-                },
-                $rows,
-            ));
-        }
-
-        return self::SUCCESS;
     }
 }

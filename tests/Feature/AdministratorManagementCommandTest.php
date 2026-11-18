@@ -6,7 +6,9 @@ use App\Models\Administrator;
 use App\Models\AdministratorIdentityRevision;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -46,6 +48,54 @@ final class AdministratorManagementCommandTest extends TestCase
 
         $this->assertSame(0, $status);
         $this->assertSame(['administrators' => []], $result);
+    }
+
+    /**
+     * Keeps database outages within the JSON contract consumed by the desktop manager.
+     */
+    public function test_list_returns_safe_json_when_the_identity_table_is_unavailable(): void
+    {
+        Schema::drop('administrators');
+
+        [$status, $result] = $this->runJson(['command' => 'admin:list', '--json' => true]);
+
+        $this->assertSame(1, $status);
+        $this->assertArrayHasKey('errors', $result);
+        $this->assertStringNotContainsString('SQLSTATE', json_encode($result));
+    }
+
+    /**
+     * Converts corrupted identity data into a bounded error rather than an exception dump.
+     *
+     * @param  array<string, mixed>  $arguments
+     */
+    #[DataProvider('corruptedIdentityCommands')]
+    public function test_corrupted_identity_returns_safe_json(array $arguments): void
+    {
+        Administrator::factory()->create(['id' => 1]);
+        DB::table('administrators')->where('id', 1)->update(['role' => 'invalid-role']);
+
+        [$status, $result] = $this->runJson([...$arguments, '--json' => true]);
+
+        $this->assertSame(1, $status);
+        $this->assertArrayHasKey('errors', $result);
+        $this->assertStringNotContainsString('ValueError', json_encode($result));
+        $this->assertDatabaseHas('administrators', ['id' => 1, 'role' => 'invalid-role']);
+        $this->assertDatabaseCount('administrator_identity_revisions', 0);
+    }
+
+    /**
+     * Covers every manager-facing administrator command against unreadable identity metadata.
+     *
+     * @return array<string, array{array<string, mixed>}>
+     */
+    public static function corruptedIdentityCommands(): array
+    {
+        return [
+            'list' => [['command' => 'admin:list']],
+            'update' => [['command' => 'admin:update', 'id' => 1, '--name' => 'Owner']],
+            'delete' => [['command' => 'admin:delete', 'id' => 1, '--force' => true]],
+        ];
     }
 
     /**
