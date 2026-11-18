@@ -302,7 +302,10 @@ administrator cannot be deleted or deactivated. JSON mutation errors return
 The `admin:create` command asks for the administrator name, email address, password and
 password confirmation. The password is hidden while it is entered and must be
 at least 12 characters long with uppercase and lowercase letters, a number and
-a symbol. The email address must not already belong to another website
+a symbol. With bcrypt, passwords must fit within 72 bytes (Unicode characters
+can occupy multiple bytes); null bytes are rejected. Existing overlong bcrypt
+passwords must be reset through the CLI rather than accepted with a truncated
+suffix. The email address must not already belong to another website
 administrator.
 
 Open `http://localhost/admin/login` and sign in with the new administrator

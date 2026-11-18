@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Admin\AdministratorPasswordInput;
 use App\Models\Administrator;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
@@ -44,6 +45,7 @@ final class CreateAdministrator extends Command
                     ->letters()
                     ->numbers()
                     ->symbols(),
+                new AdministratorPasswordInput,
             ],
         ], [
             'name.regex' => 'The administrator name must be valid UTF-8 and cannot contain emoji.',

@@ -612,6 +612,8 @@ return [
         ],
     ],
     'admin_auth' => [
+        'password_byte_limit' => 'The password must not exceed 72 bytes when using bcrypt.',
+        'password_null_byte' => 'The password must not contain null bytes.',
         'title' => 'Administrator sign in · MuOnline Web',
         'eyebrow' => 'Restricted administration',
         'heading' => 'Control with confidence.',

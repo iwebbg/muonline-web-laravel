@@ -37,7 +37,7 @@ final class ManageAdministratorIdentity
                 'name' => ['sometimes', 'required', 'string', 'max:255', 'regex:/\A[\x{0000}-\x{FFFF}]*\z/u'],
                 'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('administrators', 'email')->ignore($identity->getKey())],
                 'is_active' => ['sometimes', 'required', 'boolean'],
-                'password' => ['sometimes', 'required', 'string', Password::min(12)->mixedCase()->letters()->numbers()->symbols()],
+                'password' => ['sometimes', 'required', 'string', Password::min(12)->mixedCase()->letters()->numbers()->symbols(), new AdministratorPasswordInput],
             ])->validate();
 
             if (($delete || ($validated['is_active'] ?? true) == false)
