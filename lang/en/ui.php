@@ -2465,4 +2465,18 @@ return [
         'credit_exchange_offer_archived' => 'The item exchange offer was archived.',
     ],
     'fallback_probe' => 'English fallback active',
+    'item_browser' => [
+        'browse' => 'Browse',
+        'catalog' => 'Item catalog',
+        'heading' => 'Browse items',
+        'close' => 'Close item browser',
+        'search' => 'Search items',
+        'placeholder' => 'Search by name or item code…',
+        'base_price' => 'Base price',
+        'select' => 'Select',
+        'empty' => 'No items match your search.',
+        'items' => 'items',
+        'previous' => 'Previous',
+        'next' => 'Next',
+    ],
 ];

@@ -143,29 +143,32 @@
                         >
                             @csrf
                             <div class="grid gap-5 md:grid-cols-2">
-                                <div class="relative md:col-span-2" x-on:click.outside="closeItemSuggestions()">
+                                <div class="relative md:col-span-2" x-on:click.outside="closeItemSuggestions()" x-on:item-browser-selected.stop="selectItem($event.detail.item)">
                                     <input type="hidden" name="item_code" x-bind:value="itemCode">
-                                    <label class="field-group">
-                                        <span>{{ __('ui.admin.catalog_item') }}</span>
-                                        <input
-                                            type="search"
-                                            x-ref="itemSearch"
-                                            x-model="itemSearch"
-                                            x-on:input="filterItems()"
-                                            x-on:focus="itemSuggestionsOpen = true"
-                                            x-on:keydown.down.prevent="moveItemSuggestion(1)"
-                                            x-on:keydown.up.prevent="moveItemSuggestion(-1)"
-                                            x-on:keydown.enter.prevent="selectActiveItemSuggestion()"
-                                            autocomplete="off"
-                                            role="combobox"
-                                            aria-autocomplete="list"
-                                            aria-controls="credit-exchange-item-suggestions"
-                                            x-bind:aria-expanded="itemSuggestionsOpen"
-                                            x-bind:aria-activedescendant="activeItemSuggestionIndex >= 0 ? `credit-exchange-item-${activeItemSuggestionIndex}` : ''"
-                                            placeholder="{{ __('ui.admin.item_exchange_search_placeholder') }}"
-                                            required
-                                        >
-                                    </label>
+                                    <div class="flex items-end gap-3">
+                                        <label class="field-group min-w-0 flex-1">
+                                            <span>{{ __('ui.admin.catalog_item') }}</span>
+                                            <input
+                                                type="search"
+                                                x-ref="itemSearch"
+                                                x-model="itemSearch"
+                                                x-on:input="filterItems()"
+                                                x-on:focus="itemSuggestionsOpen = true"
+                                                x-on:keydown.down.prevent="moveItemSuggestion(1)"
+                                                x-on:keydown.up.prevent="moveItemSuggestion(-1)"
+                                                x-on:keydown.enter.prevent="selectActiveItemSuggestion()"
+                                                autocomplete="off"
+                                                role="combobox"
+                                                aria-autocomplete="list"
+                                                aria-controls="credit-exchange-item-suggestions"
+                                                x-bind:aria-expanded="itemSuggestionsOpen"
+                                                x-bind:aria-activedescendant="activeItemSuggestionIndex >= 0 ? `credit-exchange-item-${activeItemSuggestionIndex}` : ''"
+                                                placeholder="{{ __('ui.admin.item_exchange_search_placeholder') }}"
+                                                required
+                                            >
+                                        </label>
+                                        <x-item-browser catalog="items" />
+                                    </div>
 
                                     <div
                                         id="credit-exchange-item-suggestions"

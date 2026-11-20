@@ -1,5 +1,6 @@
 //
 import Alpine from 'alpinejs';
+import { itemBrowser } from './item-browser';
 import {
     accountPanel,
     applicationNavigation,
@@ -38,6 +39,7 @@ Alpine.data('eventSchedule', eventSchedule);
 Alpine.data('gameServerManager', gameServerManager);
 Alpine.data('gameMasterManager', gameMasterManager);
 Alpine.data('itemInspector', itemInspector);
+Alpine.data('itemBrowser', itemBrowser);
 Alpine.data('itemAdvancedOptions', itemAdvancedOptions);
 Alpine.data('itemGrantManager', itemGrantManager);
 Alpine.data('marketExpiry', marketExpiry);

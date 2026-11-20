@@ -70,27 +70,30 @@
 
                 <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
                     <div class="grid content-start gap-5 sm:grid-cols-2">
-                        <div class="relative sm:col-span-2" x-on:click.outside="closeItemSuggestions()">
-                            <label class="field-group">
-                                <span>{{ __('ui.shop.generator_search') }}</span>
-                                <input
-                                    type="search"
-                                    x-ref="itemSearch"
-                                    x-model="itemSearch"
-                                    x-on:input="filterItems()"
-                                    x-on:focus="itemSuggestionsOpen = true"
-                                    x-on:keydown.down.prevent="moveItemSuggestion(1)"
-                                    x-on:keydown.up.prevent="moveItemSuggestion(-1)"
-                                    x-on:keydown.enter.prevent="selectActiveItemSuggestion()"
-                                    autocomplete="off"
-                                    role="combobox"
-                                    aria-autocomplete="list"
-                                    aria-controls="generator-item-suggestions"
-                                    x-bind:aria-expanded="itemSuggestionsOpen"
-                                    placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
-                                    required
-                                >
-                            </label>
+                        <div class="relative sm:col-span-2" x-on:click.outside="closeItemSuggestions()" x-on:item-browser-selected.stop="selectItem($event.detail.item)">
+                            <div class="flex items-end gap-3">
+                                <label class="field-group min-w-0 flex-1">
+                                    <span>{{ __('ui.shop.generator_search') }}</span>
+                                    <input
+                                        type="search"
+                                        x-ref="itemSearch"
+                                        x-model="itemSearch"
+                                        x-on:input="filterItems()"
+                                        x-on:focus="itemSuggestionsOpen = true"
+                                        x-on:keydown.down.prevent="moveItemSuggestion(1)"
+                                        x-on:keydown.up.prevent="moveItemSuggestion(-1)"
+                                        x-on:keydown.enter.prevent="selectActiveItemSuggestion()"
+                                        autocomplete="off"
+                                        role="combobox"
+                                        aria-autocomplete="list"
+                                        aria-controls="generator-item-suggestions"
+                                        x-bind:aria-expanded="itemSuggestionsOpen"
+                                        placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
+                                        required
+                                    >
+                                </label>
+                                <x-item-browser catalog="items" :show-prices="true" />
+                            </div>
                             <div
                                 id="generator-item-suggestions"
                                 class="absolute inset-x-0 top-full z-30 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-white/10 bg-[#0d1016]/98 shadow-2xl backdrop-blur-xl"

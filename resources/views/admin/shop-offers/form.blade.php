@@ -83,29 +83,32 @@
                         <template x-for="(item, index) in items" :key="item.key">
                             <div class="rounded-2xl border border-white/8 bg-black/20 p-4">
                                 <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                                    <div class="relative md:col-span-2 xl:col-span-3" x-on:click.outside="closeItemSuggestions(item)">
+                                    <div class="relative md:col-span-2 xl:col-span-3" x-on:click.outside="closeItemSuggestions(item)" x-on:item-browser-selected.stop="selectItem(item, $event.detail.item)">
                                         <input type="hidden" x-bind:name="`items[${index}][item_code]`" x-bind:value="item.item_code">
-                                        <label class="field-group">
-                                            <span>{{ __('ui.admin.shop_offer_item') }}</span>
-                                            <input
-                                                type="search"
-                                                x-bind:data-shop-item-key="item.key"
-                                                x-model="item.item_search"
-                                                x-on:input="filterItems(item)"
-                                                x-on:focus="item.item_suggestions_open = true"
-                                                x-on:keydown.down.prevent="moveItemSuggestion(item, 1)"
-                                                x-on:keydown.up.prevent="moveItemSuggestion(item, -1)"
-                                                x-on:keydown.enter.prevent="selectActiveItemSuggestion(item)"
-                                                autocomplete="off"
-                                                role="combobox"
-                                                aria-autocomplete="list"
-                                                x-bind:aria-controls="`shop-offer-item-suggestions-${item.key}`"
-                                                x-bind:aria-expanded="item.item_suggestions_open"
-                                                x-bind:aria-activedescendant="item.active_item_suggestion_index >= 0 ? `shop-offer-item-${item.key}-${item.active_item_suggestion_index}` : ''"
-                                                placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
-                                                required
-                                            >
-                                        </label>
+                                        <div class="flex items-end gap-3">
+                                            <label class="field-group min-w-0 flex-1">
+                                                <span>{{ __('ui.admin.shop_offer_item') }}</span>
+                                                <input
+                                                    type="search"
+                                                    x-bind:data-shop-item-key="item.key"
+                                                    x-model="item.item_search"
+                                                    x-on:input="filterItems(item)"
+                                                    x-on:focus="item.item_suggestions_open = true"
+                                                    x-on:keydown.down.prevent="moveItemSuggestion(item, 1)"
+                                                    x-on:keydown.up.prevent="moveItemSuggestion(item, -1)"
+                                                    x-on:keydown.enter.prevent="selectActiveItemSuggestion(item)"
+                                                    autocomplete="off"
+                                                    role="combobox"
+                                                    aria-autocomplete="list"
+                                                    x-bind:aria-controls="`shop-offer-item-suggestions-${item.key}`"
+                                                    x-bind:aria-expanded="item.item_suggestions_open"
+                                                    x-bind:aria-activedescendant="item.active_item_suggestion_index >= 0 ? `shop-offer-item-${item.key}-${item.active_item_suggestion_index}` : ''"
+                                                    placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
+                                                    required
+                                                >
+                                            </label>
+                                            <x-item-browser catalog="catalog" />
+                                        </div>
                                         <div
                                             class="absolute inset-x-0 top-full z-30 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-white/10 bg-[#0d1016]/98 shadow-2xl backdrop-blur-xl"
                                             x-bind:id="`shop-offer-item-suggestions-${item.key}`"
