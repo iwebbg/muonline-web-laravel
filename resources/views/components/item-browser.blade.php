@@ -36,8 +36,8 @@
                     <div class="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         <template x-for="browserItem in browserPageItems" :key="browserItem.code">
                             <article class="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.025] p-4">
-                                <div class="grid h-44 place-items-center rounded-xl border border-white/8 bg-black/30 sm:h-52">
-                                    <x-item-image source-expression="browserItem.image" label-expression="browserItem.name" class="h-full w-full p-6 object-contain" />
+                                <div class="relative h-44 shrink-0 overflow-hidden rounded-xl border border-white/8 bg-black/30 sm:h-52">
+                                    <x-item-image source-expression="browserItem.image" label-expression="browserItem.name" class="absolute inset-0 h-full w-full p-6 object-contain" />
                                 </div>
                                 <h3 class="mt-4 break-words text-lg font-semibold text-white" x-text="browserItem.name"></h3>
                                 <p class="mt-1 text-xs text-steel" x-text="browserItem.code"></p>
