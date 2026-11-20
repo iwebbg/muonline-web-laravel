@@ -15,9 +15,9 @@
             x-on:cancel.prevent="closeBrowser()"
             x-on:keydown.escape.stop
             x-on:click="if ($event.target === $el) { closeBrowser(); }"
-            class="m-auto h-[calc(100dvh-1rem)] max-h-none w-[calc(100vw-1rem)] max-w-none overflow-hidden rounded-2xl border border-white/15 bg-[#0b0d12] p-0 text-mist shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-sm open:flex open:flex-col sm:h-[calc(100dvh-3rem)] sm:w-[calc(100vw-3rem)]"
+            class="fixed inset-0 m-auto h-[calc(100dvh-1rem)] max-h-none min-w-0 w-[calc(100dvw-1rem)] max-w-[calc(100dvw-1rem)] overflow-hidden rounded-2xl border border-white/15 bg-[#0b0d12] p-0 text-mist shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-sm open:flex open:flex-col sm:h-[calc(100dvh-3rem)] sm:w-[calc(100dvw-3rem)] sm:max-w-[calc(100dvw-3rem)]"
         >
-            <header class="shrink-0 border-b border-white/10 p-4 sm:p-6">
+            <header class="min-w-0 shrink-0 border-b border-white/10 p-4 sm:p-6">
                 <div class="flex items-start justify-between gap-4">
                     <div>
                         <p class="kicker">{{ __('ui.item_browser.catalog') }}</p>
@@ -31,13 +31,15 @@
                 </label>
             </header>
 
-            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6">
+            <div class="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain p-4 sm:p-6">
                 <template x-if="browserOpen">
                     <div class="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         <template x-for="browserItem in browserPageItems" :key="browserItem.code">
                             <article class="flex min-w-0 flex-col rounded-2xl border border-white/10 bg-white/[0.025] p-4">
                                 <div class="relative h-44 shrink-0 overflow-hidden rounded-xl border border-white/8 bg-black/30 sm:h-52">
-                                    <x-item-image source-expression="browserItem.image" label-expression="browserItem.name" class="absolute inset-0 h-full w-full p-6 object-contain" />
+                                    <div class="absolute inset-0 flex items-center justify-center p-6">
+                                        <x-item-image source-expression="browserItem.image" label-expression="browserItem.name" class="h-full w-full max-w-48 object-contain" />
+                                    </div>
                                 </div>
                                 <h3 class="mt-4 break-words text-lg font-semibold text-white" x-text="browserItem.name"></h3>
                                 <p class="mt-1 text-xs text-steel" x-text="browserItem.code"></p>
