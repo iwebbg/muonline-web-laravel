@@ -160,7 +160,7 @@
                         </fieldset>
 
                         <fieldset x-show="hasAdvancedOptions" x-cloak class="grid gap-4 rounded-2xl border border-gold/20 bg-gold/[0.04] p-4 sm:col-span-2 sm:grid-cols-2">
-                            <legend class="px-2 text-sm font-semibold text-gold">{{ __('ui.shop.generator_advanced_options') }}</legend>
+                            <legend class="px-2 text-sm font-semibold text-gold" x-text="selectedItem?.maxSockets > 0 ? @js(__('ui.shop.generator_socket_options')) : @js(__('ui.shop.generator_advanced_options'))">{{ __('ui.shop.generator_advanced_options') }}</legend>
 
                             <label x-show="selectedItem?.ancientOptions?.length > 0" class="field-group">
                                 <span>{{ __('ui.shop.generator_ancient') }}</span>

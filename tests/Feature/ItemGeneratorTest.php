@@ -154,7 +154,7 @@ final class ItemGeneratorTest extends TestCase
         $response->assertOk();
         $response->assertSee('Bone Blade');
         $response->assertSee('Deadly Staff');
-        $response->assertSee('Season 6 options');
+        $response->assertSee('Additional options')->assertDontSee('Season 6 options');
         $response->assertSee('380 option');
         $response->assertSee('Socket slots');
     }
