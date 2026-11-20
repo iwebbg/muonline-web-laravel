@@ -33,7 +33,8 @@
 
             <x-admin-navigation
                 :reset-revision="request()->routeIs('admin.character-rules.*') ? ($revision ?? null) : null"
-                x-bind:style="adminMenuOpen ? 'transform: translateX(0)' : ''"
+                id="admin-navigation"
+                x-bind:data-open="adminMenuOpen"
             />
         @endauth
 
@@ -45,6 +46,8 @@
                             type="button"
                             class="icon-button xl:hidden"
                             aria-label="{{ __('ui.navigation.toggle') }}"
+                            aria-controls="admin-navigation"
+                            x-bind:aria-expanded="adminMenuOpen"
                             x-on:click="adminMenuOpen = true"
                         >
                             <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -72,7 +75,7 @@
                 </div>
             </header>
 
-            <main class="min-h-[calc(100vh-4rem)]">
+            <main class="min-h-[calc(100vh-4rem)] min-w-0">
                 @yield('content')
             </main>
         </div>
