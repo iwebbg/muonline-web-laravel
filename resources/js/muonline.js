@@ -1628,8 +1628,9 @@ export function itemGrantManager(configuration) {
                 + (this.hasSkill ? Number(this.priceModifiers.skill ?? 0) : 0)
                 + (this.hasLuck ? Number(this.priceModifiers.luck ?? 0) : 0)
                 + (this.excellentOptionBits.length * Number(this.priceModifiers.excellentOption ?? 0))
-                + (this.ancientOption === 5 ? Number(this.priceModifiers.ancientFive ?? 0) : 0)
-                + (this.ancientOption === 10 ? Number(this.priceModifiers.ancientTen ?? 0) : 0)
+                + Number(this.selectedItem.ancientPrices?.[this.ancientOption]
+                    ?? ((this.ancientOption === 5 ? Number(this.priceModifiers.ancientFive ?? 0) : 0)
+                        + (this.ancientOption === 10 ? Number(this.priceModifiers.ancientTen ?? 0) : 0)))
                 + (this.has380Option ? Number(this.priceModifiers.option380 ?? 0) : 0)
                 + (this.harmonyOption > 0 ? Number(this.priceModifiers.harmony ?? 0) : 0)
                 + (this.socketCount * Number(this.priceModifiers.socket ?? 0));

@@ -128,7 +128,7 @@ final class MuDevsSeason21ProfileTest extends TestCase
             array_column($profile->statsForClass(64), 'key'),
         );
         self::assertSame([65_000], array_values(array_unique(array_column($profile->stats(), 'maximum'))));
-        self::assertFalse($profile->capabilities()->itemGenerator);
+        self::assertTrue($profile->capabilities()->itemGenerator);
         self::assertFalse($profile->capabilities()->characterVip);
     }
 

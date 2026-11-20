@@ -1250,3 +1250,25 @@ then the full suite and `test-all` profile matrix for shared changes. Run
 `test-integration` and `test-integration-1.0m` regressions and the new S21 workflow
 before certification. Format modified PHP with Pint. Documentation-only changes
 do not require application test execution.
+
+### S21 Item Generator pricing and commissioning (2026-11-21)
+
+The S21 generator now has an explicit 2,302-item price snapshot in
+`resources/game/mudevs_season_21/item-generator-pricing.json`. Its 290 matching
+S6 identities retain their existing base prices. Every other price records its
+S6 reference, reason and number of fixed 20-Credits tier steps. New starter gear
+uses source-level counterparts for its class role; higher gear follows the named
+Bloodangel through Imperial tiers. The policy describes this published snapshot;
+prices are stored per item, rather than generated randomly at purchase time.
+
+Native construction remains authoritative: the generator exposes only supported
+ordinary equipment and standard wing generations. Later wings, bound equipment,
+dependent-state items and stackable commodities are not enabled by adding prices.
+S21's uncommissioned 380 option remains disabled. The established S6 option
+surcharges are reused for valid native skills, luck, Excellent, Ancient, Harmony
+and empty sockets. Ancient set variants share the +5/+10 surcharge by strength;
+wing additional-option selector bits are not charged as Excellent effects.
+
+Feature coverage checks every listed item, price provenance, authenticated access,
+server-authoritative charges, replay safety, native game-vault delivery and Web
+Vault fallback for new accounts. No game database schema change is required.

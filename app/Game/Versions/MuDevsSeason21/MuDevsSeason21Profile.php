@@ -73,7 +73,6 @@ use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Contracts\OptionalGameDatabaseObjects;
 use App\Game\Versions\GameVersionCapabilities;
 use App\Game\Versions\ShopClassScopeDefinition;
-use App\Game\Versions\UnavailableItemGeneratorCatalog;
 use App\Modules\ServerModule;
 use App\Reset\InventoryPolicy;
 use App\Stats\CharacterStats;
@@ -113,7 +112,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
             journaledIdentityServices: true,
             gameCurrencyExchange: true,
             billingRecord: false,
-            itemGenerator: false,
+            itemGenerator: true,
             masterProgression: true,
             castleSiege: true,
             gens: true,
@@ -148,7 +147,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
                 'account.native-services.*', 'account.credits.index', 'account.credit-item-exchanges.store', 'account.online-time-claims.store',
                 'account.credit-packages.purchase', 'account.credit-payments.return', 'payments.webhooks',
                 'market.*', 'shop.items.*', 'shop.mystery-boxes.*',
-                'account.rewards.*', 'account.votes.*',
+                'account.rewards.*', 'account.votes.*', 'account.item-generator.*',
                 'account.reset-preview', 'account.character-reset', 'account.grand-reset-preview',
                 'account.character-reset-purchases.store', 'account.character-level-up-points-purchases.store',
                 'account.character-grand-reset', 'account.stat-allocation-preview', 'account.stat-allocations.store',
@@ -489,7 +488,7 @@ final class MuDevsSeason21Profile implements GameDatabaseProfile, GameDatabaseSc
             ItemCodec::class => ItemCodecAdapterMuDevsSeason21::class,
             ItemCatalog::class => ItemCatalogAdapterMuDevsSeason21::class,
             ItemGrantRules::class => ItemGrantRulesMuDevsSeason21::class,
-            ItemGeneratorCatalog::class => UnavailableItemGeneratorCatalog::class,
+            ItemGeneratorCatalog::class => ItemGeneratorCatalogMuDevsSeason21::class,
             MapNameLookup::class => MapNameMapperMuDevsSeason21::class,
         ];
     }

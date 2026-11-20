@@ -43,7 +43,7 @@ final class PurchaseGeneratedItemRequest extends FormRequest
             'has_skill' => ['nullable', 'boolean'],
             'has_luck' => ['nullable', 'boolean'],
             'excellent_mask' => ['required', 'integer', 'between:0,63'],
-            'ancient_option' => ['required', 'integer', 'in:0,5,10'],
+            'ancient_option' => ['required', 'integer', 'between:0,15'],
             'harmony_option' => ['required', 'integer', 'between:0,254'],
             'socket_count' => ['required', 'integer', 'between:0,5'],
             'has_380_option' => ['nullable', 'boolean'],
