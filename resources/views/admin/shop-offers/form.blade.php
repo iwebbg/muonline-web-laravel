@@ -2,6 +2,8 @@
 
 @section('title', $offer ? __('ui.admin.shop_offer_edit') : __('ui.admin.shop_offer_create'))
 
+@inject('classScopePresenter', 'App\Shop\ShopClassScopePresenter')
+
 @section('content')
     @php
         $initialItems = old('items', $offer?->items->map(fn ($item) => [
@@ -13,6 +15,9 @@
             'has_luck' => $item->has_luck,
             'excellent_mask' => $item->excellent_mask,
             'ancient_option' => $item->ancient_option,
+            'harmony_option' => $item->harmony_option,
+            'socket_count' => $item->socket_count,
+            'has_380_option' => $item->has_380_option,
             'weight' => $item->weight,
         ])->values()->all() ?? []);
     @endphp
@@ -39,6 +44,7 @@
                         'itemOptionLabels' => $itemOptionLabels,
                         'ui' => [
                             'itemRequired' => __('ui.admin.item_grant_item_required'),
+                            'itemUnsupported' => __('ui.admin.item_grant_construction_unsupported'),
                         ],
                     ]))"
                     x-on:submit="if (! validateItems()) { $event.preventDefault(); }"
@@ -56,7 +62,7 @@
                             </select>
                             <small>{{ __('ui.admin.shop_offer_reward_mode_help') }}</small>
                         </label>
-                        <label class="field-group"><span>{{ __('ui.admin.shop_offer_class_scope') }}</span><select name="class_scope">@foreach ($classScopes as $scope)<option value="{{ $scope->value }}" @selected(old('class_scope', $offer?->class_scope->value ?? 'all') === $scope->value)>{{ __('ui.shop.class_scopes.'.$scope->value) }}</option>@endforeach</select></label>
+                        <label class="field-group"><span>{{ __('ui.admin.shop_offer_class_scope') }}</span><select name="class_scope">@foreach ($classScopes as $scope)<option value="{{ $scope->value }}" @selected(old('class_scope', $offer?->class_scope->value ?? 'all') === $scope->value)>{{ $classScopePresenter->label($scope->value) }}</option>@endforeach</select></label>
                         <label class="field-group"><span>{{ __('ui.admin.shop_offer_status') }}</span><select name="status">@foreach ($statuses as $status)<option value="{{ $status->value }}" @selected(old('status', $offer?->status->value ?? 'draft') === $status->value)>{{ __('ui.admin.shop_offer_statuses.'.$status->value) }}</option>@endforeach</select></label>
                     </div>
                     <div class="grid gap-5 md:grid-cols-2">
@@ -77,29 +83,32 @@
                         <template x-for="(item, index) in items" :key="item.key">
                             <div class="rounded-2xl border border-white/8 bg-black/20 p-4">
                                 <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                                    <div class="relative md:col-span-2 xl:col-span-3" x-on:click.outside="closeItemSuggestions(item)">
+                                    <div class="relative md:col-span-2 xl:col-span-3" x-on:click.outside="closeItemSuggestions(item)" x-on:item-browser-selected.stop="selectItem(item, $event.detail.item)">
                                         <input type="hidden" x-bind:name="`items[${index}][item_code]`" x-bind:value="item.item_code">
-                                        <label class="field-group">
-                                            <span>{{ __('ui.admin.shop_offer_item') }}</span>
-                                            <input
-                                                type="search"
-                                                x-bind:data-shop-item-key="item.key"
-                                                x-model="item.item_search"
-                                                x-on:input="filterItems(item)"
-                                                x-on:focus="item.item_suggestions_open = true"
-                                                x-on:keydown.down.prevent="moveItemSuggestion(item, 1)"
-                                                x-on:keydown.up.prevent="moveItemSuggestion(item, -1)"
-                                                x-on:keydown.enter.prevent="selectActiveItemSuggestion(item)"
-                                                autocomplete="off"
-                                                role="combobox"
-                                                aria-autocomplete="list"
-                                                x-bind:aria-controls="`shop-offer-item-suggestions-${item.key}`"
-                                                x-bind:aria-expanded="item.item_suggestions_open"
-                                                x-bind:aria-activedescendant="item.active_item_suggestion_index >= 0 ? `shop-offer-item-${item.key}-${item.active_item_suggestion_index}` : ''"
-                                                placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
-                                                required
-                                            >
-                                        </label>
+                                        <div class="flex items-end gap-3">
+                                            <label class="field-group min-w-0 flex-1">
+                                                <span>{{ __('ui.admin.shop_offer_item') }}</span>
+                                                <input
+                                                    type="search"
+                                                    x-bind:data-shop-item-key="item.key"
+                                                    x-model="item.item_search"
+                                                    x-on:input="filterItems(item)"
+                                                    x-on:focus="item.item_suggestions_open = true"
+                                                    x-on:keydown.down.prevent="moveItemSuggestion(item, 1)"
+                                                    x-on:keydown.up.prevent="moveItemSuggestion(item, -1)"
+                                                    x-on:keydown.enter.prevent="selectActiveItemSuggestion(item)"
+                                                    autocomplete="off"
+                                                    role="combobox"
+                                                    aria-autocomplete="list"
+                                                    x-bind:aria-controls="`shop-offer-item-suggestions-${item.key}`"
+                                                    x-bind:aria-expanded="item.item_suggestions_open"
+                                                    x-bind:aria-activedescendant="item.active_item_suggestion_index >= 0 ? `shop-offer-item-${item.key}-${item.active_item_suggestion_index}` : ''"
+                                                    placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
+                                                    required
+                                                >
+                                            </label>
+                                            <x-item-browser catalog="catalog" />
+                                        </div>
                                         <div
                                             class="absolute inset-x-0 top-full z-30 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-white/10 bg-[#0d1016]/98 shadow-2xl backdrop-blur-xl"
                                             x-bind:id="`shop-offer-item-suggestions-${item.key}`"
@@ -120,7 +129,7 @@
                                                     x-bind:aria-selected="item.item_code === definition.code"
                                                 >
                                                     <span class="grid size-11 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
-                                                        <img x-show="definition.image" x-bind:src="definition.image" alt="" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]">
+                                                        <x-item-image source-expression="definition.image" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]" />
                                                     </span>
                                                     <strong class="text-sm text-white" x-text="definition.name"></strong>
                                                 </button>
@@ -136,6 +145,14 @@
                                         </select>
                                     </label>
                                     <label class="field-group"><span>{{ __('ui.admin.shop_offer_durability') }}</span><input type="number" x-bind:name="`items[${index}][durability]`" x-model.number="item.durability" min="0" max="255" required></label>
+                                    <label class="field-group" x-cloak x-show="(selectedItem(item)?.nativeOptions?.additionalVariants ?? []).length > 1">
+                                        <span>{{ __('ui.admin.item_grant_additional_type') }}</span>
+                                        <select x-model.number="item.additional_variant_mask">
+                                            <template x-for="variant in selectedItem(item)?.nativeOptions?.additionalVariants ?? []" :key="variant.mask">
+                                                <option x-bind:value="variant.mask" x-text="variant.name"></option>
+                                            </template>
+                                        </select>
+                                    </label>
                                     <label class="field-group">
                                         <span>{{ __('ui.admin.shop_offer_option') }}</span>
                                         <select x-bind:name="`items[${index}][option_level]`" x-model.number="item.option_level">
@@ -151,23 +168,31 @@
                                         <input type="hidden" x-bind:name="`items[${index}][weight]`" value="1">
                                     </template>
                                     <div class="flex flex-wrap items-end gap-5 pb-2">
-                                        <label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_skill]`" x-model="item.has_skill">{{ __('ui.admin.shop_offer_skill') }}</label>
-                                        <label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_luck]`" x-model="item.has_luck">{{ __('ui.admin.shop_offer_luck') }}</label>
+                                        <label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_skill]`" x-model="item.has_skill" x-bind:disabled="selectedItem(item)?.nativeOptions?.skill === false">{{ __('ui.admin.shop_offer_skill') }}</label>
+                                        <label class="flex items-center gap-2 text-sm text-silver"><input type="checkbox" value="1" x-bind:name="`items[${index}][has_luck]`" x-model="item.has_luck" x-bind:disabled="selectedItem(item)?.nativeOptions?.luck === false">{{ __('ui.admin.shop_offer_luck') }}</label>
                                     </div>
-                                    <input type="hidden" x-bind:name="`items[${index}][ancient_option]`" value="0">
+
                                     <input type="hidden" x-bind:name="`items[${index}][excellent_mask]`" x-bind:value="excellentMask(item)">
                                     <fieldset class="grid gap-3 md:col-span-2 xl:col-span-3">
                                         <legend class="text-sm font-semibold text-white">{{ __('ui.admin.item_grant_excellent_options') }}</legend>
                                         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                                             <template x-for="option in excellentOptions(item)" :key="option.bit">
                                                 <label class="flex items-start gap-3 rounded-xl border border-white/8 bg-black/15 p-3 text-sm text-silver">
-                                                    <input type="checkbox" x-model.number="item.excellent_option_bits" x-bind:value="option.bit">
+                                                    <input type="checkbox" x-bind:disabled="item.ancient_option > 0" x-model.number="item.excellent_option_bits" x-bind:value="option.bit">
                                                     <span x-text="option.label"></span>
                                                 </label>
                                             </template>
                                         </div>
                                     </fieldset>
                                 </div>
+                                <x-admin-item-advanced-options
+                                    definition="selectedItem(item)"
+                                    state="item"
+                                    update="setAdvancedOption(item, field, value)"
+                                    level="item.level"
+                                    name-prefix="'items[' + index + ']'"
+                                />
+                                <p x-cloak x-show="selectedItem(item)?.nativeOptions?.constructionSupported === false" class="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/8 p-4 text-sm text-amber-100" role="alert">{{ __('ui.admin.item_grant_construction_unsupported') }}</p>
                                 <button type="button" class="mt-4 text-sm text-red-200" @click="removeItem(index)" x-show="items.length > 1">{{ __('ui.admin.shop_offer_remove_item') }}</button>
                             </div>
                         </template>

@@ -37,6 +37,7 @@ $integrationEnvironment = [
     'DB_URL' => '',
     'GAME_DATA_SOURCE' => 'database',
     'GAME_DB_CONNECTION' => 'sqlsrv',
+    'GAME_DB_BATTLE_CORE' => '',
     'GAME_DB_ENCRYPT' => 'no',
     'GAME_DB_HOST' => 'sqlserver-test',
     'GAME_DB_MUONLINE' => $integrationGameDatabase,

@@ -67,6 +67,49 @@ final class AdminWebsiteSettingTest extends TestCase
     }
 
     /**
+     * Publishes registration policy changes with readable immutable revision details.
+     */
+    public function test_registration_policy_is_saved_audited_and_preserved_when_omitted(): void
+    {
+        $administrator = Administrator::factory()->create();
+        $payload = [...$this->settingsPayload(), 'registration_enabled' => '0', 'require_email_verification' => '1'];
+        $this->actingAs($administrator, 'admin')
+            ->put(route('admin.website-settings.update'), $payload)
+            ->assertRedirect()->assertSessionHasNoErrors();
+
+        $settings = WebsiteSetting::query()->sole();
+        $this->assertFalse($settings->registration_enabled);
+        $this->assertTrue($settings->require_email_verification);
+        $revision = WebsiteSettingRevision::query()->sole();
+        $this->assertTrue($revision->before_snapshot['registration_enabled']);
+        $this->assertFalse($revision->before_snapshot['require_email_verification']);
+        $this->assertFalse($revision->after_snapshot['registration_enabled']);
+        $this->assertTrue($revision->after_snapshot['require_email_verification']);
+        $this->get(route('admin.website-settings.edit'))
+            ->assertOk()->assertSee('Allow registration')->assertSee('Require account email verification')
+            ->assertSee('Enabled')->assertSee('Disabled');
+
+        $this->put(route('admin.website-settings.update'), [...$this->settingsPayload(), 'revision' => 1])
+            ->assertRedirect()->assertSessionHasNoErrors();
+        $this->assertFalse($settings->fresh()->registration_enabled);
+        $this->assertTrue($settings->fresh()->require_email_verification);
+    }
+
+    /**
+     * Rejects malformed account policy values before publishing a revision.
+     */
+    public function test_registration_policy_requires_boolean_values(): void
+    {
+        $this->actingAs(Administrator::factory()->create(), 'admin')
+            ->put(route('admin.website-settings.update'), [
+                ...$this->settingsPayload(),
+                'registration_enabled' => 'yes',
+                'require_email_verification' => 'no',
+            ])->assertSessionHasErrors(['registration_enabled', 'require_email_verification']);
+        $this->assertDatabaseCount('website_settings', 0);
+    }
+
+    /**
      * Confirms a slug without an installed theme directory is rejected.
      */
     public function test_unknown_theme_slug_is_rejected_without_persisting_settings(): void

@@ -13,6 +13,7 @@ enum WebStorageBlockReason: string
     case WarehouseNotFound = 'warehouse_not_found';
     case ItemNotFound = 'item_not_found';
     case ItemChanged = 'item_changed';
+    case UnsupportedItem = 'unsupported_item';
     case StorageFull = 'storage_full';
     case ItemUnavailable = 'item_unavailable';
     case InsufficientQuantity = 'insufficient_quantity';

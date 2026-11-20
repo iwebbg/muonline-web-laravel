@@ -10,7 +10,7 @@ not used for exploratory writes.
 | --- | --- | --- |
 | 0 — Foundation | Complete | Laravel 13/PHP 8.5 containers, SQL Server drivers, health checks and safety boundaries are established. |
 | 1 — Design system | Operational, polish ongoing | Public, account and admin shells plus reusable dialogs, forms, cards, tables and item grids are implemented with Tailwind CSS v4. |
-| 2 — Versioned read models | Implemented | Real accounts, characters, guilds, rankings, server status, inventory and warehouse reads use isolated 97d+99i, 1.0M and MuEMU Season 6 adapters. |
+| 2 — Versioned read models | Implemented | Accounts, characters, guilds, rankings, inventory and warehouse reads use isolated 97d+99i, 1.0M, MuEMU S6 and MUDevs S21 adapters. |
 | 3 — Authentication | Implemented, manual mail testing ongoing | Player/admin authentication, registration, activation, recovery, security and Game Master permissions are present. |
 | 4 — Character operations | Implemented, real-server validation ongoing | Preview and execute paths exist for resets, stats, PK clear and movement; paid rename, class change, resets and LevelUpPoints use admin-managed rules and confirmations. |
 | 5 — Inventory and warehouse | Implemented, UI polish ongoing | Item codec, item catalog, equipment, bags, multi-vault grids, tooltips and guarded exact-item mutations are present. |
@@ -120,6 +120,15 @@ Exit condition: deployment and rollback have been rehearsed and the production
 database is never accessed using `sa` or `db_owner` credentials.
 
 ## Immediate continuation backlog
+
+The planned MUDevs Season 21 ep1–2 integration has a dedicated
+[compatibility matrix and implementation plan](season-21-integration-plan.md).
+Its scope includes all standard class advancements, progression systems,
+maps, events and item/storage systems in the supplied distribution. S21 is
+implemented and selectable; representative live character, storage, shop, bank
+and economy flows have been confirmed by the owner. See the current acceptance
+checkpoint in [Current state](current-state.md). Specialist events, Lucky Coin
+spending and unverified item families retain explicit gates.
 
 1. Manually verify every character and economy mutation against dedicated test
    accounts on the live 97d+99i, 1.0M and MuEMU Season 6 test servers.

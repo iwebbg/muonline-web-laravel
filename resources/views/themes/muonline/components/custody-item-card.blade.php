@@ -9,14 +9,11 @@
 
 <article {{ $attributes->class('panel-card flex flex-col p-5') }}>
     <div class="grid min-h-28 place-items-center rounded-2xl border border-white/8 bg-black/25 p-4">
-        @if (($itemSnapshot['image'] ?? null) !== null)
-            <img
-                src="{{ $itemSnapshot['image'] }}"
-                alt="{{ $itemSnapshot['name'] ?? __('ui.market.unknown_item') }}"
-                class="max-h-24 max-w-full object-contain"
-                loading="lazy"
-            >
-        @endif
+        <x-item-image
+            :src="$itemSnapshot['image'] ?? null"
+            :alt="$itemSnapshot['name'] ?? __('ui.market.unknown_item')"
+            class="max-h-24 max-w-full"
+        />
     </div>
     <h2 class="mt-4 font-semibold text-white">
         {{ $itemSnapshot['name'] ?? __('ui.market.unknown_item') }}{{ ($itemSnapshot['level'] ?? 0) > 0 ? ' +'.$itemSnapshot['level'] : '' }}

@@ -25,95 +25,101 @@
                 <h2 class="mt-2 text-2xl font-semibold text-white">{{ __('ui.registration.form_heading') }}</h2>
             </div>
 
-            <form
-                method="POST"
-                action="{{ route('register.store') }}"
-                class="mt-8 grid gap-5"
-                x-data="registrationRecaptcha(
-                    @js($recaptchaSiteKey),
-                    @js($recaptchaEnabled),
-                    @js(__('ui.registration.recaptcha_failed'))
-                )"
-                @submit.prevent="submit($el)"
-            >
-                @csrf
-                <input type="hidden" name="recaptcha_token" x-ref="recaptchaToken">
+            @if (! $registrationEnabled)
+                <div class="mt-6 rounded-2xl border border-amber-300/25 bg-amber-300/8 p-5 text-sm text-amber-100" role="status">
+                    {{ __('ui.registration.temporarily_unavailable') }}
+                </div>
+            @else
+                <form
+                    method="POST"
+                    action="{{ route('register.store') }}"
+                    class="mt-8 grid gap-5"
+                    x-data="registrationRecaptcha(
+                        @js($recaptchaSiteKey),
+                        @js($recaptchaEnabled),
+                        @js(__('ui.registration.recaptcha_failed'))
+                    )"
+                    @submit.prevent="submit($el)"
+                >
+                    @csrf
+                    <input type="hidden" name="recaptcha_token" x-ref="recaptchaToken">
 
-                <label class="field-group">
-                    <span>{{ __('ui.registration.username') }}</span>
-                    <input
-                        type="text"
-                        name="username"
-                        value="{{ old('username') }}"
-                        minlength="4"
-                        maxlength="10"
-                        pattern="[A-Za-z0-9_-]+"
-                        autocomplete="username"
-                        required
-                        autofocus
-                    >
-                </label>
+                    <label class="field-group">
+                        <span>{{ __('ui.registration.username') }}</span>
+                        <input
+                            type="text"
+                            name="username"
+                            value="{{ old('username') }}"
+                            minlength="4"
+                            maxlength="10"
+                            pattern="[A-Za-z0-9_-]+"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+                    </label>
 
-                <label class="field-group">
-                    <span>{{ __('ui.registration.email') }}</span>
-                    <input
-                        type="email"
-                        name="email"
-                        value="{{ old('email') }}"
-                        maxlength="50"
-                        autocomplete="email"
-                        required
-                    >
-                </label>
+                    <label class="field-group">
+                        <span>{{ __('ui.registration.email') }}</span>
+                        <input
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            maxlength="50"
+                            autocomplete="email"
+                            required
+                        >
+                    </label>
 
-                <label class="field-group">
-                    <span>{{ __('ui.registration.password') }}</span>
-                    <input
-                        :type="passwordVisible ? 'text' : 'password'"
-                        name="password"
-                        minlength="4"
-                        maxlength="10"
-                        pattern="[A-Za-z0-9_-]+"
-                        autocomplete="new-password"
-                        required
-                    >
-                </label>
+                    <label class="field-group">
+                        <span>{{ __('ui.registration.password') }}</span>
+                        <input
+                            :type="passwordVisible ? 'text' : 'password'"
+                            name="password"
+                            minlength="4"
+                            maxlength="10"
+                            pattern="[A-Za-z0-9_-]+"
+                            autocomplete="new-password"
+                            required
+                        >
+                    </label>
 
-                <label class="field-group">
-                    <span>{{ __('ui.registration.password_confirmation_label') }}</span>
-                    <input
-                        :type="passwordVisible ? 'text' : 'password'"
-                        name="password_confirmation"
-                        minlength="4"
-                        maxlength="10"
-                        pattern="[A-Za-z0-9_-]+"
-                        autocomplete="new-password"
-                        required
-                    >
-                </label>
+                    <label class="field-group">
+                        <span>{{ __('ui.registration.password_confirmation_label') }}</span>
+                        <input
+                            :type="passwordVisible ? 'text' : 'password'"
+                            name="password_confirmation"
+                            minlength="4"
+                            maxlength="10"
+                            pattern="[A-Za-z0-9_-]+"
+                            autocomplete="new-password"
+                            required
+                        >
+                    </label>
 
-                <label class="flex items-center gap-3 text-sm text-steel">
-                    <input type="checkbox" class="size-4" @change="passwordVisible = $event.target.checked">
-                    <span>{{ __('ui.registration.show_passwords') }}</span>
-                </label>
+                    <label class="flex items-center gap-3 text-sm text-steel">
+                        <input type="checkbox" class="size-4" @change="passwordVisible = $event.target.checked">
+                        <span>{{ __('ui.registration.show_passwords') }}</span>
+                    </label>
 
-                @if ($errors->any())
-                    <div class="rounded-xl border border-crimson/35 bg-crimson/10 px-4 py-3 text-sm text-red-100" role="alert">
-                        <ul class="grid gap-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+                    @if ($errors->any())
+                        <div class="rounded-xl border border-crimson/35 bg-crimson/10 px-4 py-3 text-sm text-red-100" role="alert">
+                            <ul class="grid gap-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
-                <p x-show="failureMessage" x-cloak class="text-sm text-red-200" x-text="failureMessage"></p>
+                    <p x-show="failureMessage" x-cloak class="text-sm text-red-200" x-text="failureMessage"></p>
 
-                <button type="submit" class="button button-primary button-large mt-2 w-full" :disabled="submitting">
-                    {{ __('ui.registration.submit') }}
-                    <span aria-hidden="true">→</span>
-                </button>
-            </form>
+                    <button type="submit" class="button button-primary button-large mt-2 w-full" :disabled="submitting">
+                        {{ __('ui.registration.submit') }}
+                        <span aria-hidden="true">→</span>
+                    </button>
+                </form>
+            @endif
 
             <p class="mt-5 text-center text-sm text-steel">
                 {{ __('ui.registration.have_account') }}
@@ -122,7 +128,7 @@
         </section>
     </div>
 
-    @if ($recaptchaEnabled && $recaptchaSiteKey !== '')
+    @if ($registrationEnabled && $recaptchaEnabled && $recaptchaSiteKey !== '')
         <script src="https://www.google.com/recaptcha/api.js?render={{ urlencode($recaptchaSiteKey) }}" async defer></script>
     @endif
 @endsection

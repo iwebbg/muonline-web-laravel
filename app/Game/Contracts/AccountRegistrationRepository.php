@@ -17,5 +17,6 @@ interface AccountRegistrationRepository
         string $username,
         #[SensitiveParameter] string $password,
         string $email,
+        bool $requiresEmailVerification = true,
     ): AccountRegistrationResult;
 }

@@ -121,22 +121,22 @@
                 <template x-for="entry in podiumItems" x-bind:key="`${board}-${entry.rank}-${entry.name}`">
                     <article class="group relative overflow-hidden rounded-[1.7rem] border border-white/10 bg-[#0e1117] shadow-2xl transition duration-300 hover:-translate-y-1 hover:border-gold/35">
                         <template x-if="!['guilds', 'castle_siege'].includes(board)">
-                            <a x-bind:href="entry.profile_url" class="block">
-                                <div class="relative h-72 overflow-hidden sm:h-80">
-                                    <img x-bind:src="entry.image" alt="" class="size-full object-cover object-top transition duration-500 group-hover:scale-[1.025]">
+                            <div>
+                                <a x-bind:href="entry.profile_url" x-bind:aria-label="entry.name" class="relative block h-72 overflow-hidden sm:h-80">
+                                    <img x-bind:src="entry.image" :style="{ objectPosition: entry.imagePosition ?? 'center top' }" alt="" class="size-full object-cover object-top transition duration-500 group-hover:scale-[1.025]">
                                     <div class="absolute inset-0 bg-gradient-to-t from-[#0e1117] via-transparent to-transparent"></div>
                                     <span class="absolute left-4 top-4 grid size-12 place-items-center rounded-2xl border border-gold/40 bg-black/70 font-display text-xl text-gold backdrop-blur" x-text="String(entry.rank).padStart(2, '0')"></span>
-                                </div>
+                                </a>
                                 <div class="p-5">
                                     <p class="eyebrow" x-text="entry.class"></p>
                                     <div class="mt-2 flex items-center justify-between gap-3">
-                                        <h3 class="font-display text-3xl text-white" x-text="entry.name"></h3>
+                                        <h3 class="font-display text-3xl text-white"><a x-bind:href="entry.profile_url" class="transition hover:text-gold" x-text="entry.name"></a></h3>
                                         <span class="size-2.5 rounded-full" x-bind:class="entry.online ? 'bg-emerald-300 shadow-[0_0_14px_rgba(110,231,183,.8)]' : 'bg-steel/50'"></span>
                                     </div>
                                     <div class="mt-5 grid grid-cols-3 gap-2 text-center">
                                         <template x-if="board === 'overall'">
                                             <div class="contents">
-                                                <div class="rounded-xl border border-white/8 bg-white/[0.025] p-3"><strong class="block text-white" x-text="entry.level"></strong><span class="mt-1 block text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.profiles.level') }}</span></div>
+                                                <x-ranking-level />
                                                 <div class="rounded-xl border border-white/8 bg-white/[0.025] p-3"><strong class="block text-white" x-text="entry.resets"></strong><span class="mt-1 block text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.home.resets') }}</span></div>
                                                 <div class="rounded-xl border border-white/8 bg-white/[0.025] p-3"><strong class="block text-white" x-text="entry.grand_resets"></strong><span class="mt-1 block text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.home.grand') }}</span></div>
                                             </div>
@@ -157,7 +157,7 @@
                                         </template>
                                     </div>
                                 </div>
-                            </a>
+                            </div>
                         </template>
 
                         <template x-if="['guilds', 'castle_siege'].includes(board)">
@@ -183,11 +183,11 @@
 
             <div class="mt-5 grid gap-3" x-show="!failed && listItems.length > 0">
                 <template x-for="entry in listItems" x-bind:key="`${board}-${entry.rank}-${entry.name}`">
-                    <a x-bind:href="entry.profile_url" class="group grid items-center gap-4 rounded-2xl border border-white/8 bg-[#0e1117]/90 p-4 transition hover:border-gold/30 hover:bg-white/[0.035] sm:grid-cols-[4rem_1fr_auto] sm:px-5">
-                        <span class="grid size-12 place-items-center rounded-xl border border-gold/25 bg-gold/[0.06] font-display text-lg text-gold" x-text="String(entry.rank).padStart(2, '0')"></span>
-                        <div class="flex min-w-0 items-center gap-4">
+                    <div class="group grid items-center gap-4 rounded-2xl border border-white/8 bg-[#0e1117]/90 p-4 transition hover:border-gold/30 hover:bg-white/[0.035] sm:grid-cols-[4rem_1fr_auto] sm:px-5">
+                        <a x-bind:href="entry.profile_url" x-bind:aria-label="entry.name" class="grid size-12 place-items-center rounded-xl border border-gold/25 bg-gold/[0.06] font-display text-lg text-gold" x-text="String(entry.rank).padStart(2, '0')"></a>
+                        <a x-bind:href="entry.profile_url" class="flex min-w-0 items-center gap-4">
                             <template x-if="!['guilds', 'castle_siege'].includes(board)">
-                                <img x-bind:src="entry.image" alt="" class="size-14 rounded-xl object-cover object-top">
+                                <img x-bind:src="entry.image" :style="{ objectPosition: entry.imagePosition ?? 'center top' }" alt="" class="size-14 rounded-xl object-cover object-top">
                             </template>
                             <template x-if="['guilds', 'castle_siege'].includes(board)">
                                 <span class="guild-mark shrink-0" aria-hidden="true">
@@ -203,11 +203,11 @@
                                 </div>
                                 <p class="mt-1 truncate text-sm text-steel" x-text="['guilds', 'castle_siege'].includes(board) ? `${@js(__('ui.rankings.master'))}: ${entry.master}` : entry.class"></p>
                             </div>
-                        </div>
+                        </a>
                         <div class="flex flex-wrap gap-5 sm:justify-end">
                             <template x-if="board === 'overall'">
                                 <div class="contents">
-                                    <p class="text-right"><strong class="block text-white" x-text="entry.level"></strong><span class="text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.profiles.level') }}</span></p>
+                                    <x-ranking-level compact />
                                     <p class="text-right"><strong class="block text-white" x-text="entry.resets"></strong><span class="text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.home.resets') }}</span></p>
                                     <p class="text-right"><strong class="block text-white" x-text="entry.grand_resets"></strong><span class="text-[0.6rem] uppercase tracking-widest text-steel">{{ __('ui.home.grand') }}</span></p>
                                 </div>
@@ -232,7 +232,7 @@
                                 </div>
                             </template>
                         </div>
-                    </a>
+                    </div>
                 </template>
             </div>
 

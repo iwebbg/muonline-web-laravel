@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Game\Contracts\ItemCatalog;
+use App\Game\Contracts\ItemConstructionPolicy;
 use App\Game\Contracts\ItemGrantRules;
 use App\Http\AccountPanelConfiguration;
 use App\Http\Controllers\Controller;
@@ -49,6 +50,8 @@ final class ItemGrantController extends Controller
                 'height' => $definition->height,
                 'excellentType' => $definition->excellentType,
                 'optionType' => $definition->optionType,
+                ...($itemGrantRules instanceof ItemConstructionPolicy ? $itemGrantRules->optionsFor($definition->group, $definition->index) : []),
+                ...($definition->nativeOptions === null ? [] : ['nativeOptions' => $definition->nativeOptions]),
             ];
         }
         $definitionsByCode = [];

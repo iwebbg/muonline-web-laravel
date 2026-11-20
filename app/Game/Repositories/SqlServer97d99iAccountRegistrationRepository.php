@@ -30,6 +30,7 @@ final readonly class SqlServer97d99iAccountRegistrationRepository implements Acc
         string $username,
         #[SensitiveParameter] string $password,
         string $email,
+        bool $requiresEmailVerification = true,
     ): AccountRegistrationResult {
         $connection = $this->database->connection('game');
 
@@ -39,6 +40,7 @@ final readonly class SqlServer97d99iAccountRegistrationRepository implements Acc
                 $username,
                 $password,
                 $email,
+                $requiresEmailVerification,
             ): AccountRegistrationResult {
                 $this->rejectExistingAccount($connection, $username);
 
@@ -50,7 +52,7 @@ final readonly class SqlServer97d99iAccountRegistrationRepository implements Acc
                         'memb_name' => $username,
                         'sno__numb' => '1111111111111',
                         'mail_addr' => $email,
-                        'bloc_code' => '1',
+                        'bloc_code' => $requiresEmailVerification ? '1' : '0',
                         'ctl1_code' => '0',
                         'IsVip' => 0,
                         'VipExpirationTime' => 0,
@@ -78,6 +80,7 @@ final readonly class SqlServer97d99iAccountRegistrationRepository implements Acc
                     accountGuid: $accountGuid,
                     accountId: $username,
                     billingRecordCreated: $billingRecordCreated,
+                    requiresEmailVerification: $requiresEmailVerification,
                 );
             }, 3);
         } catch (QueryException $exception) {

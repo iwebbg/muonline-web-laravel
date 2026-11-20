@@ -2,6 +2,7 @@
 
 namespace App\CreditEarning;
 
+use App\Game\Contracts\ItemCatalog;
 use App\Http\AccountPanelConfiguration;
 use App\Models\CreditExchangeOffer;
 
@@ -15,6 +16,7 @@ final readonly class CreditExchangeOfferPresenter
      */
     public function __construct(
         private AccountPanelConfiguration $accountPanelConfiguration,
+        private ItemCatalog $itemCatalog,
     ) {}
 
     /**
@@ -25,6 +27,7 @@ final readonly class CreditExchangeOfferPresenter
     public function present(CreditExchangeOffer $offer): array
     {
         $labels = $this->accountPanelConfiguration->itemOptionLabels();
+        $native = $this->itemCatalog->definitionFor($offer->item_group, $offer->item_index)?->nativeOptions;
         $prefix = $offer->excellent_mask > 0 && $offer->excellent_type !== 4
             ? $labels['excellentPrefix'].' '
             : '';
@@ -48,7 +51,9 @@ final readonly class CreditExchangeOfferPresenter
                 default => 4,
             };
             $suffix = $offer->option_type === 1 ? '%' : '';
-            $options[] = '+'.($offer->option_level * $multiplier).$suffix;
+            $options[] = $native === null
+                ? '+'.($offer->option_level * $multiplier).$suffix
+                : str_replace('{value}', (string) ($offer->option_level * $native['additionalValue']), $native['additionalLabel'] ?? '');
         }
 
         $excellentLabels = match ($offer->excellent_type) {
@@ -57,9 +62,17 @@ final readonly class CreditExchangeOfferPresenter
             default => $labels['excellent']['weapon'],
         };
 
-        foreach ($excellentLabels as $index => $excellentLabel) {
-            if ($excellentLabel !== '' && ($offer->excellent_mask & (1 << $index)) !== 0) {
-                $options[] = $excellentLabel;
+        if ($native === null) {
+            foreach ($excellentLabels as $index => $excellentLabel) {
+                if ($excellentLabel !== '' && ($offer->excellent_mask & (1 << $index)) !== 0) {
+                    $options[] = $excellentLabel;
+                }
+            }
+        } else {
+            foreach ($native['excellent'] as $option) {
+                if (($offer->excellent_mask & $option['bit']) !== 0) {
+                    $options[] = $option['label'];
+                }
             }
         }
 

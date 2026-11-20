@@ -38,10 +38,21 @@
                         'initialHasSkill' => old('has_skill', false),
                         'initialHasLuck' => old('has_luck', false),
                         'initialExcellentMask' => old('excellent_mask', 0),
+                        'initialAncientOption' => old('ancient_option', 0),
+                        'initialHarmonyOption' => old('harmony_option', 0),
+                        'initialSocketCount' => old('socket_count', 0),
+                        'initialHas380Option' => old('has_380_option', false),
                         'ui' => [
                             'skill' => __('ui.admin.item_grant_skill'),
                             'luck' => __('ui.admin.item_grant_luck'),
                             'itemRequired' => __('ui.admin.item_grant_item_required'),
+                            'itemUnsupported' => __('ui.admin.item_grant_construction_unsupported'),
+                            'ancientFive' => __('ui.shop.generator_ancient_five'),
+                            'ancientTen' => __('ui.shop.generator_ancient_ten'),
+                            'option380' => __('ui.shop.generator_380'),
+                            'harmony' => __('ui.shop.generator_harmony'),
+                            'harmonyOptions' => __('ui.shop.generator_harmony_options'),
+                            'socketCount' => __('ui.shop.generator_socket_count', ['count' => ':count']),
                         ],
                     ]))"
                     x-on:keydown.escape.window="confirmationOpen = false; closeSuggestions(); closeItemSuggestions()"
@@ -112,29 +123,32 @@
 
                         <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_14rem]">
                             <div class="grid gap-5 md:grid-cols-2">
-                                <div class="relative md:col-span-2" x-on:click.outside="closeItemSuggestions()">
+                                <div class="relative md:col-span-2" x-on:click.outside="closeItemSuggestions()" x-on:item-browser-selected.stop="selectItem($event.detail.item)">
                                     <input type="hidden" name="item_code" x-bind:value="itemCode">
-                                    <label class="field-group">
-                                        <span>{{ __('ui.admin.item_grant_item') }}</span>
-                                        <input
-                                            type="search"
-                                            x-ref="itemSearch"
-                                            x-model="itemSearch"
-                                            x-on:input="filterItems()"
-                                            x-on:focus="itemSuggestionsOpen = true"
-                                            x-on:keydown.down.prevent="moveItemSuggestion(1)"
-                                            x-on:keydown.up.prevent="moveItemSuggestion(-1)"
-                                            x-on:keydown.enter.prevent="selectActiveItemSuggestion()"
-                                            autocomplete="off"
-                                            role="combobox"
-                                            aria-autocomplete="list"
-                                            aria-controls="item-grant-item-suggestions"
-                                            x-bind:aria-expanded="itemSuggestionsOpen"
-                                            x-bind:aria-activedescendant="activeItemSuggestionIndex >= 0 ? `item-grant-item-${activeItemSuggestionIndex}` : ''"
-                                            placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
-                                            required
-                                        >
-                                    </label>
+                                    <div class="flex items-end gap-3">
+                                        <label class="field-group min-w-0 flex-1">
+                                            <span>{{ __('ui.admin.item_grant_item') }}</span>
+                                            <input
+                                                type="search"
+                                                x-ref="itemSearch"
+                                                x-model="itemSearch"
+                                                x-on:input="filterItems()"
+                                                x-on:focus="itemSuggestionsOpen = true"
+                                                x-on:keydown.down.prevent="moveItemSuggestion(1)"
+                                                x-on:keydown.up.prevent="moveItemSuggestion(-1)"
+                                                x-on:keydown.enter.prevent="selectActiveItemSuggestion()"
+                                                autocomplete="off"
+                                                role="combobox"
+                                                aria-autocomplete="list"
+                                                aria-controls="item-grant-item-suggestions"
+                                                x-bind:aria-expanded="itemSuggestionsOpen"
+                                                x-bind:aria-activedescendant="activeItemSuggestionIndex >= 0 ? `item-grant-item-${activeItemSuggestionIndex}` : ''"
+                                                placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
+                                                required
+                                            >
+                                        </label>
+                                        <x-item-browser catalog="items" />
+                                    </div>
 
                                     <div
                                         id="item-grant-item-suggestions"
@@ -156,7 +170,7 @@
                                                 x-bind:aria-selected="itemCode === item.code"
                                             >
                                                 <span class="grid size-11 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
-                                                    <img x-show="item.image" x-bind:src="item.image" alt="" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]">
+                                                    <x-item-image source-expression="item.image" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]" />
                                                 </span>
                                                 <strong class="text-sm text-white" x-text="item.name"></strong>
                                             </button>
@@ -175,6 +189,14 @@
                                     <span>{{ __('ui.admin.item_grant_durability') }}</span>
                                     <input type="number" name="durability" x-model.number="durability" min="0" max="255" required>
                                 </label>
+                                <label class="field-group" x-cloak x-show="(selectedItem?.nativeOptions?.additionalVariants ?? []).length > 1">
+                                    <span>{{ __('ui.admin.item_grant_additional_type') }}</span>
+                                    <select x-model.number="additionalVariantMask">
+                                        <template x-for="variant in selectedItem?.nativeOptions?.additionalVariants ?? []" :key="variant.mask">
+                                            <option x-bind:value="variant.mask" x-text="variant.name"></option>
+                                        </template>
+                                    </select>
+                                </label>
                                 <label class="field-group">
                                     <span>{{ __('ui.admin.item_grant_option_level') }}</span>
                                     <select name="option_level" x-model.number="optionLevel" required>
@@ -183,23 +205,30 @@
                                         </template>
                                     </select>
                                 </label>
-                                <input type="hidden" name="ancient_option" value="0">
+
                                 <input type="hidden" name="excellent_mask" x-bind:value="excellentMask">
                                 <label class="flex items-center gap-3 text-sm text-silver">
-                                    <input type="checkbox" name="has_skill" value="1" x-model="hasSkill">
+                                    <input type="checkbox" name="has_skill" value="1" x-model="hasSkill" x-bind:disabled="selectedItem?.nativeOptions?.skill === false">
                                     {{ __('ui.admin.item_grant_skill') }}
                                 </label>
                                 <label class="flex items-center gap-3 text-sm text-silver">
-                                    <input type="checkbox" name="has_luck" value="1" x-model="hasLuck">
+                                    <input type="checkbox" name="has_luck" value="1" x-model="hasLuck" x-bind:disabled="selectedItem?.nativeOptions?.luck === false">
                                     {{ __('ui.admin.item_grant_luck') }}
                                 </label>
+
+                                <x-admin-item-advanced-options
+                                    definition="selectedItem"
+                                    state="{ ancient_option: ancientOption, harmony_option: harmonyOption, socket_count: socketCount, has_380_option: has380Option }"
+                                    update="setAdvancedOption(field, value)"
+                                    level="level"
+                                />
 
                                 <fieldset class="grid gap-3 md:col-span-2">
                                     <legend class="text-sm font-semibold text-white">{{ __('ui.admin.item_grant_excellent_options') }}</legend>
                                     <div class="grid gap-3 sm:grid-cols-2">
                                         <template x-for="option in excellentOptions" :key="option.bit">
                                             <label class="flex items-start gap-3 rounded-xl border border-white/8 bg-black/15 p-3 text-sm text-silver">
-                                                <input type="checkbox" x-model.number="excellentOptionBits" x-bind:value="option.bit">
+                                                <input type="checkbox" x-bind:disabled="ancientOption > 0" x-model.number="excellentOptionBits" x-bind:value="option.bit">
                                                 <span x-text="option.label"></span>
                                             </label>
                                         </template>
@@ -211,7 +240,7 @@
                                 <p class="kicker">{{ __('ui.admin.item_grant_preview') }}</p>
                                 <template x-if="selectedItem">
                                     <div class="mt-5">
-                                        <img x-show="selectedItem.image" :src="selectedItem.image" :alt="selectedItem.name" class="mx-auto max-h-32 max-w-32 object-contain [image-rendering:pixelated]">
+                                        <x-item-image source-expression="selectedItem.image" label-expression="selectedItem.name" class="mx-auto max-h-32 max-w-32 object-contain [image-rendering:pixelated]" />
                                         <p class="mt-4 font-semibold text-white" x-text="itemTitle"></p>
                                         <p class="mt-2 text-xs text-steel" x-text="`${@js(__('ui.admin.item_grant_durability'))}: ${durability}`"></p>
                                         <ul x-show="fullItemOptions.length > 0" class="mt-4 grid gap-1 text-left text-xs text-emerald-200">
@@ -229,6 +258,7 @@
                             <textarea name="reason" rows="3" minlength="5" maxlength="500" required>{{ old('reason') }}</textarea>
                         </label>
 
+                        <p x-cloak x-show="selectedItem?.nativeOptions?.constructionSupported === false" class="rounded-xl border border-amber-300/20 bg-amber-300/8 p-4 text-sm text-amber-100" role="alert">{{ __('ui.admin.item_grant_construction_unsupported') }}</p>
                         <div class="flex justify-end">
                             <button type="submit" class="button button-primary" @disabled(! $writesEnabled)>{{ __('ui.admin.item_grant_submit') }}</button>
                         </div>

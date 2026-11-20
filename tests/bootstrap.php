@@ -56,6 +56,7 @@ $testingEnvironment = [
     'DB_URL' => '',
     'GAME_DATA_SOURCE' => 'fixture',
     'GAME_DB_CONNECTION' => 'sqlite',
+    'GAME_DB_BATTLE_CORE' => ':memory:',
     'GAME_DB_HOST' => '',
     'GAME_DB_MUONLINE' => ':memory:',
     'GAME_DB_PASSWORD' => '',

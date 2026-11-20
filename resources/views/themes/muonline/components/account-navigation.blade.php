@@ -4,6 +4,7 @@
 ])
 
 @inject('moduleManager', 'App\Modules\ModuleManager')
+@inject('versionProfile', 'App\Game\Versions\Contracts\GameVersionProfile')
 
 @php
     $activeTab = request()->query('tab');
@@ -114,6 +115,13 @@
             </a>
         @endif
 
+        @if ($moduleManager->enabled(\App\Modules\ServerModule::GameCurrencyExchange))
+            <a href="{{ route('account.native-services.index') }}" class="group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border border-transparent px-5 py-4 text-silver transition hover:border-white/10 hover:bg-white/5 hover:text-white">
+                <span class="text-gold" aria-hidden="true">⇄</span>
+                <span><strong class="block text-sm">{{ __('ui.native_services.exchange_heading') }}</strong><span class="mt-0.5 block text-xs text-steel">{{ __('ui.native_services.exchange_nav_help') }}</span></span>
+            </a>
+        @endif
+
         @if ($moduleManager->enabled(\App\Modules\ServerModule::Vip))
             @if ($vipModalAvailable)
                 <button
@@ -127,7 +135,7 @@
                 >
             @else
                 <a
-                    href="{{ route('account.dashboard', ['panel' => 'vip']) }}"
+                    href="{{ $versionProfile->capabilities()->accountVip ? route('account.native-services.index', ['panel' => 'vip']) : route('account.dashboard', ['panel' => 'vip']) }}"
                     class="group flex min-w-56 shrink-0 items-center gap-4 rounded-xl border border-transparent px-5 py-4 text-silver transition hover:border-white/10 hover:bg-white/5 hover:text-white"
                 >
             @endif

@@ -33,6 +33,7 @@ final class ModuleProfileController extends Controller
             $moduleCards[] = [
                 'key' => $module->value,
                 'enabled' => $moduleManager->enabled($module),
+                'supported' => $moduleManager->supports($module),
             ];
         }
 

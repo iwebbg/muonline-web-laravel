@@ -3,11 +3,15 @@
     'resetRevision' => null,
 ])
 
+@inject('versionProfile', 'App\Game\Versions\Contracts\GameVersionProfile')
+
 @php
+    $gameCapabilities = $versionProfile->capabilities();
     $active ??= match (true) {
         request()->routeIs('admin.dashboard') => 'overview',
         request()->routeIs('admin.character-rules.*') => 'character-rules-'.request()->route('profile'),
         request()->routeIs('admin.event-schedules.*') => 'event-schedules',
+        request()->routeIs('admin.s21-warehouse') => 's21-warehouse',
         request()->routeIs('admin.moderation*') => 'moderation',
         request()->routeIs('admin.item-grants.*') => 'item-grants',
         request()->routeIs('admin.game-masters.*') => 'game-masters',
@@ -27,11 +31,12 @@
         request()->routeIs('admin.news-posts.*') => 'content',
         request()->routeIs('admin.downloads.*') => 'downloads',
         request()->routeIs('admin.audit-log') => 'audit-log',
+        request()->routeIs('admin.support') => 'support',
         default => 'overview',
     };
 @endphp
 
-<aside {{ $attributes->class('admin-sidebar-scrollbar fixed inset-y-0 left-0 z-[70] w-72 -translate-x-full overflow-y-auto border-r border-white/8 bg-[#0b0d12]/98 p-4 shadow-2xl shadow-black/60 transition-transform duration-200 xl:translate-x-0 xl:shadow-none') }}>
+<aside {{ $attributes->class('admin-sidebar-scrollbar fixed inset-y-0 left-0 z-[70] w-72 max-w-[calc(100vw-2rem)] -translate-x-full data-[open=true]:translate-x-0 overflow-y-auto border-r border-white/8 bg-[#0b0d12]/98 p-4 shadow-2xl shadow-black/60 transition-transform duration-200 xl:translate-x-0 xl:shadow-none') }}>
     <a href="{{ route('admin.dashboard') }}" class="mb-4 flex items-center gap-3 border-b border-white/8 px-2 pb-5 pt-1">
         <span class="brand-mark shrink-0" aria-hidden="true">MU</span>
         <span class="min-w-0">
@@ -48,6 +53,7 @@
             <a href="{{ route('admin.dashboard') }}" class="admin-nav-link {{ $active === 'overview' ? 'admin-nav-link-active' : '' }}">
                 <span>⌁</span>{{ __('ui.admin.overview') }}
             </a>
+            @if ($gameCapabilities->allowsRoute('admin.character-rules.edit'))
             <div class="mt-2 border-t border-white/8 pt-2">
                 <p class="flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-steel">
                     <span>↻</span>{{ __('ui.admin.character_rules') }}
@@ -66,6 +72,7 @@
                     @endforeach
                 </div>
             </div>
+            @endif
         @endif
         @if (
             auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageSettings)
@@ -83,21 +90,28 @@
                         <a href="{{ route('admin.event-schedules.index') }}" class="admin-nav-link {{ $active === 'event-schedules' ? 'admin-nav-link-active' : '' }}">
                             <span>◷</span>{{ __('ui.admin.event_schedules_nav') }}
                         </a>
+                        @if (config('game.s21_warehouse_preview_enabled'))
+                            <a href="{{ route('admin.s21-warehouse') }}" class="admin-nav-link {{ $active === 's21-warehouse' ? 'admin-nav-link-active' : '' }}">
+                                <span>◇</span>{{ __('ui.s21_warehouse.title') }}
+                            </a>
+                        @endif
                     @endif
                     @if (
-                        auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateAccounts)
-                        || auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateCharacters)
+                        $gameCapabilities->allowsRoute('admin.moderation') && (
+                            auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateAccounts)
+                            || auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ModerateCharacters)
+                        )
                     )
                         <a href="{{ route('admin.moderation') }}" class="admin-nav-link {{ $active === 'moderation' ? 'admin-nav-link-active' : '' }}">
                             <span>⚑</span>{{ __('ui.admin.moderation') }}
                         </a>
                     @endif
-                    @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::GrantItems))
+                    @if ($gameCapabilities->allowsRoute('admin.item-grants.index') && auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::GrantItems))
                         <a href="{{ route('admin.item-grants.index') }}" class="admin-nav-link {{ $active === 'item-grants' ? 'admin-nav-link-active' : '' }}">
                             <span>✧</span>{{ __('ui.admin.item_grants_nav') }}
                         </a>
                     @endif
-                    @if (auth('admin')->user()?->role === \App\Admin\Authorization\AdministratorRole::Administrator)
+                    @if ($gameCapabilities->allowsRoute('admin.game-masters.index') && auth('admin')->user()?->role === \App\Admin\Authorization\AdministratorRole::Administrator)
                         <a href="{{ route('admin.game-masters.index') }}" class="admin-nav-link {{ $active === 'game-masters' ? 'admin-nav-link-active' : '' }}">
                             <span>♜</span>{{ __('ui.admin.game_masters') }}
                         </a>
@@ -105,7 +119,7 @@
                 </div>
             </div>
         @endif
-        @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageEconomy))
+        @if ($gameCapabilities->allowsRoute('admin.economy-settings.edit') && auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageEconomy))
             <div class="mt-2 border-t border-white/8 pt-2">
                 <p class="flex items-center gap-3 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-steel">
                     <span>◈</span>{{ __('ui.admin.economy') }}
@@ -123,6 +137,11 @@
                     <a href="{{ route('admin.credit-payments.index') }}" class="admin-nav-link {{ $active === 'credit-payments' ? 'admin-nav-link-active' : '' }}">
                         <span>◷</span>{{ __('ui.admin.credit_purchase_history_nav') }}
                     </a>
+                    @if ($gameCapabilities->gameCurrencyExchange)
+                        <a href="{{ route('admin.game-currency-rates.index') }}" class="admin-nav-link {{ request()->routeIs('admin.game-currency-rates.*') ? 'admin-nav-link-active' : '' }}">
+                            <span>⇄</span>{{ __('ui.native_services.exchange_heading') }}
+                        </a>
+                    @endif
                     <a href="{{ route('admin.vip-plans.index') }}" class="admin-nav-link {{ $active === 'vip-plans' ? 'admin-nav-link-active' : '' }}">
                         <span>◆</span>{{ __('ui.admin.vip_plans_nav') }}
                     </a>
@@ -168,9 +187,11 @@
                         <a href="{{ route('admin.website-settings.edit') }}" class="admin-nav-link {{ $active === 'website-settings' ? 'admin-nav-link-active' : '' }}">
                             <span>◆</span>{{ __('ui.admin.website_settings_nav') }}
                         </a>
+                        @if ($gameCapabilities->allowsRoute('admin.modules.index'))
                         <a href="{{ route('admin.modules.index') }}" class="admin-nav-link {{ $active === 'modules' ? 'admin-nav-link-active' : '' }}">
                             <span>◫</span>{{ __('ui.admin.modules') }}
                         </a>
+                        @endif
                     @endif
                     @if (auth('admin')->user()?->hasPermission(\App\Admin\Authorization\AdministratorPermission::ManageContent))
                         <a href="{{ route('admin.news-posts.index') }}" class="admin-nav-link {{ $active === 'content' ? 'admin-nav-link-active' : '' }}">
@@ -188,6 +209,11 @@
                 </div>
             </div>
         @endif
+        <div class="mt-2 border-t border-white/8 pt-2">
+            <a href="{{ route('admin.support') }}" class="admin-nav-link {{ $active === 'support' ? 'admin-nav-link-active' : '' }}">
+                <span aria-hidden="true">?</span>{{ __('ui.support.navigation') }}
+            </a>
+        </div>
     </nav>
 
     @if ($resetRevision !== null)

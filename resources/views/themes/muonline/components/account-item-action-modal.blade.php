@@ -16,12 +16,12 @@
                 <button type="button" class="icon-button" aria-label="{{ __('ui.account.item_actions_close') }}" @click="closeItemActions()">×</button>
             </div>
 
+            <p class="mt-5 text-sm text-silver" x-show="selectedActionItem?.transferable === false" x-cloak>{{ __('ui.web_storage.errors.unsupported_item') }}</p>
+
             <div class="mt-6 grid gap-6 md:grid-cols-[15rem_1fr]" x-show="selectedActionItem !== null">
                 <div class="item-action-preview rounded-2xl border border-white/8 bg-black/25 p-5 text-center">
                     <div class="grid min-h-44 place-items-center">
-                        <template x-if="selectedActionItem?.image !== null">
-                            <img :src="selectedActionItem?.image" :alt="selectedActionItem?.name" class="max-h-40 max-w-full object-contain">
-                        </template>
+                        <x-item-image source-expression="selectedActionItem?.image" label-expression="selectedActionItem?.name ?? ''" class="max-h-40 max-w-full" />
                     </div>
                     <strong class="mt-4 block text-lg" :class="`item-name-${itemNameTone(selectedActionItem)}`" x-text="itemTitle(selectedActionItem)"></strong>
                     <div class="mt-4 text-sm">
@@ -71,7 +71,7 @@
                         <p class="mt-3 text-xs leading-5 text-steel" x-show="itemSaleType === 'auction'">
                             {{ __('ui.market.auction_settlement_help') }}
                         </p>
-                        <button type="submit" class="button button-primary mt-4 w-full" :disabled="!resetPreviewConfiguration.writesEnabled">{{ __('ui.account.item_sell_market') }}</button>
+                        <button type="submit" class="button button-primary mt-4 w-full" :disabled="!resetPreviewConfiguration.writesEnabled || selectedActionItem?.transferable === false">{{ __('ui.account.item_sell_market') }}</button>
                     </form>
 
                     <form method="POST" :action="resetPreviewConfiguration.webStorageStoreUrl" x-show="selectedItemLocation === 'warehouse' && selectedCharacter !== undefined && resetPreviewConfiguration.webStorageEnabled">
@@ -80,13 +80,13 @@
                         <input type="hidden" name="vault" :value="selectedVaultNumber">
                         <input type="hidden" name="slot" :value="selectedActionItem?.slot">
                         <input type="hidden" name="idempotency_key" :value="itemActionIdempotencyKey">
-                        <button type="submit" class="button button-ghost w-full" :disabled="!resetPreviewConfiguration.writesEnabled">{{ __('ui.web_storage.store') }}</button>
+                        <button type="submit" class="button button-ghost w-full" :disabled="!resetPreviewConfiguration.writesEnabled || selectedActionItem?.transferable === false">{{ __('ui.web_storage.store') }}</button>
                     </form>
 
                     <form method="POST" :action="selectedWebStorageItem?.withdrawUrl" x-show="selectedItemLocation === 'web'">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="button button-primary w-full" :disabled="!resetPreviewConfiguration.writesEnabled">{{ __('ui.account.item_move_game_vault') }}</button>
+                        <button type="submit" class="button button-primary w-full" :disabled="!resetPreviewConfiguration.writesEnabled || selectedActionItem?.transferable === false">{{ __('ui.account.item_move_game_vault') }}</button>
                     </form>
                 </div>
             </div>

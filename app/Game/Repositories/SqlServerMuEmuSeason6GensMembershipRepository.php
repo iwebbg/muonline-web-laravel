@@ -130,7 +130,7 @@ final readonly class SqlServerMuEmuSeason6GensMembershipRepository implements Ge
                 classCode: $classCode,
                 className: $classDefinition?->name ?? sprintf('Unknown class (%d)', $classCode),
                 classAbbreviation: $classDefinition?->abbreviation ?? '??',
-                image: $classDefinition?->image ?? '/images/characters/blade-knight.png',
+                image: $classDefinition?->image ?? '/images/characters/muonline-web-dark-knight.png',
                 family: $family,
                 contribution: max(0, (int) $row->contribution),
                 familyRank: max(0, (int) $row->gens_rank),

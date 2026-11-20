@@ -69,7 +69,7 @@ final readonly class PurchaseCharacterVip
             ->available()
             ->find($planId);
 
-        if (! $plan instanceof VipPlan) {
+        if (! $plan instanceof VipPlan || $plan->native_account_level !== null) {
             throw new VipPurchaseRejected(VipPurchaseBlockReason::PlanUnavailable);
         }
 

@@ -35,6 +35,23 @@
                     <input type="hidden" name="revision" value="{{ $settings->revision }}">
 
                     <section class="panel-card p-5 sm:p-7">
+                        <p class="kicker">{{ __('ui.admin.website_accounts') }}</p>
+                        <p class="mt-3 text-sm text-silver">{{ __('ui.admin.website_accounts_help') }}</p>
+                        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                            <label class="flex items-center gap-3 text-sm text-white">
+                                <input type="hidden" name="registration_enabled" value="0">
+                                <input type="checkbox" name="registration_enabled" value="1" @checked(old('registration_enabled', $settings->registrationEnabled))>
+                                <span>{{ __('ui.admin.website_registration_enabled') }}</span>
+                            </label>
+                            <label class="flex items-center gap-3 text-sm text-white">
+                                <input type="hidden" name="require_email_verification" value="0">
+                                <input type="checkbox" name="require_email_verification" value="1" @checked(old('require_email_verification', $settings->requireEmailVerification))>
+                                <span>{{ __('ui.admin.website_require_email_verification') }}</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="panel-card p-5 sm:p-7">
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                             <div>
                                 <p class="kicker">{{ __('ui.admin.website_branding') }}</p>

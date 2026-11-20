@@ -22,6 +22,10 @@
 /storage/*.key
 /storage/pail
 /vendor
+/deploy/*.zip
+/deploy/manifest.json
+/deploy/manifest.json.sig
+/deploy/release.public.pem
 _ide_helper.php
 Homestead.json
 Homestead.yaml

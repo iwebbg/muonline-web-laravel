@@ -83,6 +83,17 @@ elif [ "${1:-}" = "test-integration-1.0m" ]; then
     )
     integration_test=true
     set -- run --rm --build integration-test composer test:integration-1.0m -- "${test_arguments[@]}"
+elif [ "${1:-}" = "test-integration-s21" ]; then
+    shift
+    test_arguments=("$@")
+    compose_files=(
+        "$docker_directory/docker-compose.integration-test-s21.yaml"
+    )
+    compose_project_arguments=(
+        --project-name muonline-web-integration-s21
+    )
+    integration_test=true
+    set -- run --rm --build integration-test composer test:integration-s21 -- "${test_arguments[@]}"
 fi
 
 compose_file_arguments=()

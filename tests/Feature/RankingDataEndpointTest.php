@@ -141,7 +141,7 @@ final class RankingDataEndpointTest extends TestCase
                     classCode: 17,
                     className: 'Blade Knight',
                     classAbbreviation: 'BK',
-                    image: '/images/characters/blade-knight.png',
+                    image: '/images/characters/muonline-web-dark-knight.png',
                     family: GensFamily::Duprian,
                     contribution: 25_000,
                     familyRank: 3,

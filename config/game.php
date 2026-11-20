@@ -1,11 +1,16 @@
 <?php
 
+use App\Game\Versions\MuDevsSeason21\MuDevsSeason21Profile;
 use App\Game\Versions\MuEmuSeason6\MuEmuSeason6Profile;
 use App\Game\Versions\Version1_0M\Version1_0MProfile;
 use App\Game\Versions\Version97d99i\Version97d99iProfile;
 
 $serverProfileKey = env('GAME_SERVER_PROFILE', 'darksteam_97d99i');
 $serverProfileDefaults = match ($serverProfileKey) {
+    'mudevs_season_21' => [
+        'name' => 'MuOnline MUDevs Season 21',
+        'version' => 'S21.1-2',
+    ],
     'darksteam_1_0m' => [
         'name' => 'MuOnline DarksTeam 1.0M',
         'version' => '0.99.60/62T (1.0M)',
@@ -22,6 +27,11 @@ $serverProfileDefaults = match ($serverProfileKey) {
 
 return [
     'data_source' => env('GAME_DATA_SOURCE', 'fixture'),
+
+    's21_warehouse_preview_enabled' => filter_var(
+        env('GAME_S21_WAREHOUSE_PREVIEW_ENABLED', false),
+        FILTER_VALIDATE_BOOL,
+    ),
 
     'database_bootstrap' => [
         'enabled' => env('APP_DB_BOOTSTRAP', false),
@@ -45,6 +55,18 @@ return [
     'database_connections' => [
         'primary' => 'game',
         'rankings' => env('GAME_RANKING_CONNECTION', 'game'),
+        'battle_core' => 'battle_core',
+    ],
+
+    'battle_core' => [
+        'reads_enabled' => filter_var(env('GAME_BATTLE_CORE_READS_ENABLED', false), FILTER_VALIDATE_BOOL),
+        'server_codes' => array_values(array_unique(array_map(
+            'intval',
+            array_filter(
+                explode(',', (string) env('GAME_BATTLE_CORE_SERVER_CODES', '19,20')),
+                static fn (string $code): bool => ctype_digit(trim($code)),
+            ),
+        ))),
     ],
 
     'event_timezone' => env('GAME_EVENT_TIMEZONE', 'Europe/Sofia'),
@@ -86,6 +108,7 @@ return [
     ],
 
     'version_profiles' => [
+        'mudevs_season_21' => MuDevsSeason21Profile::class,
         'darksteam_97d99i' => Version97d99iProfile::class,
         'darksteam_1_0m' => Version1_0MProfile::class,
         'muemu_season_6' => MuEmuSeason6Profile::class,

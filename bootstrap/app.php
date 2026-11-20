@@ -2,10 +2,14 @@
 
 use App\Http\Middleware\ApplyTheme;
 use App\Http\Middleware\EnforceDemoMode;
+use App\Http\Middleware\EnsureActiveAdministrator;
 use App\Http\Middleware\EnsureAdministratorPermission;
 use App\Http\Middleware\EnsureFullAdministrator;
+use App\Http\Middleware\EnsureGameProfileAvailable;
 use App\Http\Middleware\EnsureModuleEnabled;
+use App\Http\Middleware\EnsureNativeAccountServicesAvailable;
 use App\Http\Middleware\SetLocale;
+use Illuminate\Contracts\Session\Middleware\AuthenticatesSessions;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,13 +22,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prependToPriorityList(AuthenticatesSessions::class, EnsureActiveAdministrator::class);
         $middleware->alias([
+            'admin.active' => EnsureActiveAdministrator::class,
             'admin.permission' => EnsureAdministratorPermission::class,
             'admin.full' => EnsureFullAdministrator::class,
             'demo' => EnforceDemoMode::class,
             'module.enabled' => EnsureModuleEnabled::class,
+            'native.account-services' => EnsureNativeAccountServicesAvailable::class,
         ]);
         $middleware->web(append: [
+            EnsureGameProfileAvailable::class,
             SetLocale::class,
             ApplyTheme::class,
         ]);

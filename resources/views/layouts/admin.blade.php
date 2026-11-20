@@ -33,18 +33,21 @@
 
             <x-admin-navigation
                 :reset-revision="request()->routeIs('admin.character-rules.*') ? ($revision ?? null) : null"
-                x-bind:style="adminMenuOpen ? 'transform: translateX(0)' : ''"
+                id="admin-navigation"
+                x-bind:data-open="adminMenuOpen"
             />
         @endauth
 
         <div @class(['relative z-10 min-w-0', 'xl:pl-72' => auth('admin')->check()])>
             <header class="sticky top-0 z-50 border-b border-white/8 bg-void/90 backdrop-blur-xl">
-                <div class="admin-shell flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
+                <div @class(['flex min-h-16 flex-wrap items-center justify-between gap-3 py-3', 'admin-shell' => auth('admin')->check(), 'shell' => ! auth('admin')->check()])>
                     @auth('admin')
                         <button
                             type="button"
                             class="icon-button xl:hidden"
                             aria-label="{{ __('ui.navigation.toggle') }}"
+                            aria-controls="admin-navigation"
+                            x-bind:aria-expanded="adminMenuOpen"
                             x-on:click="adminMenuOpen = true"
                         >
                             <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -72,7 +75,7 @@
                 </div>
             </header>
 
-            <main class="min-h-[calc(100vh-4rem)]">
+            <main class="min-h-[calc(100vh-4rem)] min-w-0">
                 @yield('content')
             </main>
         </div>

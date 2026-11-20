@@ -119,6 +119,7 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
     public function capabilities(): GameVersionCapabilities
     {
         return new GameVersionCapabilities(
+            schemaExtensionResource: 'game/1_0m/schema-extensions.sql',
             grandResets: true,
             characterVip: false,
             billingRecord: false,
@@ -143,14 +144,14 @@ final class Version1_0MProfile implements GameDatabaseProfile, GameVersionProfil
     public function classes(): array
     {
         return [
-            new CharacterClassDefinition(0, 'dw', 'DW', 'Dark Wizard', '/images/characters/soul-master.jpg', 'wizard', 1),
-            new CharacterClassDefinition(1, 'sm', 'SM', 'Soul Master', '/images/characters/soul-master.jpg', 'wizard', 2, 0),
-            new CharacterClassDefinition(16, 'dk', 'DK', 'Dark Knight', '/images/characters/blade-knight.png', 'knight', 1),
-            new CharacterClassDefinition(17, 'bk', 'BK', 'Blade Knight', '/images/characters/blade-knight.png', 'knight', 2, 16),
-            new CharacterClassDefinition(32, 'fe', 'FE', 'Fairy Elf', '/images/characters/muse-elf.png', 'elf', 1),
-            new CharacterClassDefinition(33, 'me', 'ME', 'Muse Elf', '/images/characters/muse-elf.png', 'elf', 2, 32),
-            new CharacterClassDefinition(48, 'mg', 'MG', 'Magic Gladiator', '/images/characters/magic-gladiator.png', 'magic-gladiator', 1),
-            new CharacterClassDefinition(64, 'dl', 'DL', 'Dark Lord', '/images/characters/dark-lord.png', 'dark-lord', 1),
+            new CharacterClassDefinition(0, 'dw', 'DW', 'Dark Wizard', '/images/characters/muonline-web-dark-wizard.png', 'wizard', 1),
+            new CharacterClassDefinition(1, 'sm', 'SM', 'Soul Master', '/images/characters/muonline-web-dark-wizard.png', 'wizard', 2, 0),
+            new CharacterClassDefinition(16, 'dk', 'DK', 'Dark Knight', '/images/characters/muonline-web-dark-knight.png', 'knight', 1),
+            new CharacterClassDefinition(17, 'bk', 'BK', 'Blade Knight', '/images/characters/muonline-web-dark-knight.png', 'knight', 2, 16),
+            new CharacterClassDefinition(32, 'fe', 'FE', 'Fairy Elf', '/images/characters/muonline-web-elf.png', 'elf', 1),
+            new CharacterClassDefinition(33, 'me', 'ME', 'Muse Elf', '/images/characters/muonline-web-elf.png', 'elf', 2, 32),
+            new CharacterClassDefinition(48, 'mg', 'MG', 'Magic Gladiator', '/images/characters/muonline-web-magic-gladiator.png', 'magic-gladiator', 1),
+            new CharacterClassDefinition(64, 'dl', 'DL', 'Dark Lord', '/images/characters/muonline-web-dark-lord.png', 'dark-lord', 1),
         ];
     }
 

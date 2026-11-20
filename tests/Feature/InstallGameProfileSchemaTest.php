@@ -31,7 +31,7 @@ final class InstallGameProfileSchemaTest extends TestCase
         config()->set('game.profile.key', 'darksteam_97d99i');
 
         $this->artisan('game:install-profile-schema')
-            ->expectsOutputToContain('supports only darksteam_1_0m')
+            ->expectsOutputToContain('does not declare schema extensions')
             ->assertFailed();
     }
 }

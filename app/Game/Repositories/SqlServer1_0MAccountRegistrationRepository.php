@@ -34,6 +34,7 @@ final readonly class SqlServer1_0MAccountRegistrationRepository implements Accou
         string $username,
         #[SensitiveParameter] string $password,
         string $email,
+        bool $requiresEmailVerification = true,
     ): AccountRegistrationResult {
         $connection = $this->database->connection('game');
         $passwordHash = strtoupper(bin2hex($this->passwordCodec->encode($username, $password)));
@@ -44,6 +45,7 @@ final readonly class SqlServer1_0MAccountRegistrationRepository implements Accou
                 $username,
                 $passwordHash,
                 $email,
+                $requiresEmailVerification,
             ): AccountRegistrationResult {
                 $this->rejectExistingAccount($connection, $username);
                 $insertedAccount = $connection->selectOne(
@@ -61,7 +63,7 @@ final readonly class SqlServer1_0MAccountRegistrationRepository implements Accou
                         $username,
                         '1111111111111',
                         $email,
-                        '1',
+                        $requiresEmailVerification ? '1' : '0',
                         '0',
                     ],
                 );
@@ -74,6 +76,7 @@ final readonly class SqlServer1_0MAccountRegistrationRepository implements Accou
                     accountGuid: (int) $insertedAccount->account_guid,
                     accountId: $username,
                     billingRecordCreated: false,
+                    requiresEmailVerification: $requiresEmailVerification,
                 );
             }, 3);
         } catch (QueryException $exception) {

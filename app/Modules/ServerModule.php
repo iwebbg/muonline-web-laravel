@@ -11,6 +11,7 @@ enum ServerModule: string
     case PasswordRecovery = 'password_recovery';
     case AccountSecurity = 'account_security';
     case Credits = 'credits';
+    case GameCurrencyExchange = 'game_currency_exchange';
     case VoteRewards = 'vote_rewards';
     case Vip = 'vip';
     case WebStorage = 'web_storage';

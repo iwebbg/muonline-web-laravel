@@ -70,27 +70,30 @@
 
                 <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
                     <div class="grid content-start gap-5 sm:grid-cols-2">
-                        <div class="relative sm:col-span-2" x-on:click.outside="closeItemSuggestions()">
-                            <label class="field-group">
-                                <span>{{ __('ui.shop.generator_search') }}</span>
-                                <input
-                                    type="search"
-                                    x-ref="itemSearch"
-                                    x-model="itemSearch"
-                                    x-on:input="filterItems()"
-                                    x-on:focus="itemSuggestionsOpen = true"
-                                    x-on:keydown.down.prevent="moveItemSuggestion(1)"
-                                    x-on:keydown.up.prevent="moveItemSuggestion(-1)"
-                                    x-on:keydown.enter.prevent="selectActiveItemSuggestion()"
-                                    autocomplete="off"
-                                    role="combobox"
-                                    aria-autocomplete="list"
-                                    aria-controls="generator-item-suggestions"
-                                    x-bind:aria-expanded="itemSuggestionsOpen"
-                                    placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
-                                    required
-                                >
-                            </label>
+                        <div class="relative sm:col-span-2" x-on:click.outside="closeItemSuggestions()" x-on:item-browser-selected.stop="selectItem($event.detail.item)">
+                            <div class="flex items-end gap-3">
+                                <label class="field-group min-w-0 flex-1">
+                                    <span>{{ __('ui.shop.generator_search') }}</span>
+                                    <input
+                                        type="search"
+                                        x-ref="itemSearch"
+                                        x-model="itemSearch"
+                                        x-on:input="filterItems()"
+                                        x-on:focus="itemSuggestionsOpen = true"
+                                        x-on:keydown.down.prevent="moveItemSuggestion(1)"
+                                        x-on:keydown.up.prevent="moveItemSuggestion(-1)"
+                                        x-on:keydown.enter.prevent="selectActiveItemSuggestion()"
+                                        autocomplete="off"
+                                        role="combobox"
+                                        aria-autocomplete="list"
+                                        aria-controls="generator-item-suggestions"
+                                        x-bind:aria-expanded="itemSuggestionsOpen"
+                                        placeholder="{{ __('ui.admin.item_grant_item_placeholder') }}"
+                                        required
+                                    >
+                                </label>
+                                <x-item-browser catalog="items" :show-prices="true" />
+                            </div>
                             <div
                                 id="generator-item-suggestions"
                                 class="absolute inset-x-0 top-full z-30 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-white/10 bg-[#0d1016]/98 shadow-2xl backdrop-blur-xl"
@@ -102,7 +105,7 @@
                                 <template x-for="(item, index) in itemSuggestions" :key="item.code">
                                     <button type="button" class="flex w-full items-center gap-4 px-4 py-3 text-left transition hover:bg-white/[0.06]" x-on:click="selectItem(item)" role="option">
                                         <span class="grid size-11 shrink-0 place-items-center rounded-xl border border-white/8 bg-black/25">
-                                            <img x-show="item.image" x-bind:src="item.image" alt="" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]">
+                                            <x-item-image source-expression="item.image" class="max-h-9 max-w-9 object-contain [image-rendering:pixelated]" />
                                         </span>
                                         <span>
                                             <strong class="block text-sm text-white" x-text="item.name"></strong>
@@ -157,7 +160,7 @@
                         </fieldset>
 
                         <fieldset x-show="hasAdvancedOptions" x-cloak class="grid gap-4 rounded-2xl border border-gold/20 bg-gold/[0.04] p-4 sm:col-span-2 sm:grid-cols-2">
-                            <legend class="px-2 text-sm font-semibold text-gold">{{ __('ui.shop.generator_advanced_options') }}</legend>
+                            <legend class="px-2 text-sm font-semibold text-gold" x-text="selectedItem?.maxSockets > 0 ? @js(__('ui.shop.generator_socket_options')) : @js(__('ui.shop.generator_advanced_options'))">{{ __('ui.shop.generator_advanced_options') }}</legend>
 
                             <label x-show="selectedItem?.ancientOptions?.length > 0" class="field-group">
                                 <span>{{ __('ui.shop.generator_ancient') }}</span>
@@ -209,7 +212,7 @@
                         <p class="kicker">{{ __('ui.admin.item_grant_preview') }}</p>
                         <template x-if="selectedItem">
                             <div class="mt-5">
-                                <img x-show="selectedItem.image" :src="selectedItem.image" :alt="selectedItem.name" class="mx-auto max-h-32 max-w-32 object-contain [image-rendering:pixelated]">
+                                <x-item-image source-expression="selectedItem.image" label-expression="selectedItem.name" class="mx-auto max-h-32 max-w-32 object-contain [image-rendering:pixelated]" />
                                 <p class="mt-4 font-semibold text-white" x-text="itemTitle"></p>
                                 <ul x-show="fullItemOptions.length > 0" class="mt-4 grid gap-1 text-left text-xs text-emerald-200">
                                     <template x-for="option in fullItemOptions" :key="option"><li x-text="option"></li></template>

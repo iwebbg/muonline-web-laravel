@@ -313,7 +313,7 @@ final class SqlServerMuEmuSeason6RealmReadRepository implements RealmReadReposit
             classCode: $classCode,
             className: $classDefinition?->name ?? sprintf('Unknown class (%d)', $classCode),
             classAbbreviation: $classDefinition?->abbreviation ?? '??',
-            image: $classDefinition?->image ?? '/images/characters/blade-knight.png',
+            image: $classDefinition?->image ?? '/images/characters/muonline-web-dark-knight.png',
             level: (int) $row->level,
             resets: (int) $row->resets,
             grandResets: (int) $row->grand_resets,
@@ -376,7 +376,7 @@ final class SqlServerMuEmuSeason6RealmReadRepository implements RealmReadReposit
         return new PublicCharacterProfile(
             name: (string) $row->name,
             className: $classDefinition?->name ?? sprintf('Unknown class (%d)', $classCode),
-            image: $classDefinition?->image ?? '/images/characters/blade-knight.png',
+            image: $classDefinition?->image ?? '/images/characters/muonline-web-dark-knight.png',
             level: (int) $row->level,
             resets: (int) $row->resets,
             grandResets: (int) $row->grand_resets,

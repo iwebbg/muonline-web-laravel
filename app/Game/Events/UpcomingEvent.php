@@ -14,6 +14,7 @@ final readonly class UpcomingEvent
      *
      * @param  list<DateTimeImmutable>  $occurrences
      * @param  list<string>  $dailyTimes
+     * @param  list<int>  $daysOfMonth
      * @param  list<int>  $daysOfWeek
      */
     public function __construct(
@@ -28,6 +29,7 @@ final readonly class UpcomingEvent
         public ?int $intervalMinutes,
         public int $durationMinutes,
         public ?int $cycleDays = null,
+        public array $daysOfMonth = [],
     ) {}
 
     /**
@@ -41,7 +43,7 @@ final readonly class UpcomingEvent
     /**
      * Converts the event to the stable client shape used by the live timers.
      *
-     * @return array{key: string, name: string, location: string, accent: string, previousOccurrence: string, occurrences: list<string>, dailyTimes: list<string>, daysOfWeek: list<int>, intervalMinutes: int|null, durationMinutes: int, cycleDays: int|null}
+     * @return array{key: string, name: string, location: string, accent: string, previousOccurrence: string, occurrences: list<string>, dailyTimes: list<string>, daysOfWeek: list<int>, intervalMinutes: int|null, durationMinutes: int, cycleDays: int|null, daysOfMonth?: list<int>}
      */
     public function toClientArray(): array
     {
@@ -63,6 +65,7 @@ final readonly class UpcomingEvent
             'intervalMinutes' => $this->intervalMinutes,
             'durationMinutes' => $this->durationMinutes,
             'cycleDays' => $this->cycleDays,
+            ...($this->daysOfMonth === [] ? [] : ['daysOfMonth' => $this->daysOfMonth]),
         ];
     }
 }

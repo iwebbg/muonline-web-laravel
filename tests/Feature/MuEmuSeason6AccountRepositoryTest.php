@@ -7,6 +7,7 @@ use App\Game\Repositories\SqlServerMuEmuSeason6AccountRegistrationRepository;
 use App\Game\Versions\MuEmuSeason6\MapNameMapperMuEmuSeason6;
 use App\Game\Versions\MuEmuSeason6\MuEmuSeason6Profile;
 use Illuminate\Database\DatabaseManager;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
 /**
@@ -111,12 +112,14 @@ final class MuEmuSeason6AccountRepositoryTest extends TestCase
     /**
      * Confirms registration follows MuEMU's disabled-MD5 JoinServer configuration.
      */
-    public function test_registers_plaintext_muemu_account_without_billing_row(): void
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function test_registers_plaintext_muemu_account_without_billing_row(bool $requiresEmailVerification): void
     {
         $database = $this->app->make(DatabaseManager::class);
         $repository = new SqlServerMuEmuSeason6AccountRegistrationRepository($database);
 
-        $result = $repository->register('newuser', 'secret123', 'new@example.com');
+        $result = $repository->register('newuser', 'secret123', 'new@example.com', $requiresEmailVerification);
         $account = $database->connection('game')
             ->table('MEMB_INFO')
             ->where('memb___id', 'newuser')
@@ -125,6 +128,8 @@ final class MuEmuSeason6AccountRepositoryTest extends TestCase
         self::assertNotNull($account);
         self::assertSame('secret123', $account->memb__pwd);
         self::assertSame('new@example.com', $account->mail_addr);
+        self::assertSame($requiresEmailVerification ? '1' : '0', $account->bloc_code);
+        self::assertSame($requiresEmailVerification, $result->requiresEmailVerification);
         self::assertSame(0, $account->AccountLevel);
         self::assertSame('newuser', $result->accountId);
         self::assertFalse($result->billingRecordCreated);

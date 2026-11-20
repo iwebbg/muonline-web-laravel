@@ -14,6 +14,7 @@ use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Contracts\ItemStorageRepository;
 use App\Game\Data\ExpectedInventoryItem;
 use App\Game\Data\ItemSlot;
+use App\Game\Operations\ItemEscrowCoordinator;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use App\Models\CreditExchangeOffer;
@@ -40,6 +41,7 @@ final readonly class ExchangeItemsForCredits
         private ItemExchangeMatcher $matcher,
         private AdjustWalletBalance $adjustWalletBalance,
         private DatabaseManager $database,
+        private ItemEscrowCoordinator $itemEscrowCoordinator,
     ) {}
 
     /**
@@ -212,10 +214,12 @@ final readonly class ExchangeItemsForCredits
             );
 
             try {
-                $this->inventoryEscrowRepository->extractMany(
-                    $operation->account_id,
-                    $operation->character_name,
-                    $expectedItems,
+                $this->itemEscrowCoordinator->extractInventoryBatch(
+                    repository: $this->inventoryEscrowRepository,
+                    accountId: $operation->account_id,
+                    characterName: $operation->character_name,
+                    expectedItems: $expectedItems,
+                    operationKey: 'credit-exchange:'.$operation->public_id,
                 );
                 $operation->update(['status' => CreditExchangeStatus::Extracted]);
             } catch (MarketListingRejected $exception) {

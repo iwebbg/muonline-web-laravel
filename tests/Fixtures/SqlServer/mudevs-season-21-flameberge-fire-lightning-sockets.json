@@ -1,0 +1,18 @@
+{
+    "slot": 19,
+    "hex": "1A00FF0102030D000000FF001DFEFFFFFFFFFFFFFFFFFFFFFF",
+    "code": "0:26",
+    "name": "Flameberge",
+    "level": 0,
+    "durability": 255,
+    "width": 1,
+    "height": 4,
+    "socketBonus": 255,
+    "socketOptions": [
+        0,
+        29,
+        254,
+        255,
+        255
+    ]
+}

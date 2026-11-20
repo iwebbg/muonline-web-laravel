@@ -6,6 +6,7 @@ use App\Admin\Authorization\AdministratorPermission;
 use App\Models\Administrator;
 use App\Themes\ThemeManager;
 use App\Website\WebsiteSettings;
+use App\Website\WebsiteSettingsManager;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -35,6 +36,8 @@ final class UpdateWebsiteSettingRequest extends FormRequest
     {
         return [
             'revision' => ['required', 'integer', 'min:0'],
+            'registration_enabled' => ['sometimes', 'boolean'],
+            'require_email_verification' => ['sometimes', 'boolean'],
             'brand_title' => ['nullable', 'string', 'max:80'],
             'brand_subtitle' => ['nullable', 'string', 'max:120'],
             'home_title_en' => ['nullable', 'string', 'max:160'],
@@ -59,6 +62,7 @@ final class UpdateWebsiteSettingRequest extends FormRequest
     public function settings(?string $logoPath, ?string $ogImagePath): WebsiteSettings
     {
         $defaults = WebsiteSettings::defaults();
+        $currentSettings = app(WebsiteSettingsManager::class)->current();
 
         return new WebsiteSettings(
             brandTitle: $this->normalized('brand_title') ?? $defaults->brandTitle,
@@ -75,6 +79,8 @@ final class UpdateWebsiteSettingRequest extends FormRequest
             copyrightHolder: $this->normalized('copyright_holder'),
             themeSlug: $this->string('theme_slug')->toString(),
             revision: $this->integer('revision'),
+            registrationEnabled: (bool) $this->validated('registration_enabled', $currentSettings->registrationEnabled),
+            requireEmailVerification: (bool) $this->validated('require_email_verification', $currentSettings->requireEmailVerification),
         );
     }
 
