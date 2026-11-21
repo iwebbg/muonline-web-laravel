@@ -20,6 +20,8 @@ Install and manage MuOnline Web on Windows with **MuOnline Web Manager**.
 
 [Download MuOnline Web Manager](https://mega.nz/file/eFMFlZpS#R2T1iPSjXT7faTfhDy6CHrDKuujMivODo50m8Ati2Fs)
 
+[Installation instructions and video](https://github.com/iwebbg/muonline-web-manager/blob/main/INSTALLATION_GUIDE.md)
+
 Supported operating systems (64-bit):
 
 - Windows 10
