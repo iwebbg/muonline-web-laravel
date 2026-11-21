@@ -5,9 +5,12 @@ namespace App\ItemGrants\Actions;
 use App\Admin\Authorization\AdministratorPermission;
 use App\Game\Contracts\ItemCatalog;
 use App\Game\Contracts\ItemCodec;
+use App\Game\Contracts\ItemConstructionPolicy;
 use App\Game\Contracts\ItemEscrowRepository;
+use App\Game\Contracts\ItemGrantRules;
 use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Operations\CharacterOperationStatus;
+use App\Game\Operations\ItemEscrowCoordinator;
 use App\ItemGrants\Exceptions\ItemGrantRejected;
 use App\ItemGrants\ItemGrantBlockReason;
 use App\ItemGrants\ItemGrantResult;
@@ -31,12 +34,14 @@ final readonly class GrantItemToWarehouse
         private ItemEscrowRepository $itemEscrowRepository,
         private ItemCatalog $catalog,
         private ItemCodec $codec,
+        private ItemGrantRules $itemGrantRules,
+        private ItemEscrowCoordinator $itemEscrowCoordinator,
     ) {}
 
     /**
      * Grants one catalog item to an offline account's active warehouse.
      *
-     * @param  array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int}  $options
+     * @param  array{group: int, index: int, level: int, durability: int, option_level: int, has_skill: bool, has_luck: bool, excellent_mask: int, ancient_option: int, harmony_option?: int, socket_count?: int, has_380_option?: bool}  $options
      *
      * @throws JsonException When the canonical request snapshot cannot be encoded.
      */
@@ -53,7 +58,8 @@ final readonly class GrantItemToWarehouse
             $options['index'],
         );
 
-        if ($definition === null) {
+        if ($definition === null
+            || ($this->itemGrantRules instanceof ItemConstructionPolicy && ! $this->itemGrantRules->allowsConstruction($options))) {
             throw new ItemGrantRejected(ItemGrantBlockReason::UnknownItem);
         }
 
@@ -111,6 +117,10 @@ final readonly class GrantItemToWarehouse
                 excellentMask: $options['excellent_mask'],
                 ancientOption: $options['ancient_option'],
                 serial: $serial,
+                harmonyOption: (int) ($options['harmony_option'] ?? 0),
+                socketBonus: (int) ($options['socket_count'] ?? 0) > 0 ? 255 : null,
+                socketOptions: array_fill(0, (int) ($options['socket_count'] ?? 0), 254),
+                has380Option: (bool) ($options['has_380_option'] ?? false),
             );
             $operation->update([
                 'serial' => $serial,
@@ -140,11 +150,13 @@ final readonly class GrantItemToWarehouse
         }
 
         try {
-            $this->itemEscrowRepository->deposit(
+            $this->itemEscrowCoordinator->depositWarehouse(
+                repository: $this->itemEscrowRepository,
                 accountId: $operation->account_id,
                 itemBinary: $operation->item_binary,
                 width: $width,
                 height: $height,
+                operationKey: 'grant:'.$operation->idempotency_key,
             );
         } catch (MarketListingRejected $exception) {
             $reason = $this->mapWarehouseFailure($exception->reason);

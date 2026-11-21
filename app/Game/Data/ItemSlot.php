@@ -12,7 +12,10 @@ final readonly class ItemSlot
     /**
      * Creates an immutable item slot decoded by one version-owned codec.
      *
+     * @param  bool  $identityVerified  False only for an occupied native record whose identity header is unknown.
+     * @param  bool|null  $transferable  Native custody eligibility; null preserves legacy operation behavior.
      * @param  list<int>  $socketOptions
+     * @param  array{title: string, details: list<array{label: string, value: string}>}|null  $nativePresentation
      */
     public function __construct(
         public int $slot,
@@ -37,17 +40,26 @@ final readonly class ItemSlot
         public ?int $socketBonus = null,
         public array $socketOptions = [],
         public bool $has380Option = false,
+        public ?array $nativePresentation = null,
+        public bool $identityVerified = true,
+        public ?bool $transferable = null,
     ) {
-        if (! in_array(strlen($this->binary), [10, 16], true)) {
-            throw new InvalidArgumentException('An item slot must contain exactly 10 or 16 bytes.');
+        if (! in_array(strlen($this->binary), [10, 16, 25], true)) {
+            throw new InvalidArgumentException('An item slot must contain exactly 10, 16 or 25 bytes.');
         }
     }
 
     /**
      * Returns whether the slot contains no item.
+     *
+     * An unverified native identity still occupies its stored position.
      */
     public function isEmpty(): bool
     {
+        if (! $this->identityVerified) {
+            return false;
+        }
+
         return $this->group === null || $this->index === null;
     }
 
@@ -87,6 +99,9 @@ final readonly class ItemSlot
             socketBonus: $this->socketBonus,
             socketOptions: $this->socketOptions,
             has380Option: $this->has380Option,
+            nativePresentation: $this->nativePresentation,
+            identityVerified: $this->identityVerified,
+            transferable: $this->transferable,
         );
     }
 
@@ -118,6 +133,9 @@ final readonly class ItemSlot
             socketBonus: $this->socketBonus,
             socketOptions: $this->socketOptions,
             has380Option: $this->has380Option,
+            nativePresentation: $this->nativePresentation,
+            identityVerified: $this->identityVerified,
+            transferable: $this->transferable,
         );
     }
 
@@ -126,7 +144,7 @@ final readonly class ItemSlot
      */
     public function code(): string
     {
-        if ($this->isEmpty()) {
+        if ($this->isEmpty() || ! $this->identityVerified) {
             return '';
         }
 
@@ -156,11 +174,11 @@ final readonly class ItemSlot
     /**
      * Serializes an occupied slot for the authenticated account interface.
      *
-     * @return array{slot: int, code: string, name: string, width: int, height: int, image: string|null, excellentType: int, optionType: int, rarity: string, level: int, durability: int, optionLevel: int, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int, harmonyOption: int, socketBonus: int|null, socketOptions: list<int>, has380Option: bool}
+     * @return array{slot: int, code: string, name: string, width: int, height: int, image: string|null, excellentType: int, optionType: int, rarity: string, level: int, durability: int, optionLevel: int, hasSkill: bool, hasLuck: bool, excellentMask: int, ancientOption: int, harmonyOption: int, socketBonus: int|null, socketOptions: list<int>, has380Option: bool, identityVerified?: bool, transferable?: bool, nativePresentation?: array{title: string, details: list<array{label: string, value: string}>}}
      */
     public function toArray(): array
     {
-        return [
+        $presentation = [
             'slot' => $this->slot,
             'code' => $this->code(),
             'name' => $this->name ?? 'Item '.$this->code(),
@@ -182,5 +200,19 @@ final readonly class ItemSlot
             'socketOptions' => $this->socketOptions,
             'has380Option' => $this->has380Option,
         ];
+
+        if ($this->nativePresentation !== null) {
+            $presentation['nativePresentation'] = $this->nativePresentation;
+        }
+
+        if (! $this->identityVerified) {
+            $presentation['identityVerified'] = false;
+        }
+
+        if ($this->transferable !== null) {
+            $presentation['transferable'] = $this->transferable;
+        }
+
+        return $presentation;
     }
 }

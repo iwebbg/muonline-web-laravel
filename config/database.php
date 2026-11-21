@@ -182,6 +182,23 @@ return [
             'login_timeout' => (int) env('GAME_DB_LOGIN_TIMEOUT', 5),
         ],
 
+        'battle_core' => [
+            'driver' => env('GAME_DB_CONNECTION', 'sqlsrv'),
+            'host' => env('GAME_DB_HOST', '127.0.0.1'),
+            'port' => env('GAME_DB_PORT', '1433'),
+            'database' => env('GAME_DB_BATTLE_CORE'),
+            'username' => env('GAME_DB_USERNAME'),
+            'password' => env('GAME_DB_PASSWORD'),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'encrypt' => env('GAME_DB_ENCRYPT', 'yes'),
+            'trust_server_certificate' => env('GAME_DB_TRUST_SERVER_CERTIFICATE', 'false'),
+            'readonly' => true,
+            'appname' => env('GAME_DB_APP_NAME', 'MuOnline Web Read Model').' BattleCore',
+            'login_timeout' => (int) env('GAME_DB_LOGIN_TIMEOUT', 5),
+        ],
+
     ],
 
     /*

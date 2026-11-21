@@ -31,6 +31,8 @@ final readonly class AccountCharacter
         public string $map,
         public bool $online,
         public array $additionalStats = [],
+        public string $imagePosition = 'center top',
+        public ?int $masterLevel = null,
     ) {}
 
     /**
@@ -48,6 +50,14 @@ final readonly class AccountCharacter
     }
 
     /**
+     * Returns the displayed total while preserving the normal level for game operations.
+     */
+    public function displayLevel(): int
+    {
+        return $this->level + ($this->masterLevel ?? 0);
+    }
+
+    /**
      * Converts the character to the stable shape consumed by the Alpine panel.
      *
      * @return array<string, mixed>
@@ -61,7 +71,12 @@ final readonly class AccountCharacter
             'class' => $this->className,
             'classCode' => $this->classCode,
             'image' => $this->image,
+            ...($this->imagePosition === 'center top' ? [] : ['imagePosition' => $this->imagePosition]),
             'level' => $this->level,
+            ...($this->masterLevel === null ? [] : [
+                'masterLevel' => $this->masterLevel,
+                'displayLevel' => $this->displayLevel(),
+            ]),
             'resets' => $this->resets,
             'grandResets' => $this->grandResets,
             'zen' => $this->zen,

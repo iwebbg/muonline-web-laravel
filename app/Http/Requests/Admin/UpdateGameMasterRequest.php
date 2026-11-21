@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Admin\AdministratorPasswordInput;
 use App\Admin\Authorization\AdministratorPermission;
 use App\Admin\Authorization\AdministratorRole;
 use App\Models\Administrator;
@@ -53,6 +54,7 @@ final class UpdateGameMasterRequest extends FormRequest
                     ->letters()
                     ->numbers()
                     ->symbols(),
+                new AdministratorPasswordInput,
             ],
             'is_active' => ['required', 'boolean'],
             'permissions' => ['required', 'array', 'min:1'],

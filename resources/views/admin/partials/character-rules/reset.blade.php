@@ -14,9 +14,9 @@
     @foreach ([
         'requiredLevel' => ['required_level', 'required_level_help', 1, 400, 1],
         'maximumResets' => ['maximum_resets', 'maximum_resets_help', 1, 10000, 1],
-        'maximumStat' => ['maximum_stat', 'maximum_stat_help', 1, 32767, 1],
+        'maximumStat' => ['maximum_stat', 'maximum_stat_help', 1, $maximumStatLimit, 1],
         'baseZenCost' => ['base_zen_cost', 'base_zen_cost_help', 0, 2000000000, 1000000],
-        'pointsPerReset' => ['points_per_reset', 'points_per_reset_help', 0, 32767, 1],
+        'pointsPerReset' => ['points_per_reset', 'points_per_reset_help', 0, $maximumStatLimit, 1],
     ] as $field => [$label, $help, $minimum, $maximum, $step])
         <label class="field-group">
             <span>{{ __('ui.admin.'.$label) }}</span>
@@ -34,9 +34,9 @@
     <label class="field-group md:col-span-2">
         <span>{{ __('ui.admin.inventory_policy') }}</span>
         <select name="inventoryPolicy">
-            <option value="keep_all" @selected(old('inventoryPolicy', $settings['inventoryPolicy']) === 'keep_all')>{{ __('ui.admin.keep_all') }}</option>
-            <option value="clear_bag" @selected(old('inventoryPolicy', $settings['inventoryPolicy']) === 'clear_bag')>{{ __('ui.admin.clear_bag') }}</option>
-            <option value="clear_all" @selected(old('inventoryPolicy', $settings['inventoryPolicy']) === 'clear_all')>{{ __('ui.admin.clear_all') }}</option>
+            @foreach ($inventoryPolicyOptions as $inventoryPolicy)
+                <option value="{{ $inventoryPolicy->value }}" @selected(old('inventoryPolicy', $settings['inventoryPolicy']) === $inventoryPolicy->value)>{{ __('ui.admin.'.$inventoryPolicy->value) }}</option>
+            @endforeach
         </select>
         <small>{{ __('ui.admin.destructive_confirmation') }}</small>
     </label>

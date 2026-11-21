@@ -50,6 +50,10 @@ final class AuthenticatedSessionController extends Controller
         $administrator = Auth::guard('admin')->user();
 
         if ($administrator instanceof Administrator) {
+            $request->session()->put(
+                'password_hash_admin',
+                Auth::guard('admin')->hashPasswordForCookie($administrator->getAuthPassword()),
+            );
             $administrator->forceFill([
                 'last_login_at' => now(),
             ])->save();

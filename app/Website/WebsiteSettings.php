@@ -25,7 +25,10 @@ final readonly class WebsiteSettings
         public ?string $metaKeywordsBg,
         public ?string $ogImagePath,
         public ?string $copyrightHolder,
+        public string $themeSlug,
         public int $revision,
+        public bool $registrationEnabled = true,
+        public bool $requireEmailVerification = false,
     ) {}
 
     /**
@@ -46,6 +49,7 @@ final readonly class WebsiteSettings
             metaKeywordsBg: null,
             ogImagePath: null,
             copyrightHolder: null,
+            themeSlug: (string) config('themes.default', 'muonline'),
             revision: 0,
         );
     }
@@ -70,7 +74,10 @@ final readonly class WebsiteSettings
             metaKeywordsBg: self::nullable($setting->meta_keywords_bg),
             ogImagePath: self::nullable($setting->og_image_path),
             copyrightHolder: self::nullable($setting->copyright_holder),
+            themeSlug: self::fallback($setting->theme_slug, $defaults->themeSlug),
             revision: $setting->revision,
+            registrationEnabled: $setting->registration_enabled ?? true,
+            requireEmailVerification: $setting->require_email_verification ?? false,
         );
     }
 
@@ -148,7 +155,7 @@ final readonly class WebsiteSettings
     /**
      * Converts the typed values into application-owned persistence columns.
      *
-     * @return array<string, string|null>
+     * @return array<string, string|bool|null>
      */
     public function toPersistenceArray(): array
     {
@@ -165,6 +172,9 @@ final readonly class WebsiteSettings
             'meta_keywords_bg' => $this->metaKeywordsBg,
             'og_image_path' => $this->ogImagePath,
             'copyright_holder' => $this->copyrightHolder,
+            'theme_slug' => $this->themeSlug,
+            'registration_enabled' => $this->registrationEnabled,
+            'require_email_verification' => $this->requireEmailVerification,
         ];
     }
 

@@ -97,6 +97,12 @@ bundle. Additional integrations are in preparation and can also be requested at
 
 ## Administration
 
+**Help & Support** is available to signed-in administrators and Game Masters
+for every game profile. It links to GitHub issues, the repository, documentation,
+InterWeb contact and the existing Buy Me a Coffee, Ko-fi and PayPal support
+destinations. It includes read-only diagnostic commands and guidance on
+redacting private information before sharing logs.
+
 ### Dashboard and access
 
 - Separate administrator authentication, independent from game accounts.

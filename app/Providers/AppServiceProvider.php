@@ -10,6 +10,7 @@ use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\GameServerStatus;
 use App\Game\Contracts\GensMembershipRepository;
 use App\Game\Contracts\LuckyCoinBalanceRepository;
+use App\Game\Contracts\MapNameLookup;
 use App\Game\Contracts\MasterProgressionRepository;
 use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
@@ -24,12 +25,16 @@ use App\Game\Status\TcpGameServerStatus;
 use App\Game\Versions\Contracts\GameDatabaseProfile;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\Version1_0M\DarksTeamMd5PasswordCodec;
+use App\Game\Versions\Version97d99i\MapNameMapper;
 use App\Installation\Contracts\ApplicationDatabaseInstaller;
+use App\Installation\Contracts\ApplicationDatabaseUninstaller;
 use App\Installation\Contracts\GameDatabaseInstaller;
 use App\Installation\SqlServerApplicationDatabaseInstaller;
+use App\Installation\SqlServerApplicationDatabaseUninstaller;
 use App\Installation\SqlServerGameDatabaseInstaller;
 use App\Modules\ModuleManager;
 use App\Servers\CurrentGameServer;
+use App\Themes\ThemeManager;
 use App\Website\WebsiteSettings;
 use App\Website\WebsiteSettingsManager;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -37,6 +42,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\View;
@@ -78,6 +84,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $versionProfile = $this->app->make(GameVersionProfile::class);
+
+        $this->app->bind(MapNameLookup::class, MapNameMapper::class);
 
         $this->app->bind(
             CastleSiegeReadRepository::class,
@@ -125,7 +133,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(ModuleManager::class);
         $this->app->singleton(CurrentGameServer::class);
         $this->app->singleton(WebsiteSettingsManager::class);
+        $this->app->singleton(
+            ThemeManager::class,
+            fn (): ThemeManager => new ThemeManager(
+                themesPath: (string) config('themes.path'),
+                defaultTheme: (string) config('themes.default'),
+                labels: (array) config('themes.labels', []),
+            ),
+        );
         $this->app->bind(ApplicationDatabaseInstaller::class, SqlServerApplicationDatabaseInstaller::class);
+        $this->app->bind(ApplicationDatabaseUninstaller::class, SqlServerApplicationDatabaseUninstaller::class);
         $this->app->bind(GameDatabaseInstaller::class, SqlServerGameDatabaseInstaller::class);
     }
 
@@ -134,6 +151,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Blade::anonymousComponentPath(resource_path('views/themes/muonline/components'));
+
         View::composer('*', function (LaravelView $view): void {
             $view->with(
                 'currentGameServerVersion',

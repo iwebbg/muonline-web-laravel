@@ -4,6 +4,7 @@ namespace App\CharacterServices\Actions;
 
 use App\CharacterServices\CharacterClassChangeResolver;
 use App\CharacterServices\CharacterServiceBlockReason;
+use App\CharacterServices\CharacterServiceResult;
 use App\CharacterServices\CharacterServiceType;
 use App\CharacterServices\Exceptions\CharacterServiceRejected;
 use App\CharacterServices\PurchasedResetPolicy;
@@ -14,6 +15,7 @@ use App\Economy\WalletCurrency;
 use App\Economy\WalletTransactionType;
 use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\CharacterServiceRepository;
+use App\Game\Contracts\JournaledCharacterServiceRepository;
 use App\Game\Operations\CharacterOperationStatus;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\CharacterServiceOperation;
@@ -336,6 +338,13 @@ final readonly class ExecuteCharacterService
             return $this->resolveExisting($existing, $requestHash);
         }
 
+        if ($this->characterServiceRepository instanceof JournaledCharacterServiceRepository
+            && CharacterServiceOperation::query()->where('account_id', $accountId)
+                ->where('character_name', $characterName)->where('status', CharacterOperationStatus::Pending)
+                ->exists()) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::OperationInProgress, 409);
+        }
+
         $operation = CharacterServiceOperation::query()->firstOrCreate(
             ['idempotency_key' => $idempotencyKey],
             [
@@ -365,6 +374,11 @@ final readonly class ExecuteCharacterService
      */
     private function perform(CharacterServiceOperation $operation): CharacterServiceOperation
     {
+        if ($this->characterServiceRepository instanceof JournaledCharacterServiceRepository
+            && ($operation->settings_snapshot['game_profile'] ?? null) !== $this->versionProfile->key()) {
+            throw new CharacterServiceRejected(CharacterServiceBlockReason::ServiceDisabled);
+        }
+
         if ($operation->status === CharacterOperationStatus::Completed) {
             return $operation;
         }
@@ -403,32 +417,15 @@ final readonly class ExecuteCharacterService
         }
 
         try {
-            $result = match ($operation->service_type) {
-                CharacterServiceType::Rename => $this->characterServiceRepository->rename(
-                    $operation->account_id,
-                    $operation->character_name,
-                    (string) $operation->requested_name,
-                ),
-                CharacterServiceType::ClassChange => $this->characterServiceRepository->changeClass(
-                    $operation->account_id,
-                    $operation->character_name,
-                    (int) $operation->target_class_code,
-                ),
-                CharacterServiceType::ResetPurchase => $this->characterServiceRepository->purchaseResets(
-                    $operation->account_id,
-                    $operation->character_name,
-                    (int) $operation->requested_amount,
-                    PurchasedResetPolicy::fromSnapshot(
-                        (array) $operation->settings_snapshot['purchased_reset_policy'],
-                    ),
-                ),
-                CharacterServiceType::LevelUpPointsPurchase => $this->characterServiceRepository->purchaseLevelUpPoints(
-                    $operation->account_id,
-                    $operation->character_name,
-                    (int) $operation->requested_amount,
-                ),
-            };
+            $result = $this->applyOperation($operation);
         } catch (Throwable $exception) {
+            if ($this->characterServiceRepository instanceof JournaledCharacterServiceRepository
+                && ! $exception instanceof CharacterServiceRejected) {
+                report($exception);
+
+                throw new CharacterServiceRejected(CharacterServiceBlockReason::OperationInProgress, 409);
+            }
+
             $this->refund($operation);
             $reason = $exception instanceof CharacterServiceRejected
                 ? $exception->reason->value
@@ -444,12 +441,68 @@ final readonly class ExecuteCharacterService
 
         $operation->update([
             'status' => CharacterOperationStatus::Completed,
+            'before_snapshot' => $this->characterServiceRepository instanceof JournaledCharacterServiceRepository
+                ? $result->before
+                : $operation->before_snapshot,
             'after_snapshot' => $result->after,
             'failure_code' => null,
             'completed_at' => now(),
         ]);
 
         return $operation->refresh();
+    }
+
+    /**
+     * Sends durable purchase identities only to adapters that support native receipts.
+     */
+    private function applyOperation(CharacterServiceOperation $operation): CharacterServiceResult
+    {
+        if ($this->characterServiceRepository instanceof JournaledCharacterServiceRepository) {
+            $key = 'character-service:'.$operation->idempotency_key;
+            if ($operation->service_type === CharacterServiceType::Rename) {
+                return $this->characterServiceRepository->renameForOperation($operation->account_id, $operation->character_name, (string) $operation->requested_name, $key);
+            }
+            if ($operation->service_type === CharacterServiceType::ClassChange) {
+                return $this->characterServiceRepository->changeClassForOperation($operation->account_id, $operation->character_name, (int) $operation->target_class_code, $key);
+            }
+
+            return $this->characterServiceRepository->applyPurchaseForOperation(
+                accountId: $operation->account_id,
+                characterName: $operation->character_name,
+                type: $operation->service_type,
+                amount: (int) $operation->requested_amount,
+                policy: $operation->service_type === CharacterServiceType::ResetPurchase
+                    ? PurchasedResetPolicy::fromSnapshot((array) $operation->settings_snapshot['purchased_reset_policy'])
+                    : null,
+                operationKey: $key,
+            );
+        }
+
+        return match ($operation->service_type) {
+            CharacterServiceType::Rename => $this->characterServiceRepository->rename(
+                $operation->account_id,
+                $operation->character_name,
+                (string) $operation->requested_name,
+            ),
+            CharacterServiceType::ClassChange => $this->characterServiceRepository->changeClass(
+                $operation->account_id,
+                $operation->character_name,
+                (int) $operation->target_class_code,
+            ),
+            CharacterServiceType::ResetPurchase => $this->characterServiceRepository->purchaseResets(
+                $operation->account_id,
+                $operation->character_name,
+                (int) $operation->requested_amount,
+                PurchasedResetPolicy::fromSnapshot(
+                    (array) $operation->settings_snapshot['purchased_reset_policy'],
+                ),
+            ),
+            CharacterServiceType::LevelUpPointsPurchase => $this->characterServiceRepository->purchaseLevelUpPoints(
+                $operation->account_id,
+                $operation->character_name,
+                (int) $operation->requested_amount,
+            ),
+        };
     }
 
     /**

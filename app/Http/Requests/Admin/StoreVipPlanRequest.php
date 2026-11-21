@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Admin\Authorization\AdministratorPermission;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\Administrator;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -43,6 +44,8 @@ class StoreVipPlanRequest extends FormRequest
             'name_bg' => ['nullable', 'string', 'max:120'],
             'description_en' => ['nullable', 'string', 'max:2000'],
             'description_bg' => ['nullable', 'string', 'max:2000'],
+            'native_account_level' => app(GameVersionProfile::class)->capabilities()->accountVip
+                ? ['required', 'integer', 'between:1,3'] : ['exclude'],
             'duration_days' => ['required', 'integer', 'between:1,3650'],
             'price_credits' => ['required', 'integer', 'between:1,1000000000'],
             'enabled' => ['nullable', 'boolean'],

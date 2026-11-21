@@ -18,8 +18,8 @@
         @endforeach
     </select></label>
     <label class="field-group md:col-span-2"><span>{{ __('ui.admin.grand_reset_inventory_policy') }}</span><select name="grandResetInventoryPolicy">
-        @foreach (['keep_all' => 'keep_all', 'clear_bag' => 'clear_bag', 'clear_all' => 'clear_all'] as $value => $label)
-            <option value="{{ $value }}" @selected(old('grandResetInventoryPolicy', $settings['grandResetInventoryPolicy']) === $value)>{{ __('ui.admin.'.$label) }}</option>
+        @foreach ($inventoryPolicyOptions as $inventoryPolicy)
+            <option value="{{ $inventoryPolicy->value }}" @selected(old('grandResetInventoryPolicy', $settings['grandResetInventoryPolicy']) === $inventoryPolicy->value)>{{ __('ui.admin.'.$inventoryPolicy->value) }}</option>
         @endforeach
     </select><small>{{ __('ui.admin.destructive_confirmation') }}</small></label>
 </div>

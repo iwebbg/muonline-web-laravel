@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Game\Versions\Contracts\GameVersionProfile;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -17,9 +18,9 @@ use Throwable;
 final class InstallGameProfileSchema extends Command
 {
     /**
-     * Applies the reviewed 1.0M schema extension through the bootstrap connection.
+     * Applies only the schema extension explicitly declared by the active version bundle.
      */
-    public function handle(DatabaseManager $database): int
+    public function handle(DatabaseManager $database, GameVersionProfile $versionProfile): int
     {
         if (! (bool) config('application_database.bootstrap.enabled')) {
             $this->components->error('Set APP_DB_BOOTSTRAP=true only while installing profile schema extensions.');
@@ -27,8 +28,10 @@ final class InstallGameProfileSchema extends Command
             return self::FAILURE;
         }
 
-        if (config('game.profile.key') !== 'darksteam_1_0m') {
-            $this->components->error('The schema extension installer currently supports only darksteam_1_0m.');
+        $schemaExtensionResource = $versionProfile->capabilities()->schemaExtensionResource;
+
+        if ($schemaExtensionResource === null) {
+            $this->components->error('The active game profile does not declare schema extensions.');
 
             return self::FAILURE;
         }
@@ -37,10 +40,10 @@ final class InstallGameProfileSchema extends Command
 
         try {
             $quotedDatabase = $this->quoteIdentifier($databaseName);
-            $sql = file_get_contents(resource_path('game/1_0m/schema-extensions.sql'));
+            $sql = file_get_contents(resource_path($schemaExtensionResource));
 
             if (! is_string($sql) || trim($sql) === '') {
-                throw new InvalidArgumentException('The 1.0M schema extension is unavailable.');
+                throw new InvalidArgumentException('The selected game schema extension is unavailable.');
             }
 
             $connection = $database->connection('game_admin');
@@ -55,7 +58,7 @@ final class InstallGameProfileSchema extends Command
             $database->purge('game_admin');
         }
 
-        $this->components->info("DarksTeam 1.0M schema extensions are ready in [{$databaseName}].");
+        $this->components->info("Game profile schema extensions are ready in [{$databaseName}].");
         $this->line('Remove GAME_DB_ADMIN_PASSWORD and APP_DB_ADMIN_PASSWORD, then set APP_DB_BOOTSTRAP=false.');
 
         return self::SUCCESS;

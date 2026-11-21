@@ -7,6 +7,8 @@ use App\Economy\Exceptions\WalletAdjustmentRejected;
 use App\Economy\WalletAdjustmentBlockReason;
 use App\Economy\WalletCurrency;
 use App\Economy\WalletTransactionType;
+use App\Game\Contracts\ItemConstructionPolicy;
+use App\Game\Contracts\ItemGrantRules;
 use App\Models\AccountReward;
 use App\Models\ShopOffer;
 use App\Models\ShopPurchase;
@@ -32,6 +34,7 @@ final readonly class PurchaseShopOffer
      */
     public function __construct(
         private AdjustWalletBalance $adjustWalletBalance,
+        private ItemGrantRules $itemGrantRules,
         private FulfillAccountReward $fulfillAccountReward,
     ) {}
 
@@ -71,6 +74,14 @@ final readonly class PurchaseShopOffer
 
                 if ($rewardPool === []) {
                     throw new ShopPurchaseRejected(ShopPurchaseBlockReason::OfferUnavailable);
+                }
+
+                if ($this->itemGrantRules instanceof ItemConstructionPolicy) {
+                    foreach ($rewardPool as $item) {
+                        if (! $this->itemGrantRules->allowsConstruction($item)) {
+                            throw new ShopPurchaseRejected(ShopPurchaseBlockReason::OfferUnavailable);
+                        }
+                    }
                 }
 
                 try {

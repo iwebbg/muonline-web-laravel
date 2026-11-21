@@ -4,6 +4,7 @@ namespace App\WebStorage\Actions;
 
 use App\Game\Contracts\CharacterInventoryEscrowRepository;
 use App\Game\Contracts\ItemEscrowRepository;
+use App\Game\Operations\ItemEscrowCoordinator;
 use App\Market\Exceptions\MarketListingRejected;
 use App\Market\MarketListingBlockReason;
 use App\Models\WebStorageItem;
@@ -22,6 +23,7 @@ final readonly class SynchronizeWebStorageItem
     public function __construct(
         private ItemEscrowRepository $itemEscrowRepository,
         private CharacterInventoryEscrowRepository $characterInventoryEscrowRepository,
+        private ItemEscrowCoordinator $itemEscrowCoordinator,
     ) {}
 
     /**
@@ -41,18 +43,22 @@ final readonly class SynchronizeWebStorageItem
         try {
             if ($item->status === WebStorageItemStatus::Storing) {
                 if ($item->source_location === ItemStorageLocation::Inventory) {
-                    $this->characterInventoryEscrowRepository->extract(
+                    $this->itemEscrowCoordinator->extractInventory(
+                        repository: $this->characterInventoryEscrowRepository,
                         accountId: $item->account_id,
                         characterName: $item->source_character_name,
                         slot: $item->source_slot,
                         expectedBinary: $item->item_binary,
+                        operationKey: 'web-storage:'.$item->public_id,
                     );
                 } else {
-                    $this->itemEscrowRepository->extract(
+                    $this->itemEscrowCoordinator->extractWarehouse(
+                        repository: $this->itemEscrowRepository,
                         accountId: $item->account_id,
                         vault: $item->source_vault,
                         slot: $item->source_slot,
                         expectedBinary: $item->item_binary,
+                        operationKey: 'web-storage:'.$item->public_id,
                     );
                 }
                 $item->forceFill([
@@ -66,19 +72,23 @@ final readonly class SynchronizeWebStorageItem
                     ?? ItemStorageLocation::Warehouse;
 
                 if ($destinationLocation === ItemStorageLocation::Inventory) {
-                    $this->characterInventoryEscrowRepository->deposit(
+                    $this->itemEscrowCoordinator->depositInventory(
+                        repository: $this->characterInventoryEscrowRepository,
                         accountId: $item->account_id,
                         characterName: (string) $item->withdrawal_character_name,
                         itemBinary: $item->item_binary,
                         width: (int) ($snapshot['width'] ?? 1),
                         height: (int) ($snapshot['height'] ?? 1),
+                        operationKey: 'web-storage:'.$item->public_id,
                     );
                 } else {
-                    $this->itemEscrowRepository->deposit(
+                    $this->itemEscrowCoordinator->depositWarehouse(
+                        repository: $this->itemEscrowRepository,
                         accountId: $item->account_id,
                         itemBinary: $item->item_binary,
                         width: (int) ($snapshot['width'] ?? 1),
                         height: (int) ($snapshot['height'] ?? 1),
+                        operationKey: 'web-storage:'.$item->public_id,
                     );
                 }
                 $item->forceFill([
@@ -98,6 +108,8 @@ final readonly class SynchronizeWebStorageItem
                         MarketListingBlockReason::ItemChanged,
                         MarketListingBlockReason::ItemNotFound,
                         MarketListingBlockReason::WarehouseNotFound,
+                        MarketListingBlockReason::UnsupportedItem,
+                        MarketListingBlockReason::IdempotencyConflict,
                     ],
                     true,
                 );

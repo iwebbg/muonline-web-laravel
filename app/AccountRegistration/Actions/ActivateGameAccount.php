@@ -24,6 +24,11 @@ final readonly class ActivateGameAccount
      */
     public function handle(string $accountId, string $rawToken): bool
     {
+        if (! (bool) config('game.writes_enabled', false)
+            || (bool) config('database.connections.game.readonly', true)) {
+            return false;
+        }
+
         return $this->database
             ->connection()
             ->transaction(function () use ($accountId, $rawToken): bool {

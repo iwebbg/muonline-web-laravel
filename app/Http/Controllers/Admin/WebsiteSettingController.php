@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateWebsiteSettingRequest;
 use App\Models\Administrator;
 use App\Models\WebsiteSettingRevision;
+use App\Themes\ThemeManager;
 use App\Website\Actions\UpdateWebsiteSettings;
 use App\Website\WebsiteSettingRevisionPresenter;
 use App\Website\WebsiteSettingsManager;
@@ -28,6 +29,7 @@ final class WebsiteSettingController extends Controller
     public function edit(
         WebsiteSettingsManager $settingsManager,
         WebsiteSettingRevisionPresenter $revisionPresenter,
+        ThemeManager $themes,
     ): View {
         $settings = $settingsManager->current();
         $recentRevisions = WebsiteSettingRevision::query()
@@ -45,6 +47,7 @@ final class WebsiteSettingController extends Controller
                 ? null
                 : Storage::disk('public')->url($settings->ogImagePath),
             'recentRevisions' => $revisionPresenter->present($recentRevisions),
+            'availableThemes' => $themes->available(),
         ]);
     }
 

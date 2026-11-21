@@ -72,6 +72,19 @@
     <p class="mt-2 text-xs text-steel">{{ __('ui.admin.event_days_help') }}</p>
 </fieldset>
 
+<fieldset>
+    <legend class="text-xs font-semibold uppercase tracking-[0.14em] text-steel">{{ __('ui.admin.event_month_days') }}</legend>
+    <div class="mt-3 flex flex-wrap gap-2">
+        @foreach (range(1, 31) as $day)
+            <label class="flex items-center gap-2 rounded-xl border border-white/8 bg-black/20 px-3 py-2 text-sm text-silver">
+                <input type="checkbox" name="days_of_month[]" value="{{ $day }}" @checked(in_array($day, old('days_of_month', $entry?->days_of_month ?? []), true))>
+                {{ $day }}
+            </label>
+        @endforeach
+    </div>
+    <p class="mt-2 text-xs text-steel">{{ __('ui.admin.event_month_days_help') }}</p>
+</fieldset>
+
 <label class="field-group">
     <span>{{ __('ui.admin.event_source') }}</span>
     <textarea name="source" rows="2" maxlength="1000">{{ old('source', $entry?->source) }}</textarea>

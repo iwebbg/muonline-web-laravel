@@ -38,6 +38,7 @@ final class EconomySettingController extends Controller
             'image' => $definition->image,
             'excellentType' => $definition->excellentType,
             'optionType' => $definition->optionType,
+            ...($definition->nativeOptions === null ? [] : ['nativeOptions' => $definition->nativeOptions]),
         ], $itemCatalog->allDefinitions());
         $exchangeOffers = CreditExchangeOffer::query()
             ->where('game_profile_key', (string) config('game.profile.key'))

@@ -324,6 +324,38 @@ final class MarketPurchaseTest extends TestCase
     }
 
     /**
+     * Rejects a second buyer with a stale listing without charging or delivering twice.
+     */
+    public function test_second_buyer_cannot_purchase_an_already_delivered_listing(): void
+    {
+        $listing = MarketListing::factory()->create([
+            'seller_account_id' => 'seller09',
+            'price_credits' => 100,
+        ]);
+        AccountWallet::factory()->create(['account_id' => 'buyer009', 'balance' => 500]);
+        AccountWallet::factory()->create(['account_id' => 'buyer010', 'balance' => 500]);
+        $this->mockExistingAccounts('buyer009', 'seller09');
+        $this->mock(MarketItemEscrowRepository::class)
+            ->shouldReceive('deposit')->once()->andReturn(MarketEscrowResult::Deposited);
+
+        $this->purchase('buyer009', (int) $listing->getKey(), '5b81a6c4-280d-4c48-99dd-20e251c1bd01');
+
+        try {
+            $this->purchase('buyer010', (int) $listing->getKey(), '5b81a6c4-280d-4c48-99dd-20e251c1bd02');
+            $this->fail('A sold listing must not be sold to a second buyer.');
+        } catch (MarketListingRejected $exception) {
+            $this->assertSame(MarketListingBlockReason::ListingUnavailable, $exception->reason);
+        }
+
+        $this->assertSame('buyer009', $listing->refresh()->buyer_account_id);
+        $this->assertSame(MarketListingStatus::Delivered, $listing->status);
+        $this->assertSame(400, $this->balance('buyer009'));
+        $this->assertSame(500, $this->balance('buyer010'));
+        $this->assertSame(100, $this->balance('seller09'));
+        $this->assertDatabaseCount('wallet_transactions', 2);
+    }
+
+    /**
      * Executes the market purchase action from the service container.
      */
     private function purchase(

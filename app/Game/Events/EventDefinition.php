@@ -12,6 +12,7 @@ final readonly class EventDefinition
      *
      * @param  list<string>  $times
      * @param  list<int>  $daysOfWeek  ISO-8601 weekday numbers from 1 to 7.
+     * @param  list<int>  $daysOfMonth  Calendar day numbers, skipping dates absent from a month.
      */
     public function __construct(
         public string $key,
@@ -25,6 +26,7 @@ final readonly class EventDefinition
         public ?int $intervalMinutes,
         public string $intervalAnchor,
         public string $source,
+        public array $daysOfMonth = [],
     ) {}
 
     /**
@@ -48,6 +50,7 @@ final readonly class EventDefinition
                 : null,
             intervalAnchor: (string) ($configuration['interval_anchor'] ?? '00:00'),
             source: (string) ($configuration['source'] ?? ''),
+            daysOfMonth: array_values((array) ($configuration['days_of_month'] ?? [])),
         );
     }
 }

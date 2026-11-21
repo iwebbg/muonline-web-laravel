@@ -7,6 +7,7 @@ use App\Economy\WalletCurrency;
 use App\Game\Contracts\GameAccountLookupRepository;
 use App\Game\Contracts\ItemGeneratorCatalog;
 use App\Game\Contracts\ItemGrantRules;
+use App\Game\Contracts\ItemSerialRepository;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Game\Versions\MuEmuSeason6\ItemGeneratorCatalogMuEmuSeason6;
 use App\Game\Versions\MuEmuSeason6\ItemGrantRulesMuEmuSeason6;
@@ -16,8 +17,12 @@ use App\Models\AccountReward;
 use App\Models\AccountWallet;
 use App\Models\ShopPurchase;
 use App\Models\WalletTransaction;
+use App\Models\WebStorageItem;
 use App\Shop\AccountRewardStatus;
 use App\Shop\Actions\PurchaseGeneratedItem;
+use App\Shop\RewardDeliveryDestination;
+use App\WebStorage\WebStorageItemStatus;
+use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Str;
 use Mockery\MockInterface;
@@ -94,6 +99,36 @@ final class ItemGeneratorTest extends TestCase
     }
 
     /**
+     * Delivers generated purchases to Web Vault before any game session or warehouse exists.
+     */
+    public function test_generated_purchase_for_new_account_falls_back_to_web_vault_once(): void
+    {
+        AccountWallet::factory()->create(['account_id' => 'builder01', 'balance' => 500]);
+        $this->mock(GameAccountLookupRepository::class)->shouldReceive('exists')->andReturnTrue();
+        $this->mock(ItemSerialRepository::class)->shouldReceive('nextSerial')->once()->andReturn(123);
+        config()->set('game.writes_enabled', true);
+        config()->set('database.connections.game.readonly', false);
+        $game = $this->app->make(DatabaseManager::class)->connection('game');
+        $game->statement('CREATE TABLE MEMB_STAT (memb___id TEXT PRIMARY KEY, ConnectStat INTEGER NULL)');
+        $game->statement('CREATE TABLE warehouse (AccountID TEXT PRIMARY KEY, Items BLOB NULL)');
+        $action = $this->app->make(PurchaseGeneratedItem::class);
+
+        $reward = $action->execute('builder01', $this->itemOptions(), 'new-account-generator');
+        $action->execute('builder01', $this->itemOptions(), 'new-account-generator');
+
+        $this->assertSame(AccountRewardStatus::Claimed, $reward->refresh()->status);
+        $this->assertSame(RewardDeliveryDestination::WebVault, $reward->delivery_destination);
+        $storedItem = WebStorageItem::query()->sole();
+        $this->assertSame('builder01', $storedItem->account_id);
+        $this->assertSame($reward->item_binary, $storedItem->item_binary);
+        $this->assertSame(WebStorageItemStatus::Available, $storedItem->status);
+        $this->assertSame(301, AccountWallet::query()->where('account_id', 'builder01')->value('balance'));
+        $this->assertSame(1, WalletTransaction::query()->count());
+        $this->assertSame(0, $game->table('warehouse')->count());
+        $this->assertSame(0, $game->table('MEMB_STAT')->count());
+    }
+
+    /**
      * Confirms the generator is an authenticated account tool.
      */
     public function test_generator_page_requires_an_account_and_lists_priced_items(): void
@@ -119,7 +154,7 @@ final class ItemGeneratorTest extends TestCase
         $response->assertOk();
         $response->assertSee('Bone Blade');
         $response->assertSee('Deadly Staff');
-        $response->assertSee('Season 6 options');
+        $response->assertSee('Additional options')->assertDontSee('Season 6 options');
         $response->assertSee('380 option');
         $response->assertSee('Socket slots');
     }

@@ -14,6 +14,14 @@ final readonly class ItemGrantRules1_0M implements ItemGrantRules
     public const MAX_OPTION_LEVEL = 7;
 
     /**
+     * Returns the highest item index represented by this native format.
+     */
+    public function maxItemIndex(): int
+    {
+        return 31;
+    }
+
+    /**
      * Returns the highest item level encoded by this item format.
      */
     public function maxItemLevel(): int

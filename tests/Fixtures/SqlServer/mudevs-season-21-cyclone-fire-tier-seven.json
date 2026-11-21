@@ -1,0 +1,20 @@
+{
+    "slot": 3,
+    "hex": "2400FF0102030F004000FF2EFEFEFFFFFFFFFFFFFFFFFFFFFF",
+    "code": "0:36",
+    "name": "Cyclone Sword",
+    "level": 0,
+    "durability": 255,
+    "width": 1,
+    "height": 4,
+    "ancientOption": 0,
+    "socketBonus": 255,
+    "socketOptions": [
+        46,
+        254,
+        254,
+        255,
+        255
+    ],
+    "socketExtensionFlags": 64
+}

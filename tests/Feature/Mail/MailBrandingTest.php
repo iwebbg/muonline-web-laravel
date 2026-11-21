@@ -129,6 +129,7 @@ final class MailBrandingTest extends TestCase
             metaKeywordsBg: null,
             ogImagePath: null,
             copyrightHolder: 'InterWeb Ltd.',
+            themeSlug: 'muonline',
             revision: 1,
         );
     }

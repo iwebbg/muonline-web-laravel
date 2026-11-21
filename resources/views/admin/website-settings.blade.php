@@ -1,18 +1,16 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', __('ui.admin.website_title'))
 
 @section('content')
-    <div class="shell py-10 lg:py-14">
+    <div class="admin-shell py-10 lg:py-14">
         <div>
             <div class="eyebrow mb-4">{{ __('ui.admin.eyebrow') }}</div>
             <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.admin.website_heading') }}</h1>
             <p class="mt-3 max-w-3xl text-silver">{{ __('ui.admin.website_intro') }}</p>
         </div>
 
-        <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <x-admin-navigation active="website-settings" />
-
+        <div class="mt-8">
             <main class="grid min-w-0 content-start gap-6">
                 @if (session('status'))
                     <div class="rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">
@@ -35,6 +33,23 @@
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="revision" value="{{ $settings->revision }}">
+
+                    <section class="panel-card p-5 sm:p-7">
+                        <p class="kicker">{{ __('ui.admin.website_accounts') }}</p>
+                        <p class="mt-3 text-sm text-silver">{{ __('ui.admin.website_accounts_help') }}</p>
+                        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                            <label class="flex items-center gap-3 text-sm text-white">
+                                <input type="hidden" name="registration_enabled" value="0">
+                                <input type="checkbox" name="registration_enabled" value="1" @checked(old('registration_enabled', $settings->registrationEnabled))>
+                                <span>{{ __('ui.admin.website_registration_enabled') }}</span>
+                            </label>
+                            <label class="flex items-center gap-3 text-sm text-white">
+                                <input type="hidden" name="require_email_verification" value="0">
+                                <input type="checkbox" name="require_email_verification" value="1" @checked(old('require_email_verification', $settings->requireEmailVerification))>
+                                <span>{{ __('ui.admin.website_require_email_verification') }}</span>
+                            </label>
+                        </div>
+                    </section>
 
                     <section class="panel-card p-5 sm:p-7">
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -73,6 +88,17 @@
                                 <span>{{ __('ui.admin.website_copyright_holder') }}</span>
                                 <input type="text" name="copyright_holder" value="{{ old('copyright_holder', $settings->copyrightHolder) }}" maxlength="160" placeholder="{{ $settings->pageTitleSuffix }}">
                                 <small>{{ __('ui.admin.website_copyright_help') }}</small>
+                            </label>
+                            <label class="field-group lg:col-span-2">
+                                <span>{{ __('ui.admin.website_theme') }}</span>
+                                <select name="theme_slug" required>
+                                    @foreach ($availableThemes as $theme)
+                                        <option value="{{ $theme['slug'] }}" @selected(old('theme_slug', $settings->themeSlug) === $theme['slug'])>
+                                            {{ $theme['name'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small>{{ __('ui.admin.website_theme_help') }}</small>
                             </label>
                         </div>
                     </section>

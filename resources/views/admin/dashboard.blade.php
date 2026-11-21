@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', __('ui.admin.title'))
 
 @section('content')
-    <div class="shell py-10 lg:py-14">
+    <div class="admin-shell py-10 lg:py-14">
         <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
                 <div class="eyebrow mb-4">{{ __('ui.admin.eyebrow') }}</div>
@@ -22,17 +22,15 @@
             </div>
         </div>
 
-        <div class="mt-8 grid gap-6 xl:grid-cols-[16rem_minmax(0,1fr)]">
-            <x-admin-navigation active="overview" />
-
-            <main class="grid min-w-0 content-start gap-6">
+        <div class="mt-8">
+            <main class="grid min-w-0 grid-cols-1 content-start gap-6">
                 @if ($realmAnalytics === null)
                     <section class="panel-card border-red-300/20 py-14 text-center">
                         <p class="kicker">{{ __('ui.admin.analytics_kicker') }}</p>
                         <h2 class="mt-3 text-2xl font-semibold text-white">{{ __('ui.admin.analytics_unavailable') }}</h2>
                     </section>
                 @else
-                    <section class="panel-card p-5 sm:p-7" aria-labelledby="realm-analytics-heading">
+                    <section class="panel-card min-w-0 p-5 sm:p-7" aria-labelledby="realm-analytics-heading">
                         <p class="kicker">{{ __('ui.admin.analytics_kicker') }}</p>
                         <h2 id="realm-analytics-heading" class="mt-2 text-2xl font-semibold text-white">
                             {{ __('ui.admin.analytics_heading') }}
@@ -61,8 +59,8 @@
                         </div>
                     </section>
 
-                    <div class="grid items-start gap-6 2xl:grid-cols-2">
-                        <section class="panel-card p-5 sm:p-7" aria-labelledby="class-distribution-heading">
+                    <div class="grid min-w-0 grid-cols-1 items-start gap-6 2xl:grid-cols-2">
+                        <section class="panel-card min-w-0 p-5 sm:p-7" aria-labelledby="class-distribution-heading">
                             <p class="kicker">{{ __('ui.admin.analytics_classes_kicker') }}</p>
                             <h2 id="class-distribution-heading" class="mt-2 text-xl font-semibold text-white">
                                 {{ __('ui.admin.analytics_classes_heading') }}
@@ -94,7 +92,7 @@
                             </div>
                         </section>
 
-                        <section class="panel-card p-5 sm:p-7" aria-labelledby="map-distribution-heading">
+                        <section class="panel-card min-w-0 p-5 sm:p-7" aria-labelledby="map-distribution-heading">
                             <p class="kicker">{{ __('ui.admin.analytics_maps_kicker') }}</p>
                             <h2 id="map-distribution-heading" class="mt-2 text-xl font-semibold text-white">
                                 {{ __('ui.admin.analytics_maps_heading') }}

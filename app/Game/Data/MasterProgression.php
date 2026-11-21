@@ -15,12 +15,13 @@ final readonly class MasterProgression
         public int $level,
         public int $availablePoints,
         public int $experience,
+        public ?int $enhancementPoints = null,
     ) {}
 
     /**
      * Converts the snapshot to the stable shape consumed by the account workspace.
      *
-     * @return array{level: int, availablePoints: int, experience: int}
+     * @return array{level: int, availablePoints: int, experience: int, enhancementPoints?: int}
      */
     public function toArray(): array
     {
@@ -28,6 +29,7 @@ final readonly class MasterProgression
             'level' => $this->level,
             'availablePoints' => $this->availablePoints,
             'experience' => $this->experience,
+            ...($this->enhancementPoints === null ? [] : ['enhancementPoints' => $this->enhancementPoints]),
         ];
     }
 }

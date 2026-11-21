@@ -34,16 +34,16 @@ final class PurchaseGeneratedItemRequest extends FormRequest
         $itemGrantRules = app(ItemGrantRules::class);
 
         return [
-            'item_code' => ['required', 'string', 'regex:/\A(?:[0-9]|1[0-5]):(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\z/'],
+            'item_code' => ['required', 'string', 'regex:/\A(?:[0-9]|1[0-5]):(?:0|[1-9][0-9]{0,2})\z/'],
             'group' => ['required', 'integer', 'between:0,15'],
-            'index' => ['required', 'integer', 'between:0,255'],
+            'index' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxItemIndex()],
             'level' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxItemLevel()],
             'durability' => ['required', 'integer', 'between:0,255'],
             'option_level' => ['required', 'integer', 'between:0,'.$itemGrantRules->maxOptionLevel()],
             'has_skill' => ['nullable', 'boolean'],
             'has_luck' => ['nullable', 'boolean'],
             'excellent_mask' => ['required', 'integer', 'between:0,63'],
-            'ancient_option' => ['required', 'integer', 'in:0,5,10'],
+            'ancient_option' => ['required', 'integer', 'between:0,15'],
             'harmony_option' => ['required', 'integer', 'between:0,254'],
             'socket_count' => ['required', 'integer', 'between:0,5'],
             'has_380_option' => ['nullable', 'boolean'],

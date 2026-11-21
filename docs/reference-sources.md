@@ -4,6 +4,12 @@ This document records the sources used to understand the current game version
 and runtime. References provide compatibility information; they are not bundled
 dependencies and do not imply affiliation.
 
+Only the distributions documented below are supported. Versions not listed
+here must be treated as unsupported until their own profile and adapters have
+been implemented and verified. MuOnline Web is not affiliated with DarksTeam,
+Louis Emulator, MuEMU or MUDevs and does not bundle, modify or redistribute their
+server files.
+
 ## DarksTeam MuServer 97d+99i
 
 The `darksteam_97d99i` game and event profiles are developed and tested against
@@ -77,13 +83,44 @@ translated into reviewed application profiles and administrator-managed
 overrides. Credentials or secrets found in legacy files must be considered
 unsafe examples and must never be copied into an installation.
 
+## MUDevs Season 21 Part 1–2
+
+The `mudevs_season_21` game and event profiles are developed and tested against
+the owner-supplied **MUDevs Emulator FULL_BASE_S21.1-2_13.03.2026** server files,
+their SQL scripts and a compatible Trust Season 21 Part 1–2 client. The public
+[MUDevs S21 1-2/2-3 reference thread][mudevs-season-21] links the server and client
+distribution used as the compatibility reference. Its mention of Part 2–3 does
+not establish support for that version in MuOnline Web.
+
+The supplied server files, database scripts and real-client checks provide the
+reference layout for:
+
+- the native MuOnline SQL Server schema and separate BattleCore database;
+- sixteen character families and their available evolutions through the fifth
+  advancement, with version-specific class codes;
+- normal and Master levels, `ResetCount` and `MasterResetCount` progression;
+- native item identities, inventory and warehouse layouts, excellent, ancient,
+  harmony, socket and wing options;
+- WCoin(C), WCoin(P), Goblin Points, Lucky Coins, character Ruud and account VIP;
+- standard event schedules, dungeons, seasonal activities and Battle Core data.
+
+Item construction, delivery and exact-item transfers were checked against the
+running server and client. Compatibility is scoped to this tested Part 1–2
+distribution; other MUDevs builds require their own schema, class and item
+verification. The server and client files are not bundled with the application.
+See the [Season 21 integration record](season-21-integration-plan.md) for the
+adapter boundaries and commissioning evidence.
+
 ## Schema reference in this repository
 
 The repository keeps separate sanitized schema references for each supported
 adapter with a disposable SQL Server integration fixture:
 
 - `tests/Fixtures/SqlServer/97d99i-schema.sql` documents the 97d+99i contract;
-- `tests/Fixtures/SqlServer/1.0m-schema.sql` documents the 1.0M contract.
+- `tests/Fixtures/SqlServer/1.0m-schema.sql` documents the 1.0M contract;
+- `tests/Fixtures/SqlServer/mudevs-season-21-read-schema.sql` and
+  `mudevs-season-21-battle-core-read-schema.sql` document the S21 read contracts;
+  related `mudevs-season-21-*` fixtures cover native item and runtime operations.
 
 The MuEMU Season 6 contract is currently covered by isolated adapter tests,
 profile schema requirements and manual commissioning against the supplied
@@ -128,3 +165,4 @@ assuming the latest release.
 
 [darksteam-97d99i]: https://darksteam.net/threads/darksteam-muserver-97d-99i-beta-43-3.6440/
 [darksteam-1-0m]: https://darksteam.net/threads/darksteam-muserver-0-99-60-62t-1-0m-beta-15.21354/
+[mudevs-season-21]: https://forum.ragezone.com/threads/mudevs-s21-1-2-2-3-license-server-emulator.1269910/

@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Game\Versions\CharacterStatDefinition;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateCharacterRuleProfileRequest;
 use App\Models\Administrator;
 use App\Models\ShopOffer;
 use App\Reset\Actions\UpdateResetProfile;
+use App\Reset\InventoryPolicy;
 use App\Reset\ResetProfileReader;
 use App\Reset\ResetProfileRevisionPresenter;
 use App\Shop\ShopOfferType;
@@ -29,6 +32,7 @@ final class CharacterRuleProfileController extends Controller
         string $profile,
         ResetProfileReader $resetProfileReader,
         ResetProfileRevisionPresenter $revisionPresenter,
+        GameVersionProfile $versionProfile,
     ): View {
         $this->abortUnlessKnownProfile($profile);
         $recentRevisions = $resetProfileReader->recentRevisions();
@@ -41,6 +45,11 @@ final class CharacterRuleProfileController extends Controller
             : collect();
 
         return view('admin.character-rules', [
+            'maximumStatLimit' => max(array_map(
+                static fn (CharacterStatDefinition $stat): int => $stat->maximum,
+                $versionProfile->stats(),
+            )),
+            'inventoryPolicyOptions' => $versionProfile->capabilities()->resetInventoryPolicies ?? InventoryPolicy::cases(),
             'profile' => $profile,
             'settings' => $resetProfileReader->current()->toClientArray(),
             'revision' => $resetProfileReader->revision(),

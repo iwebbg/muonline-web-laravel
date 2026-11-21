@@ -1,0 +1,83 @@
+@php
+    $pageTitle = trim($__env->yieldContent('title', __('ui.navigation.administration')));
+@endphp
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#08090c">
+        <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+
+        <title>{{ $pageTitle }}</title>
+
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body
+        class="min-h-screen bg-void text-mist antialiased"
+        data-admin-layout
+        x-data="{ adminMenuOpen: false }"
+        x-on:keydown.escape.window="adminMenuOpen = false"
+    >
+        <div class="admin-background" aria-hidden="true"></div>
+
+        @auth('admin')
+            <div
+                class="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm xl:hidden"
+                x-show="adminMenuOpen"
+                x-transition.opacity
+                x-on:click="adminMenuOpen = false"
+                x-cloak
+                aria-hidden="true"
+            ></div>
+
+            <x-admin-navigation
+                :reset-revision="request()->routeIs('admin.character-rules.*') ? ($revision ?? null) : null"
+                id="admin-navigation"
+                x-bind:data-open="adminMenuOpen"
+            />
+        @endauth
+
+        <div @class(['relative z-10 min-w-0', 'xl:pl-72' => auth('admin')->check()])>
+            <header class="sticky top-0 z-50 border-b border-white/8 bg-void/90 backdrop-blur-xl">
+                <div @class(['flex min-h-16 flex-wrap items-center justify-between gap-3 py-3', 'admin-shell' => auth('admin')->check(), 'shell' => ! auth('admin')->check()])>
+                    @auth('admin')
+                        <button
+                            type="button"
+                            class="icon-button xl:hidden"
+                            aria-label="{{ __('ui.navigation.toggle') }}"
+                            aria-controls="admin-navigation"
+                            x-bind:aria-expanded="adminMenuOpen"
+                            x-on:click="adminMenuOpen = true"
+                        >
+                            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <path d="M4 7h16M4 12h16M4 17h16" />
+                            </svg>
+                        </button>
+                    @endauth
+
+                    <div class="ml-auto flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+                        <a href="{{ route('home') }}" class="button button-ghost">
+                            {{ __('ui.navigation.view_website') }}
+                        </a>
+                        <x-language-selector />
+
+                        @auth('admin')
+                            <span class="hidden max-w-48 truncate rounded-xl border border-white/10 bg-white/[0.025] px-4 py-2.5 text-sm font-semibold text-silver md:inline" data-admin-identity>
+                                {{ auth('admin')->user()->name }}
+                            </span>
+                            <form method="POST" action="{{ route('admin.logout') }}">
+                                @csrf
+                                <button type="submit" class="button button-primary">{{ __('ui.navigation.logout') }}</button>
+                            </form>
+                        @endauth
+                    </div>
+                </div>
+            </header>
+
+            <main class="min-h-[calc(100vh-4rem)] min-w-0">
+                @yield('content')
+            </main>
+        </div>
+    </body>
+</html>

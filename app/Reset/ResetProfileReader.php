@@ -2,6 +2,8 @@
 
 namespace App\Reset;
 
+use App\Game\Versions\CharacterStatDefinition;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\ResetProfile;
 use App\Models\ResetProfileRevision;
 use Illuminate\Database\Eloquent\Collection;
@@ -12,6 +14,11 @@ use Illuminate\Database\Eloquent\Collection;
 final class ResetProfileReader
 {
     /**
+     * Selects version-owned stat limits for the first unsaved policy.
+     */
+    public function __construct(private readonly GameVersionProfile $versionProfile) {}
+
+    /**
      * Returns the persisted reset policy or safe typed defaults.
      */
     public function current(): ResetProfileSettings
@@ -19,7 +26,12 @@ final class ResetProfileReader
         $profile = ResetProfile::query()->first();
 
         if ($profile === null) {
-            return ResetProfileSettings::defaults();
+            $maximumStat = max(array_map(
+                static fn (CharacterStatDefinition $stat): int => $stat->maximum,
+                $this->versionProfile->stats(),
+            ));
+
+            return ResetProfileSettings::defaults($maximumStat);
         }
 
         return new ResetProfileSettings(

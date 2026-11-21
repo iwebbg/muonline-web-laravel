@@ -101,6 +101,22 @@ final class ResetPreviewTest extends TestCase
     }
 
     /**
+     * Keeps displayed Master progression out of normal reset eligibility checks.
+     */
+    public function test_combined_level_does_not_make_a_low_normal_level_eligible(): void
+    {
+        $character = $this->character(level: 3, masterLevel: 400);
+        $preview = (new PreviewCharacterReset)->handle($character, ResetProfileSettings::defaults());
+
+        $this->assertSame(403, $character->displayLevel());
+        $this->assertSame(3, $preview->currentLevel);
+        $this->assertContains(ResetBlockReason::LevelTooLow, $preview->blockReasons);
+        $this->assertFalse($preview->eligible);
+        $this->assertSame(400, $this->character()->displayLevel());
+        $this->assertArrayNotHasKey('masterLevel', $this->character()->toArray());
+    }
+
+    /**
      * Creates one portable character snapshot for preview calculations.
      */
     private function character(
@@ -108,13 +124,15 @@ final class ResetPreviewTest extends TestCase
         int $resets = 4,
         int $zen = 200_000_000,
         bool $online = false,
+        ?int $masterLevel = null,
     ): AccountCharacter {
         return new AccountCharacter(
             name: 'OwnedHero',
             className: 'Blade Knight',
             classCode: 17,
-            image: '/images/characters/blade-knight.png',
+            image: '/images/characters/muonline-web-dark-knight.png',
             level: $level,
+            masterLevel: $masterLevel,
             resets: $resets,
             grandResets: 1,
             zen: $zen,

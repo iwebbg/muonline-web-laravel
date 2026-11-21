@@ -1,6 +1,19 @@
 name: muonline-web-local
 
 services:
+    frontend:
+        image: node:24-bookworm-slim
+        restart: "no"
+        user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+        working_dir: /var/www/html
+        environment:
+            HOME: /tmp
+        volumes:
+            - ..:/var/www/html
+        command: ["sh", "-c", "npm ci && npm run build"]
+        networks:
+            - application
+
     app:
         build:
             context: ..
@@ -17,6 +30,8 @@ services:
             - ..:/var/www/html
             - composer-vendor:/var/www/html/vendor
         depends_on:
+            frontend:
+                condition: service_completed_successfully
             redis:
                 condition: service_healthy
         healthcheck:

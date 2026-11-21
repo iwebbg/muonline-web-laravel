@@ -7,6 +7,7 @@ use App\Game\Contracts\AccountReadRepository;
 use App\Game\Contracts\ZenBankRepository;
 use App\Game\Data\AccountCharacter;
 use App\Game\Repositories\SqlServer97d99iZenBankRepository;
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\AccountZenBalance;
 use App\Models\ZenBankOperation;
 use App\ZenBank\Actions\CreateZenBankOperation;
@@ -15,6 +16,8 @@ use App\ZenBank\ZenBankOperationType;
 use App\ZenBank\ZenProjectionResult;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Js;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -190,8 +193,12 @@ final class ZenBankTest extends TestCase
     /**
      * Confirms the authenticated page renders its own balances and transfer history.
      */
-    public function test_page_displays_account_scoped_balance_and_history(): void
+    #[DataProvider('bankProfiles')]
+    public function test_page_displays_account_scoped_balance_and_history(string $profileKey): void
     {
+        config()->set('game.profile.key', $profileKey);
+        $profileClass = config('game.version_profiles.'.$profileKey);
+        $this->app->instance(GameVersionProfile::class, new $profileClass);
         $balance = AccountZenBalance::factory()->create([
             'account_id' => 'pagezen',
             'balance' => 4_000_000,
@@ -222,7 +229,58 @@ final class ZenBankTest extends TestCase
             ->assertSee('4,000,000')
             ->assertSee('12,000,000')
             ->assertSee('2,000,000')
+            ->assertSee('ZenChar (0 Zen)')
+            ->assertSee('Available: 12,000,000 Zen')
+            ->assertSee('Available: 4,000,000 Zen')
+            ->assertSee('Active warehouse → Web bank')
+            ->assertSee('Web bank → Active warehouse')
+            ->assertSee('aria-haspopup="dialog"', false)
+            ->assertSee('zenBankPanel(', false)
             ->assertDontSee('hiddenzen');
+    }
+
+    /**
+     * Restores the withdrawal dialog and entered amount after server validation fails.
+     */
+    public function test_invalid_amount_restores_its_transfer_dialog_without_creating_an_operation(): void
+    {
+        $this->mock(AccountReadRepository::class)->shouldReceive('charactersFor')
+            ->once()->with('invalidzen')->andReturn([$this->character()]);
+        $this->mock(ZenBankRepository::class)->shouldReceive('currentBalance')
+            ->once()->with('invalidzen')->andReturn(12_000_000);
+        $token = 'zen-modal-validation';
+        $this->actingAs($this->account('invalidzen'))
+            ->withSession(['_token' => $token])
+            ->from(route('account.zen-bank.index'))
+            ->post(route('account.zen-bank.store'), [
+                '_token' => $token,
+                'type' => 'withdrawal',
+                'character_name' => 'ZenChar',
+                'amount' => 0,
+                'idempotency_key' => '8c92ddac-6f69-4a3a-9335-1868f7c168d8',
+            ])
+            ->assertRedirect(route('account.zen-bank.index'))
+            ->assertSessionHasErrors('amount');
+
+        $this->get(route('account.zen-bank.index'))->assertOk()
+            ->assertSee('zenBankPanel('.Js::from('withdrawal')->toHtml().')', false)
+            ->assertSee('value="0"', false);
+        $this->assertDatabaseCount('zen_bank_operations', 0);
+    }
+
+    /**
+     * Supplies the supported adapters sharing the Zen Bank interface.
+     *
+     * @return array<string, array{string}>
+     */
+    public static function bankProfiles(): array
+    {
+        return [
+            '97d+99i' => ['darksteam_97d99i'],
+            '1.0M' => ['darksteam_1_0m'],
+            'Season 6' => ['muemu_season_6'],
+            'Season 21' => ['mudevs_season_21'],
+        ];
     }
 
     /**
@@ -264,7 +322,7 @@ final class ZenBankTest extends TestCase
             name: 'ZenChar',
             className: 'Blade Knight',
             classCode: 17,
-            image: '/images/characters/blade-knight.webp',
+            image: '/images/characters/muonline-web-dark-knight.png',
             level: 400,
             resets: 20,
             grandResets: 2,

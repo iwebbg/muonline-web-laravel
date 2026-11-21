@@ -2,6 +2,7 @@
 
 namespace App\Modules;
 
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\ModuleProfile;
 use Illuminate\Database\DatabaseManager;
 
@@ -17,6 +18,7 @@ final class ModuleManager
      */
     public function __construct(
         private readonly DatabaseManager $database,
+        private readonly GameVersionProfile $versionProfile,
     ) {}
 
     /**
@@ -28,6 +30,23 @@ final class ModuleManager
     }
 
     /**
+     * Reports whether the active adapter implements a module before operator settings apply.
+     */
+    public function supports(ServerModule $module): bool
+    {
+        $capabilities = $this->versionProfile->capabilities();
+        if ($module === ServerModule::GameCurrencyExchange && ! $capabilities->gameCurrencyExchange) {
+            return false;
+        }
+
+        if ($capabilities->availableModules === null) {
+            return ! $capabilities->readOnly;
+        }
+
+        return in_array($module, $capabilities->availableModules, true);
+    }
+
+    /**
      * Returns the active persisted snapshot or the configured defaults.
      */
     public function current(): ModuleSettings
@@ -36,8 +55,19 @@ final class ModuleManager
             return $this->resolvedSettings;
         }
 
+        if ($this->versionProfile->capabilities()->readOnly
+            && $this->versionProfile->capabilities()->availableModules === null) {
+            $states = [];
+
+            foreach (ServerModule::cases() as $module) {
+                $states[$module->value] = false;
+            }
+
+            return $this->resolvedSettings = new ModuleSettings($states);
+        }
+
         if (! $this->moduleProfilesTableExists()) {
-            $this->resolvedSettings = ModuleSettings::defaults();
+            $this->resolvedSettings = $this->supportedSettings(ModuleSettings::defaults());
 
             return $this->resolvedSettings;
         }
@@ -48,7 +78,7 @@ final class ModuleManager
             ->first();
 
         $modules = is_array($profile?->modules) ? $profile->modules : [];
-        $this->resolvedSettings = ModuleSettings::fromArray($modules);
+        $this->resolvedSettings = $this->supportedSettings(ModuleSettings::fromArray($modules));
 
         return $this->resolvedSettings;
     }
@@ -90,6 +120,30 @@ final class ModuleManager
     public function gameVersion(): string
     {
         return (string) config('game.profile.version', '97d + 99i');
+    }
+
+    /**
+     * Keeps unsupported adapter modules disabled even if persisted settings enable them.
+     */
+    private function supportedSettings(ModuleSettings $settings): ModuleSettings
+    {
+        $availableModules = $this->versionProfile->capabilities()->availableModules;
+
+        $states = $settings->toArray();
+        if (! $this->versionProfile->capabilities()->gameCurrencyExchange) {
+            $states[ServerModule::GameCurrencyExchange->value] = false;
+        }
+        if ($availableModules === null) {
+            return new ModuleSettings($states);
+        }
+
+        foreach (ServerModule::cases() as $module) {
+            if (! in_array($module, $availableModules, true)) {
+                $states[$module->value] = false;
+            }
+        }
+
+        return new ModuleSettings($states);
     }
 
     /**

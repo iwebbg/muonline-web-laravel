@@ -28,6 +28,7 @@ use App\Http\Controllers\Account\JewelBankWithdrawalController;
 use App\Http\Controllers\Account\MarketListingController;
 use App\Http\Controllers\Account\MarketPurchaseController;
 use App\Http\Controllers\Account\MoveToTownPreviewController;
+use App\Http\Controllers\Account\NativeAccountServiceController;
 use App\Http\Controllers\Account\OnlineTimeClaimController;
 use App\Http\Controllers\Account\PkClearPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
@@ -51,6 +52,7 @@ use App\Http\Controllers\Admin\DownloadController as AdminDownloadController;
 use App\Http\Controllers\Admin\EconomyRecoveryController;
 use App\Http\Controllers\Admin\EconomySettingController;
 use App\Http\Controllers\Admin\EventScheduleController;
+use App\Http\Controllers\Admin\GameCurrencyExchangeRateController;
 use App\Http\Controllers\Admin\GameMasterController;
 use App\Http\Controllers\Admin\GameServerController;
 use App\Http\Controllers\Admin\ItemGrantAccountController;
@@ -58,6 +60,7 @@ use App\Http\Controllers\Admin\ItemGrantController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\ModuleProfileController;
+use App\Http\Controllers\Admin\MuDevsSeason21WarehouseController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ShopOfferController as AdminShopOfferController;
 use App\Http\Controllers\Admin\ShopRewardGrantController;
@@ -127,6 +130,8 @@ Route::get('/rankings/data', [RankingsController::class, 'data'])
     ->name('rankings.data');
 Route::get('/rankings', RankingsController::class)
     ->name('rankings');
+Route::get('/events', [PreviewController::class, 'events'])
+    ->name('events.index');
 Route::get('/characters/{characterName}', CharacterProfileController::class)
     ->where('characterName', '[A-Za-z0-9_-]{1,10}')
     ->name('characters.show');
@@ -372,6 +377,19 @@ Route::middleware(['auth', 'demo:account'])->group(function (): void {
     Route::post('/account/item-storage', ItemStorageController::class)
         ->middleware('throttle:item-storage')
         ->name('account.item-storage');
+    Route::middleware('native.account-services')->group(function (): void {
+        Route::get('/account/game-services', [NativeAccountServiceController::class, 'index'])
+            ->name('account.native-services.index');
+        Route::post('/account/game-services/exchange', [NativeAccountServiceController::class, 'exchange'])
+            ->middleware(['demo:blocked', 'module.enabled:'.ServerModule::GameCurrencyExchange->value, 'module.enabled:'.ServerModule::Credits->value, 'throttle:character-service'])
+            ->name('account.native-services.exchange');
+        Route::post('/account/game-services/vip', [NativeAccountServiceController::class, 'vip'])
+            ->middleware(['demo:blocked', 'module.enabled:'.ServerModule::Vip->value, 'module.enabled:'.ServerModule::Credits->value, 'throttle:vip-purchase'])
+            ->name('account.native-services.vip');
+        Route::post('/account/game-services/purchases/{purchase}/resume', [NativeAccountServiceController::class, 'resume'])
+            ->middleware(['demo:blocked', 'throttle:character-service'])->name('account.native-services.resume');
+    });
+
     Route::post('/account/vip-purchases', VipPurchaseController::class)
         ->middleware([
             'module.enabled:'.ServerModule::Vip->value,
@@ -461,7 +479,11 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->name('login.store');
     });
 
-    Route::middleware(['auth:admin', 'demo:unsafe'])->group(function (): void {
+    Route::middleware(['auth:admin', 'admin.active', 'auth.session', 'demo:unsafe'])->group(function (): void {
+        Route::view('/support', 'admin.support')->name('support');
+        Route::get('/s21-warehouse', MuDevsSeason21WarehouseController::class)
+            ->middleware('admin.permission:'.AdministratorPermission::ManageSettings->value)
+            ->name('s21-warehouse');
         Route::get('/', AdminDashboardController::class)
             ->name('dashboard');
         Route::get('/audit-log', AdminAuditLogController::class)
@@ -490,6 +512,12 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                     ->name('credit-exchange-offers.update');
                 Route::delete('/economy/credit-exchange-offers/{creditExchangeOffer}', [CreditExchangeOfferController::class, 'destroy'])
                     ->name('credit-exchange-offers.destroy');
+                Route::middleware('native.account-services')->group(function (): void {
+                    Route::get('/economy/game-currency-rates', [GameCurrencyExchangeRateController::class, 'index'])
+                        ->name('game-currency-rates.index');
+                    Route::put('/economy/game-currency-rates/{rate}', [GameCurrencyExchangeRateController::class, 'update'])
+                        ->name('game-currency-rates.update');
+                });
                 Route::get('/economy/vip-plans', [VipPlanController::class, 'index'])
                     ->name('vip-plans.index');
                 Route::post('/economy/vip-plans', [VipPlanController::class, 'store'])

@@ -52,6 +52,10 @@ final readonly class ItemCodec1_0M implements ItemCodec
         $binary = '';
 
         foreach ($slots as $slot) {
+            if (strlen($slot->binary()) !== self::SLOT_BYTES) {
+                throw new InvalidArgumentException('This legacy storage accepts only ten-byte item records.');
+            }
+
             $binary .= $slot->binary();
         }
 

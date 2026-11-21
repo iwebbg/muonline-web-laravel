@@ -15,10 +15,12 @@ use App\Models\CharacterStatResetOperation;
 use App\Models\DownloadRevision;
 use App\Models\EconomyRecoveryAction;
 use App\Models\EventScheduleEntryRevision;
+use App\Models\GameCurrencyExchangeRateRevision;
 use App\Models\ItemGrantOperation;
 use App\Models\MarketAdminAction;
 use App\Models\ModerationOperation;
 use App\Models\ModuleProfileRevision;
+use App\Models\NativeAccountPurchase;
 use App\Models\NewsPostRevision;
 use App\Models\ResetProfileRevision;
 use App\Models\VoteClaim;
@@ -48,6 +50,11 @@ final class AuditLogReader
      * @var list<array{model: class-string<Model>, type: string, context: list<string>}>
      */
     private const OPERATION_SOURCES = [
+        [
+            'model' => NativeAccountPurchase::class,
+            'type' => 'native_account_purchase',
+            'context' => ['game_profile_key', 'kind', 'credit_cost', 'settings_snapshot', 'mutation_snapshot'],
+        ],
         [
             'model' => AccountRegistrationOperation::class,
             'type' => 'account_registration',
@@ -122,6 +129,7 @@ final class AuditLogReader
             'website_settings',
             'event_schedule',
             'item_grant',
+            'game_currency_rate',
         ];
 
         foreach (self::OPERATION_SOURCES as $source) {
@@ -204,6 +212,18 @@ final class AuditLogReader
                     record: $record,
                     type: $source['type'],
                     contextColumns: $source['context'],
+                );
+            }
+        }
+
+        if ($type === null || $type === 'game_currency_rate') {
+            foreach ($this->records(GameCurrencyExchangeRateRevision::class, $limit, $dateFrom, $dateTo) as $revision) {
+                $entries[] = new AuditLogEntry(
+                    type: 'game_currency_rate', subject: (string) $revision->game_currency_exchange_rate_id,
+                    characterName: null, status: 'completed', failureCode: null,
+                    contextSnapshot: ['administrator_id' => $revision->administrator_id, 'revision' => $revision->revision],
+                    beforeSnapshot: $revision->before_snapshot, afterSnapshot: $revision->snapshot,
+                    occurredAt: $this->occurredAt($revision),
                 );
             }
         }
