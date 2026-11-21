@@ -1,10 +1,11 @@
 @props([
     'economySettings',
     'characterServicesEnabled',
+    'readOnly' => false,
 ])
 
 <div {{ $attributes->class(['mt-5']) }} x-show="activeSection === 'overview'">
-    <div class="grid gap-4 sm:grid-cols-2">
+    <div @class(['grid gap-4', 'sm:grid-cols-2' => ! $readOnly])>
         <article class="panel-card">
             <p class="kicker">{{ __('ui.account.core_attributes') }}</p>
             <div class="mt-6 grid gap-4">
@@ -14,8 +15,13 @@
                         <strong x-text="selectedCharacter.stats[statDefinition.key].toLocaleString()"></strong>
                     </div>
                 </template>
+                <div class="stat-line" x-show="selectedCharacter.ruud !== undefined">
+                    <span>Ruud</span>
+                    <strong x-text="(selectedCharacter.ruud ?? 0).toLocaleString()"></strong>
+                </div>
             </div>
         </article>
+        @if (! $readOnly)
         <article class="panel-card">
             <p class="kicker">{{ __('ui.account.quick_actions') }}</p>
             <div class="mt-6 grid gap-3">
@@ -69,14 +75,18 @@
                 @endif
             </div>
         </article>
+        @endif
         <article
-            class="panel-card sm:col-span-2"
+            @class(['panel-card', 'sm:col-span-2' => ! $readOnly])
             x-show="selectedCharacter.masterProgression !== null"
             x-cloak
         >
             <p class="kicker">{{ __('ui.account.master_progression') }}</p>
             <p class="mt-2 text-sm text-silver">{{ __('ui.account.master_progression_help') }}</p>
-            <dl class="mt-6 grid gap-4 sm:grid-cols-3">
+            <dl
+                class="mt-6 grid gap-4 sm:grid-cols-2"
+                :class="selectedCharacter.masterProgression?.enhancementPoints !== undefined ? 'xl:grid-cols-4' : 'xl:grid-cols-3'"
+            >
                 <div class="outcome-card">
                     <dt>{{ __('ui.account.master_level') }}</dt>
                     <dd x-text="selectedCharacter.masterProgression?.level.toLocaleString()"></dd>
@@ -89,10 +99,14 @@
                     <dt>{{ __('ui.account.master_experience') }}</dt>
                     <dd x-text="selectedCharacter.masterProgression?.experience.toLocaleString()"></dd>
                 </div>
+                <div class="outcome-card" x-show="selectedCharacter.masterProgression?.enhancementPoints !== undefined">
+                    <dt>{{ __('ui.account.enhancement_points') }}</dt>
+                    <dd x-text="selectedCharacter.masterProgression?.enhancementPoints?.toLocaleString()"></dd>
+                </div>
             </dl>
         </article>
         <article
-            class="panel-card sm:col-span-2"
+            @class(['panel-card', 'sm:col-span-2' => ! $readOnly])
             x-show="selectedCharacter.gensMembership !== null"
             x-cloak
         >

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Admin\AdministratorPasswordInput;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -20,13 +22,13 @@ final class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, list<string>>
+     * @return array<string, list<string|ValidationRule>>
      */
     public function rules(): array
     {
         return [
             'email' => ['required', 'string', 'email', 'max:255'],
-            'password' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'max:255', new AdministratorPasswordInput],
         ];
     }
 }

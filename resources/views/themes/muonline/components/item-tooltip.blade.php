@@ -6,6 +6,8 @@
         :class="'item-tooltip-title-' + itemNameTone({{ $item }})"
         x-text="itemTitle({{ $item }})"
     ></strong>
+    <template x-if="!{{ $item }}.nativePresentation">
+        <span>
     <span
         class="item-tooltip-line"
         x-text="itemDurabilityText({{ $item }})"
@@ -56,4 +58,9 @@
         x-show="{{ $item }}.has380Option"
         x-text="itemOptionLabels.option380"
     ></span>
+        </span>
+    </template>
+    <template x-for="(detail, detailIndex) in ({{ $item }}.nativePresentation?.details ?? [])" :key="detailIndex">
+        <span class="item-tooltip-line" x-text="`${detail.label}: ${detail.value}`"></span>
+    </template>
 </span>

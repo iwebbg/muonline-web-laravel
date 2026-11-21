@@ -59,13 +59,13 @@ final readonly class ResetProfileSettings
     /**
      * Returns the safe default policy before the first saved revision exists.
      */
-    public static function defaults(): self
+    public static function defaults(int $maximumStat = 32_767): self
     {
         return new self(
             enabled: true,
             requiredLevel: 350,
             maximumResets: 999,
-            maximumStat: 32_767,
+            maximumStat: $maximumStat,
             grandResetRequiredResets: 100,
             baseZenCost: 15000000,
             multiplyCostByReset: true,

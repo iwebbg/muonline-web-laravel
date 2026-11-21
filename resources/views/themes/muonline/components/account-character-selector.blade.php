@@ -6,7 +6,7 @@
             :class="selectedCharacterIndex === characterIndex && 'character-selector-active'"
             @click="selectCharacter(characterIndex)"
         >
-            <img :src="character.image" :alt="character.class" class="size-11 rounded-xl object-cover object-top">
+            <img :src="character.image" :alt="character.class" :style="{ objectPosition: character.imagePosition ?? 'center top' }" class="size-11 rounded-xl object-cover object-top">
             <span class="text-left">
                 <strong class="block text-sm text-white" x-text="character.name"></strong>
                 <span class="block text-xs text-steel" x-text="character.class"></span>

@@ -1,0 +1,578 @@
+{
+    "source": "DB/MuOnline Create Script.sql",
+    "sourceSha256": "7d6686c49a65d26e53a29d14c167700a22bceda805505aa195c09af0351298a0",
+    "excluded_historical_tables": [
+        "CashShopInventory",
+        "DeathRecords",
+        "DevilSquareFinal_Ranking",
+        "DevilSquareFinal_Scores",
+        "DevilSquareFinal_UserReward",
+        "ItemLog",
+        "T_BombHuntLog",
+        "T_HuntingRecord",
+        "T_LabyrinthClearLog"
+    ],
+    "references": [
+        {
+            "table": "AbilityEnhancementCore",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "ARCA_BATTLE_GUILD_JOIN_INFO",
+            "column": "G_Master",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "ARCA_BATTLE_GUILDMARK_REG",
+            "column": "G_Master",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "ARCA_BATTLE_MEMBER_JOIN_INFO",
+            "column": "CharName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "ARCA_BATTLE_PERIOD_BUFF_INFO",
+            "column": "CharacterName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "ArtifactSystem",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "BanMacInfo",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "BattleCoreUser",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": "AccountID",
+            "realm_column": "ServerCode"
+        },
+        {
+            "table": "BattlePassDailyMissionInfo",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "BattlePassInfo",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "BlockChat",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "BlockChat",
+            "column": "BlockName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "ChaosCastleFinal_Ranking",
+            "column": "mName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "ChaosCastleFinal_Scores",
+            "column": "mName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "EnhanceSkillTree",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "EventEntryCount",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "EventEntryLimit",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "EventInventory",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "EventLeoTheHelper",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "EventSantaClaus",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "FavoriteWarpList",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "Gens_Left",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "Gens_Rank",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "Gens_Reward",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "GremoryCase",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "Guild",
+            "column": "G_Master",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "GuildMember",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "HelperData",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "IllusionTempleLeague_UserPoint",
+            "column": "mUserName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "IllusionTempleLeague_UserReward",
+            "column": "mUserName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "ItemCompensationLevel",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "MasterSkillTree",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "MonsterSoulConverterItem",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "MonsterSoulConverterWeeklyPurchases",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "MuHelperPlus",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "MuQuestInfo",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "MuRummyCard",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "MuRummyData",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "MuunInventory",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "OptionData",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "PartyRenewaInfo",
+            "column": "LeaderName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "PartyRenewalMemberList",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "PartyRenewalMemberList",
+            "column": "LeaderName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "PentagramJewel",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "PersonalShopRenewalList",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "PlayTimeEvent",
+            "column": "name",
+            "identity_column": "CharacterIndex",
+            "account_column": "account",
+            "realm_column": null
+        },
+        {
+            "table": "PShopItemValue",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "QuestGuide",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "QuestKillCount",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "QuestWorld",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "RankingBloodCastle",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "RankingCastleSiege",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "RankingChaosCastle",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "RankingDevilSquare",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "RankingDuel",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "RankingIllusionTemple",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "RestoreOffline",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": "Account",
+            "realm_column": "ServerCode"
+        },
+        {
+            "table": "SNSData",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_ARCA_BATTLE_GUILD_JOIN_INFO",
+            "column": "G_Master",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_ARCA_BATTLE_GUILDMARK_REG",
+            "column": "G_Master",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_ARCA_BATTLE_MEMBER_JOIN_INFO",
+            "column": "CharName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_BombHunt",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": "AccountID",
+            "realm_column": null
+        },
+        {
+            "table": "T_CGuid",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_EvolutionMonster",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": "AccountID",
+            "realm_column": null
+        },
+        {
+            "table": "T_FriendList",
+            "column": "FriendName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_FriendMail",
+            "column": "FriendName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_FriendMain",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_HuntingRecordOption",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "AccountID",
+            "realm_column": null
+        },
+        {
+            "table": "T_LabyrinthLeague",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "T_LabyrinthLeagueReward",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "T_PartyMatching",
+            "column": "PartyLeaderName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_PartyMatchingRecruitInfo",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_PeriodBuffInfo",
+            "column": "CharacterName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_QUEST_EXP_INFO",
+            "column": "CHAR_NAME",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_RestoreItem_Inventory",
+            "column": "Name",
+            "identity_column": null,
+            "account_column": "AccountID",
+            "realm_column": null
+        },
+        {
+            "table": "T_WaitFriend",
+            "column": "FriendName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_WaitPartyMatching",
+            "column": "LeaderName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "T_WaitPartyMatching",
+            "column": "MemberName",
+            "identity_column": null,
+            "account_column": null,
+            "realm_column": null
+        },
+        {
+            "table": "WingExchangeItem",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null
+        },
+        {
+            "table": "DeathExpRecovery",
+            "column": "Name",
+            "identity_column": "CharacterIndex",
+            "account_column": "Account",
+            "realm_column": null,
+            "optional": true
+        }
+    ]
+}

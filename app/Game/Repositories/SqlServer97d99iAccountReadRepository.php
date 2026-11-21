@@ -125,7 +125,7 @@ final readonly class SqlServer97d99iAccountReadRepository implements AccountRead
             name: (string) $row->name,
             className: $classDefinition?->name ?? sprintf('Unknown class (%d)', $classCode),
             classCode: $classCode,
-            image: $classDefinition?->image ?? '/images/characters/blade-knight.png',
+            image: $classDefinition?->image ?? '/images/characters/muonline-web-dark-knight.png',
             level: (int) $row->level,
             resets: (int) $row->resets,
             grandResets: (int) $row->grand_resets,

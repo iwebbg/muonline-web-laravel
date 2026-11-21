@@ -1,4 +1,36 @@
 /**
+ * Resolves a native wing additional-option variant from its shared header selector bits.
+ *
+ * @param {object|undefined} options Native per-item option metadata.
+ * @param {number} mask Encoded excellent bits or one selected variant mask.
+ * @returns {{mask: number, name?: string, label: string|null, value: number}}
+ */
+function nativeAdditionalVariant(options, mask = 0) {
+    const variants = options?.additionalVariants ?? [];
+
+    return variants.find((variant) => variant.mask > 0 && (Number(mask) & variant.mask) !== 0)
+        ?? variants.find((variant) => variant.mask === 0)
+        ?? { mask: 0, label: options?.additionalLabel ?? null, value: options?.additionalValue ?? 0 };
+}
+
+/**
+ * Distinguishes actual Excellent effects from native additional-option selector bits.
+ *
+ * @param {object|undefined} options Native per-item metadata, absent on legacy adapters.
+ * @param {number} mask The full saved option mask.
+ * @returns {number} Only bits that describe Excellent effects.
+ */
+function nativeExcellentMask(options, mask) {
+    if (!options) {
+        return Number(mask);
+    }
+
+    const effectMask = options.excellent.reduce((bits, option) => bits | Number(option.bit), 0);
+
+    return Number(mask) & effectMask;
+}
+
+/**
  * Maps legacy equipment slot numbers to their game-style layout regions.
  *
  * Dynamic regions use catalog dimensions while fixed accessory regions preserve
@@ -115,6 +147,9 @@ const equipmentSlotLayout = {
         vertical: 'start',
         dynamic: false,
     },
+    236: { column: 4, row: 9, width: 2, height: 2, dynamic: false },
+    237: { column: 2, row: 9, width: 1, height: 1, dynamic: false },
+    238: { column: 7, row: 9, width: 1, height: 1, dynamic: false },
 };
 
 /**
@@ -207,6 +242,100 @@ export function moderationPanel() {
 }
 
 /**
+ * Normalizes mutually exclusive advanced selections shared by administrator item editors.
+ *
+ * @param {object} current Current canonical advanced fields.
+ * @param {string} field Changed advanced field.
+ * @param {number|boolean} value New field value.
+ * @returns {object} Canonical advanced fields with incompatible selections cleared.
+ */
+function updatedAdvancedSelection(current, field, value) {
+    const options = {
+        ancient_option: Number(current.ancient_option ?? 0),
+        harmony_option: Number(current.harmony_option ?? 0),
+        socket_count: Number(current.socket_count ?? 0),
+        has_380_option: Boolean(current.has_380_option),
+    };
+
+    if (!Object.hasOwn(options, field)) {
+        return options;
+    }
+
+    options[field] = field === 'has_380_option' ? Boolean(value) : Number(value);
+
+    if (field === 'ancient_option' && options.ancient_option > 0) {
+        options.harmony_option = 0;
+        options.socket_count = 0;
+    } else if (field === 'harmony_option' && options.harmony_option > 0) {
+        options.ancient_option = 0;
+        options.socket_count = 0;
+    } else if (field === 'socket_count' && options.socket_count > 0) {
+        options.ancient_option = 0;
+        options.harmony_option = 0;
+    }
+
+    return options;
+}
+
+/**
+ * Presents the active adapter's advanced item choices in both administrator editors.
+ *
+ * @param {Function} definition Supplies the selected catalog item reactively.
+ * @param {Function} state Supplies canonical advanced option values.
+ * @param {Function} update Applies one changed option through the parent editor.
+ * @param {Function} level Supplies the selected item level.
+ * @param {object} labels Localized fallback Harmony effect labels.
+ * @returns {object} Alpine state for the shared advanced controls.
+ */
+export function itemAdvancedOptions(definition, state, update, level, labels) {
+    return {
+        /** Returns the active item metadata. */
+        get definition() {
+            return definition() ?? {};
+        },
+        /** Returns the parent's current canonical option fields. */
+        get state() {
+            return state();
+        },
+        /** Reports whether this item supports an advanced choice. */
+        get visible() {
+            return (this.definition.ancientOptions?.length ?? 0) > 0
+                || (this.definition.harmonyOptions?.length ?? 0) > 0
+                || this.definition.maxSockets > 0 || this.definition.allows380 === true;
+        },
+        /** Returns packed Harmony bytes with readable effect and level labels. */
+        get harmonyChoices() {
+            if (Number(level()) < Number(this.definition.harmonyMinimumItemLevel ?? 0)) {
+                return [];
+            }
+
+            const maximum = this.definition.harmonyLevelFollowsItem ? Number(level()) : 15;
+            const choices = [];
+
+            for (const effect of this.definition.harmonyOptions ?? []) {
+                const name = effect.label ?? labels[this.definition.harmonyType]?.[effect.value] ?? String(effect.value);
+
+                for (let optionLevel = Number(effect.minimumLevel); optionLevel <= maximum; optionLevel += 1) {
+                    const value = effect.values?.[optionLevel];
+                    const amount = value === undefined ? '' : ` (+${value})`;
+                    choices.push({ value: (effect.value << 4) | optionLevel, label: `${name} · Lv. ${optionLevel}${amount}` });
+                }
+            }
+
+            return choices;
+        },
+        /** Returns a native set name or the legacy Ancient bonus label. */
+        ancientLabel(value) {
+            return this.definition.ancientOptionLabels?.[value] ?? `+${value}`;
+        },
+        /** Applies the new option to the owning form state. */
+        update(field, value) {
+            update(field, value);
+        },
+    };
+}
+
+/**
  * Creates repeatable item rows for an administrator Web Shop offer.
  *
  * @param {object} configuration Catalog metadata and existing or validation-returned item options.
@@ -248,7 +377,11 @@ export function shopOfferEditor(configuration) {
             excellent_option_bits: excellentBits.filter(
                 (bit) => (excellentMask & bit) !== 0,
             ),
-            ancient_option: 0,
+            additional_variant_mask: nativeAdditionalVariant(definition?.nativeOptions, excellentMask).mask,
+            ancient_option: Number(item.ancient_option ?? 0),
+            harmony_option: Number(item.harmony_option ?? 0),
+            socket_count: Number(item.socket_count ?? 0),
+            has_380_option: checkboxEnabled(item.has_380_option),
             weight: Number(item.weight) || 1,
         };
     };
@@ -297,9 +430,13 @@ export function shopOfferEditor(configuration) {
 
             this.items.forEach((item) => {
                 const input = this.$root.querySelector(`[data-shop-item-key="${item.key}"]`);
-                const selected = this.selectedItem(item) !== null;
+                const definition = this.selectedItem(item);
+                const selected = definition !== null && definition.nativeOptions?.constructionSupported !== false;
+                const message = definition?.nativeOptions?.constructionSupported === false
+                    ? this.ui.itemUnsupported
+                    : this.ui.itemRequired;
 
-                input?.setCustomValidity(selected ? '' : this.ui.itemRequired);
+                input?.setCustomValidity(selected ? '' : message);
 
                 if (!selected && valid) {
                     input?.reportValidity();
@@ -364,6 +501,18 @@ export function shopOfferEditor(configuration) {
 
             item.item_code = definition.code;
             item.item_search = definition.name;
+            item.ancient_option = definition.ancientOptions?.includes(item.ancient_option) ? item.ancient_option : 0;
+            item.socket_count = Math.min(item.socket_count, Number(definition.maxSockets ?? 0));
+            item.has_380_option = definition.allows380 === true && item.has_380_option;
+            item.harmony_option = definition.harmonyOptions?.some((effect) => effect.value === (item.harmony_option >> 4)) ? item.harmony_option : 0;
+            item.additional_variant_mask = nativeAdditionalVariant(definition.nativeOptions, item.additional_variant_mask).mask;
+
+            if (definition.nativeOptions) {
+                item.has_skill = definition.nativeOptions.skill && item.has_skill;
+                item.has_luck = definition.nativeOptions.luck && item.has_luck;
+                item.option_level = definition.nativeOptions.additional ? item.option_level : 0;
+            }
+
             const allowedBits = new Set(this.excellentOptions(item).map((option) => option.bit));
             item.excellent_option_bits = item.excellent_option_bits.filter(
                 (bit) => allowedBits.has(Number(bit)),
@@ -424,6 +573,11 @@ export function shopOfferEditor(configuration) {
          */
         excellentOptions(item) {
             const definition = this.selectedItem(item);
+
+            if (definition?.nativeOptions) {
+                return definition.nativeOptions.excellent;
+            }
+
             let labels = this.itemOptionLabels.excellent.weapon;
 
             if (definition?.excellentType === 4) {
@@ -441,6 +595,21 @@ export function shopOfferEditor(configuration) {
         },
 
         /**
+         * Applies an advanced choice while clearing mutually exclusive reward options.
+         *
+         * @param {object} item Editable reward row.
+         * @param {string} field Canonical advanced field.
+         * @param {number|boolean} value Selected field value.
+         */
+        setAdvancedOption(item, field, value) {
+            Object.assign(item, updatedAdvancedSelection(item, field, value));
+
+            if (item.ancient_option > 0) {
+                item.excellent_option_bits = [];
+            }
+        },
+
+        /**
          * Calculates the six-bit excellent mask submitted for one reward row.
          *
          * @param {object} item Editable reward row.
@@ -449,9 +618,11 @@ export function shopOfferEditor(configuration) {
         excellentMask(item) {
             const allowedBits = new Set(this.excellentOptions(item).map((option) => option.bit));
 
-            return item.excellent_option_bits
+            const variant = nativeAdditionalVariant(this.selectedItem(item)?.nativeOptions, item.additional_variant_mask);
+
+            return (item.excellent_option_bits
                 .filter((bit) => allowedBits.has(Number(bit)))
-                .reduce((mask, bit) => mask | Number(bit), 0);
+                .reduce((mask, bit) => mask | Number(bit), 0)) | (item.option_level > 0 ? variant.mask : 0);
         },
 
         /**
@@ -462,6 +633,18 @@ export function shopOfferEditor(configuration) {
          */
         additionalOptionChoices(item) {
             const definition = this.selectedItem(item);
+
+            if (definition?.nativeOptions) {
+                const native = definition.nativeOptions;
+                const variant = nativeAdditionalVariant(native, item.additional_variant_mask);
+
+                return this.optionLevels
+                    .filter((level) => level === 0 || native.additional)
+                    .map((level) => ({
+                        value: level,
+                        label: level === 0 ? '0' : variant.label.replaceAll('{value}', String(level * variant.value)),
+                    }));
+            }
 
             return this.optionLevels.map((optionLevel) => {
                 if (optionLevel === 0) {
@@ -536,6 +719,10 @@ export function creditExchangeOfferEditor(configuration) {
 
         /** Returns excellent choices appropriate for the selected item family. */
         get excellentOptions() {
+            if (this.selectedItem?.nativeOptions) {
+                return this.selectedItem.nativeOptions.excellent;
+            }
+
             const type = Number(this.selectedItem?.excellentType ?? 0);
             let labels = this.itemOptionLabels.excellent.weapon;
 
@@ -555,6 +742,17 @@ export function creditExchangeOfferEditor(configuration) {
 
         /** Returns safe additional-option choices labeled for the selected family. */
         get additionalOptionChoices() {
+            if (this.selectedItem?.nativeOptions) {
+                const native = this.selectedItem.nativeOptions;
+
+                return this.optionLevels
+                    .filter((level) => level === 0 || native.additional)
+                    .map((level) => ({
+                        value: level,
+                        label: level === 0 ? '0' : native.additionalLabel.replace('{value}', String(level * native.additionalValue)),
+                    }));
+            }
+
             return this.optionLevels.map((optionLevel) => {
                 if (optionLevel === 0) {
                     return {
@@ -586,7 +784,7 @@ export function creditExchangeOfferEditor(configuration) {
                 return '';
             }
 
-            const prefix = this.excellentMask > 0 && this.selectedItem.excellentType !== 4
+            const prefix = nativeExcellentMask(this.selectedItem.nativeOptions, this.excellentMask) > 0 && this.selectedItem.excellentType !== 4
                 ? `${this.itemOptionLabels.excellentPrefix} `
                 : '';
             const level = this.level > 0 ? ` +${this.level}` : '';
@@ -598,6 +796,12 @@ export function creditExchangeOfferEditor(configuration) {
         get additionalOption() {
             if (this.optionLevel <= 0 || this.selectedItem === null) {
                 return null;
+            }
+
+            if (this.selectedItem.nativeOptions) {
+                const native = this.selectedItem.nativeOptions;
+
+                return native.additionalLabel?.replace('{value}', String(this.optionLevel * native.additionalValue)) ?? null;
             }
 
             if (this.selectedItem.optionType === 1) {
@@ -1124,6 +1328,7 @@ export function itemGrantManager(configuration) {
         excellentOptionBits: excellentBits.filter(
             (bit) => (initialExcellentMask & bit) !== 0,
         ),
+        additionalVariantMask: nativeAdditionalVariant(initialItem?.nativeOptions, initialExcellentMask).mask,
         ancientOption: Number(configuration.initialAncientOption) || 0,
         harmonyEffect: (initialHarmonyOption >> 4) & 0x0F,
         harmonyLevel: initialHarmonyOption & 0x0F,
@@ -1170,6 +1375,30 @@ export function itemGrantManager(configuration) {
                 || this.selectedItem?.allows380 === true
                 || (this.selectedItem?.harmonyOptions?.length ?? 0) > 0
                 || (this.selectedItem?.maxSockets ?? 0) > 0;
+        },
+
+        /**
+         * Applies shared advanced controls without changing generator pricing behavior.
+         *
+         * @param {string} field Canonical advanced field.
+         * @param {number|boolean} value New option value.
+         */
+        setAdvancedOption(field, value) {
+            const options = updatedAdvancedSelection({
+                ancient_option: this.ancientOption,
+                harmony_option: this.harmonyOption,
+                socket_count: this.socketCount,
+                has_380_option: this.has380Option,
+            }, field, value);
+            this.ancientOption = options.ancient_option;
+            this.harmonyEffect = options.harmony_option >> 4;
+            this.harmonyLevel = options.harmony_option & 15;
+            this.socketCount = options.socket_count;
+            this.has380Option = options.has_380_option;
+
+            if (this.ancientOption > 0) {
+                this.excellentOptionBits = [];
+            }
         },
 
         /**
@@ -1238,12 +1467,14 @@ export function itemGrantManager(configuration) {
         get excellentMask() {
             const allowedBits = new Set(this.excellentOptions.map((option) => option.bit));
 
-            return this.excellentOptionBits
+            const variant = nativeAdditionalVariant(this.selectedItem?.nativeOptions, this.additionalVariantMask);
+
+            return (this.excellentOptionBits
                 .filter((bit) => allowedBits.has(Number(bit)))
                 .reduce(
                     (mask, bit) => mask | Number(bit),
                     0,
-                );
+                )) | (this.optionLevel > 0 ? variant.mask : 0);
         },
 
         /**
@@ -1252,6 +1483,10 @@ export function itemGrantManager(configuration) {
          * @returns {Array<object>}
          */
         get excellentOptions() {
+            if (this.selectedItem?.nativeOptions) {
+                return this.selectedItem.nativeOptions.excellent;
+            }
+
             let labels = this.itemOptionLabels.excellent.weapon;
 
             if (this.selectedItem?.excellentType === 4) {
@@ -1309,6 +1544,12 @@ export function itemGrantManager(configuration) {
                 return null;
             }
 
+            if (this.selectedItem.nativeOptions) {
+                const native = nativeAdditionalVariant(this.selectedItem.nativeOptions, this.additionalVariantMask);
+
+                return native.label?.replaceAll('{value}', String(this.optionLevel * native.value)) ?? null;
+            }
+
             if (this.selectedItem.optionType === 1) {
                 return `${this.itemOptionLabels.automaticHpRecovery} +${this.optionLevel}%`;
             }
@@ -1330,6 +1571,18 @@ export function itemGrantManager(configuration) {
          * @returns {Array<{value: number, label: string}>}
          */
         get additionalOptionChoices() {
+            if (this.selectedItem?.nativeOptions) {
+                const native = this.selectedItem.nativeOptions;
+                const variant = nativeAdditionalVariant(native, this.additionalVariantMask);
+
+                return this.optionLevels
+                    .filter((level) => level === 0 || native.additional)
+                    .map((level) => ({
+                        value: level,
+                        label: level === 0 ? '0' : variant.label.replaceAll('{value}', String(level * variant.value)),
+                    }));
+            }
+
             const maximum = this.selectedItem?.maxOption ?? Math.max(...this.optionLevels);
 
             return this.optionLevels
@@ -1375,8 +1628,9 @@ export function itemGrantManager(configuration) {
                 + (this.hasSkill ? Number(this.priceModifiers.skill ?? 0) : 0)
                 + (this.hasLuck ? Number(this.priceModifiers.luck ?? 0) : 0)
                 + (this.excellentOptionBits.length * Number(this.priceModifiers.excellentOption ?? 0))
-                + (this.ancientOption === 5 ? Number(this.priceModifiers.ancientFive ?? 0) : 0)
-                + (this.ancientOption === 10 ? Number(this.priceModifiers.ancientTen ?? 0) : 0)
+                + Number(this.selectedItem.ancientPrices?.[this.ancientOption]
+                    ?? ((this.ancientOption === 5 ? Number(this.priceModifiers.ancientFive ?? 0) : 0)
+                        + (this.ancientOption === 10 ? Number(this.priceModifiers.ancientTen ?? 0) : 0)))
                 + (this.has380Option ? Number(this.priceModifiers.option380 ?? 0) : 0)
                 + (this.harmonyOption > 0 ? Number(this.priceModifiers.harmony ?? 0) : 0)
                 + (this.socketCount * Number(this.priceModifiers.socket ?? 0));
@@ -1407,7 +1661,7 @@ export function itemGrantManager(configuration) {
             options.push(...this.selectedExcellentOptions);
 
             if (this.ancientOption > 0) {
-                options.push(this.ancientOption === 5 ? this.ui.ancientFive : this.ui.ancientTen);
+                options.push(this.selectedItem?.ancientOptionLabels?.[this.ancientOption] ?? (this.ancientOption === 5 ? this.ui.ancientFive : this.ui.ancientTen));
             }
 
             if (this.has380Option) {
@@ -1415,7 +1669,9 @@ export function itemGrantManager(configuration) {
             }
 
             if (this.harmonyOption > 0) {
-                options.push(`${this.ui.harmony}: ${this.harmonyOptionLabel(this.harmonyEffect)} +${this.harmonyLevel}`);
+                const effect = this.selectedItem?.harmonyOptions?.find((option) => option.value === this.harmonyEffect);
+                const amount = effect?.values?.[this.harmonyLevel] ?? this.harmonyLevel;
+                options.push(`${this.ui.harmony}: ${this.harmonyOptionLabel(this.harmonyEffect)} +${amount}`);
             }
 
             if (this.socketCount > 0) {
@@ -1433,6 +1689,13 @@ export function itemGrantManager(configuration) {
         openConfirmation() {
             if (this.selectedItem === null) {
                 this.$refs.itemSearch.setCustomValidity(this.ui.itemRequired);
+                this.$refs.itemSearch.reportValidity();
+
+                return;
+            }
+
+            if (this.selectedItem.nativeOptions?.constructionSupported === false) {
+                this.$refs.itemSearch.setCustomValidity(this.ui.itemUnsupported);
                 this.$refs.itemSearch.reportValidity();
 
                 return;
@@ -1462,11 +1725,16 @@ export function itemGrantManager(configuration) {
          */
         selectItem(item) {
             this.itemCode = item.code;
+            this.additionalVariantMask = nativeAdditionalVariant(item.nativeOptions, this.additionalVariantMask).mask;
             this.itemSearch = item.name;
             this.level = Math.min(this.level, item.maxLevel ?? this.level);
             this.optionLevel = Math.min(this.optionLevel, item.maxOption ?? this.optionLevel);
-            this.hasSkill = item.allowsSkill === false ? false : this.hasSkill;
-            this.hasLuck = item.allowsLuck === false ? false : this.hasLuck;
+
+            if (item.nativeOptions?.additional === false) {
+                this.optionLevel = 0;
+            }
+            this.hasSkill = (item.allowsSkill === false || item.nativeOptions?.skill === false) ? false : this.hasSkill;
+            this.hasLuck = (item.allowsLuck === false || item.nativeOptions?.luck === false) ? false : this.hasLuck;
             const allowedBits = new Set(this.excellentOptions.map((option) => option.bit));
             this.excellentOptionBits = this.excellentOptionBits.filter(
                 (bit) => allowedBits.has(Number(bit)),
@@ -1502,7 +1770,8 @@ export function itemGrantManager(configuration) {
          * @returns {string}
          */
         harmonyOptionLabel(value) {
-            return this.ui.harmonyOptions?.[this.selectedItem?.harmonyType]?.[value] ?? String(value);
+            return this.selectedItem?.harmonyOptions?.find((option) => option.value === value)?.label
+                ?? this.ui.harmonyOptions?.[this.selectedItem?.harmonyType]?.[value] ?? String(value);
         },
 
         /**
@@ -1960,6 +2229,54 @@ export function rankingBoard(initialTab = 'players') {
 }
 
 /**
+ * Positions the S21 level breakdown above or below its trigger without clipping ranking cards.
+ *
+ * @returns {object} Alpine state shared by podium and list level metrics.
+ */
+export function rankingLevelDetails() {
+    return {
+        detailsOpen: false,
+        positionStyle: {},
+
+        /**
+         * Opens the native progression details within the visible viewport.
+         *
+         * @param {HTMLElement|null} trigger The level button receiving hover, focus or tap.
+         * @param {object} entry The public character with optional S21 Master progression.
+         * @returns {void}
+         */
+        show(trigger, entry) {
+            if (!trigger || entry.masterLevel === undefined) {
+                return;
+            }
+
+            const bounds = trigger.getBoundingClientRect();
+            const panelWidth = Math.min(256, window.innerWidth - 24);
+            const centeredLeft = bounds.left + (bounds.width / 2) - (panelWidth / 2);
+            const left = Math.max(12, Math.min(centeredLeft, window.innerWidth - panelWidth - 12));
+            const above = bounds.top >= 220;
+            const top = above ? bounds.top - 10 : bounds.bottom + 10;
+
+            this.positionStyle = {
+                left: `${left}px`,
+                top: `${top}px`,
+                transform: above ? 'translateY(-100%)' : 'none',
+            };
+            this.detailsOpen = true;
+        },
+
+        /**
+         * Dismisses details when navigation, scrolling or keyboard focus changes.
+         *
+         * @returns {void}
+         */
+        close() {
+            this.detailsOpen = false;
+        },
+    };
+}
+
+/**
  * Creates an asynchronous, URL-synchronized ranking explorer.
  *
  * @param {object} initialPage The first server-rendered ranking page.
@@ -2190,7 +2507,7 @@ export function rankingExplorer(initialPage, dataUrl) {
  *
  * @param {Array<object>} initialEvents Server-calculated occurrences for each event.
  * @param {string} serverNow ISO timestamp captured while rendering the page.
- * @returns {object} Alpine state for countdowns and the full schedule disclosure.
+ * @returns {object} Alpine state for server-synchronized event countdowns.
  */
 export function eventSchedule(initialEvents, serverNow) {
     const normalizedEvents = [];
@@ -2213,7 +2530,6 @@ export function eventSchedule(initialEvents, serverNow) {
         events: normalizedEvents,
         clockOffsetMilliseconds: Date.parse(serverNow) - Date.now(),
         nowTimestamp: Date.parse(serverNow),
-        scheduleOpen: false,
         timerId: null,
 
         /**
@@ -2321,19 +2637,6 @@ export function eventSchedule(initialEvents, serverNow) {
             return Math.max(0, Math.min(100, (elapsedDuration / cycleDuration) * 100));
         },
 
-        /**
-         * Opens or closes the complete daily event schedule.
-         */
-        toggleSchedule() {
-            this.scheduleOpen = !this.scheduleOpen;
-        },
-
-        /**
-         * Closes the complete schedule from the Escape key.
-         */
-        closeSchedule() {
-            this.scheduleOpen = false;
-        },
     };
 }
 
@@ -2455,8 +2758,12 @@ export function itemInspector(itemOptionLabels, item = null) {
          * @returns {string}
          */
         itemTitle(inspectedItem) {
+            if (inspectedItem.nativePresentation) {
+                return inspectedItem.nativePresentation.title;
+            }
+
             const level = inspectedItem.level > 0 ? ` +${inspectedItem.level}` : '';
-            const prefix = inspectedItem.excellentMask > 0 && inspectedItem.excellentType !== 4
+            const prefix = nativeExcellentMask(inspectedItem.nativeOptions, inspectedItem.excellentMask) > 0 && inspectedItem.excellentType !== 4
                 ? `${this.itemOptionLabels.excellentPrefix} `
                 : '';
 
@@ -2498,6 +2805,14 @@ export function itemInspector(itemOptionLabels, item = null) {
          * @returns {string|null}
          */
         itemAdditionalOption(inspectedItem) {
+            if (inspectedItem.nativeOptions) {
+                const native = nativeAdditionalVariant(inspectedItem.nativeOptions, inspectedItem.excellentMask);
+
+                return inspectedItem.optionLevel > 0
+                    ? native.label?.replaceAll('{value}', String(inspectedItem.optionLevel * native.value)) ?? null
+                    : null;
+            }
+
             if (inspectedItem.optionLevel <= 0) {
                 return null;
             }
@@ -2524,6 +2839,12 @@ export function itemInspector(itemOptionLabels, item = null) {
          * @returns {Array<string>}
          */
         itemExcellentOptions(inspectedItem) {
+            if (inspectedItem.nativeOptions) {
+                return inspectedItem.nativeOptions.excellent
+                    .filter((option) => (inspectedItem.excellentMask & option.bit) !== 0)
+                    .map((option) => option.label);
+            }
+
             if (inspectedItem.excellentMask <= 0) {
                 return [];
             }
@@ -2558,7 +2879,9 @@ export function itemInspector(itemOptionLabels, item = null) {
          * @returns {string}
          */
         itemAncientOption(inspectedItem) {
-            return `${this.itemOptionLabels.ancientOption}: ${inspectedItem.ancientOption}`;
+            const label = inspectedItem.nativeOptions?.ancientOptionLabels?.[inspectedItem.ancientOption] ?? inspectedItem.ancientOption;
+
+            return `${this.itemOptionLabels.ancientOption}: ${label}`;
         },
 
         /**
@@ -2568,7 +2891,11 @@ export function itemInspector(itemOptionLabels, item = null) {
          * @returns {string}
          */
         itemHarmonyOption(inspectedItem) {
-            return `${this.itemOptionLabels.harmonyOption}: ${inspectedItem.harmonyOption}`;
+            const effect = inspectedItem.nativeOptions?.harmonyOptions?.find((option) => option.value === (inspectedItem.harmonyOption >> 4));
+            const value = effect?.values?.[inspectedItem.harmonyOption & 15];
+            const label = value === undefined ? inspectedItem.harmonyOption : `${effect.label} +${value}`;
+
+            return `${this.itemOptionLabels.harmonyOption}: ${label}`;
         },
 
         /**
@@ -2585,6 +2912,104 @@ export function itemInspector(itemOptionLabels, item = null) {
             return (inspectedItem.socketOptions ?? []).filter(
                 (socketOption) => Number(socketOption) !== 255,
             ).length;
+        },
+    };
+}
+
+/**
+ * Opens focused Zen transfer dialogs while preserving normal form submission.
+ *
+ * @param {string|null} initialTransfer The transfer restored after validation errors.
+ * @returns {object} Alpine state for the shared account Zen Bank page.
+ */
+export function zenBankPanel(initialTransfer = null) {
+    return {
+        activeTransfer: null,
+        trigger: null,
+        previousOverflow: '',
+
+        /**
+         * Restores the submitted dialog when the server returns field errors.
+         */
+        init() {
+            if (['deposit', 'withdrawal'].includes(initialTransfer)) {
+                this.open(initialTransfer, null);
+            }
+        },
+
+        /**
+         * Opens one transfer dialog and focuses its ownership selector.
+         *
+         * @param {string} type The deposit or withdrawal direction.
+         * @param {HTMLElement|null} trigger The button to refocus when closing.
+         */
+        open(type, trigger) {
+            if (!['deposit', 'withdrawal'].includes(type)) {
+                return;
+            }
+
+            if (this.activeTransfer === null) {
+                this.previousOverflow = document.body.style.overflow;
+            }
+
+            this.trigger = trigger;
+            this.activeTransfer = type;
+            document.body.style.overflow = 'hidden';
+            this.$nextTick(this.focusDialog.bind(this));
+        },
+
+        /**
+         * Focuses the selected dialog after Alpine reveals its teleported content.
+         */
+        focusDialog() {
+            this.$refs[`${this.activeTransfer}Panel`]?.querySelector('select')?.focus();
+        },
+
+        /**
+         * Closes the transfer dialog and restores page scrolling and trigger focus.
+         */
+        close() {
+            if (this.activeTransfer === null) {
+                return;
+            }
+
+            this.activeTransfer = null;
+            document.body.style.overflow = this.previousOverflow;
+            this.trigger?.focus();
+        },
+
+        /**
+         * Keeps keyboard navigation inside the visible transfer dialog.
+         *
+         * @param {KeyboardEvent} event The Tab or Shift+Tab navigation event.
+         */
+        trapFocus(event) {
+            const panel = this.$refs[`${this.activeTransfer}Panel`];
+            const controls = panel?.querySelectorAll('button:not([disabled]), select:not([disabled]), input:not([type="hidden"]):not([disabled])');
+
+            if (!controls || controls.length === 0) {
+                return;
+            }
+
+            const first = controls[0];
+            const last = controls[controls.length - 1];
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        },
+
+        /**
+         * Restores page scrolling if the open bank panel is removed.
+         */
+        destroy() {
+            if (this.activeTransfer !== null) {
+                document.body.style.overflow = this.previousOverflow;
+            }
         },
     };
 }
@@ -2778,6 +3203,13 @@ export function accountPanel(characters, resetPreviewConfiguration = null) {
 
             this.characterServiceSubmitting = true;
             form.submit();
+        },
+
+        /**
+         * Combines native S21 Master progression with the current normal level for display.
+         */
+        get selectedCharacterDisplayLevel() {
+            return this.selectedCharacter.level + (this.selectedCharacter.masterLevel ?? 0);
         },
 
         /**

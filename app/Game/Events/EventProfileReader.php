@@ -3,6 +3,7 @@
 namespace App\Game\Events;
 
 use App\Models\EventScheduleEntry;
+use DateTimeImmutable;
 use Illuminate\Database\DatabaseManager;
 
 /**
@@ -64,6 +65,23 @@ final readonly class EventProfileReader
     }
 
     /**
+     * Returns entry information for standard systems whose availability is not a recurring timer.
+     *
+     * @return list<EventActivity>
+     */
+    public function activities(DateTimeImmutable $now): array
+    {
+        $profileKey = (string) config('game.event_profile');
+        $activities = [];
+
+        foreach ((array) config("game_events.profiles.{$profileKey}.activities", []) as $configuration) {
+            $activities[] = EventActivity::fromConfiguration($configuration, $now, app()->getLocale());
+        }
+
+        return $activities;
+    }
+
+    /**
      * Returns the number of nearest events displayed before the schedule expands.
      */
     public function homeLimit(): int
@@ -111,6 +129,7 @@ final readonly class EventProfileReader
             'duration_minutes' => $entry->duration_minutes,
             'times' => $intervalMode ? [] : $entry->times,
             'days_of_week' => $entry->days_of_week,
+            'days_of_month' => $entry->days_of_month ?? [],
             'interval_minutes' => $intervalMode ? $entry->interval_minutes : null,
             'interval_anchor' => $entry->interval_anchor,
             'source' => $entry->source ?? '',

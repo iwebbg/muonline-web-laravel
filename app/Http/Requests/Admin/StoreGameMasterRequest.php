@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Admin\AdministratorPasswordInput;
 use App\Admin\Authorization\AdministratorPermission;
 use App\Admin\Authorization\AdministratorRole;
 use App\Models\Administrator;
@@ -44,6 +45,7 @@ final class StoreGameMasterRequest extends FormRequest
                     ->letters()
                     ->numbers()
                     ->symbols(),
+                new AdministratorPasswordInput,
             ],
             'permissions' => ['required', 'array', 'min:1'],
             'permissions.*' => ['required', Rule::enum(AdministratorPermission::class)],

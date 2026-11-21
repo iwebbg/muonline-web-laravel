@@ -23,6 +23,6 @@ final class CharacterImageMapper
     public function pathFor(int $classCode): string
     {
         return $this->profile->classForCode($classCode)?->image
-            ?? '/images/characters/blade-knight.png';
+            ?? '/images/characters/muonline-web-dark-knight.png';
     }
 }

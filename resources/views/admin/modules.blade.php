@@ -47,11 +47,15 @@
                                         name="modules[{{ $module['key'] }}]"
                                         value="1"
                                         class="mt-1"
+                                        @disabled(! $module['supported'])
                                         @checked(old('modules.'.$module['key'], $module['enabled']))
                                     >
                                     <span>
                                         <span class="block font-semibold text-white">{{ __('ui.admin.module_labels.'.$module['key']) }}</span>
                                         <span class="mt-1 block text-sm leading-6 text-steel">{{ __('ui.admin.module_descriptions.'.$module['key']) }}</span>
+                                        @if (! $module['supported'])
+                                            <span class="mt-2 block text-sm text-amber-200">{{ __('ui.admin.module_not_supported') }}</span>
+                                        @endif
                                     </span>
                                 </label>
                             @endforeach

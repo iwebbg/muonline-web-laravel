@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Model;
     'og_image_path',
     'copyright_holder',
     'theme_slug',
+    'registration_enabled',
+    'require_email_verification',
     'revision',
     'updated_by_administrator_id',
 ])]
@@ -34,6 +36,10 @@ final class WebsiteSetting extends Model
      */
     protected function casts(): array
     {
-        return ['revision' => 'integer'];
+        return [
+            'revision' => 'integer',
+            'registration_enabled' => 'boolean',
+            'require_email_verification' => 'boolean',
+        ];
     }
 }

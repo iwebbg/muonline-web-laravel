@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Game\Versions\Contracts\GameDatabaseProfile;
+use App\Game\Versions\Contracts\OptionalGameDatabaseObjects;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -145,14 +146,16 @@ final class DiagnoseGameDatabase extends Command
 
         $valid = true;
 
+        $optionalObjects = $profile instanceof OptionalGameDatabaseObjects ? $profile->optionalDatabaseObjects() : [];
         foreach ($profile->databaseObjectPermissions() as $object => $permissions) {
+            if (in_array($object, $optionalObjects, true)) {
+                $present = $connection->selectOne('SELECT OBJECT_ID(?) AS object_id', [$object]);
+                if ($present?->object_id === null) {
+                    continue;
+                }
+            }
             foreach ($permissions as $permission) {
-                $result = $connection->selectOne(
-                    'SELECT HAS_PERMS_BY_NAME(?, ?, ?) AS has_permission',
-                    [$object, 'OBJECT', $permission],
-                );
-
-                if ((int) ($result->has_permission ?? 0) !== 1) {
+                if (! $this->hasRequiredPermission($connection, $object, $permission)) {
                     $this->components->error("Missing SQL permission: {$permission} on {$object}");
                     $valid = false;
                 }
@@ -178,6 +181,30 @@ final class DiagnoseGameDatabase extends Command
         }
 
         return $valid;
+    }
+
+    /**
+     * Checks each reviewed UPDATE column separately instead of requiring whole-table mutation rights.
+     */
+    private function hasRequiredPermission(Connection $connection, string $object, string $permission): bool
+    {
+        if (preg_match('/\AUPDATE \(\[[A-Za-z0-9_]+\](?:, \[[A-Za-z0-9_]+\])*\)\z/', $permission) === 1) {
+            preg_match_all('/\[([A-Za-z0-9_]+)\]/', $permission, $columns);
+            foreach ($columns[1] as $column) {
+                $result = $connection->selectOne(
+                    'SELECT HAS_PERMS_BY_NAME(?, ?, ?, ?, ?) AS has_permission',
+                    [$object, 'OBJECT', 'UPDATE', $column, 'COLUMN'],
+                );
+                if ((int) ($result->has_permission ?? 0) !== 1) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        $result = $connection->selectOne('SELECT HAS_PERMS_BY_NAME(?, ?, ?) AS has_permission', [$object, 'OBJECT', $permission]);
+
+        return (int) ($result->has_permission ?? 0) === 1;
     }
 
     /**

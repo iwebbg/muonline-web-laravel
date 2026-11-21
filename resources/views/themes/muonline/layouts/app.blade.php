@@ -72,7 +72,7 @@
                     @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
                         <a href="{{ route('market.index') }}" class="nav-link {{ request()->routeIs('market.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.market') }}</a>
                     @endif
-                    <a href="{{ route('home') }}#events" class="nav-link">{{ __('ui.navigation.events') }}</a>
+                    <a href="{{ route('events.index') }}" class="nav-link {{ request()->routeIs('events.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.events') }}</a>
                     <a href="{{ route('account.dashboard') }}" class="nav-link {{ request()->routeIs('account.*', 'shop.*') ? 'nav-link-active' : '' }}">{{ __('ui.navigation.account') }}</a>
                 </nav>
 
@@ -129,6 +129,7 @@
                     <a href="{{ route('news.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.news') }}</a>
                     <a href="{{ route('guides.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.guides') }}</a>
                     <a href="{{ route('downloads.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.downloads') }}</a>
+                    <a href="{{ route('events.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.events') }}</a>
                     @if ($moduleManager->enabled(\App\Modules\ServerModule::Market))
                         <a href="{{ route('market.index') }}" class="mobile-nav-link" @click="closeMobileMenu">{{ __('ui.navigation.market') }}</a>
                     @endif

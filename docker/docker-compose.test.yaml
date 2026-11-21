@@ -34,6 +34,7 @@ services:
             GAME_DB_ADMIN_PASSWORD: ""
             GAME_DB_ADMIN_USERNAME: ""
             GAME_DB_CONNECTION: sqlite
+            GAME_DB_BATTLE_CORE: ""
             GAME_DB_HOST: ""
             GAME_DB_MUONLINE: ":memory:"
             GAME_DB_PASSWORD: ""

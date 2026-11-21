@@ -22,5 +22,15 @@ final readonly class PublicCharacterProfile
         public ?string $guildName,
         public bool $online,
         public bool $vip,
+        public string $imagePosition = 'center top',
+        public ?int $masterLevel = null,
     ) {}
+
+    /**
+     * Returns the displayed total while preserving the normal level for game operations.
+     */
+    public function displayLevel(): int
+    {
+        return $this->level + ($this->masterLevel ?? 0);
+    }
 }

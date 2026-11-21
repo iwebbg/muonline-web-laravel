@@ -2,10 +2,12 @@
 
 namespace App\Game\Versions\Version97d99i;
 
+use App\Game\Contracts\MapNameLookup;
+
 /**
  * Maps 97d+99i legacy map numbers to stable display names.
  */
-final class MapNameMapper
+final class MapNameMapper implements MapNameLookup
 {
     /**
      * Returns the map name represented by one Character.MapNumber value.

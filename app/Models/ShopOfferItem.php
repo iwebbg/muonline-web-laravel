@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * Stores one immutable-ready item configuration in an offer reward pool.
  */
-#[Fillable(['shop_offer_id', 'item_code', 'item_name', 'item_image', 'item_width', 'item_height', 'level', 'durability', 'option_level', 'has_skill', 'has_luck', 'excellent_mask', 'ancient_option', 'weight', 'sort_order'])]
+#[Fillable(['shop_offer_id', 'item_code', 'item_name', 'item_image', 'item_width', 'item_height', 'level', 'durability', 'option_level', 'has_skill', 'has_luck', 'excellent_mask', 'ancient_option', 'harmony_option', 'socket_count', 'has_380_option', 'weight', 'sort_order'])]
 final class ShopOfferItem extends Model
 {
     /** @use HasFactory<ShopOfferItemFactory> */
@@ -47,6 +47,9 @@ final class ShopOfferItem extends Model
             'has_luck' => $this->has_luck,
             'excellent_mask' => $this->excellent_mask,
             'ancient_option' => $this->ancient_option,
+            'harmony_option' => (int) $this->harmony_option,
+            'socket_count' => (int) $this->socket_count,
+            'has_380_option' => (bool) $this->has_380_option,
             'weight' => $this->weight,
         ];
     }
@@ -68,6 +71,9 @@ final class ShopOfferItem extends Model
             'has_luck' => 'boolean',
             'excellent_mask' => 'integer',
             'ancient_option' => 'integer',
+            'harmony_option' => 'integer',
+            'socket_count' => 'integer',
+            'has_380_option' => 'boolean',
             'weight' => 'integer',
             'sort_order' => 'integer',
         ];

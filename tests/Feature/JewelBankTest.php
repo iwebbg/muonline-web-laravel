@@ -564,7 +564,7 @@ final class JewelBankTest extends TestCase
             name: 'JewelChar',
             className: 'Blade Knight',
             classCode: 17,
-            image: '/images/characters/blade-knight.webp',
+            image: '/images/characters/muonline-web-dark-knight.png',
             level: 400,
             resets: 20,
             grandResets: 2,

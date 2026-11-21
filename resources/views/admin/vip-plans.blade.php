@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', __('ui.admin.vip_plans_title'))
+@section('title', $nativeAccountVip ? __('ui.native_services.vip_heading') : __('ui.admin.vip_plans_title'))
 
 @section('content')
     <div class="admin-shell py-10 lg:py-14">
         <div>
             <div class="eyebrow mb-4">{{ __('ui.admin.eyebrow') }}</div>
-            <h1 class="font-display text-4xl text-white sm:text-5xl">{{ __('ui.admin.vip_plans_heading') }}</h1>
-            <p class="mt-3 max-w-3xl text-silver">{{ __('ui.admin.vip_plans_intro') }}</p>
+            <h1 class="font-display text-4xl text-white sm:text-5xl">{{ $nativeAccountVip ? __('ui.native_services.vip_heading') : __('ui.admin.vip_plans_heading') }}</h1>
+            <p class="mt-3 max-w-3xl text-silver">{{ $nativeAccountVip ? __('ui.native_services.vip_help') : __('ui.admin.vip_plans_intro') }}</p>
         </div>
 
         <div class="mt-8">
@@ -53,6 +53,12 @@
                             </label>
                         </div>
                         <div class="grid gap-5 sm:grid-cols-3">
+                            @if ($nativeAccountVip)
+                                <label class="field-group">
+                                    <span>{{ __('ui.native_services.vip_tier') }}</span>
+                                    <input type="number" name="native_account_level" value="{{ old('native_account_level', 1) }}" min="1" max="3" required>
+                                </label>
+                            @endif
                             <label class="field-group">
                                 <span>{{ __('ui.admin.vip_plan_days') }}</span>
                                 <input type="number" name="duration_days" value="{{ old('duration_days', 30) }}" min="1" max="3650" required>
@@ -114,6 +120,9 @@
                                     <label class="field-group"><span>{{ __('ui.admin.vip_plan_description_bg') }}</span><textarea name="description_bg" rows="3">{{ $plan->description_bg }}</textarea></label>
                                 </div>
                                 <div class="grid gap-5 sm:grid-cols-3">
+                                    @if ($nativeAccountVip)
+                                        <label class="field-group"><span>{{ __('ui.native_services.vip_tier') }}</span><input type="number" name="native_account_level" value="{{ $plan->native_account_level ?? 1 }}" min="1" max="3" required></label>
+                                    @endif
                                     <label class="field-group"><span>{{ __('ui.admin.vip_plan_days') }}</span><input type="number" name="duration_days" value="{{ $plan->duration_days }}" min="1" max="3650" required></label>
                                     <label class="field-group"><span>{{ __('ui.admin.vip_plan_price') }}</span><input type="number" name="price_credits" value="{{ $plan->price_credits }}" min="1" max="1000000000" required></label>
                                     <label class="field-group"><span>{{ __('ui.admin.vip_plan_order') }}</span><input type="number" name="sort_order" value="{{ $plan->sort_order }}" min="0" max="10000" required></label>
@@ -127,35 +136,39 @@
                     @endforelse
                 </section>
 
-                <section class="panel-card overflow-hidden">
-                    <div class="border-b border-white/8 p-5 sm:p-6">
-                        <p class="kicker">{{ __('ui.admin.vip_sync_heading') }}</p>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-left text-sm">
-                            <thead class="text-xs uppercase tracking-[0.14em] text-steel">
-                                <tr>
-                                    <th class="px-5 py-4">{{ __('ui.admin.wallet_account_id') }}</th>
-                                    <th class="px-5 py-4">{{ __('ui.account.vip_character') }}</th>
-                                    <th class="px-5 py-4">{{ __('ui.admin.vip_sync_status') }}</th>
-                                    <th class="px-5 py-4">{{ __('ui.account.vip_expires') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-white/6">
-                                @forelse ($recentEntitlements as $entitlement)
+                @if (! $nativeAccountVip)
+                    <section class="panel-card overflow-hidden">
+                        <div class="border-b border-white/8 p-5 sm:p-6">
+                            <p class="kicker">{{ __('ui.admin.vip_sync_heading') }}</p>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-left text-sm">
+                                <thead class="text-xs uppercase tracking-[0.14em] text-steel">
                                     <tr>
-                                        <td class="px-5 py-4 text-white">{{ $entitlement->account_id }}</td>
-                                        <td class="px-5 py-4 text-white">{{ $entitlement->character_name }}</td>
-                                        <td class="px-5 py-4 text-silver">{{ __('ui.account.vip_sync_'.$entitlement->sync_status->value) }}</td>
-                                        <td class="whitespace-nowrap px-5 py-4 text-steel">{{ $entitlement->expires_at->format('Y-m-d H:i') }}</td>
+                                        <th class="px-5 py-4">{{ __('ui.admin.wallet_account_id') }}</th>
+                                        <th class="px-5 py-4">{{ __('ui.account.vip_character') }}</th>
+                                        <th class="px-5 py-4">{{ __('ui.admin.vip_sync_status') }}</th>
+                                        <th class="px-5 py-4">{{ __('ui.account.vip_expires') }}</th>
                                     </tr>
-                                @empty
-                                    <tr><td colspan="4" class="px-5 py-10 text-center text-steel">{{ __('ui.admin.vip_sync_empty') }}</td></tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                                </thead>
+                                <tbody class="divide-y divide-white/6">
+                                    @forelse ($recentEntitlements as $entitlement)
+                                        <tr>
+                                            <td class="px-5 py-4 text-white">{{ $entitlement->account_id }}</td>
+                                            <td class="px-5 py-4 text-white">{{ $entitlement->character_name }}</td>
+                                            <td class="px-5 py-4 text-silver">{{ __('ui.account.vip_sync_'.$entitlement->sync_status->value) }}</td>
+                                            <td class="whitespace-nowrap px-5 py-4 text-steel">{{ $entitlement->expires_at->format('Y-m-d H:i') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="4" class="px-5 py-10 text-center text-steel">{{ __('ui.admin.vip_sync_empty') }}</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                @else
+                    <a class="button button-ghost" href="{{ route('admin.game-currency-rates.index') }}">{{ __('ui.native_services.history') }}</a>
+                @endif
             </main>
         </div>
     </div>

@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'description_en',
     'description_bg',
     'duration_days',
+    'native_account_level',
     'price_credits',
     'enabled',
     'sort_order',
@@ -65,6 +66,7 @@ final class VipPlan extends Model
     {
         return [
             'duration_days' => 'integer',
+            'native_account_level' => 'integer',
             'price_credits' => 'integer',
             'enabled' => 'boolean',
             'sort_order' => 'integer',

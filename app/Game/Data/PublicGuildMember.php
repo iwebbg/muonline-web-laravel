@@ -18,5 +18,14 @@ final readonly class PublicGuildMember
         public int $grandResets,
         public bool $online,
         public bool $master,
+        public ?int $masterLevel = null,
     ) {}
+
+    /**
+     * Returns the displayed total while preserving the normal level for game operations.
+     */
+    public function displayLevel(): int
+    {
+        return $this->level + ($this->masterLevel ?? 0);
+    }
 }

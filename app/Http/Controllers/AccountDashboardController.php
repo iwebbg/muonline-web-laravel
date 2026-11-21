@@ -4,15 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Auth\GameAccount;
 use App\CharacterServices\CharacterClassChangeResolver;
+use App\CharacterServices\CharacterServiceType;
 use App\Economy\WalletCurrency;
+use App\Game\Contracts\AccountMembershipReadRepository;
 use App\Game\Contracts\AccountReadRepository;
+use App\Game\Contracts\BattleCoreReadRepository;
+use App\Game\Contracts\GameCurrencyBalanceRepository;
 use App\Game\Contracts\GensMembershipRepository;
+use App\Game\Contracts\JournaledCharacterServiceRepository;
 use App\Game\Contracts\LuckyCoinBalanceRepository;
 use App\Game\Contracts\MasterProgressionRepository;
+use App\Game\Operations\CharacterOperationStatus;
 use App\Game\Versions\CharacterClassDefinition;
 use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Http\AccountPanelConfiguration;
 use App\Models\AccountWallet;
+use App\Models\CharacterServiceOperation;
 use App\Models\VipEntitlement;
 use App\Models\VipPlan;
 use App\Models\VipPurchase;
@@ -45,6 +52,10 @@ final class AccountDashboardController extends Controller
         private readonly MasterProgressionRepository $masterProgressionRepository,
         private readonly GensMembershipRepository $gensMembershipRepository,
         private readonly LuckyCoinBalanceRepository $luckyCoinBalanceRepository,
+        private readonly ?GameCurrencyBalanceRepository $currencyBalanceRepository = null,
+        private readonly ?BattleCoreReadRepository $battleCoreReadRepository = null,
+        private readonly ?AccountMembershipReadRepository $accountMembershipReadRepository = null,
+        private readonly ?JournaledCharacterServiceRepository $journaledCharacterServiceRepository = null,
     ) {}
 
     /**
@@ -63,12 +74,18 @@ final class AccountDashboardController extends Controller
         $gensMembershipByCharacter = $this->gensMembershipRepository->forAccount(
             $account->username,
         );
-        $luckyCoinBalance = $this->luckyCoinBalanceRepository->balanceFor($account->username);
+        $nativeCurrencyBalances = $this->currencyBalanceRepository?->forAccount($account->username);
+        $luckyCoinBalance = $nativeCurrencyBalances?->luckyCoins
+            ?? $this->luckyCoinBalanceRepository->balanceFor($account->username);
         $characters = [];
         $characterNames = [];
 
         foreach ($characterEntries as $characterEntry) {
             $character = $characterEntry->toArray();
+
+            if ($nativeCurrencyBalances !== null) {
+                $character['ruud'] = $nativeCurrencyBalances->ruudByCharacter[$characterEntry->name] ?? 0;
+            }
             $masterProgression = $masterProgressionByCharacter[$characterEntry->name] ?? null;
             $character['masterProgression'] = $masterProgression?->toArray();
             $gensMembership = $gensMembershipByCharacter[$characterEntry->name] ?? null;
@@ -110,6 +127,7 @@ final class AccountDashboardController extends Controller
         $vipPlanEntries = $vipEnabled
             ? VipPlan::query()
                 ->available()
+                ->whereNull('native_account_level')
                 ->orderBy('sort_order')
                 ->orderBy('id')
                 ->get()
@@ -184,7 +202,18 @@ final class AccountDashboardController extends Controller
             }
         }
 
-        $allowedSections = [
+        $pendingCharacterPurchases = collect();
+        if ($this->journaledCharacterServiceRepository !== null && Schema::hasTable('character_service_operations')) {
+            $pendingCharacterPurchases = CharacterServiceOperation::query()
+                ->where('account_id', $account->username)
+                ->where('status', CharacterOperationStatus::Pending)
+                ->whereIn('service_type', CharacterServiceType::cases())
+                ->orderBy('id')->limit(100)->get()
+                ->filter(fn (CharacterServiceOperation $operation): bool => ($operation->settings_snapshot['game_profile'] ?? null) === $this->versionProfile->key());
+        }
+
+        $readOnlyGameProfile = $this->versionProfile->capabilities()->readOnly;
+        $allowedSections = $readOnlyGameProfile ? ['overview', 'inventory', 'vaults'] : [
             'overview',
             'inventory',
             'stats',
@@ -223,7 +252,7 @@ final class AccountDashboardController extends Controller
             $availableCharacterServices[] = 'buy-level-up-points';
         }
 
-        if ($characterNames === []) {
+        if ($characterNames === [] && ! $readOnlyGameProfile) {
             $initialSection = 'vaults';
         }
 
@@ -252,6 +281,12 @@ final class AccountDashboardController extends Controller
             'characters' => $characters,
             'walletBalance' => $wallet?->balance ?? 0,
             'luckyCoinBalance' => $luckyCoinBalance,
+            'nativeCurrencyBalances' => $nativeCurrencyBalances,
+            'battleCore' => $this->battleCoreReadRepository?->forAccount($account->username),
+            'pendingCharacterPurchases' => $pendingCharacterPurchases,
+            'nativeIdentityServices' => $this->versionProfile->capabilities()->journaledIdentityServices,
+            'characterClassDefinitions' => collect($this->versionProfile->classes())->keyBy('code'),
+            'nativeAccountMembership' => $this->accountMembershipReadRepository?->forAccount($account->username),
             'vipPlans' => $vipPlans,
             'vipEntitlements' => $vipEntitlements,
             'activeVipEntitlementCount' => $activeVipEntitlementCount,
@@ -259,6 +294,7 @@ final class AccountDashboardController extends Controller
             'vipIdempotencyKey' => (string) Str::uuid(),
             'vipEnabled' => $vipEnabled,
             'gameWritesEnabled' => $gameWritesEnabled,
+            'readOnlyGameProfile' => $readOnlyGameProfile,
             'accountPanelConfiguration' => $accountPanelConfiguration,
             'economySettings' => $economySettings,
             'characterServicesEnabled' => $characterServicesEnabled,

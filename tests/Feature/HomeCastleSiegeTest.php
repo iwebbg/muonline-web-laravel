@@ -19,9 +19,9 @@ final class HomeCastleSiegeTest extends TestCase
     use LazilyRefreshDatabase;
 
     /**
-     * Confirms guests see the database-anchored battle and its profile recurrence.
+     * Confirms guests reach the full database-anchored schedule from the home preview.
      */
-    public function test_home_page_displays_castle_siege_for_the_1_0m_profile(): void
+    public function test_home_links_to_the_full_castle_siege_schedule_for_the_1_0m_profile(): void
     {
         config()->set('game.event_profile', 'darksteam_1_0m');
         config()->set('game.event_home_limit', 12);
@@ -46,7 +46,9 @@ final class HomeCastleSiegeTest extends TestCase
         });
         $this->travelTo(new DateTimeImmutable('2026-11-08T10:00:00+02:00'));
 
-        $response = $this->get('/');
+        $this->get('/')->assertOk()->assertSee(route('events.index'), false);
+
+        $response = $this->get('/events');
 
         $response->assertOk();
         $response->assertSee('Castle Siege');

@@ -52,6 +52,7 @@ final class EventSchedule
     ): ?UpcomingEvent {
         $dailyTimes = $this->dailyTimesFor($definition);
         $daysOfWeek = $this->validDaysOfWeek($definition->daysOfWeek);
+        $daysOfMonth = $this->validDaysOfMonth($definition->daysOfMonth);
 
         if ($dailyTimes === []) {
             return null;
@@ -60,10 +61,18 @@ final class EventSchedule
         $previousOccurrence = null;
         $futureOccurrences = [];
 
-        for ($dayOffset = -7; $dayOffset <= $horizonDays; $dayOffset++) {
+        $calendarSearchDays = $daysOfWeek === [] ? 62 : 400;
+        $lookBehindDays = $daysOfMonth === [] ? 7 : $calendarSearchDays;
+        $lookAheadDays = $daysOfMonth === [] ? $horizonDays : max($horizonDays, $calendarSearchDays);
+
+        for ($dayOffset = -$lookBehindDays; $dayOffset <= $lookAheadDays; $dayOffset++) {
             $eventDay = $now->modify($dayOffset.' days');
 
             if ($daysOfWeek !== [] && ! in_array((int) $eventDay->format('N'), $daysOfWeek, true)) {
+                continue;
+            }
+
+            if ($daysOfMonth !== [] && ! in_array((int) $eventDay->format('j'), $daysOfMonth, true)) {
                 continue;
             }
 
@@ -95,6 +104,7 @@ final class EventSchedule
             daysOfWeek: $daysOfWeek,
             intervalMinutes: $definition->intervalMinutes,
             durationMinutes: $definition->durationMinutes,
+            daysOfMonth: $daysOfMonth,
         );
     }
 
@@ -151,6 +161,30 @@ final class EventSchedule
 
         $validDays = array_values(array_unique($validDays));
 
+        sort($validDays, SORT_NUMERIC);
+
+        return $validDays;
+    }
+
+    /**
+     * Normalizes calendar day numbers without rolling missing dates into another month.
+     *
+     * @param  list<int>  $daysOfMonth
+     * @return list<int>
+     */
+    private function validDaysOfMonth(array $daysOfMonth): array
+    {
+        $validDays = [];
+
+        foreach ($daysOfMonth as $dayOfMonth) {
+            $day = (int) $dayOfMonth;
+
+            if ($day >= 1 && $day <= 31) {
+                $validDays[] = $day;
+            }
+        }
+
+        $validDays = array_values(array_unique($validDays));
         sort($validDays, SORT_NUMERIC);
 
         return $validDays;

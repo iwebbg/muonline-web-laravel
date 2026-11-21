@@ -23,6 +23,7 @@ final class EventScheduleEntryRevisionPresenter
         'schedule_mode' => 'event_schedule_mode',
         'times' => 'event_times',
         'days_of_week' => 'event_days',
+        'days_of_month' => 'event_month_days',
         'interval_minutes' => 'event_interval',
         'interval_anchor' => 'event_anchor',
         'source' => 'event_source',

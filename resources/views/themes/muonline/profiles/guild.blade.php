@@ -52,7 +52,15 @@
                                 @endif
                             </td>
                             <td class="px-5 py-4 text-silver">{{ $member->className }}</td>
-                            <td class="px-5 py-4 text-right text-white">{{ number_format($member->level) }}</td>
+                            <td class="px-5 py-4 text-right text-white">
+                                @if ($member->masterLevel !== null)
+                                    <div x-data="{ entry: @js(['name' => $member->name, 'level' => $member->level, 'masterLevel' => $member->masterLevel, 'displayLevel' => $member->displayLevel()]) }">
+                                        <x-ranking-level compact :show-label="false" />
+                                    </div>
+                                @else
+                                    {{ number_format($member->level) }}
+                                @endif
+                            </td>
                             <td class="px-5 py-4 text-right text-white">{{ number_format($member->resets) }}</td>
                             <td class="px-5 py-4 text-right text-white">{{ number_format($member->grandResets) }}</td>
                             <td class="px-5 py-4 text-right {{ $member->online ? 'text-emerald-200' : 'text-steel' }}">

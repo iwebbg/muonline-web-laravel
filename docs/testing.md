@@ -1,8 +1,48 @@
 # Testing
 
-MuOnline Web has a disposable main test environment plus one isolated SQL
-Server integration environment for each supported adapter. All are separate
+MuOnline Web has a disposable main test environment plus isolated SQL Server
+fixtures for 97d+99i, 1.0M and S21. S6 currently has portable fixture and profile
+matrix coverage rather than a separate native SQL workflow. All are separate
 from the long-running application containers and configured databases.
+
+## Regression checkpoint — 17 November 2026
+
+After the S21/shared UI changes and administrative Help & Support addition:
+
+| Check | Result |
+| --- | --- |
+| `./docker/compose test-all` main suite | 1,255 tests, 48,355 assertions passed |
+| Profile matrix: 97d+99i / 1.0M / S6 / S21 | 5 tests per profile; 36 / 36 / 39 / 45 assertions passed |
+| `./docker/compose test-integration` | 3 native 97d+99i tests, 40 assertions passed |
+| `./docker/compose test-integration-1.0m` | 10 native 1.0M tests, 51 assertions passed |
+| `./docker/compose test-integration-s21` | 30 native S21 tests, 201 assertions passed |
+| Laravel Pint and `npm run build` | Passed |
+
+The full regression caught three stale home-page assertions after moving full
+event details to `/events`. These now verify the home link and the standalone
+schedule, preserving database-anchored Castle Siege checks for 1.0M and S21.
+Help & Support is checked for authentication, both locales, GM/demo access,
+safe links and all four game profiles.
+
+### Edge cases and recovery coverage
+
+- `MarketPurchaseTest`, `MarketEscrowTest` and `ShopPurchaseTest` cover full-vault
+  delivery fallback, request replay, insufficient funds, interrupted delivery
+  and scheduler recovery. A second buyer using a stale sold listing is rejected
+  without another debit, seller credit or item delivery.
+- `WebStorageTest`, `JewelBankTest`, `ZenBankTest`, `RewardInventoryTest` and
+  `AdminEconomyRecoveryTest` cover exact-item replay, retained box results,
+  interrupted transfers, recovery commands and audited retries.
+- Native S21 SQL tests cover rollback of extraction and paid counter changes
+  when receipt writes fail. Separate SQL sessions race the same item delivery
+  and paid-point operation: each commits one mutation and one receipt.
+
+These are automated disposable-fixture checks, not a game-client session or a
+production load test. The stale-listing test executes buyers sequentially;
+the S21 concurrent tests exercise native receipts, not two complete Market
+purchases with different buyers racing the application SQL database. That
+end-to-end race/load rehearsal remains a production-readiness gate. S6 native
+SQL behavior is not certified by its portable/profile-matrix checks alone.
 
 ## Prerequisites
 
@@ -44,7 +84,7 @@ driver and database before database-refresh traits can run. Tests stop before
 migrations when any of those checks fail.
 
 The main suite contains profile-independent application tests plus direct unit
-and portable-adapter coverage for all three supported profiles. It is not a
+and portable-adapter coverage for all four registered profiles. It is not a
 replacement for the dedicated 97d+99i and 1.0M SQL Server suites or manual
 MuEMU Season 6 commissioning against a cloned database and test server.
 
@@ -149,7 +189,70 @@ Run one integration file or method with the same argument style:
     tests/Integration1_0M/Game/Repositories/SqlServer1_0MAccountRepositoryTest.php
 ```
 
+The uninstall shared-login regression also runs against case-sensitive server
+metadata, where distinct databases may differ only by letter case:
+
+```bash
+INTEGRATION_SQLSERVER_COLLATION=SQL_Latin1_General_CP1_CS_AS \
+    ./docker/compose test-integration --filter=SqlServerApplicationDatabaseUninstallerTest
+```
+
+This still uses only the disposable internal SQL Server. The legacy `MuOnline`
+schema fixture retains its case-insensitive database collation independently
+of the server setting. The case-distinct database test skips on the default
+case-insensitive server and runs in the configuration above.
+
 ## Using the legacy schema fixture
+
+### Season 21 native adapter verification
+
+The MUDevs S21 adapters have a separate disposable SQL Server
+workflow:
+
+```bash
+./docker/compose test-integration-s21
+```
+
+It loads only `tests/Fixtures/SqlServer/mudevs-season-21-read-schema.sql` into
+the new internal database `MuOnline_S21_Test`, runs
+`tests/IntegrationSeason21` through `phpunit.integration-s21.xml`, and removes
+the containers, internal network and volume. It never imports the full external
+emulator scripts or connects to `MuOnline_S21`/`BattleCore_S21` on the LAN.
+
+This sanitized fixture contains synthetic identities and the native read/write
+structures needed by the adapter tests. Portable feature tests also load its
+read-model projection into SQLite.
+Native tests cover SQL Server pagination, bigint experience, index-based
+progression joins, packed binary guild marks, full 6,000-byte warehouse reads,
+extended-vault ownership and lossless preservation of the client-matched records.
+`mudevs-season-21-warehouse-items.json` contains serial-anonymized item captures
+and expected metadata from owner-supplied tooltips; unit tests use these without
+connecting to the game server. The S21 read bundle is now registered and included
+in `tests/profile-matrix.txt`; `test-all` checks all four profiles. The native
+integration suite still explicitly selects its S21 repositories and sanitized
+schema. `MuDevsSeason21WebsiteTest` separately exercises native login, the
+private dashboard, balances, public pages, event administration and unavailable
+operations through isolated SQLite HTTP requests.
+
+The opt-in administrator warehouse preview is covered separately:
+
+```bash
+./docker/compose test tests/Feature/AdminMuDevsSeason21WarehouseTest.php
+```
+
+These tests use isolated storage fixtures for authentication/permission gates,
+the disabled-feature response, validated native account/vault selection, exact
+item rectangles, fallback artwork, omission of serial hex and socket bonus zero.
+They do not use the LAN database. Manual client/website comparisons require an
+explicit local `GAME_S21_WAREHOUSE_PREVIEW_ENABLED=true`; the default is false.
+
+Run a single native case with the same PHPUnit argument convention:
+
+```bash
+./docker/compose test-integration-s21 --filter=test_reads_master_and_enhancement_progression_by_index_with_stale_names
+```
+
+### Existing legacy schema fixtures
 
 The committed `97d99i-schema.sql` and `1.0m-schema.sql` files are compatibility
 references for their matching DarksTeam database schemas. They contain the

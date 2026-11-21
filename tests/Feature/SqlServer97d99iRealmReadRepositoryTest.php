@@ -139,7 +139,7 @@ final class SqlServer97d99iRealmReadRepositoryTest extends TestCase
         $this->assertCount(2, $characters);
         $this->assertSame('Knight', $characters[0]->name);
         $this->assertSame('Blade Knight', $characters[0]->className);
-        $this->assertSame('/images/characters/blade-knight.png', $characters[0]->image);
+        $this->assertSame('/images/characters/muonline-web-dark-knight.png', $characters[0]->image);
         $this->assertSame(400, $characters[0]->level);
         $this->assertTrue($characters[0]->online);
         $this->assertSame('Wizard', $characters[1]->name);

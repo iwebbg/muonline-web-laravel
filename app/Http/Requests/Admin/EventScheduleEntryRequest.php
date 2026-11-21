@@ -58,6 +58,8 @@ abstract class EventScheduleEntryRequest extends FormRequest
                 'max:500',
                 'regex:/\A\s*(?:[01]\d|2[0-3]):[0-5]\d(?:[\s,]+(?:[01]\d|2[0-3]):[0-5]\d)*\s*\z/',
             ],
+            'days_of_month' => ['nullable', 'array'],
+            'days_of_month.*' => ['integer', 'between:1,31', 'distinct'],
             'days_of_week' => ['nullable', 'array'],
             'days_of_week.*' => ['integer', 'between:1,7', 'distinct'],
             'interval_minutes' => ['nullable', 'required_if:schedule_mode,interval', 'integer', 'between:1,1440'],
@@ -84,6 +86,8 @@ abstract class EventScheduleEntryRequest extends FormRequest
             ? array_values(array_unique($times))
             : [];
         $daysOfWeek = array_map('intval', $validated['days_of_week'] ?? []);
+        $daysOfMonth = array_map('intval', $validated['days_of_month'] ?? []);
+        sort($daysOfMonth, SORT_NUMERIC);
 
         sort($normalizedTimes, SORT_STRING);
         sort($daysOfWeek, SORT_NUMERIC);
@@ -100,6 +104,7 @@ abstract class EventScheduleEntryRequest extends FormRequest
             'schedule_mode' => (string) $validated['schedule_mode'],
             'times' => $normalizedTimes,
             'days_of_week' => $daysOfWeek,
+            'days_of_month' => $daysOfMonth,
             'interval_minutes' => $intervalMode && isset($validated['interval_minutes'])
                 ? (int) $validated['interval_minutes']
                 : null,

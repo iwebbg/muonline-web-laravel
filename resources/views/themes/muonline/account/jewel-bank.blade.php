@@ -49,9 +49,7 @@
                     @endphp
                     <article class="panel-card flex flex-col p-5" x-data="{ withdrawModalOpen: false, withdrawDestination: 'warehouse' }">
                         <div class="grid min-h-28 place-items-center rounded-2xl border border-white/8 bg-black/25 p-4">
-                            @if (($itemSnapshot['image'] ?? null) !== null)
-                                <img src="{{ $itemSnapshot['image'] }}" alt="{{ $itemTitle }}" class="max-h-24 max-w-full object-contain" loading="lazy">
-                            @endif
+                            <x-item-image :src="$itemSnapshot['image'] ?? null" :alt="$itemTitle" class="max-h-24 max-w-full object-contain" loading="lazy" />
                         </div>
                         <div class="mt-4 flex items-start justify-between gap-4">
                             <div>
@@ -84,9 +82,7 @@
                                     </div>
 
                                     <div class="mt-6 flex items-center gap-4 rounded-2xl border border-white/8 bg-black/25 p-4">
-                                        @if (($itemSnapshot['image'] ?? null) !== null)
-                                            <img src="{{ $itemSnapshot['image'] }}" alt="{{ $itemTitle }}" class="size-20 object-contain" loading="lazy">
-                                        @endif
+                                        <x-item-image :src="$itemSnapshot['image'] ?? null" :alt="$itemTitle" class="size-20 object-contain" loading="lazy" />
                                         <div>
                                             <strong class="text-lg text-white">{{ $itemTitle }}</strong>
                                             <p class="mt-1 text-sm text-steel">{{ __('ui.jewel_bank.available_quantity', ['quantity' => $quantity]) }}</p>
@@ -195,7 +191,7 @@
                     @endphp
                     <article class="panel-card p-5" x-data="{ depositModalOpen: false }">
                         <div class="flex min-h-20 items-center gap-4">
-                            <img src="{{ $item->image }}" alt="{{ $itemTitle }}" class="size-16 object-contain" loading="lazy">
+                            <x-item-image :src="$item->image" :alt="$itemTitle" class="size-16 object-contain" loading="lazy" />
                             <div class="min-w-0 flex-1">
                                 <strong class="text-white">{{ $itemTitle }}</strong>
                                 <p class="mt-1 text-xs text-steel">
@@ -256,7 +252,7 @@
                                         </div>
 
                                         <div class="mt-6 flex items-center gap-4 rounded-2xl border border-white/8 bg-black/25 p-4">
-                                            <img src="{{ $item->image }}" alt="{{ $itemTitle }}" class="size-20 object-contain" loading="lazy">
+                                            <x-item-image :src="$item->image" :alt="$itemTitle" class="size-20 object-contain" loading="lazy" />
                                             <div>
                                                 <strong class="text-lg text-white">{{ $itemTitle }}</strong>
                                                 <p class="mt-1 text-sm text-steel">{{ __('ui.jewel_bank.available_quantity', ['quantity' => $quantity]) }}</p>

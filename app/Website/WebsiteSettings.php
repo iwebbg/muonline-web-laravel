@@ -27,6 +27,8 @@ final readonly class WebsiteSettings
         public ?string $copyrightHolder,
         public string $themeSlug,
         public int $revision,
+        public bool $registrationEnabled = true,
+        public bool $requireEmailVerification = false,
     ) {}
 
     /**
@@ -74,6 +76,8 @@ final readonly class WebsiteSettings
             copyrightHolder: self::nullable($setting->copyright_holder),
             themeSlug: self::fallback($setting->theme_slug, $defaults->themeSlug),
             revision: $setting->revision,
+            registrationEnabled: $setting->registration_enabled ?? true,
+            requireEmailVerification: $setting->require_email_verification ?? false,
         );
     }
 
@@ -151,7 +155,7 @@ final readonly class WebsiteSettings
     /**
      * Converts the typed values into application-owned persistence columns.
      *
-     * @return array<string, string|null>
+     * @return array<string, string|bool|null>
      */
     public function toPersistenceArray(): array
     {
@@ -169,6 +173,8 @@ final readonly class WebsiteSettings
             'og_image_path' => $this->ogImagePath,
             'copyright_holder' => $this->copyrightHolder,
             'theme_slug' => $this->themeSlug,
+            'registration_enabled' => $this->registrationEnabled,
+            'require_email_verification' => $this->requireEmailVerification,
         ];
     }
 

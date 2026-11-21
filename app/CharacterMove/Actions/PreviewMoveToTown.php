@@ -5,7 +5,7 @@ namespace App\CharacterMove\Actions;
 use App\CharacterMove\CharacterLocationState;
 use App\CharacterMove\CharacterMoveBlockReason;
 use App\CharacterMove\CharacterMovePreview;
-use App\Game\Versions\Version97d99i\MapNameMapper;
+use App\Game\Contracts\MapNameLookup;
 use App\Reset\ResetProfileSettings;
 
 /**
@@ -17,7 +17,7 @@ final readonly class PreviewMoveToTown
      * Creates the preview calculator with its version-specific map labels.
      */
     public function __construct(
-        private MapNameMapper $mapNameMapper,
+        private MapNameLookup $mapNameMapper,
     ) {}
 
     /**

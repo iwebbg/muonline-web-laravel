@@ -59,7 +59,7 @@
                                     <input type="hidden" name="slot" value="{{ $item->slot }}">
                                     <input type="hidden" name="idempotency_key" value="{{ $idempotencyKeys[$vault->number][$item->slot] }}">
                                     <div class="flex min-h-20 items-center gap-4">
-                                        @if ($item->image !== null)<img src="{{ $item->image }}" alt="{{ $item->name }}" class="size-16 object-contain" loading="lazy">@endif
+                                        <x-item-image :src="$item->image" :alt="$item->name" class="size-16" />
                                         <div><strong class="text-white">{{ $item->name }}{{ ($item->level ?? 0) > 0 ? ' +'.$item->level : '' }}</strong><p class="mt-1 text-xs text-steel">{{ $item->code() }}</p></div>
                                     </div>
                                     <button type="submit" class="button button-primary mt-4 w-full" @disabled(! $gameWritesEnabled)>{{ __('ui.web_storage.store') }}</button>

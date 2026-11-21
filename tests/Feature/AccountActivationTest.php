@@ -9,6 +9,7 @@ use Illuminate\Database\DatabaseManager;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -80,6 +81,38 @@ final class AccountActivationTest extends TestCase
             'account' => 'activate1',
             'token' => $token,
         ]))->assertNotFound();
+    }
+
+    /**
+     * Keeps a valid token unused while game writes are administratively disabled.
+     */
+    #[DataProvider('disabledWriteConfigurations')]
+    public function test_activation_respects_game_write_controls(bool $writesEnabled, bool $readOnly): void
+    {
+        config()->set('game.writes_enabled', $writesEnabled);
+        config()->set('database.connections.game.readonly', $readOnly);
+        $token = str_repeat('f', 64);
+        $activation = GameAccountActivation::query()->create([
+            'account_id' => 'activate1',
+            'token_hash' => hash('sha256', $token),
+            'email_hash' => hash('sha256', 'player@example.com'),
+            'expires_at' => now()->addHour(),
+        ]);
+
+        $this->get(route('account.activation', ['account' => 'activate1', 'token' => $token]))->assertNotFound();
+        $this->assertSame('1', $this->gameDatabase()->table('MEMB_INFO')->value('bloc_code'));
+        $this->assertNull($activation->fresh()->used_at);
+    }
+
+    /**
+     * Covers each independent write control without changing the database driver.
+     *
+     * @return iterable<string, array{bool, bool}>
+     */
+    public static function disabledWriteConfigurations(): iterable
+    {
+        yield 'application switch' => [false, false];
+        yield 'read-only connection' => [true, true];
     }
 
     /**

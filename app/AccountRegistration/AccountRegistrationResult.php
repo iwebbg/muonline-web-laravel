@@ -14,12 +14,13 @@ final readonly class AccountRegistrationResult
         public int $accountGuid,
         public string $accountId,
         public bool $billingRecordCreated,
+        public bool $requiresEmailVerification = true,
     ) {}
 
     /**
      * Returns the safe audit snapshot for the completed game mutation.
      *
-     * @return array{account_guid: int, account_id: string, memb_info_created: true, vi_curr_info_created: bool}
+     * @return array{account_guid: int, account_id: string, memb_info_created: true, vi_curr_info_created: bool, require_email_verification: bool}
      */
     public function toAuditSnapshot(): array
     {
@@ -28,6 +29,7 @@ final readonly class AccountRegistrationResult
             'account_id' => $this->accountId,
             'memb_info_created' => true,
             'vi_curr_info_created' => $this->billingRecordCreated,
+            'require_email_verification' => $this->requiresEmailVerification,
         ];
     }
 }

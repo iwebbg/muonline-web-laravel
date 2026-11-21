@@ -2,6 +2,7 @@
 
 namespace App\Shop;
 
+use App\Game\Versions\Contracts\GameVersionProfile;
 use App\Models\EconomySetting;
 use App\Models\EconomySettingRevision;
 use Illuminate\Database\Eloquent\Collection;
@@ -12,6 +13,11 @@ use Illuminate\Database\Eloquent\Collection;
 final class EconomySettingReader
 {
     /**
+     * Restricts configured paid services to the selected adapter's reviewed endpoints.
+     */
+    public function __construct(private readonly GameVersionProfile $profile) {}
+
+    /**
      * Returns the persisted settings or defaults before the first administrator save.
      */
     public function current(): EconomySettings
@@ -19,10 +25,10 @@ final class EconomySettingReader
         $settings = EconomySetting::query()->first();
 
         if ($settings === null) {
-            return EconomySettings::defaults();
+            return $this->supportedSettings(EconomySettings::defaults());
         }
 
-        return new EconomySettings(
+        return $this->supportedSettings(new EconomySettings(
             itemGeneratorMarkupPercentage: $settings->item_generator_markup_percentage,
             characterRenameEnabled: $settings->character_rename_enabled,
             characterRenamePriceCredits: $settings->character_rename_price_credits,
@@ -38,7 +44,30 @@ final class EconomySettingReader
             onlineMinutesPerUnit: $settings->online_minutes_per_unit,
             onlineCreditsPerUnit: $settings->online_credits_per_unit,
             onlineDailyCreditLimit: $settings->online_daily_credit_limit,
-        );
+        ));
+    }
+
+    /**
+     * Keeps unavailable paid tools hidden even when older persisted settings enable them.
+     */
+    private function supportedSettings(EconomySettings $settings): EconomySettings
+    {
+        $capabilities = $this->profile->capabilities();
+        $values = get_object_vars($settings);
+        $routes = [
+            'characterRenameEnabled' => 'account.character-rename',
+            'characterClassChangeEnabled' => 'account.character-class-change',
+            'characterResetPurchaseEnabled' => 'account.character-reset-purchases.store',
+            'characterLevelUpPointsPurchaseEnabled' => 'account.character-level-up-points-purchases.store',
+            'itemExchangeEnabled' => 'account.credit-item-exchanges.store',
+            'onlineTimeRewardsEnabled' => 'account.online-time-claims.store',
+        ];
+
+        foreach ($routes as $setting => $route) {
+            $values[$setting] = $values[$setting] && $capabilities->allowsRoute($route);
+        }
+
+        return new EconomySettings(...$values);
     }
 
     /**
