@@ -14,6 +14,22 @@ database boundaries and auditable operations.
 - Isolated adapters for DarksTeam 97d+99i, 1.0M, MuEMU S6 and MUDevs S21.1–2.
 - Extendable Blade themes and Docker deployment.
 
+## Install with MuOnline Web Manager
+
+Install and manage MuOnline Web on Windows with **MuOnline Web Manager**.
+
+[Download MuOnline Web Manager](https://mega.nz/file/eFMFlZpS#R2T1iPSjXT7faTfhDy6CHrDKuujMivODo50m8Ati2Fs)
+
+Supported operating systems (64-bit):
+
+- Windows 10
+- Windows 11
+- Windows Server 2022 with Desktop Experience
+- Windows Server 2025 with Desktop Experience
+
+Minimum requirements: **2 GB RAM**, **1 CPU/vCPU** and approximately **10 GB
+of storage**.
+
 ## Documentation
 
 Start with the [documentation index](docs/README.md):
