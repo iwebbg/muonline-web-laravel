@@ -93,8 +93,8 @@ runtime storage. The archive excludes the entire `storage/` tree, including
 installation and preserves them during updates. Use a new release version when
 publishing changed artifacts.
 
-The manager release supporting this S21 bundle is **1.4.0**. Generated web
-manifests therefore declare `compatibility.managerMin: "1.4.0"`. This is separate
+The minimum manager version supporting this S21 bundle is **0.1.0**. Generated
+web manifests therefore declare `compatibility.managerMin: "0.1.0"`. This is separate
 from the web artifact version passed to `release.sh`; the script never creates
 Git tags or changes the manager repository version.
 

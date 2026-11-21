@@ -63,7 +63,7 @@ class ReleaseArchiveTest(unittest.TestCase):
                 self.assertEqual(set(archive.namelist()), {'vendor/autoload.php', 'vendor/composer/installed.json'})
             manifest = json.loads((output / 'manifest.json').read_text())
             self.assertEqual(manifest['version'], '1.3.0')
-            self.assertEqual(manifest['compatibility']['managerMin'], '1.4.0')
+            self.assertEqual(manifest['compatibility']['managerMin'], '0.1.0')
             for artifact in ('application', 'vendor'):
                 archive_bytes = (output / (artifact + '.zip')).read_bytes()
                 self.assertEqual(manifest['artifacts'][artifact]['sha256'], hashlib.sha256(archive_bytes).hexdigest())

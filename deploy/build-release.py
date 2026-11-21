@@ -101,7 +101,7 @@ def package(runtime, output, version, cdn):
         with archive_path.open('rb') as stream:
             digest = hashlib.file_digest(stream, 'sha256').hexdigest()
         artifacts[name] = {'url': f'{cdn.rstrip("/")}/muonline-web/releases/v{version}/{archive_path.name}', 'sha256': digest, 'size': archive_path.stat().st_size}
-    manifest = {'schema': 1, 'kind': 'web', 'version': version, 'compatibility': {'managerMin': '1.4.0', 'runtime': 'wsl2-docker-v1', 'php': '8.5', 'database': 'sqlsrv', 'architecture': 'amd64'}, 'profiles': profiles, 'artifacts': artifacts}
+    manifest = {'schema': 1, 'kind': 'web', 'version': version, 'compatibility': {'managerMin': '0.1.0', 'runtime': 'wsl2-docker-v1', 'php': '8.5', 'database': 'sqlsrv', 'architecture': 'amd64'}, 'profiles': profiles, 'artifacts': artifacts}
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
 
 
