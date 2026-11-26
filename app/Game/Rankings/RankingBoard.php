@@ -8,6 +8,7 @@ namespace App\Game\Rankings;
 enum RankingBoard: string
 {
     case Overall = 'overall';
+    case Staff = 'staff';
     case PlayerKillers = 'pk';
     case Guilds = 'guilds';
     case CastleSiege = 'castle_siege';

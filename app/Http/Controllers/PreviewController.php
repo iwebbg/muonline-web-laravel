@@ -10,6 +10,7 @@ use App\Game\Contracts\RealmClock;
 use App\Game\Contracts\RealmReadRepository;
 use App\Game\Events\EventProfileReader;
 use App\Models\NewsPost;
+use App\Models\SocialLink;
 use App\Servers\GameServerDirectory;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -79,6 +80,7 @@ class PreviewController extends Controller
             ->get();
 
         return view('home', [
+            'socialLinks' => SocialLink::query()->orderBy('sort_order')->orderBy('id')->get(),
             'server' => $server,
             'serverDirectory' => $serverDirectory['entries'],
             'events' => $events,

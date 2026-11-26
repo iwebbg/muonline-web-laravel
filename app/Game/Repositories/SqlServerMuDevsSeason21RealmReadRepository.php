@@ -188,6 +188,10 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
             ->leftJoin('MasterSkillTree as master_levels', 'characters.CharacterIndex', '=', 'master_levels.CharacterIndex')
             ->leftJoin('MEMB_STAT as account_status', 'characters.AccountID', '=', 'account_status.memb___id');
 
+        if ($query->board === RankingBoard::Staff) {
+            $builder->whereIn('characters.CtlCode', [8, 32]);
+        }
+
         if ($query->classFilter !== null) {
             $builder->where('characters.Class', $query->classFilter->code);
         }
@@ -206,7 +210,7 @@ final class SqlServerMuDevsSeason21RealmReadRepository implements RealmReadRepos
             $builder
                 ->orderByDesc('characters.PkCount')
                 ->orderByDesc('characters.PkLevel');
-        } else {
+        } elseif ($query->board !== RankingBoard::Staff) {
             $builder
                 ->orderByDesc('characters.MasterResetCount')
                 ->orderByDesc('characters.ResetCount')

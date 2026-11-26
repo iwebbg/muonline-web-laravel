@@ -2465,7 +2465,7 @@ export function rankingExplorer(initialPage, dataUrl) {
          * @returns {Array<object>}
          */
         get podiumItems() {
-            if (this.pageData.meta.current_page !== 1 || this.search.trim() !== '') {
+            if (this.board === 'staff' || this.pageData.meta.current_page !== 1 || this.search.trim() !== '') {
                 return [];
             }
 

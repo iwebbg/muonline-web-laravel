@@ -128,6 +128,7 @@ final class RankingDataRequest extends FormRequest
             RankingBoard::Overall->value,
             RankingBoard::PlayerKillers->value,
             RankingBoard::Guilds->value,
+            RankingBoard::Staff->value,
         ];
 
         if ($this->versionProfile()->capabilities()->castleSiege) {

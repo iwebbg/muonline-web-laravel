@@ -42,7 +42,7 @@
                                 <p class="mt-3 font-display text-3xl text-gold">{{ number_format($package->credits) }} Credits</p>
                                 <p class="mt-1 text-sm text-silver">{{ number_format($package->price_minor / 100, 2) }} {{ $package->currency }}</p>
                                 <form method="POST" action="{{ route('account.credit-packages.purchase', $package) }}" class="mt-5 flex gap-3">@csrf
-                                    <select name="provider" class="min-w-0 flex-1" required>@foreach ($providers as $provider)<option value="{{ $provider->value }}">{{ ucfirst($provider->value) }}</option>@endforeach</select>
+                                    <select name="provider" class="min-w-0 flex-1" required>@foreach ($providers as $provider)<option value="{{ $provider->value }}">{{ $provider->label() }}</option>@endforeach</select>
                                     <button class="button button-primary">{{ __('ui.account.credits_buy') }}</button>
                                 </form>
                             </article>
@@ -96,7 +96,11 @@
         @if ($payments->isNotEmpty())
             <section class="mt-10 panel-card overflow-x-auto p-0">
                 <div class="p-5"><p class="kicker">{{ __('ui.account.credits_payment_history') }}</p></div>
-                <table class="min-w-full text-left text-sm"><thead class="border-y border-white/8 text-xs uppercase tracking-[0.14em] text-steel"><tr><th class="px-5 py-4">{{ __('ui.account.credits_package') }}</th><th class="px-5 py-4">{{ __('ui.account.credits_provider') }}</th><th class="px-5 py-4">{{ __('ui.account.credits_price') }}</th><th class="px-5 py-4">{{ __('ui.account.credits_status') }}</th><th class="px-5 py-4">{{ __('ui.account.wallet_time') }}</th></tr></thead><tbody class="divide-y divide-white/6">@foreach ($payments as $payment)<tr><td class="px-5 py-4 text-white">{{ app()->getLocale() === 'bg' ? $payment->package_snapshot['title_bg'] : $payment->package_snapshot['title_en'] }}</td><td class="px-5 py-4 text-silver">{{ ucfirst($payment->provider->value) }}</td><td class="px-5 py-4 text-silver">{{ number_format($payment->amount_minor / 100, 2) }} {{ $payment->currency }}</td><td class="px-5 py-4 text-silver">{{ __('ui.account.credits_statuses.'.$payment->status->value) }}</td><td class="px-5 py-4 text-steel">{{ $payment->created_at?->format('Y-m-d H:i') }}</td></tr>@endforeach</tbody></table>
+                <table class="min-w-full text-left text-sm"><thead class="border-y border-white/8 text-xs uppercase tracking-[0.14em] text-steel"><tr><th class="px-5 py-4">{{ __('ui.account.credits_package') }}</th><th class="px-5 py-4">{{ __('ui.account.credits_provider') }}</th><th class="px-5 py-4">{{ __('ui.account.credits_price') }}</th><th class="px-5 py-4">{{ __('ui.account.credits_status') }}</th><th class="px-5 py-4">{{ __('ui.account.wallet_time') }}</th></tr></thead><tbody class="divide-y divide-white/6">@foreach ($payments as $payment)<tr><td class="px-5 py-4 text-white">{{ app()->getLocale() === 'bg' ? $payment->package_snapshot['title_bg'] : $payment->package_snapshot['title_en'] }}
+                            @if ($payment->provider === \App\Payments\PaymentProvider::RevolutTag && $payment->status === \App\Payments\CreditPaymentStatus::Pending)
+                                <a class="mt-1 block text-xs text-gold hover:text-white" href="{{ route('account.revolut-tag.show', $payment) }}">{{ __('ui.revolut_tag.view_instructions') }}</a>
+                            @endif
+                        </td><td class="px-5 py-4 text-silver">{{ $payment->provider->label() }}</td><td class="px-5 py-4 text-silver">{{ number_format($payment->amount_minor / 100, 2) }} {{ $payment->currency }}</td><td class="px-5 py-4 text-silver">{{ __('ui.account.credits_statuses.'.$payment->status->value) }}</td><td class="px-5 py-4 text-steel">{{ $payment->created_at?->format('Y-m-d H:i') }}</td></tr>@endforeach</tbody></table>
             </section>
         @endif
 

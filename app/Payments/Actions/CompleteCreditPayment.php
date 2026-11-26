@@ -13,12 +13,17 @@ use RuntimeException;
 /** Reconciles a verified provider result and credits the wallet exactly once. */
 final readonly class CompleteCreditPayment
 {
+    /** Receives the shared audited wallet adjustment boundary. */
     public function __construct(private AdjustWalletBalance $adjustWalletBalance) {}
 
-    /** @param array<string, mixed> $confirmation */
-    public function execute(CreditPayment $payment, array $confirmation): CreditPayment
+    /**
+     * Credits verified payment terms once, attributing manual review when supplied.
+     *
+     * @param  array<string, mixed>  $confirmation
+     */
+    public function execute(CreditPayment $payment, array $confirmation, ?int $administratorId = null): CreditPayment
     {
-        return DB::transaction(function () use ($payment, $confirmation): CreditPayment {
+        return DB::transaction(function () use ($payment, $confirmation, $administratorId): CreditPayment {
             $locked = CreditPayment::query()->lockForUpdate()->findOrFail($payment->getKey());
 
             if (($confirmation['refunded'] ?? false) === true) {
@@ -40,7 +45,7 @@ final readonly class CompleteCreditPayment
                 type: WalletTransactionType::Payment,
                 amount: $locked->credits,
                 reason: 'Credits package payment · '.$locked->provider->value,
-                administratorId: null,
+                administratorId: $administratorId,
                 idempotencyKey: $locked->idempotency_key,
             );
             $locked->update([

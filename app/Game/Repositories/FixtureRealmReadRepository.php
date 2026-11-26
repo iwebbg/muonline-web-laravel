@@ -106,14 +106,20 @@ final class FixtureRealmReadRepository implements RealmReadRepository
                 $matchesSearch = $query->search === ''
                     || str_contains(mb_strtolower($entry->name), mb_strtolower($query->search));
                 $matchesOnline = ! $query->onlineOnly || $entry->online;
+                $matchesStaff = $query->board !== RankingBoard::Staff
+                    || in_array($entry->controlCode, [8, 32], true);
 
-                return $matchesClass && $matchesSearch && $matchesOnline;
+                return $matchesClass && $matchesSearch && $matchesOnline && $matchesStaff;
             },
         ));
 
         usort(
             $entries,
             function (CharacterRankingEntry $left, CharacterRankingEntry $right) use ($query): int {
+                if ($query->board === RankingBoard::Staff) {
+                    return strcmp($left->name, $right->name);
+                }
+
                 if ($query->board === RankingBoard::PlayerKillers) {
                     return [$right->pkCount, $right->pkLevel, $left->name]
                         <=> [$left->pkCount, $left->pkLevel, $right->name];
@@ -156,6 +162,7 @@ final class FixtureRealmReadRepository implements RealmReadRepository
                 pkCount: 12,
                 pkLevel: 6,
                 online: true,
+                controlCode: 8,
             ),
             new CharacterRankingEntry(
                 name: 'iwebbg',
@@ -169,6 +176,7 @@ final class FixtureRealmReadRepository implements RealmReadRepository
                 pkCount: 8,
                 pkLevel: 5,
                 online: true,
+                controlCode: 32,
             ),
             new CharacterRankingEntry(
                 name: 'EvilDeviL',
