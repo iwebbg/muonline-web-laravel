@@ -12,6 +12,9 @@
 
         <div class="mt-8">
             <main class="min-w-0">
+                @if (session('status'))
+                    <p class="mb-6 rounded-2xl border border-emerald-300/25 bg-emerald-300/8 p-4 text-sm text-emerald-100" role="status">{{ session('status') }}</p>
+                @endif
                 @if ($errors->any())
                     <div class="mb-6 rounded-2xl border border-red-300/25 bg-red-300/8 p-4 text-sm text-red-100" role="alert">
                         {{ $errors->first() }}
@@ -47,7 +50,7 @@
                                     <option value="">{{ __('ui.admin.credit_all_providers') }}</option>
                                     @foreach (\App\Payments\PaymentProvider::cases() as $provider)
                                         <option value="{{ $provider->value }}" @selected($paymentFilters['provider'] === $provider->value)>
-                                            {{ ucfirst($provider->value) }}
+                                            {{ $provider->label() }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -95,7 +98,7 @@
                                             <span class="block text-white">{{ $packageTitle ?? __('ui.admin.credit_unknown_package') }}</span>
                                             <span class="mt-1 block whitespace-nowrap text-xs text-gold">{{ number_format($payment->credits) }} Credits</span>
                                         </td>
-                                        <td class="px-5 py-4 text-silver">{{ ucfirst($payment->provider->value) }}</td>
+                                        <td class="px-5 py-4 text-silver">{{ $payment->provider->label() }}</td>
                                         <td class="max-w-56 break-all px-5 py-4 font-mono text-xs text-steel">{{ $paymentReference }}</td>
                                         <td class="whitespace-nowrap px-5 py-4 text-silver">{{ number_format($payment->amount_minor / 100, 2) }} {{ $payment->currency }}</td>
                                         <td class="px-5 py-4">
@@ -111,6 +114,24 @@
                                         </td>
                                         <td class="whitespace-nowrap px-5 py-4 text-steel">{{ $payment->created_at?->format('Y-m-d H:i') }}</td>
                                     </tr>
+                                    @if ($payment->provider === \App\Payments\PaymentProvider::RevolutTag && $payment->status === \App\Payments\CreditPaymentStatus::Pending)
+                                        <tr>
+                                            <td colspan="7" class="px-5 pb-5">
+                                                <form method="POST" action="{{ route('admin.credit-payments.confirm-revolut-tag', $payment) }}" class="flex flex-wrap items-end gap-4 rounded-xl border border-gold/20 p-4">
+                                                    @csrf
+                                                    <label class="field-group">
+                                                        <span>{{ __('ui.revolut_tag.transfer_reference') }}</span>
+                                                        <input name="reference" required maxlength="128" pattern="[a-zA-Z0-9_-]+">
+                                                    </label>
+                                                    <label class="flex max-w-xl items-start gap-3 text-sm text-silver">
+                                                        <input type="checkbox" name="received" value="1" required class="mt-1">
+                                                        <span>{{ __('ui.revolut_tag.receipt_check', ['amount' => number_format($payment->amount_minor / 100, 2), 'currency' => $payment->currency, 'account' => $payment->account_id, 'tag' => $payment->provider_payload['recipient_tag'] ?? '']) }}</span>
+                                                    </label>
+                                                    <button type="submit" class="button button-primary">{{ __('ui.revolut_tag.approve') }}</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endif
                                 @empty
                                     <tr>
                                         <td colspan="7" class="px-5 py-10 text-center text-steel">{{ __('ui.admin.credit_payments_empty') }}</td>

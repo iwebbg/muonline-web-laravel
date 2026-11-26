@@ -24,6 +24,7 @@ final readonly class CharacterRankingEntry
         public bool $online,
         public string $imagePosition = 'center top',
         public ?int $masterLevel = null,
+        public int $controlCode = 0,
     ) {}
 
     /**

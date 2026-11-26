@@ -22,7 +22,7 @@
             <div class="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
                 <div>
                     <p class="eyebrow">{{ __('ui.rankings.choose_board') }}</p>
-                    <div class="mt-3 inline-flex w-full rounded-2xl border border-white/8 bg-black/20 p-1 sm:w-auto" role="tablist" aria-label="{{ __('ui.rankings.categories') }}">
+                    <div class="mt-3 flex w-full flex-wrap rounded-2xl border border-white/8 bg-black/20 p-1 sm:w-auto" role="tablist" aria-label="{{ __('ui.rankings.categories') }}">
                         @foreach ($rankingBoards as $board)
                             <button
                                 type="button"
@@ -51,7 +51,7 @@
                     </label>
                     <label
                         class="flex min-h-12 items-center gap-3 rounded-xl border border-white/10 bg-black/20 px-4 text-sm text-silver"
-                        x-show="['overall', 'pk'].includes(board)"
+                        x-show="['overall', 'pk', 'staff'].includes(board)"
                     >
                         <input
                             type="checkbox"
@@ -64,7 +64,7 @@
                 </div>
             </div>
 
-            <div class="mt-5 border-t border-white/8 pt-5" x-show="['overall', 'pk'].includes(board)">
+            <div class="mt-5 border-t border-white/8 pt-5" x-show="['overall', 'pk', 'staff'].includes(board)">
                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-steel">{{ __('ui.rankings.filter_by_class') }}</p>
                 <div class="mt-3 flex flex-wrap gap-2" role="group" aria-label="{{ __('ui.rankings.filter_by_class') }}">
                     <button
@@ -93,8 +93,9 @@
 
         <div class="mt-7 flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="eyebrow" x-text="board === 'castle_siege' ? @js(__('ui.rankings.castle_siege_owner')) : (board === 'guilds' ? @js(__('ui.rankings.guilds')) : (board === 'gens' ? @js(__('ui.rankings.gens_standings')) : (board === 'pk' ? @js(__('ui.rankings.top_pk')) : @js(__('ui.rankings.overall')))))"></p>
-                <h2 class="mt-2 font-display text-4xl text-white">{{ __('ui.rankings.leaderboard') }}</h2>
+                <p class="eyebrow" x-show="board === 'staff'">{{ __('ui.rankings.staff') }}</p>
+                <p class="eyebrow" x-show="board !== 'staff'" x-text="board === 'castle_siege' ? @js(__('ui.rankings.castle_siege_owner')) : (board === 'guilds' ? @js(__('ui.rankings.guilds')) : (board === 'gens' ? @js(__('ui.rankings.gens_standings')) : (board === 'pk' ? @js(__('ui.rankings.top_pk')) : @js(__('ui.rankings.overall')))))"></p>
+                <h2 class="mt-2 font-display text-4xl text-white" x-text="board === 'staff' ? @js(__('ui.rankings.staff_heading')) : @js(__('ui.rankings.leaderboard'))">{{ __('ui.rankings.leaderboard') }}</h2>
             </div>
             <p class="text-sm text-steel">
                 <span x-text="pageData.meta.from"></span>–<span x-text="pageData.meta.to"></span>
@@ -181,7 +182,24 @@
                 </template>
             </div>
 
-            <div class="mt-5 grid gap-3" x-show="!failed && listItems.length > 0">
+            <div class="mt-5 grid gap-3" x-show="!failed && board === 'staff'">
+                <template x-for="entry in pageData.items" x-bind:key="`staff-${entry.name}`">
+                    <article class="panel-card flex flex-wrap items-center gap-4 p-5 transition hover:border-gold/30">
+                        <img x-bind:src="entry.image" alt="" class="size-16 rounded-xl object-cover object-top">
+                        <div class="min-w-0 flex-1">
+                            <h3 class="font-display text-2xl text-white" x-text="entry.name"></h3>
+                            <p class="mt-1 text-sm text-silver" x-text="entry.class"></p>
+                        </div>
+                        <div class="text-right">
+                            <strong class="block text-white" x-text="entry.displayLevel"></strong>
+                            <span class="text-xs text-steel">{{ __('ui.home.level') }}</span>
+                        </div>
+                        <span class="status-pill" x-bind:class="entry.online ? 'text-emerald-200' : 'text-steel'" x-text="entry.online ? @js(__('ui.rankings.online')) : @js(__('ui.rankings.offline'))"></span>
+                    </article>
+                </template>
+            </div>
+
+            <div class="mt-5 grid gap-3" x-show="!failed && board !== 'staff' && listItems.length > 0">
                 <template x-for="entry in listItems" x-bind:key="`${board}-${entry.rank}-${entry.name}`">
                     <div class="group grid items-center gap-4 rounded-2xl border border-white/8 bg-[#0e1117]/90 p-4 transition hover:border-gold/30 hover:bg-white/[0.035] sm:grid-cols-[4rem_1fr_auto] sm:px-5">
                         <a x-bind:href="entry.profile_url" x-bind:aria-label="entry.name" class="grid size-12 place-items-center rounded-xl border border-gold/25 bg-gold/[0.06] font-display text-lg text-gold" x-text="String(entry.rank).padStart(2, '0')"></a>
@@ -237,7 +255,8 @@
             </div>
 
             <div class="panel-card p-10 text-center text-steel" x-show="!failed && pageData.items.length === 0">
-                <p x-text="board === 'castle_siege' ? @js(__('ui.rankings.no_castle_owner')) : (board === 'guilds' ? @js(__('ui.rankings.no_guilds')) : (board === 'gens' ? @js(__('ui.rankings.no_gens_members')) : @js(__('ui.rankings.no_players'))))"></p>
+                <p x-show="board === 'staff'">{{ __('ui.rankings.no_staff') }}</p>
+                <p x-show="board !== 'staff'" x-text="board === 'castle_siege' ? @js(__('ui.rankings.no_castle_owner')) : (board === 'guilds' ? @js(__('ui.rankings.no_guilds')) : (board === 'gens' ? @js(__('ui.rankings.no_gens_members')) : @js(__('ui.rankings.no_players'))))"></p>
             </div>
         </div>
 

@@ -183,6 +183,10 @@ final class SqlServer1_0MRealmReadRepository implements RealmReadRepository
             ->table('Character as characters')
             ->leftJoin('MEMB_STAT as account_status', 'characters.AccountID', '=', 'account_status.memb___id');
 
+        if ($query->board === RankingBoard::Staff) {
+            $builder->whereIn('characters.CtlCode', [8, 32]);
+        }
+
         if ($query->classFilter !== null) {
             $builder->where('characters.Class', $query->classFilter->code);
         }
@@ -201,7 +205,7 @@ final class SqlServer1_0MRealmReadRepository implements RealmReadRepository
             $builder
                 ->orderByDesc('characters.PkCount')
                 ->orderByDesc('characters.PkLevel');
-        } else {
+        } elseif ($query->board !== RankingBoard::Staff) {
             $builder
                 ->orderByDesc('characters.GrandResets')
                 ->orderByDesc('characters.Resets')

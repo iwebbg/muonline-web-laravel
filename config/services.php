@@ -46,6 +46,10 @@ return [
     ],
 
     'payments' => [
+        'revolut_tag' => [
+            'enabled' => filter_var(env('REVOLUT_TAG_ENABLED', false), FILTER_VALIDATE_BOOL),
+            'tag' => env('REVOLUT_TAG'),
+        ],
         'currency' => strtoupper(env('PAYMENTS_CURRENCY', 'EUR')),
         'stripe' => [
             'enabled' => filter_var(env('STRIPE_ENABLED', false), FILTER_VALIDATE_BOOL),

@@ -162,6 +162,8 @@
                     </div>
                 </form>
 
+                @include('admin.partials.social-links', ['socialLinks' => $socialLinks])
+
                 <x-admin-revision-history
                     :revisions="$recentRevisions"
                     :title="__('ui.admin.website_history')"
