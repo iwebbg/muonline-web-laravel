@@ -132,6 +132,31 @@
                     ></div>
                 </div>
             </div>
+
+            @if ($socialLinks->count() > 1)
+                <section class="relative mt-5 flex flex-wrap items-center justify-between gap-x-5 gap-y-3 px-2" aria-labelledby="community-heading">
+                    <h3 id="community-heading" class="text-base font-medium text-silver">
+                        <span aria-hidden="true">{{ __('ui.social.join') }}</span>
+                        <span class="sr-only">{{ __('ui.social.server_on', ['server' => $server['name']]) }}</span>
+                    </h3>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($socialLinks as $socialLink)
+                            <a
+                                href="{{ $socialLink->url }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="group grid size-12 place-items-center rounded-xl border border-white/12 bg-white/[0.04] transition-colors hover:border-gold/35 hover:bg-gold/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold motion-reduce:transition-none"
+                            >
+                                <img src="{{ asset('images/social/'.$socialLink->type->value.'.svg') }}" alt="" class="size-6 opacity-90 brightness-0 invert transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none">
+                                <span class="sr-only">{{ $socialLink->type->label() }}@if ($socialLink->label) · {{ $socialLink->label }}@endif {{ __('ui.social.new_tab') }}</span>
+                                <span aria-hidden="true" class="pointer-events-none absolute bottom-full right-0 z-50 mb-3 max-w-full break-words rounded-lg border border-white/10 bg-[#11141b] px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none">
+                                    {{ $socialLink->type->label() }}@if ($socialLink->label) <span class="text-steel">· {{ $socialLink->label }}</span>@endif
+                                </span>
+                            </a>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
         </div>
     </section>
 

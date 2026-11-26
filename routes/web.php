@@ -32,6 +32,7 @@ use App\Http\Controllers\Account\NativeAccountServiceController;
 use App\Http\Controllers\Account\OnlineTimeClaimController;
 use App\Http\Controllers\Account\PkClearPreviewController;
 use App\Http\Controllers\Account\ResetPreviewController;
+use App\Http\Controllers\Account\RevolutTagPaymentController;
 use App\Http\Controllers\Account\RewardController;
 use App\Http\Controllers\Account\ShopPurchaseController;
 use App\Http\Controllers\Account\StatAllocationPreviewController;
@@ -64,6 +65,7 @@ use App\Http\Controllers\Admin\MuDevsSeason21WarehouseController;
 use App\Http\Controllers\Admin\NewsPostController as AdminNewsPostController;
 use App\Http\Controllers\Admin\ShopOfferController as AdminShopOfferController;
 use App\Http\Controllers\Admin\ShopRewardGrantController;
+use App\Http\Controllers\Admin\SocialLinkController;
 use App\Http\Controllers\Admin\VipPlanController;
 use App\Http\Controllers\Admin\VoteClaimController as AdminVoteClaimController;
 use App\Http\Controllers\Admin\VoteClaimReviewController;
@@ -231,6 +233,9 @@ Route::middleware(['auth', 'demo:account'])->group(function (): void {
     Route::get('/account/credits/payments/{creditPayment}/return', CreditPaymentReturnController::class)
         ->middleware(['demo:blocked', 'module.enabled:'.ServerModule::Credits->value, 'throttle:credit-purchase'])
         ->name('account.credit-payments.return');
+    Route::get('/account/credits/payments/{creditPayment}/revolut-tag', RevolutTagPaymentController::class)
+        ->middleware('module.enabled:'.ServerModule::Credits->value)
+        ->name('account.revolut-tag.show');
     Route::get('/account/rewards', [RewardController::class, 'index'])
         ->middleware('module.enabled:'.ServerModule::Rewards->value)
         ->name('account.rewards.index');
@@ -536,6 +541,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
                     ->name('credit-packages.destroy');
                 Route::get('/economy/credit-purchases', CreditPaymentController::class)
                     ->name('credit-payments.index');
+                Route::post('/economy/credit-purchases/{creditPayment}/revolut-tag-confirmation', App\Http\Controllers\Admin\RevolutTagPaymentController::class)
+                    ->middleware('throttle:admin-wallet')
+                    ->name('credit-payments.confirm-revolut-tag');
                 Route::get('/economy/votes', [VoteSiteController::class, 'index'])
                     ->name('vote-sites.index');
                 Route::get('/economy/votes/history', [AdminVoteClaimController::class, 'index'])
@@ -636,6 +644,12 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
             ->group(function (): void {
                 Route::get('/website-settings', [WebsiteSettingController::class, 'edit'])
                     ->name('website-settings.edit');
+                Route::post('/social-links', [SocialLinkController::class, 'store'])
+                    ->name('social-links.store');
+                Route::put('/social-links/{socialLink}', [SocialLinkController::class, 'update'])
+                    ->name('social-links.update');
+                Route::delete('/social-links/{socialLink}', [SocialLinkController::class, 'destroy'])
+                    ->name('social-links.destroy');
                 Route::put('/website-settings', [WebsiteSettingController::class, 'update'])
                     ->name('website-settings.update');
                 Route::get('/game-servers', [GameServerController::class, 'index'])

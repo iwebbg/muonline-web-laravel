@@ -18,7 +18,7 @@ database boundaries and auditable operations.
 
 Install and manage MuOnline Web on Windows with **MuOnline Web Manager**.
 
-[Download MuOnline Web Manager](https://mega.nz/file/eFMFlZpS#R2T1iPSjXT7faTfhDy6CHrDKuujMivODo50m8Ati2Fs)
+[Download MuOnline Web Manager](https://mega.nz/file/GRt3DZDY#uOAuMS8W9mJV0ygbygZS9QmI6VMFYjI4w7lk65Dzz6M)
 
 [Installation instructions and video](https://github.com/iwebbg/muonline-web-manager/blob/main/INSTALLATION_GUIDE.md)
 

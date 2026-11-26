@@ -6,6 +6,7 @@ use App\Exceptions\WebsiteSettingRevisionConflict;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateWebsiteSettingRequest;
 use App\Models\Administrator;
+use App\Models\SocialLink;
 use App\Models\WebsiteSettingRevision;
 use App\Themes\ThemeManager;
 use App\Website\Actions\UpdateWebsiteSettings;
@@ -39,6 +40,7 @@ final class WebsiteSettingController extends Controller
             ->get();
 
         return view('admin.website-settings', [
+            'socialLinks' => SocialLink::query()->orderBy('sort_order')->orderBy('id')->get(),
             'settings' => $settings,
             'websiteLogoUrl' => $settings->logoPath === null
                 ? null

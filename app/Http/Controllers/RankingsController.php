@@ -180,6 +180,21 @@ final class RankingsController extends Controller
         $offset = ($page->page - 1) * $page->perPage;
 
         foreach ($page->entries as $index => $entry) {
+            if ($board === RankingBoard::Staff) {
+                $items[] = [
+                    'rank' => $offset + $index + 1,
+                    'name' => $entry->name,
+                    'class' => $entry->className,
+                    'class_abbreviation' => $entry->classAbbreviation,
+                    'image' => $entry->image,
+                    'level' => $entry->level,
+                    'displayLevel' => $entry->displayLevel(),
+                    'online' => $entry->online,
+                ];
+
+                continue;
+            }
+
             $items[] = [
                 'rank' => $offset + $index + 1,
                 ...$entry->toArray(),
@@ -297,6 +312,7 @@ final class RankingsController extends Controller
             RankingBoard::Overall->value,
             RankingBoard::PlayerKillers->value,
             RankingBoard::Guilds->value,
+            RankingBoard::Staff->value,
         ];
 
         if ($this->versionProfile->capabilities()->castleSiege) {
